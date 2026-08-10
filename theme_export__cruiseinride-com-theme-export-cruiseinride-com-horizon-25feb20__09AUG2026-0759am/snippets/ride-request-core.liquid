@@ -1,0 +1,2026 @@
+{%- comment -%} v34-revert-paypal-{{ 'now' | date: '%s%N' }} {%- endcomment -%}
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   EARLY GLOBAL RESUME — runs independently of main IIFE, map, or any init
+   Survives JS errors, map failures, slow networks. The ONLY job: reopen the
+   active booking on page load/refresh if one exists and is not terminal.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function(){
+  var _EARLY_API='https://cruise-api-proxy.cruise-api.workers.dev';
+  var _EARLY_KEY='{{ section.settings.web_checkout_key | escape }}';
+  window.__vrEarlyApi=_EARLY_API;window.__vrEarlyKey=_EARLY_KEY;
+  var _coreResumed=false,_cachedData=null;
+  function _tryRender(parsed,d){
+    if(_coreResumed)return true;
+    var unavailable=d&&d.__unavailable===true;
+    var realD=unavailable?null:d;
+    var st=realD?(realD.status||'').toLowerCase():'';
+    /* Only clear on EXPLICIT terminal status from backend */
+    if(st==='completed'||st==='cancelled'||st==='canceled'){
+      try{localStorage.removeItem('vr_active_booking');localStorage.removeItem('vr_scheduled_ride');}catch(_){}
+      _coreResumed=true;return true;
+    }
+    /* Scheduled not in trip yet → scheduled card */
+    if(parsed.scheduled_at && realD && st!=='in_trip' && st!=='in_progress' && st!=='on_trip' && st!=='arrived'){
+      if(typeof window.__vrSchedShow==='function'){window.__vrSchedShow(parsed,realD,_EARLY_API,_EARLY_KEY);_coreResumed=true;return true;}
+      return false;
+    }
+    if(parsed.scheduled_at && !realD){
+      if(typeof window.__vrSchedShow==='function'){window.__vrSchedShow(parsed,{},_EARLY_API,_EARLY_KEY);_coreResumed=true;return true;}
+      return false;
+    }
+    /* Request Now (no scheduled_at): open Live Tracker ONLY if there's real activity */
+    if(!parsed.scheduled_at){
+      var bookingAge=Date.now()-(parsed.ts||0);
+      var hasDriver=!!(realD&&(realD.driver_name||realD.driver_id));
+      var liveStatuses=['accepted','driver_assigned','driver_en_route','en_route','enroute','on_the_way','arrived','in_progress','in_trip','on_trip'];
+      var isLive=realD&&liveStatuses.indexOf((realD.status||'').toLowerCase())>=0;
+      /* Stale booking (>30min old, no driver, not live) → clean it up, this is a ghost */
+      if(bookingAge>30*60*1000 && !hasDriver && !isLive){
+        try{localStorage.removeItem('vr_active_booking');}catch(_){}
+        return true;
+      }
+      /* Backend says requested/dispatching BUT booking is older than 10min AND no driver → clean */
+      if(realD && bookingAge>10*60*1000 && !hasDriver){
+        var st2=(realD.status||'').toLowerCase();
+        if(st2==='requested'||st2==='dispatching'||st2==='pending'||!st2){
+          try{localStorage.removeItem('vr_active_booking');}catch(_){}
+          return true;
+        }
+      }
+      /* Fresh booking or has driver or is live → open LT */
+      var fallbackData=realD||{status:'requested',booking_id:parsed.id,pickup_address:parsed.pickup,dropoff_address:parsed.dropoff};
+      if(typeof window.__vrLTShow==='function'){
+        window.__vrLTShow(fallbackData,parsed.id,_EARLY_API,_EARLY_KEY,function(){if(window.__vrOpenAppPromo)window.__vrOpenAppPromo();});
+        _coreResumed=true;return true;
+      }
+      return false;
+    }
+    if(realD){
+      if(typeof window.__vrLTShow==='function'){
+        window.__vrLTShow(realD,parsed.id,_EARLY_API,_EARLY_KEY,function(){if(window.__vrOpenAppPromo)window.__vrOpenAppPromo();});
+        _coreResumed=true;return true;
+      }
+      return false;
+    }
+    return true;
+  }
+  window.__vrCoreResume=function(){
+    if(_coreResumed)return;
+    try{
+      var saved=localStorage.getItem('vr_active_booking');
+      if(!saved)return;
+      var parsed=JSON.parse(saved);
+      if(!parsed||!parsed.id)return;
+      if((Date.now()-(parsed.ts||0))>=604800000)return;
+      window.__vrActiveBookingId=parsed.id;
+      var isTemp=typeof parsed.id==='string' && parsed.id.indexOf('TEMP-')===0;
+      if(isTemp && parsed.scheduled_at){_tryRender(parsed,null);return;}
+      if(_cachedData){_tryRender(parsed,_cachedData);return;}
+      fetch(_EARLY_API+'/bookings/web/'+parsed.id+'/status',{headers:{'Authorization':'Bearer '+_EARLY_KEY}})
+        .then(function(r){
+          /* Backend explicitly says booking doesn't exist → clean */
+          if(r.status===404){try{localStorage.removeItem('vr_active_booking');localStorage.removeItem('vr_scheduled_ride');}catch(_){}_coreResumed=true;return null;}
+          if(!r.ok)return null;
+          return r.json();
+        })
+        .then(function(d){
+          if(_coreResumed)return; /* Already cleaned */
+          _cachedData=d||{__unavailable:true};_tryRender(parsed,d||{__unavailable:true});
+        })
+        .catch(function(){_cachedData={__unavailable:true};_tryRender(parsed,{__unavailable:true});});
+    }catch(_){}
+  };
+  /* Expose reset so back buttons can re-trigger */
+  window.__vrResetResume=function(){_coreResumed=false;_cachedData=null;};
+  /* Fire many times so one attempt succeeds once __vrLTShow / __vrSchedShow are registered */
+  var _firings=[200,500,1000,1800,3000,5000,8000,12000];
+  _firings.forEach(function(ms){setTimeout(window.__vrCoreResume,ms);});
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',window.__vrCoreResume);
+  }else{
+    setTimeout(window.__vrCoreResume,50);
+  }
+})();
+(function(){
+  'use strict';
+  /* Force locPicker light bg via JS (bypasses CSS CDN cache) */
+  (function(){try{var s=document.createElement('style');s.id='vrLpLightFix';s.textContent='.vipRide__locPicker,html body .vipRide__locPicker,html body [data-vipride-locpicker]{background:#ffffff!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}';document.head.appendChild(s);}catch(_){}})();
+  var _vrLS={get:function(k){try{return localStorage.getItem(k);}catch(_){return null;}},set:function(k,v){try{localStorage.setItem(k,v);}catch(_){}},del:function(k){try{localStorage.removeItem(k);}catch(_){}}};
+  var _vrOvs={};
+  function _vrSh(){return document.querySelector('[data-vipride-sheet]');}
+  function _vrSheetHide(id){_vrOvs[id||'_']=1;var s=_vrSh();if(s)s.classList.add('is-test-hidden');}
+  function _vrSheetShow(id){delete _vrOvs[id||'_'];for(var k in _vrOvs)return;var s=_vrSh();if(s)s.classList.remove('is-test-hidden');}
+  function _vrSheetReset(){_vrOvs={};var s=_vrSh();if(s)s.classList.remove('is-test-hidden');}
+  window.addEventListener('error',function(e){try{console.warn('[VIP Ride error]',e.message||e)}catch(_){}},true);
+  window.addEventListener('unhandledrejection',function(e){try{console.warn('[VIP Ride promise rejected]',e.reason)}catch(_){}});
+  var _vrN8n='{{ section.settings.n8n_webhook_url | default: "" | escape }}';
+  var _vrSessionId=(function(){var s=_vrLS.get('vr_sid');if(!s){s=Date.now().toString(36)+Math.random().toString(36).slice(2,8);_vrLS.set('vr_sid',s);}return s;})();
+  function _vrTrack(ev,props){
+    if(!_vrN8n||!ev)return;
+    try{
+      var body={event:ev,session_id:_vrSessionId,ts:Date.now(),url:location.href,props:props||{}};
+      if(navigator.sendBeacon)navigator.sendBeacon(_vrN8n,new Blob([JSON.stringify(body)],{type:'application/json'}));
+      else fetch(_vrN8n,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),keepalive:true}).catch(function(){});
+    }catch(_){}
+  }
+  window.__vipTrack=_vrTrack;
+  var _vrCart={key:'vr_cart_draft',ttl:864e5,
+    save:function(data){try{_vrLS.set(this.key,JSON.stringify({data:data,ts:Date.now()}))}catch(_){}},
+    load:function(){try{var raw=_vrLS.get(this.key);if(!raw)return null;var o=JSON.parse(raw);if(!o||!o.ts||Date.now()-o.ts>this.ttl){this.clear();return null;}return o.data;}catch(_){return null;}},
+    clear:function(){_vrLS.del(this.key)}};
+  function _vrToast(msg,type){
+    if(!msg)return;
+    var host=document.querySelector('.vR-toastHost');
+    if(!host){host=document.createElement('div');host.className='vR-toastHost';document.body.appendChild(host);}
+    var t=document.createElement('div');t.className='vR-toast'+(type?' vR-toast--'+type:'');t.textContent=String(msg);host.appendChild(t);
+    requestAnimationFrame(function(){t.classList.add('is-in')});
+    setTimeout(function(){t.classList.remove('is-in');t.classList.add('is-out');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t)},400)},3200);
+  }
+  window.__vipToast=_vrToast;
+  function __vipCheckReturn(){if(_vrLS.get('vip_booking_sent')!=='1')return;_vrLS.del('vip_booking_sent');document.body.style.transition='opacity .4s ease';document.body.style.opacity='0';setTimeout(function(){window.location.href='/'},420);}
+  __vipCheckReturn();
+  window.addEventListener('pageshow',function(e){if(e.persisted)__vipCheckReturn()});
+  window.addEventListener('visibilitychange',function(){if(!document.hidden)__vipCheckReturn()});
+  var root=document.getElementById('vipRide-{{ section.id }}');
+  if(!root) return;
+  _vrTrack('booking_start',{page:location.pathname});
+  var MAPBOX_TOKEN='{{ section.settings.mapbox_access_token | escape }}';
+  var MIN_HOURS={{ section.settings.min_hours | default: 3 }};
+  var MAX_HOURS={{ section.settings.max_hours | default: 12 }};
+  var DEFAULT_HOURS={{ section.settings.default_hours | default: 4 }};
+  var SLOT_STEP_M=60;
+  var defaultLat=parseFloat('{{ section.settings.default_lat | default: "33.5207" }}')||33.5207;
+  var defaultLng=parseFloat('{{ section.settings.default_lng | default: "-86.8025" }}')||-86.8025;
+  var defaultZoom=parseInt('{{ section.settings.default_zoom | default: 16 }}',10)||16;
+  var VEHICLE_VARIANTS=window.__VIP_VEHICLE_VARIANTS__||{};
+  function escapeHtml(s){ if(!s) return ''; var d=document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+  var currentLang=window.__vrLang||'en';
+  function detectLanguage(){return window.__vrLang||'en';}
+  function t(k,rep){return window.__vrT?window.__vrT(k,rep,currentLang):k;}
+  function setLanguage(l){currentLang=l==='es'?'es':'en';if(window.__vrLang)window.__vrLang=currentLang;updateUIText();}
+  var modeBtns=Array.from(root.querySelectorAll('[data-vipride-mode-btn]'));
+  var currentMode='ride';
+  var pickupEl=root.querySelector('[data-vipride-pickup]');
+  var dropoffEl=root.querySelector('[data-vipride-dropoff]');
+  var dropoffField=root.querySelector('[data-vipride-dropoff-field]');
+  var hoursField=root.querySelector('[data-vipride-hours-field]');
+  var hoursValueEl=root.querySelector('[data-vipride-hours-value]');
+  var hoursInput=root.querySelector('[data-vipride-hours-input]');
+  var hoursMinusBtn=root.querySelector('[data-vipride-hours-minus]');
+  var hoursPlusBtn=root.querySelector('[data-vipride-hours-plus]');
+  var pickupLabel=root.querySelector('[data-vipride-pickup-label]');
+  var dateEl=root.querySelector('[data-vipride-date]');
+  var timeEl=root.querySelector('[data-vipride-time]');
+  var timeTrigger=root.querySelector('[data-vipride-time-trigger]');
+  var slotDisplay=root.querySelector('[data-vipride-slot-display]');
+  var slotPicker=root.querySelector('[data-vipride-slotpicker]');
+  var slotHint=root.querySelector('[data-vipride-slot-hint]');
+  var clearBtns=root.querySelectorAll('[data-vipride-clear]');
+  var pricesTitle=root.querySelector('[data-vipride-prices-title]');
+  var routeEstimate=root.querySelector('[data-vipride-route-estimate]');
+  var routeTimeText=root.querySelector('[data-vipride-route-time]');
+  var routeDistText=root.querySelector('[data-vipride-route-dist]');
+  var cards=Array.from(root.querySelectorAll('[data-vipride-card]'));
+  var bookingVariant=root.querySelector('[data-vipride-booking-variant]');
+  var ctaBtn=root.querySelector('[data-vipride-cta]');
+  var checkoutBtn=root.querySelector('[data-vipride-checkout]');
+  var hint=root.querySelector('[data-vipride-hint]');
+  var form=root.querySelector('[data-vipride-form]');
+  var propBookingType=root.querySelector('[data-vipride-prop="bookingType"]');
+  var propPickup=root.querySelector('[data-vipride-prop="pickup"]');
+  var propDropoff=root.querySelector('[data-vipride-prop="dropoff"]');
+  var propHours=root.querySelector('[data-vipride-prop="hours"]');
+  var propDate=root.querySelector('[data-vipride-prop="date"]');
+  var propTime=root.querySelector('[data-vipride-prop="time"]');
+  var propVehicle=root.querySelector('[data-vipride-prop="vehicle"]');
+  var propPrice=root.querySelector('[data-vipride-prop="price"]');
+  var timeField=root.querySelector('[data-vipride-time-field]');
+  var step1NextBtn=root.querySelector('[data-vipride-step1-next]');
+  var stepBackBtn=root.querySelector('[data-vipride-step-back]');
+  var stepBack2Btn=root.querySelector('[data-vipride-step-back2]');
+  var sheet=root.querySelector('[data-vipride-sheet]');
+  if(!pickupEl||!dateEl||!timeEl) return;
+  var currentStep=1;
+  var map,pickupMarker=null,dropoffMarker=null;
+  var pickupPlace=null,dropoffPlace=null;
+  var routeDurationSec=null,selectedRide=null;
+  var routeReq=0,accordionOpen=false,currentHours=DEFAULT_HOURS;
+  var _mapLocked=false,_savedCenter,_savedZoom;
+  var _fitTiltHandler=function(){},_fitRotateHandler=function(){};
+  var ALL_BOOKED=Array.isArray(window.__VIP_BOOKED_SLOTS__)?window.__VIP_BOOKED_SLOTS__:[];
+  var _pickupManuallySet=false,_lastGeoLat=null,_lastGeoLng=null;
+  var _gpsActive=false;
+  var _gpsPinMarker=null;
+  var _mbErrAt=0;
+  var _vrGuest=false;
+  var _searchAuthModal=root.querySelector('[data-vipride-search-auth-modal]');
+  function _mbErr(es,en){var n=Date.now();if(n-_mbErrAt<8e3)return;_mbErrAt=n;_vrToast&&_vrToast(currentLang==='es'?es:en,'err');}
+  function _isLoggedIn(){return typeof __vipAuthCheck==='function'?__vipAuthCheck():(!!_vrLS.get('vr_at')||_vrGuest);}
+  function _showAuthGate(){if(typeof __vipShowGate==='function')__vipShowGate();}
+  function showSearchAuthModal(){
+    if(!_searchAuthModal)return;
+    var title=_searchAuthModal.querySelector('[data-vipride-search-auth-title]');
+    var sub=_searchAuthModal.querySelector('[data-vipride-search-auth-sub]');
+    var btn=_searchAuthModal.querySelector('[data-vipride-search-auth-continue]');
+    if(title)title.textContent=t('loginToSeeOptions');
+    if(sub)sub.textContent=t('loginToSeeOptionsSub');
+    if(btn)btn.textContent=t('continue');
+    _searchAuthModal.hidden=false;
+    requestAnimationFrame(function(){requestAnimationFrame(function(){_searchAuthModal.setAttribute('data-visible','');});});
+    function close(){_searchAuthModal.removeAttribute('data-visible');setTimeout(function(){_searchAuthModal.hidden=true;},360);}
+    function onOverlay(e){if(e.target===_searchAuthModal||!e.target.closest('.vipRide__searchAuthModal__card'))close();}
+    function onKey(e){if(e.key==='Escape')close();}
+    _searchAuthModal.onclick=onOverlay;
+    addEventListener('keydown',onKey);
+    if(btn){btn.onclick=function(){var url=currentLang==='es'?'auth.html':'../en/auth.html';url+='?return='+encodeURIComponent(location.pathname+location.search);location.href=url;};}
+  }
+  function reverseGeocode(lat,lng,cb){
+    fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/'+lng+','+lat+'.json?access_token='+encodeURIComponent(MAPBOX_TOKEN)+'&limit=1&language='+(currentLang==='es'?'es':'en'))
+      .then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(d){var f=d.features&&d.features[0];if(!f){cb(null);return;}var st=window.__vrExtractState&&window.__vrExtractState(f);if(st&&window.__vrSvcOk&&!window.__vrSvcOk(st)){window.__vrSvcBlockShow&&window.__vrSvcBlockShow(st,currentLang);cb(null);return;}cb(f.place_name);}).catch(function(){_mbErr('No ubicamos esa dirección','Address not found');cb(null);});
+  }
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function toHHMM(d){ return pad2(d.getHours())+':'+pad2(d.getMinutes()); }
+  function roundUpToStep(d,s){ var r=new Date(d); r.setSeconds(0,0); var m=r.getMinutes()%s; if(m) r.setMinutes(r.getMinutes()+(s-m)); return r; }
+  function moneyUSD(n){ return Math.max(0,Number(n)||0).toLocaleString('en-US',{style:'currency',currency:'USD'}); }
+  function formatMinutes(sec){ var m=Math.max(1,Math.round((Number(sec)||0)/60)); return m<60?m+' min':Math.floor(m/60)+' hr '+(m%60)+' min'; }
+  function lockMap(){ if(!map||_mapLocked) return; _mapLocked=true; _savedCenter=map.getCenter(); _savedZoom=map.getZoom(); }
+  function unlockMap(){ _mapLocked=false; }
+  function updateUIText(){
+    if(pickupLabel) pickupLabel.textContent=currentMode==='hourly'?t('serviceLocationLabel'):t('pickupLabel');
+    var dfl=root.querySelector('[data-vipride-dropoff-field] .vipRide__label');
+    if(dfl) dfl.textContent=t('dropoffLabel');
+    var dateLbl=root.querySelector('label[for="vipDate-{{ section.id }}"]');
+    if(dateLbl) dateLbl.textContent=t('dateLabel');
+    var timeLbl=root.querySelector('[data-vipride-time-field] .vipRide__label');
+    if(timeLbl) timeLbl.textContent=t('timeLabel');
+    if(step1NextBtn) step1NextBtn.textContent=t('continue')+' ›';
+    var sbl=root.querySelector('[data-vipride-stepback-label]'); if(sbl) sbl.textContent=t('changeLocation');
+    var sb2l=root.querySelector('[data-vipride-stepback2-label]'); if(sb2l) sb2l.textContent=t('changeLocation');
+    var sht=root.querySelector('[data-vipride-slot-hint]'); if(sht) sht.textContent=t('chooseDateFirst');
+    var sdp=root.querySelector('[data-vipride-slot-display]'); if(sdp&&!timeEl.value) sdp.textContent=t('selectTimeSlot');
+    modeBtns.forEach(function(b){ var m=b.getAttribute('data-mode'); if(m==='ride') b.textContent=t('pointToPoint'); if(m==='hourly') b.textContent=t('byTheHour'); });
+    var hh=root.querySelector('[data-vipride-hours-hint]'); if(hh) hh.textContent=t('hoursHint',{min:MIN_HOURS,max:MAX_HOURS});
+    var hu=root.querySelector('[data-vipride-hours-unit]'); if(hu) hu.textContent=t('hours');
+    var hl=root.querySelector('[data-vipride-hours-field] .vipRide__label'); if(hl) hl.textContent=t('duration');
+    if(ctaBtn&&!selectedRide) ctaBtn.textContent=t('requestNow');
+    if(checkoutBtn&&!selectedRide) checkoutBtn.textContent=t('checkout');
+    if(hint) hint.textContent=t('ctaHint');
+    if(pricesTitle) pricesTitle.textContent=currentMode==='hourly'?t('chooseHourly'):t('chooseRide');
+    if(dateEl.value) buildSlotPicker(dateEl.value);
+  }
+  function goToStep(n,dir){
+    var prev=root.querySelector('[data-vipride-step-panel="'+currentStep+'"]');
+    var next=root.querySelector('[data-vipride-step-panel="'+n+'"]');
+    if(!next||n===currentStep) return;
+    _vrSheetReset();
+    var ec=dir==='back'?'is-entering-back':'is-entering';
+    var prevStep=currentStep;
+    currentStep=n;
+    if(sheet) sheet.setAttribute('data-vipride-step',String(n));
+    updateStepDots(); closeSuggestions();
+    if(n!==3 && typeof stopSlowOrbit==='function') stopSlowOrbit();
+    var youLabels=document.querySelectorAll('.vipRide__youLabel');
+    youLabels.forEach(function(l){ l.style.display=(n===1)?'':'none'; });
+    var mapBackBtn=root.querySelector('[data-vipride-map-back]');
+    if(mapBackBtn){ mapBackBtn.hidden=(n!==3); }
+    if(prev){
+      var exitCls=dir==='back'?'is-exiting-back':'is-exiting';
+      prev.classList.add(exitCls);
+      setTimeout(function(){
+        prev.hidden=true; prev.classList.remove(exitCls,'is-entering','is-entering-back');
+        next.hidden=false; next.classList.remove('is-entering','is-entering-back');
+        void next.offsetWidth; next.classList.add(ec);
+        if(sheet) sheet.scrollTop=0;
+      },320);
+    } else {
+      next.hidden=false; next.classList.remove('is-entering','is-entering-back');
+      void next.offsetWidth; next.classList.add(ec);
+    }
+    if(n===3&&dir==='forward'){
+      _expandAllCards(); cards.forEach(function(c){c.classList.remove('is-active');}); selectedRide=null; validateCTA(null);
+      if(!dateEl.value){
+        var now=new Date(),ts=now.getFullYear()+'-'+pad2(now.getMonth()+1)+'-'+pad2(now.getDate());
+        dateEl.value=ts; buildSlotPicker(ts);
+      }
+      if(!timeEl.value){
+        var nx=roundUpToStep(new Date(),15);
+        nx.setMinutes(nx.getMinutes()+30);
+        timeEl.value=pad2(nx.getHours())+':'+pad2(nx.getMinutes());
+      }
+      if(routeDurationSec) updateCardPrices(routeDurationSec); else updateCardPrices();
+      if(!window.__vrFlying)setTimeout(function(){fitRouteBounds();setTimeout(showMarkerLabels,1200)},500);else setTimeout(showMarkerLabels,1900)
+    }
+    if(n===1&&dir==='back'){
+      hideMarkerLabels(); clearRoute();
+      if(dropoffMarker){dropoffMarker.remove();dropoffMarker=null;}
+      if(dropoffLabelMk){dropoffLabelMk.remove();dropoffLabelMk=0}
+      dropoffPlace=null; if(dropoffEl) dropoffEl.value='';
+      routeDurationSec=null;
+      if(pickupPlace&&map)map.flyTo({center:[pickupPlace.lng,pickupPlace.lat],zoom:16.5,pitch:50,bearing:-10,duration:1200,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+      else if(map)map.flyTo({center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:0,bearing:0,duration:900,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+    }
+    if(n===2&&dir==='back'){ hideMarkerLabels(); }
+  }
+  function showMarkerLabels(){
+    removeAddressLabels();
+    if(pickupPlace && pickupMarker){
+      var pEl=createLabelEl('pickup',pickupPlace.label);
+      pEl.style.cssText+=';position:absolute;left:14px;top:-30px;transform:perspective(400px) rotateY(-50deg) scale(.8);';
+      pickupMarker.getElement().appendChild(pEl);
+      pickupLabelMk=pEl;
+    }
+    if(dropoffPlace && dropoffMarker){
+      var dEl=createLabelEl('dropoff',dropoffPlace.label);
+      dEl.style.cssText+=';position:absolute;right:14px;top:-30px;transform:perspective(400px) rotateY(50deg) scale(.8);';
+      dropoffMarker.getElement().appendChild(dEl);
+      dropoffLabelMk=dEl;
+    }
+    setTimeout(function(){if(pickupMarker){var l=pickupMarker.getElement().querySelector('.vipRide__mapLabel');if(l)l.classList.add('is-visible')}},50);
+    setTimeout(function(){if(dropoffMarker){var l=dropoffMarker.getElement().querySelector('.vipRide__mapLabel');if(l)l.classList.add('is-visible')}},300);
+  }
+  function hideMarkerLabels(){
+    removeAddressLabels();
+  }
+  function updateStepDots(){
+    root.querySelectorAll('.vipRide__stepDot').forEach(function(d,i){
+      d.classList.toggle('is-active',i+1===currentStep);
+      d.classList.toggle('is-done',i+1<currentStep);
+    });
+  }
+  if(step1NextBtn)step1NextBtn.addEventListener('click',function(){
+    if(!_isLoggedIn()){showSearchAuthModal();return;}
+    goToStep(3,'forward');
+  });
+  if(stepBackBtn)stepBackBtn.addEventListener('click',function(){goToStep(1,'back');});
+  if(stepBack2Btn)stepBack2Btn.addEventListener('click',function(){goToStep(1,'back');});
+  function _goldenPinSvg(iconPath){
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 46" fill="none" width="48" height="46">'
+      +'<defs><linearGradient id="pg" x1="24" y1="2" x2="24" y2="44" gradientUnits="userSpaceOnUse">'
+      +'<stop offset="0" stop-color="#F5DC7A"/><stop offset=".45" stop-color="#D4A800"/><stop offset="1" stop-color="#B08800"/>'
+      +'</linearGradient><radialGradient id="ph" cx="24" cy="16.3" r="17" gradientUnits="userSpaceOnUse">'
+      +'<stop offset="0" stop-color="#E8C547" stop-opacity=".22"/><stop offset=".5" stop-color="#E8C547" stop-opacity=".06"/><stop offset="1" stop-color="#E8C547" stop-opacity="0"/>'
+      +'</radialGradient><radialGradient id="pw" cx="24" cy="16.3" r="11" gradientUnits="userSpaceOnUse">'
+      +'<stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset=".3" stop-color="#fff" stop-opacity=".18"/><stop offset=".65" stop-color="#fff" stop-opacity=".04"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>'
+      +'</radialGradient><filter id="ps" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur in="SourceGraphic" stdDeviation="2.5"/></filter></defs>'
+      +'<circle cx="24" cy="16.3" r="17" fill="url(#ph)"/>'
+      +'<circle cx="24" cy="16.3" r="11" fill="url(#pw)"/>'
+      +'<path d="M36.2 24 A14.4 14.4 0 0 1 11.8 24 Q13 36.2 24 43.7 Q35 36.2 36.2 24Z" fill="#D4A800" opacity=".4" filter="url(#ps)"/>'
+      +'<path d="M36.2 24 A14.4 14.4 0 0 1 11.8 24 Q13 36.2 24 43.7 Q35 36.2 36.2 24Z" fill="url(#pg)"/>'
+      +'<path d="M32.3 22.6 A10.4 10.4 0 0 1 15.7 22.6 Q24 26.2 32.3 22.6Z" fill="#0a1128"/>'
+      +'<path d="M35.5 23.5 A13.8 13.8 0 0 0 30.5 13" stroke="#fff" stroke-opacity=".28" stroke-width=".8" fill="none" stroke-linecap="round"/>'
+      + iconPath
+      +'</svg>';
+  }
+  var _iconPerson = '<circle cx="24" cy="14" r="2.8" fill="#fff"/><path d="M19.5 22.5c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5" fill="#fff" stroke="#fff" stroke-width=".5" stroke-linecap="round"/>';
+  var _iconHome = '<path d="M24 11.5l-6 5h2v5h8v-5h2l-6-5z" fill="#fff"/><rect x="22" y="17.5" width="4" height="4" rx=".5" fill="#0a1128"/>';
+  var _iconStore = '<rect x="18" y="14" width="12" height="2.5" rx="1" fill="#fff"/><path d="M19 16.5v6h10v-6" fill="#fff"/><rect x="22" y="18" width="4" height="4.5" rx=".5" fill="#0a1128"/>';
+  var _iconFlight = '<path d="M29.5 13.5l-2.5 1.5-4-2.5-1.5.8 3 3.5-3 1.5-1.8-.5-1.2.7 2 1.5 2.5 0 5-3 2.5-1.2c.7-.4.7-1.2 0-1.5l-1-.8z" fill="#fff"/>';
+  var _iconBuilding = '<rect x="19" y="12" width="10" height="11" rx="1" fill="#fff"/><rect x="21" y="14" width="2" height="2" rx=".3" fill="#0a1128"/><rect x="25" y="14" width="2" height="2" rx=".3" fill="#0a1128"/><rect x="21" y="17.5" width="2" height="2" rx=".3" fill="#0a1128"/><rect x="25" y="17.5" width="2" height="2" rx=".3" fill="#0a1128"/><rect x="22.5" y="20.5" width="3" height="2.5" rx=".3" fill="#0a1128"/>';
+  var _iconLocation = '<path d="M24 12c-3 0-5.5 2.5-5.5 5.5 0 4 5.5 9.5 5.5 9.5s5.5-5.5 5.5-9.5c0-3-2.5-5.5-5.5-5.5z" fill="#fff"/><circle cx="24" cy="17.5" r="2" fill="#0a1128"/>';
+  function _detectDropoffIcon(name){
+    if(!name) return _iconLocation;
+    var n = name.toLowerCase();
+    if(n.match(/airport|aeropuerto|terminal|intl|international|airline/)) return _iconFlight;
+    if(n.match(/mall|plaza|hotel|inn|store|market|walmart|target|costco|office|center|clinic|hospital|restaurant|cafe|suite|salon|gym|bank|pharmacy|gas station|starbucks|mcdonald/)) return _iconStore;
+    if(n.match(/tower|building|edificio|corporate|suite \d|floor \d|ste |bldg/)) return _iconBuilding;
+    if(n.match(/\b\d+\b.*\b(dr|st|ave|blvd|ln|ct|rd|way|pl|cir|trl|pkwy)\b|apt|house|home|residence/i)) return _iconHome;
+    return _iconLocation;
+  }
+  function createPickupMarkerEl(){
+    var el=document.createElement('div'); el.className='vipRide__marker';
+    var inner=document.createElement('div'); inner.className='vipRide__markerInner';
+    inner.innerHTML = _goldenPinSvg(_iconPerson);
+    var youLabel=document.createElement('div'); youLabel.className='vipRide__youLabel';
+    youLabel.textContent=t('you');
+    el.appendChild(inner);
+    el.appendChild(youLabel);
+    return el;
+  }
+  function createDropoffMarkerEl(){
+    var el=document.createElement('div'); el.className='vipRide__marker vipRide__marker--pulse';
+    var inner=document.createElement('div'); inner.className='vipRide__markerInner';
+    var addr = dropoffPlace ? dropoffPlace.label : '';
+    inner.innerHTML = _goldenPinSvg(_detectDropoffIcon(addr));
+    el.appendChild(inner);
+    return el;
+  }
+  var pickupLabelMk=null, dropoffLabelMk=null;
+  function shortenAddress(addr){
+    if(!addr) return '';
+    var parts=addr.split(',');
+    return parts.length>2?parts.slice(0,2).join(',').trim():addr.trim();
+  }
+  function createLabelEl(which,text){
+    var el=document.createElement('div');
+    el.className='vipRide__mapLabel vipRide__mapLabel--'+which;
+    var ico=which==='pickup'?'<svg viewBox="0 0 12 16" width="11" height="14" fill="currentColor"><path d="M6 0C2.7 0 0 2.7 0 6c0 4.5 6 10 6 10s6-5.5 6-10c0-3.3-2.7-6-6-6zm0 8.3A2.3 2.3 0 116 3.7a2.3 2.3 0 010 4.6z"/></svg>':'<svg viewBox="0 0 12 16" width="11" height="14" fill="currentColor"><path d="M2 0v16h1.5V9.5H10l-1.5-3L10 3.5H2z"/></svg>';
+    var kind=which==='pickup'?(currentLang==='es'?'RECOGIDA':'PICKUP'):(currentLang==='es'?'DESTINO':'DROPOFF');
+    el.innerHTML='<span class="vipRide__mapLabel__ico">'+ico+'</span><span class="vipRide__mapLabel__txt"><span class="vipRide__mapLabel__kind">'+kind+'</span><span class="vipRide__labelText">'+escapeHtml(shortenAddress(text))+'</span></span><span class="vipRide__mapLabel__tail" aria-hidden="true"></span>';
+    return el;
+  }
+  function removeAddressLabels(){
+    if(pickupLabelMk){pickupLabelMk.remove();pickupLabelMk=0}
+    if(dropoffLabelMk){dropoffLabelMk.remove();dropoffLabelMk=0}
+  }
+  var _suggestionContainers=[];
+  var _acDebounceTimers={};
+  var _acSessionToken=crypto.randomUUID?crypto.randomUUID():(Date.now()+''+Math.random()).replace('.','');
+  function closeSuggestions(){ _suggestionContainers.forEach(function(c){ c.style.display='none'; }); }
+  function positionSuggestions(c,i){var r=i.getBoundingClientRect(),vH=innerHeight,sB=vH-r.bottom,sA=r.top;c.style.width=r.width+'px';c.style.left=r.left+'px';c.style.maxHeight=Math.min(210,Math.max(sB,sA)-16)+'px';if(sB<160&&sA>sB){c.style.top='';c.style.bottom=(vH-r.top+4)+'px'}else{c.style.bottom='';c.style.top=(r.bottom+4)+'px'}}
+  function attachAutocomplete(inputEl,which){
+    var container=document.createElement('div');
+    container.className='vipRide__suggestions';
+    document.body.appendChild(container);
+    _suggestionContainers.push(container);
+    var _ai=-1;
+    function _sa(i){var I=container.querySelectorAll('.vipRide__suggestion');if(!I.length)return;I.forEach(function(t,x){t.classList.toggle('is-active',x===i)});_ai=i;if(I[i])I[i].scrollIntoView({block:'nearest'})}
+    inputEl.addEventListener('input',function(){
+      clearTimeout(_acDebounceTimers[which]);
+      var query=inputEl.value.trim();
+      if(query.length<3){container.style.display='none';return}
+      _acDebounceTimers[which]=setTimeout(function(){
+        var center=map?map.getCenter():{lng:defaultLng,lat:defaultLat};
+        var url='https://api.mapbox.com/search/searchbox/v1/suggest?q='+encodeURIComponent(query)
+          +'&access_token='+encodeURIComponent(MAPBOX_TOKEN)
+          +'&session_token='+_acSessionToken
+          +'&language='+(currentLang==='es'?'es':'en')
+          +'&limit=8&types=address,poi'
+          +'&country=us'
+          +'&proximity='+center.lng+','+center.lat;
+        fetch(url).then(function(r){return r.json()}).then(function(data){
+          container.innerHTML='';_ai=-1;
+          if(!data.suggestions||!data.suggestions.length){container.style.display='none';return}
+          data.suggestions.forEach(function(sug){
+            var item=document.createElement('div');item.className='vipRide__suggestion';
+            var main=sug.name||sug.full_address||'',sub=sug.full_address||sug.place_formatted||'';
+            if(sub.indexOf(main)===0)sub=sub.substring(main.length).replace(/^[\s,]+/,'');
+            var iSvg=sug.feature_type==='poi'?'<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="10" rx="1.5" fill="currentColor"/><rect x="5" y="1" width="6" height="5" rx="1" fill="currentColor" opacity=".6"/></svg>':'<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1C5.24 1 3 3.24 3 6c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5z" fill="currentColor"/><circle cx="8" cy="6" r="2" fill="#000" opacity=".3"/></svg>';
+            item.innerHTML='<span class="vipRide__suggestionIcon">'+iSvg+'</span><span class="vipRide__suggestionText"><span class="vipRide__suggestionMain">'+escapeHtml(main)+'</span>'+(sub?'<span class="vipRide__suggestionSub">'+escapeHtml(sub)+'</span>':'')+'</span>';
+            item.addEventListener('mousedown',function(e){e.preventDefault()});
+            item.__vrSelect=function(){
+              if(!sug.mapbox_id)return;
+              fetch('https://api.mapbox.com/search/searchbox/v1/retrieve/'+encodeURIComponent(sug.mapbox_id)+'?access_token='+encodeURIComponent(MAPBOX_TOKEN)+'&session_token='+_acSessionToken).then(function(r){return r.json()}).then(function(rData){
+                if(rData.features&&rData.features[0]){
+                  var feat=rData.features[0],coords=feat.geometry.coordinates,lng=coords[0],lat=coords[1];
+                  var name=feat.properties.full_address||feat.properties.name||sug.full_address||sug.name;
+                  var rc=feat.properties&&feat.properties.context&&feat.properties.context.region&&(feat.properties.context.region.region_code||feat.properties.context.region.region_code_full);
+                  var st=rc?String(rc).toUpperCase().replace('US-',''):null;
+                  if(which==='pickup'&&st&&window.__vrSvcOk&&!window.__vrSvcOk(st)){container.style.display='none';window.__vrSvcBlockShow&&window.__vrSvcBlockShow(st,currentLang);return}
+                  inputEl.value=name;container.style.display='none';
+                  var obj={label:name,lat:lat,lng:lng};
+                  if(which==='pickup')pickupPlace=obj;else if(which==='dropoff')dropoffPlace=obj;
+                  inputEl.blur();afterInputChange();setMarker(which,lat,lng);computeRoute();
+                  _acSessionToken=crypto.randomUUID?crypto.randomUUID():(Date.now()+''+Math.random()).replace('.','');
+                }
+              }).catch(function(){});
+            };
+            item.addEventListener('click',item.__vrSelect);
+            container.appendChild(item);
+          });
+          if(container.children.length)container.children[0].classList.add('is-active');_ai=0;
+          positionSuggestions(container,inputEl);
+          container.style.display='block';
+        }).catch(function(){ container.style.display='none'; });
+      },300);
+    });
+    inputEl.addEventListener('keydown',function(e){var I=container.querySelectorAll('.vipRide__suggestion');if(!I.length||container.style.display==='none')return;if(e.key==='ArrowDown'){e.preventDefault();_sa((_ai+1)%I.length)}else if(e.key==='ArrowUp'){e.preventDefault();_sa((_ai-1+I.length)%I.length)}else if(e.key==='Enter'){e.preventDefault();var t=I[_ai>=0?_ai:0];if(t&&t.__vrSelect)t.__vrSelect()}else if(e.key==='Escape')container.style.display='none'});
+    inputEl.addEventListener('focus',function(){if(container.children.length){positionSuggestions(container,inputEl);container.style.display='block'}});
+    addEventListener('scroll',function(){if(container.style.display==='block')positionSuggestions(container,inputEl)},true);
+    addEventListener('resize',function(){if(container.style.display==='block')positionSuggestions(container,inputEl)});
+  }
+  var LABEL_LAYERS=['country-label','state-label','settlement-label','settlement-minor-label','settlement-subdivision-label','road-label','transit-label','natural-point-label','water-point-label','water-line-label','natural-line-label','poi-label'];
+  function setMapLabelsVisible(v){ if(!map) return; LABEL_LAYERS.forEach(function(id){ try{ map.setLayoutProperty(id,'visibility',v?'visible':'none'); }catch(e){} }); }
+  var _rtLayers=['route-glow','route-casing','route-line'];
+  function clearRoute(){if(!map)return;try{_rtLayers.forEach(function(id){if(map.getLayer(id))map.removeLayer(id);});if(map.getSource('route'))map.removeSource('route');}catch(e){}setMapLabelsVisible(true);}
+  function drawRoute(geometry){
+    clearRoute();
+    if(!map||!geometry) return;
+    var coords=geometry.coordinates;
+    if(!coords||coords.length<2) return;
+    if(pickupPlace)  coords=[[pickupPlace.lng,pickupPlace.lat]].concat(coords);
+    if(dropoffPlace) coords=coords.concat([[dropoffPlace.lng,dropoffPlace.lat]]);
+    setMapLabelsVisible(false);
+    map.addSource('route',{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:coords}},lineMetrics:true});
+    var _L={'line-cap':'round','line-join':'round'},_T=[0,1];
+    map.addLayer({id:'route-glow',type:'line',source:'route',layout:_L,paint:{'line-color':'#D4AF37','line-width':18,'line-opacity':.18,'line-blur':12,'line-trim-offset':_T}});
+    map.addLayer({id:'route-casing',type:'line',source:'route',layout:_L,paint:{'line-color':'#D4AF37','line-width':8,'line-opacity':.9,'line-trim-offset':_T}});
+    map.addLayer({id:'route-line',type:'line',source:'route',layout:_L,paint:{'line-color':'#111111','line-width':4,'line-opacity':.95,'line-trim-offset':_T}});
+    var st=performance.now(),dur=1800;
+    var prefersReduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    if(prefersReduced){_rtLayers.forEach(function(id){if(map.getLayer(id))map.setPaintProperty(id,'line-trim-offset',[0,1],{validate:false});});return;}
+    map.repaint=true;
+    function tick(now){
+      var t=Math.min(1,(now-st)/dur),p=1-Math.pow(1-t,4),tr=[p,1];
+      _rtLayers.forEach(function(id){if(map.getLayer(id))map.setPaintProperty(id,'line-trim-offset',tr,{validate:false});});
+      if(t<1)requestAnimationFrame(tick);else map.repaint=false;
+    }
+    requestAnimationFrame(tick);
+  }
+  function _vrSheetHeight(){
+    if(innerWidth>=900){
+      var bar=document.getElementById('vrDeskBarRide');
+      if(bar && getComputedStyle(bar).display!=='none' && bar.offsetHeight>0) return bar.offsetHeight;
+      var homeBar=document.getElementById('vrDeskBar');
+      if(homeBar && getComputedStyle(homeBar).display!=='none' && homeBar.offsetHeight>0) return homeBar.offsetHeight;
+    }
+    var s=root.querySelector('[data-vipride-sheet]');
+    return(s&&s.offsetHeight>0&&!s.classList.contains('is-test-hidden'))?s.offsetHeight:Math.round(window.innerHeight*0.58);
+  }
+  var _fR=null;
+  function fitRouteBounds(){
+    if(!map||!pickupPlace||!dropoffPlace)return;
+    clearTimeout(_fR);_fR=null;
+    map.off('moveend',_fitTiltHandler);map.off('moveend',_fitRotateHandler);
+    var b=new mapboxgl.LngLatBounds();b.extend([pickupPlace.lng,pickupPlace.lat]);b.extend([dropoffPlace.lng,dropoffPlace.lat]);
+    var dL=pickupPlace.lat-dropoffPlace.lat,dN=pickupPlace.lng-dropoffPlace.lng,d=Math.sqrt(dL*dL+dN*dN),nH=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--vip-nav-h'),10)||60;
+    var sH=_vrSheetHeight(),iD=innerWidth>=900;
+    if(!iD&&sH<200&&currentStep===3)_fR=setTimeout(fitRouteBounds,400);
+    var sP=d<.05?50:60,pad={top:nH+60,right:sP,bottom:Math.max(sH,280)+60,left:sP},mZ=d<.005?15.8:d<.01?15.3:d<.03?14.8:d<.1?14.2:13.4;
+    var c=map.cameraForBounds(b,{padding:pad,maxZoom:mZ,pitch:55,bearing:15});
+    if(!c){_fR=setTimeout(fitRouteBounds,300);return;}
+    window.__vrFlying=true;
+    if(root&&root.classList)root.classList.add('is-flying');
+    function _endFly(){ window.__vrFlying=false; if(root&&root.classList)root.classList.remove('is-flying'); }
+    map.once('moveend',_endFly);
+    map.flyTo({
+      center:c.center,
+      zoom:c.zoom,
+      pitch:55,
+      bearing:15,
+      duration:1600,
+      curve:1.2,
+      essential:true,
+      easing:function(t){return 1-Math.pow(1-t,4);}
+    });
+  }
+  function stopSlowOrbit(){}
+  function startSlowOrbit(){}
+  var _vrRz,_vrDidInitFit=false;function _vrOnR(){clearTimeout(_vrRz);_vrRz=setTimeout(function(){if(currentStep===3&&pickupPlace&&dropoffPlace&&!window.__vrFlying){try{map&&map.resize();}catch(_){}}},260);}
+  addEventListener('resize',_vrOnR);addEventListener('orientationchange',_vrOnR);
+  function mapCenterForStep3(onEnd){
+    if(!map||!pickupPlace||!dropoffPlace)return;
+    if(window.__vrFlying){if(onEnd)setTimeout(onEnd,800);return;}
+    var bounds=new mapboxgl.LngLatBounds();
+    bounds.extend([pickupPlace.lng,pickupPlace.lat]);bounds.extend([dropoffPlace.lng,dropoffPlace.lat]);
+    var headerH=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height'),10)||0,isDesktop=innerWidth>=900;
+    var pad={top:headerH+60,right:60,bottom:_vrSheetHeight()+120,left:60};
+    var cam=map.cameraForBounds(bounds,{padding:pad,maxZoom:14.2,bearing:15,pitch:55});
+    if(!cam)return;
+    map.flyTo({center:cam.center,zoom:cam.zoom,pitch:55,bearing:15,duration:1600,essential:true,curve:1.2,easing:function(t){return 1-Math.pow(1-t,4);}});
+    if(onEnd)setTimeout(onEnd,800);
+  }
+  function setMode(mode){
+    currentMode=mode;
+    modeBtns.forEach(function(b){b.classList.toggle('is-active',b.getAttribute('data-mode')===mode)});
+    if(propBookingType)propBookingType.value=mode;
+    var formEl=root.querySelector('.vipRide__form');if(formEl)formEl.setAttribute('data-vipride-mode',mode);
+    if(mode==='hourly'){
+      if(dropoffField)dropoffField.hidden=true;if(hoursField)hoursField.hidden=false;
+      if(pickupLabel)pickupLabel.textContent=t('serviceLocationLabel');
+      if(dropoffEl){dropoffEl.value='';dropoffPlace=null;if(dropoffMarker){dropoffMarker.remove();dropoffMarker=null}if(dropoffLabelMk){dropoffLabelMk.remove();dropoffLabelMk=0}}
+      clearRoute();routeDurationSec=null;if(routeEstimate)routeEstimate.hidden=true;
+    }else{
+      if(dropoffField)dropoffField.hidden=false;if(hoursField)hoursField.hidden=true;
+      if(pickupLabel)pickupLabel.textContent=t('pickupLabel');
+    }
+    if(pricesTitle)pricesTitle.textContent=currentMode==='hourly'?t('chooseHourly'):t('chooseRide');
+    if(currentStep!==1)goToStep(1,'back');
+    updateCardPrices();afterInputChange();
+  }
+  modeBtns.forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-mode'))})});
+  function updateHoursDisplay(){
+    if(hoursValueEl)hoursValueEl.textContent=currentHours;
+    if(hoursInput)hoursInput.value=currentHours;
+    if(hoursMinusBtn)hoursMinusBtn.disabled=currentHours<=MIN_HOURS;
+    if(hoursPlusBtn)hoursPlusBtn.disabled=currentHours>=MAX_HOURS;
+    updateCardPrices();afterInputChange();
+  }
+  if(hoursMinusBtn) hoursMinusBtn.addEventListener('click',function(){ if(currentHours>MIN_HOURS){currentHours--;updateHoursDisplay();} });
+  if(hoursPlusBtn)  hoursPlusBtn.addEventListener('click',function(){ if(currentHours<MAX_HOURS){currentHours++;updateHoursDisplay();} });
+  function buildSlotPicker(){}function openAccordion(){}function closeAccordion(){}function resetSlotPicker(){}
+  function syncProps(sel){
+    if(propPickup)  propPickup.value=pickupEl.value.trim();
+    if(propDropoff) propDropoff.value=currentMode==='hourly'?'':dropoffEl.value.trim();
+    if(propHours)   propHours.value=currentMode==='hourly'?currentHours:'';
+    if(propDate)    propDate.value=dateEl.value;
+    if(propTime)    propTime.value=timeEl.value;
+    if(propVehicle) propVehicle.value=sel?sel.title||'':'';
+    if(propPrice)   propPrice.value=sel?sel.price||'':'';
+  }
+  function setClearVisibility(){
+    var pc=root.querySelector('[data-vipride-clear="pickup"]'); var dc=root.querySelector('[data-vipride-clear="dropoff"]');
+    if(pc) pc.style.display=pickupEl.value.trim()?'flex':'none';
+    if(dc) dc.style.display=dropoffEl.value.trim()?'flex':'none';
+  }
+  function validateCTA(sel){
+    var ok=currentMode==='hourly'?pickupEl.value.trim()&&timeEl.value&&!!sel:pickupEl.value.trim()&&dropoffEl.value.trim()&&timeEl.value&&!!sel;
+    if(ctaBtn) ctaBtn.disabled=!ok;
+    if(checkoutBtn) checkoutBtn.disabled=!ok;
+    if(_requestBtn)_requestBtn.textContent=t(window.__vrScheduleActive?'reserveNow':'requestRide');
+  }
+  function afterInputChange(){
+    setClearVisibility(); syncProps(selectedRide);
+    var locReady=currentMode==='hourly'?pickupEl.value.trim().length>0:pickupEl.value.trim().length>0&&dropoffEl.value.trim().length>0;
+    if(step1NextBtn) step1NextBtn.disabled=!locReady;
+    validateCTA(selectedRide);
+    if(currentStep===2&&locReady&&dateEl.value&&timeEl.value){
+      if(routeDurationSec) updateCardPrices(routeDurationSec); else{ computeRoute(); updateCardPrices(); }
+      goToStep(3,'forward');
+    }
+  }
+  function setMarker(which,lat,lng){
+    if(which==='pickup'){if(pickupMarker){pickupMarker.remove();pickupMarker=null}pickupMarker=new mapboxgl.Marker({element:createPickupMarkerEl()}).setLngLat([lng,lat]).addTo(map);}
+    if(which==='dropoff'){if(dropoffMarker){dropoffMarker.remove();dropoffMarker=null}dropoffMarker=new mapboxgl.Marker({element:createDropoffMarkerEl()}).setLngLat([lng,lat]).addTo(map);}
+    unlockMap();
+  }
+  window.__vrSwapPlaces=function(){var x=pickupPlace;pickupPlace=dropoffPlace;dropoffPlace=x;if(pickupEl&&dropoffEl){var v=pickupEl.value;pickupEl.value=dropoffEl.value;dropoffEl.value=v}_pickupManuallySet=true;_gpsActive=false;if(pickupPlace)setMarker('pickup',pickupPlace.lat,pickupPlace.lng);if(dropoffPlace)setMarker('dropoff',dropoffPlace.lat,dropoffPlace.lng);try{afterInputChange();computeRoute();if(pickupPlace&&dropoffPlace){setTimeout(fitRouteBounds,400);setTimeout(showMarkerLabels,2200)}}catch(_){}};
+  function findBestVariant(bId,tc){ var vs=VEHICLE_VARIANTS[bId]; if(!vs||!vs.length) return null; var best=vs[0],bd=Math.abs(vs[0].price-tc); for(var i=0;i<vs.length;i++){var d=Math.abs(vs[i].price-tc);if(d<bd){bd=d;best=vs[i];}} return best; }
+  function _vrHasDiscount(){try{return !_vrLS.get('vr_at');}catch(_){return true;}}
+  function _applyPromoMult(cents){return _vrHasDiscount()?Math.round(cents*1.25):cents;}
+  function updateCardPrices(sec){
+    if(!cards.length)return;
+    var surcharge=(typeof window.__vrAptGetSurcharge==='function'?window.__vrAptGetSurcharge():0)||0;
+    cards.forEach(function(card){
+      var rate=Number(card.getAttribute('data-rate'))||0,hRate=Number(card.getAttribute('data-hourly-price'))||rate,est,cents,etaEl=card.querySelector('[data-vipride-eta]');
+      if(currentMode==='hourly'){
+        est=currentHours*hRate;cents=Math.round(est*100);
+        if(etaEl)etaEl.textContent=currentHours+' '+t('hours');
+      }else{
+        var ds=sec||routeDurationSec||0,hours=ds>0?(ds/3600):0;
+        if(hours>0&&rate>0){est=hours*rate;cents=Math.round(est*100);}
+        else{cents=Number(card.getAttribute('data-base-cents')||card.getAttribute('data-price-cents')||0);est=cents/100;}
+        if(etaEl)etaEl.textContent=routeDurationSec?formatMinutes(routeDurationSec):'--';
+      }
+      card.setAttribute('data-base-cents',String(cents+surcharge));
+      var displayCents=_applyPromoMult(cents+surcharge),text=moneyUSD(displayCents/100);
+      card.setAttribute('data-price',text);card.setAttribute('data-price-cents',String(displayCents));
+      var pe=card.querySelector('[data-vipride-card-price]');if(pe)pe.textContent=text;
+    });
+    if(selectedRide){ var act=root.querySelector('.vipRide__rideCard.is-active'); if(act){selectedRide.price=act.getAttribute('data-price')||'';selectedRide.priceCents=Number(act.getAttribute('data-price-cents')||0);syncProps(selectedRide);validateCTA(selectedRide);} }
+  }
+  function computeRoute(){
+    if(currentMode==='hourly')return;
+    if(!pickupPlace||!dropoffPlace||!map)return;
+    var req=++routeReq;
+    fetch('https://api.mapbox.com/directions/v5/mapbox/driving/'+pickupPlace.lng+','+pickupPlace.lat+';'+dropoffPlace.lng+','+dropoffPlace.lat+'?geometries=geojson&overview=full&access_token='+encodeURIComponent(MAPBOX_TOKEN))
+      .then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(data){
+        if(req!==routeReq)return;
+        if(!data.routes||!data.routes[0]){routeDurationSec=null;if(routeEstimate)routeEstimate.hidden=true;_mbErr('No encontramos ruta','No route found');return;}
+        var route=data.routes[0];routeDurationSec=route.duration||null;window.__vrRouteDistM=route.distance||0;var routeDistM=window.__vrRouteDistM;
+        if(routeTimeText)routeTimeText.textContent=routeDurationSec?formatMinutes(routeDurationSec):'--';
+        if(routeDistText)routeDistText.textContent=routeDistM>0?((routeDistM/1609.344).toFixed(1)+' mi'):'-- mi';
+        if(routeEstimate)routeEstimate.hidden=false;
+        drawRoute(route.geometry);updateCardPrices(routeDurationSec);
+        if(currentStep===3)validateCTA(selectedRide);
+      }).catch(function(){_mbErr('Error al calcular ruta','Route failed');});
+  }
+  var _cardsCollapsed=false,_actionBtns=root.querySelector('[data-vipride-action-btns]'),_paymentBtn=root.querySelector('[data-vipride-payment-btn]'),_requestBtn=root.querySelector('[data-vipride-request-btn]'),_selectedPayment=null,_rideList=root.querySelector('.vipRide__rideList'),_pricesEl=root.querySelector('[data-vipride-prices]');
+  var _dE=root.querySelector('[data-vipride-detail]'),_dD=root.querySelector('[data-vipride-detail-desc]'),_dEt=root.querySelector('[data-vipride-detail-eta]'),_dDi=root.querySelector('[data-vipride-detail-dist]'),_dS=root.querySelector('[data-vipride-detail-seats]'),_dP=root.querySelector('[data-vipride-detail-price]');
+  function selectCard(card){
+    if(!card)return;
+    cards.forEach(function(c){c.classList.remove('is-active')});
+    card.classList.add('is-active');
+    try{navigator.vibrate(12)}catch(_){}
+    selectedRide={title:card.getAttribute('data-title')||'',price:card.getAttribute('data-price')||'',priceCents:Number(card.getAttribute('data-price-cents')||0),variantId:card.getAttribute('data-variant-id')||'',blockId:card.getAttribute('data-block-id')||'',tier:(card.getAttribute('data-tier')||card.getAttribute('data-badge')||'').toLowerCase(),badge:card.getAttribute('data-badge')||''};
+    _vrTrack('vehicle_selected',{title:selectedRide.title,price_cents:selectedRide.priceCents});
+    _vrCart.save({pickup:pickupEl?pickupEl.value:'',dropoff:dropoffEl?dropoffEl.value:'',vehicle:selectedRide.title,mode:currentMode});
+    if(bookingVariant&&selectedRide.variantId)bookingVariant.value=selectedRide.variantId;
+    syncProps(selectedRide);validateCTA(selectedRide);
+    if(_dE){if(_dD)_dD.textContent=card.getAttribute('data-desc')||'';if(_dEt)_dEt.textContent=routeDurationSec?formatMinutes(routeDurationSec):'--';if(_dDi)_dDi.textContent=window.__vrRouteDistM?((window.__vrRouteDistM/1609.344).toFixed(1)+' mi'):'-- mi';if(_dS)_dS.textContent=card.getAttribute('data-seats')||'';if(_dP)_dP.textContent=selectedRide.price||'--';_dE.removeAttribute('hidden');}
+    if(_actionBtns)_actionBtns.removeAttribute('hidden');
+    _updateRequestBtn();
+  }
+  function _expandAllCards(){cards.forEach(function(c){c.classList.remove('is-active')});selectedRide=null;if(_dE)_dE.setAttribute('hidden','');if(_actionBtns)_actionBtns.setAttribute('hidden','')}
+  cards.forEach(function(c){c.addEventListener('click',function(){selectCard(c)})});
+  if(window.__vrTierInit)window.__vrTierInit(root);
+  async function doCheckout(triggerBtn){
+    if(!selectedRide){_vrToast(t('chooseVehicle'),'err');return;}
+    if(!timeEl.value){_vrToast(t('selectTime'),'err');return;}
+    var cents=Number(selectedRide.priceCents)||0;
+    if(cents<=0) cents=Math.round(Number(String(selectedRide.price||'').replace(/[^0-9.]/g,''))*100)||0;
+    if(cents<=0){_vrToast(t('enterLocation'),'err');return;}
+    var pickup=pickupEl.value.trim(),dropoff=currentMode==='hourly'?'':dropoffEl.value.trim();
+    if(!pickup){_vrToast(t('enterLocation'),'err');return;}
+    if(currentMode==='ride'&&!dropoff){_vrToast(t('enterPickupDestination'),'err');return;}
+    var priceReadable=moneyUSD(cents/100),bestVariant=findBestVariant(selectedRide.blockId,cents),variantId,quantity;
+    if(bestVariant&&Math.abs(bestVariant.price-cents)<100){variantId=bestVariant.id;quantity=1}
+    else{variantId=window.__VIP_CENT_VARIANT_ID__;quantity=cents}
+    var savedText=triggerBtn.textContent;
+    triggerBtn.disabled=true;if(ctaBtn)ctaBtn.disabled=true;if(checkoutBtn)checkoutBtn.disabled=true;
+    triggerBtn.textContent=t('processing');
+    try{
+      await fetch('/cart/clear.js',{method:'POST'});
+      var props={Pickup:pickup,Date:dateEl.value,Time:timeEl.value,Vehicle:selectedRide.title||'','Estimated Price':priceReadable,'Booking Type':currentMode==='hourly'?'Hourly Service':'Point to Point'};
+      if(currentMode==='hourly'){props['Hours']=currentHours;props['Service Type']='Hourly Chauffeur Service'}else props.Dropoff=dropoff;
+      var res=await fetch('/cart/add.js',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:variantId,quantity:quantity,properties:props})});
+      if(!res.ok){var err=await res.json().catch(function(){return{}});throw new Error(err.description||'add to cart failed');}
+      window.location.href='/checkout';
+    }catch(err){console.error('[VIP Ride]',err);_vrToast(t('checkout')+': '+err.message,'err');triggerBtn.textContent=savedText;triggerBtn.disabled=false;if(ctaBtn)ctaBtn.disabled=false;if(checkoutBtn)checkoutBtn.disabled=false;validateCTA(selectedRide);}}
+  dateEl.addEventListener('change',function(){
+    var today=new Date(),ts=today.getFullYear()+'-'+pad2(today.getMonth()+1)+'-'+pad2(today.getDate());
+    if(dateEl.value&&dateEl.value<ts)dateEl.value=ts;
+    if(dateEl.value){buildSlotPicker(dateEl.value);if(window.innerWidth<900)openAccordion(true);}
+    else resetSlotPicker();
+    afterInputChange();
+  });
+  [pickupEl,dropoffEl].forEach(function(el){if(el)el.addEventListener('input',afterInputChange)});
+  clearBtns.forEach(function(btn){btn.addEventListener('click',function(){
+      var w=btn.getAttribute('data-vipride-clear');
+      if(w==='pickup'){pickupEl.value='';pickupPlace=null;if(pickupMarker){pickupMarker.remove();pickupMarker=null}if(pickupLabelMk){pickupLabelMk.remove();pickupLabelMk=0}}
+      if(w==='dropoff'){dropoffEl.value='';dropoffPlace=null;if(dropoffMarker){dropoffMarker.remove();dropoffMarker=null}if(dropoffLabelMk){dropoffLabelMk.remove();dropoffLabelMk=0}}
+      afterInputChange();routeDurationSec=null;if(routeEstimate)routeEstimate.hidden=true;clearRoute();
+    })});
+  function isSpanish(){return (navigator.language||'').toLowerCase().startsWith('es');}
+  form.addEventListener('submit',async function(e){
+    e.preventDefault();
+    if(!selectedRide){_vrToast(isSpanish()?'Elige un vehículo.':'Choose a vehicle.','err');return;}
+    if(!timeEl.value){_vrToast(isSpanish()?'Selecciona un horario.':'Select a time slot.','err');return;}
+    var pickup=pickupEl.value.trim(),dropoff=currentMode==='hourly'?'':dropoffEl.value.trim();
+    if(!pickup){_vrToast(isSpanish()?'Ingresa la ubicación.':'Enter location.','err');return;}
+    if(currentMode==='ride'&&!dropoff){_vrToast(isSpanish()?'Ingresa recogida y destino.':'Enter pickup and destination.','err');return;}
+    var vehicle=selectedRide.title||'',price=selectedRide.price||'',ctaSubmitBtn=form.querySelector('[data-vipride-cta]'),requestId='VIP-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,7).toUpperCase(),origText=ctaSubmitBtn.textContent;
+    ctaSubmitBtn.textContent=isSpanish()?'Enviando...':'Sending...';ctaSubmitBtn.style.background='#888';ctaSubmitBtn.disabled=true;
+    var _emailWait=0;
+    while(typeof emailjs==='undefined' && _emailWait<40){await new Promise(function(r){setTimeout(r,100);});_emailWait++;}
+    if(typeof emailjs==='undefined'){
+      _vrToast(isSpanish()?'No pudimos enviar la reserva. Intenta de nuevo.':'Could not send booking. Please try again.','err');
+      ctaSubmitBtn.textContent=origText;ctaSubmitBtn.style.background='';ctaSubmitBtn.disabled=false;return;
+    }
+    try{
+      var ed={request_id:requestId,vehicle:vehicle,pickup:pickup,date:dateEl.value,time:timeEl.value,price:price,to_email:'bookpremiumblackcar@gmail.com',booking_type:currentMode==='hourly'?'Hourly Service':'Point to Point'};
+      if(currentMode==='hourly'){ed.hours=currentHours;ed.dropoff='N/A';}else{ed.dropoff=dropoff;}
+      await emailjs.send('service_mhj1mcp','template_yo0y14n',ed);
+    }catch(err){
+      console.warn('EmailJS:',err);
+      _vrToast(isSpanish()?'No pudimos enviar la reserva. Intenta de nuevo.':'Could not send booking. Please try again.','err');
+      ctaSubmitBtn.textContent=origText;ctaSubmitBtn.style.background='';ctaSubmitBtn.disabled=false;return;
+    }
+    ctaSubmitBtn.textContent=isSpanish()?'✓ ¡Enviada!':'✓ Request sent!';ctaSubmitBtn.style.background='#22c55e';
+    try{localStorage.setItem('vip_booking_sent','1');}catch(e){}
+    var msg=isSpanish()
+      ?'Hola, reserva *'+requestId+'*:\n\n📍 '+(currentMode==='hourly'?'Ubicación':'Recogida')+': '+pickup+'\n'+(currentMode==='ride'?'📍 Destino: '+dropoff+'\n':'⏰ Duración: '+currentHours+' horas\n')+'📅 Fecha: '+dateEl.value+'\n🕐 Hora: '+timeEl.value+'\n🚗 Vehículo: '+vehicle+'\n💰 Precio: '+price
+      :'Booking *'+requestId+'*:\n\n📍 '+(currentMode==='hourly'?'Service Location':'Pickup')+': '+pickup+'\n'+(currentMode==='ride'?'📍 Dropoff: '+dropoff+'\n':'⏰ Duration: '+currentHours+' hours\n')+'📅 Date: '+dateEl.value+'\n🕐 Time: '+timeEl.value+'\n🚗 Vehicle: '+vehicle+'\n💰 Price: '+price;
+    setTimeout(function(){window.location.href='https://api.whatsapp.com/send?phone=16593052974&text='+encodeURIComponent(msg);},600);
+  });
+  if(checkoutBtn)checkoutBtn.addEventListener('click',async function(){await doCheckout(checkoutBtn);});
+  (function setDateMin(){
+    var now=new Date(),ts=now.getFullYear()+'-'+pad2(now.getMonth()+1)+'-'+pad2(now.getDate());
+    dateEl.min=ts;if(!dateEl.value){dateEl.value=ts;buildSlotPicker(ts);}
+    if(window.innerWidth>=900)openAccordion(false);
+  })();
+  setMode('ride');updateStepDots();updateHoursDisplay();setLanguage(detectLanguage());
+  if(typeof emailjs!=='undefined')emailjs.init({publicKey:'5R65y1qr1-lXDwGRb'});
+  function initMapbox(){
+    if(typeof mapboxgl==='undefined'){setTimeout(initMapbox,100);return;}
+    if(!MAPBOX_TOKEN||MAPBOX_TOKEN==='YOUR_MAPBOX_ACCESS_TOKEN'){console.error('[VIP Ride] Mapbox token not set');return;}
+    try{
+      mapboxgl.accessToken=MAPBOX_TOKEN;
+      mapboxgl.workerCount=Math.max(2,Math.min(4,navigator.hardwareConcurrency||2));
+      mapboxgl.maxParallelImageRequests=16;
+      map=new mapboxgl.Map({container:'vipRideMap-{{ section.id }}',style:'mapbox://styles/mapbox/light-v11',center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:45,bearing:-10,maxPitch:55,attributionControl:false,antialias:true,interactive:true,dragRotate:true,touchPitch:true,dragPan:true,scrollZoom:true,touchZoomRotate:true,doubleClickZoom:true,keyboard:false,cooperativeGestures:false,fadeDuration:0,useWebGL2:true,optimizeForTerrain:false,renderWorldCopies:false});
+      map.addControl(new mapboxgl.AttributionControl({compact:true}),'bottom-left');
+      map.touchZoomRotate.enable({around:'center'});
+      map.scrollZoom.setWheelZoomRate(1/200);
+      map.scrollZoom.setZoomRate(1/200);
+      /* Resume is now defined globally at top of script — just kick it */
+      try{if(window.__vrCoreResume)window.__vrCoreResume();}catch(_){}
+      map.on('style.load',function(){});
+      map.once('render',function(){try{var c=map.getCanvas();if(c)c.style.willChange='transform';}catch(_){}});
+      map.on('load',function(){
+        var _mSk=root.querySelector('[data-vr-mapsk]');if(_mSk){_mSk.classList.add('is-hidden');setTimeout(function(){_mSk.remove&&_mSk.remove()},500);}
+        setTimeout(function(){map.easeTo({pitch:52,bearing:-12,duration:1600,easing:function(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}})},400);
+        /* Resume now that map is ready (works even if DOMContentLoaded resume already ran) */
+        try{if(window.__vrCoreResume)window.__vrCoreResume();}catch(_){}
+      });
+      var locateBtn=document.getElementById('vipLocate-{{ section.id }}');
+      function createGPSPinEl(){
+        var el=document.createElement('div');
+        el.className='vipRide__gpsPin';
+        el.innerHTML='<div class="vipRide__gpsPin__ring2"></div>'
+          +'<div class="vipRide__gpsPin__ring"></div>'
+          +'<div class="vipRide__gpsPin__core"></div>';
+        return el;
+      }
+      function setGPSPin(lat,lng){
+        if(!map) return;
+        if(!_gpsPinMarker){
+          _gpsPinMarker=new mapboxgl.Marker({element:createGPSPinEl(),anchor:'center'})
+            .setLngLat([lng,lat]).addTo(map);
+        } else {
+          _gpsPinMarker.setLngLat([lng,lat]);
+        }
+      }
+      if(pickupEl) pickupEl.addEventListener('input',function(){_pickupManuallySet=true;_gpsActive=false;});
+      function updatePickupFromGeo(lat,lng,fly){
+        if(_pickupManuallySet) return;
+        if(_lastGeoLat!==null&&Math.abs(lat-_lastGeoLat)<.0005&&Math.abs(lng-_lastGeoLng)<.0005) return;
+        _lastGeoLat=lat;_lastGeoLng=lng;
+        _gpsActive=true;
+        if(fly) map.flyTo({center:[lng,lat],zoom:16.5,pitch:50,bearing:-10,duration:1200,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+        setMarker('pickup', lat, lng);
+        reverseGeocode(lat,lng,function(name){
+          if(name&&!_pickupManuallySet){
+            pickupEl.value=name;
+            pickupPlace={label:name,lat:lat,lng:lng};
+            afterInputChange();
+          }
+        });
+      }
+      function doGeo(ok,err){navigator.geolocation.getCurrentPosition(function(p){updatePickupFromGeo(p.coords.latitude,p.coords.longitude,true);if(ok)ok();},function(){if(err)err();},{timeout:12000,enableHighAccuracy:true});}
+      if(navigator.geolocation){
+        if(pickupEl&&!pickupEl.value) pickupEl.placeholder=t('detectingLocation');
+        if(locateBtn) locateBtn.classList.add('is-locating');
+        navigator.geolocation.getCurrentPosition(function(p){
+          if(map&&!_pickupManuallySet){
+            map.jumpTo({center:[p.coords.longitude,p.coords.latitude],zoom:16.5,pitch:50,bearing:-10});
+          }
+          updatePickupFromGeo(p.coords.latitude,p.coords.longitude,false);
+          if(locateBtn)locateBtn.classList.remove('is-locating');
+        },function(){},{ timeout:3000, maximumAge:60000, enableHighAccuracy:false });
+        doGeo(
+          function(){if(locateBtn)locateBtn.classList.remove('is-locating');},
+          function(){if(locateBtn)locateBtn.classList.remove('is-locating');if(pickupEl)pickupEl.placeholder=currentLang==='es'?'Ingresa dirección':'Enter address';}
+        );
+        navigator.geolocation.watchPosition(
+          function(p){updatePickupFromGeo(p.coords.latitude,p.coords.longitude,false);},
+          function(){},{enableHighAccuracy:true,maximumAge:8000,timeout:20000}
+        );
+        if(locateBtn) locateBtn.addEventListener('click',function(){
+          _pickupManuallySet=false;_gpsActive=false;
+          locateBtn.classList.add('is-locating');
+          doGeo(function(){locateBtn.classList.remove('is-locating');},function(){locateBtn.classList.remove('is-locating');});
+        });
+      } else if(locateBtn){locateBtn.style.display='none';}
+      attachAutocomplete(pickupEl,'pickup');
+      if(dropoffEl) attachAutocomplete(dropoffEl,'dropoff');
+      setClearVisibility(); validateCTA(null);
+      var metaVP=document.querySelector('meta[name="viewport"]');
+      if(metaVP){var orig=metaVP.getAttribute('content')||'';metaVP.setAttribute('content',orig.replace(/,?\s*(maximum|minimum)-scale=[^,]*/gi,'').replace(/,?\s*user-scalable=[^,]*/gi,'').trim()+', maximum-scale=1.0, user-scalable=no');}
+    }catch(err){console.error('[VIP Ride]',err);}
+  }
+  initMapbox();
+  /* Backup: also try to resume scheduled card independently (in case map.on('load') is delayed) */
+  (function(){
+    var tried=false;
+    function tryResume(){
+      if(tried)return;
+      /* Use window globals — _apiBase/_webKey are defined later in the outer IIFE scope */
+      var _api=window.__vrEarlyApi||'https://cruise-api-proxy.cruise-api.workers.dev';
+      var _key=window.__vrEarlyKey||window.__vrWebKey||'';
+      try{
+        var raw=localStorage.getItem('vr_active_booking');
+        if(!raw)return;
+        var parsed=JSON.parse(raw);
+        if(!parsed||!parsed.id||!parsed.scheduled_at)return;
+        if(typeof window.__vrSchedShow!=='function'){setTimeout(tryResume,600);return;}
+        tried=true;
+        var isTemp=typeof parsed.id==='string' && parsed.id.indexOf('TEMP-')===0;
+        if(isTemp){window.__vrSchedShow(parsed,{},_api,_key);return;}
+        fetch(_api+'/bookings/web/'+parsed.id+'/status',{headers:{'Authorization':'Bearer '+_key}})
+          .then(function(r){return r.ok?r.json():null;})
+          .then(function(d){
+            if(!d){window.__vrSchedShow(parsed,{},_api,_key);return;}
+            var s=(d.status||'').toLowerCase();
+            /* Only clear on explicit terminal */
+            if(s==='completed'||s==='cancelled'||s==='canceled'){localStorage.removeItem('vr_active_booking');return;}
+            if(s==='in_trip'||s==='in_progress'||s==='on_trip'||s==='arrived'){
+              if(window.__vrLTShow)window.__vrLTShow(d,parsed.id,_api,_key,function(){if(window.__vrOpenAppPromo)window.__vrOpenAppPromo();});
+              return;
+            }
+            window.__vrSchedShow(parsed,d,_api,_key);
+          })
+          .catch(function(){
+            /* Network fail? Still show the card with saved data */
+            window.__vrSchedShow(parsed,{},_api,_key);
+          });
+      }catch(_){}
+    }
+    if(document.readyState==='complete'||document.readyState==='interactive')setTimeout(tryResume,800);
+    else document.addEventListener('DOMContentLoaded',function(){setTimeout(tryResume,800);});
+    setTimeout(tryResume,2500);
+  })();
+  try{_vrCart.clear();}catch(_){}
+  var q='#shopify-section-header,header.site-header,.site-header,header[role="banner"],.header-wrapper,#header,header.header,.header,sticky-header,nav.navbar';
+  (function(){function m(){var n=document.querySelector(q),h=n?n.getBoundingClientRect().height|0:0;if(h<40&&innerWidth>=900)h=72;document.documentElement.style.setProperty('--vip-nav-h',h+'px')}m();addEventListener('resize',m);setTimeout(m,400);setTimeout(m,1200)})();
+  (function(){
+    var _isMobile=window.innerWidth<900;
+    if(_isMobile)(function(){var s=root;if(!s)return;function e(){var r=s.getBoundingClientRect(),t=r.top,b=window.innerHeight-r.bottom;if(t>0||b>0){s.style.marginTop=(-t)+'px';s.style.height='calc(100dvh + '+t+'px + '+(b>0?b:0)+'px)';}}e();window.addEventListener('resize',e,{passive:true});setTimeout(e,500);setTimeout(e,1500);})();
+    (function(){['[data-vipride-locpicker]','[data-vipride-mappicker]','[data-vipride-later-overlay]','[data-vipride-pay-overlay]','[data-vipride-schedule-overlay]'].forEach(function(sel){var el=root.querySelector(sel);if(el)document.body.appendChild(el);});})();
+    var _siteNav=document.querySelector(q);
+    var _navOrigBg=_siteNav?(_siteNav.style.background||''):'',_navOrigBdf=_siteNav?(_siteNav.style.backdropFilter||''):'',_navOrigZ=_siteNav?(_siteNav.style.zIndex||''):'',_navOrigPos=_siteNav?(_siteNav.style.position||''):'';
+    function setNavBg(style){
+      if(!_siteNav) return;
+      var _pz='!important;position:relative!important;z-index:99998!important;';
+      if(style==='blur'){_siteNav.style.cssText+=';background:#050505!important;backdrop-filter:none!important;-webkit-backdrop-filter:none'+_pz;}
+      else if(style==='navy'){_siteNav.style.cssText+=';background:#0a1128!important;backdrop-filter:none!important;-webkit-backdrop-filter:none'+_pz;}
+      else if(style==='dark'){_siteNav.style.cssText+=';background:rgba(10,17,40,.7)!important;backdrop-filter:blur(28px) saturate(160%)!important;-webkit-backdrop-filter:blur(28px) saturate(160%)'+_pz;}
+      else {
+        _siteNav.style.background=_navOrigBg;_siteNav.style.backdropFilter=_navOrigBdf;_siteNav.style.webkitBackdropFilter=_navOrigBdf;_siteNav.style.zIndex=_navOrigZ;_siteNav.style.position=_navOrigPos;
+      }
+    }
+    var locPicker=document.querySelector('[data-vipride-locpicker]');
+    var openBtn=root.querySelector('[data-vipride-open-locpicker]');
+    var closeBtn=document.querySelector('[data-vipride-close-locpicker]');
+    var compactNext=root.querySelector('[data-vipride-compact-next]');
+    var compactPills=Array.from(root.querySelectorAll('[data-vipride-compact-mode-btn]'));
+    var lpPickupEl=document.querySelector('[data-vipride-lp-pickup]');
+    var lpDropoffEl=document.querySelector('[data-vipride-lp-dropoff]');
+    var lpSugEl=document.querySelector('[data-vipride-lp-suggestions]');
+    var _focused,_debounce={};
+    if(!locPicker||!openBtn)return;
+    var _locPickerPrev;
+    function hideSuggestions(){lpSugEl&&lpSugEl.setAttribute('hidden','')}
+    function showSuggestions(){lpSugEl&&lpSugEl.removeAttribute('hidden')}
+    function updateClearBtns(){
+      var pc=locPicker.querySelector('[data-vipride-lp-clear="pickup"]'),dc=locPicker.querySelector('[data-vipride-lp-clear="dropoff"]');
+      if(pc){var s=_gpsActive?false:(lpPickupEl&&lpPickupEl.value.trim());if(s)pc.removeAttribute('hidden');else pc.setAttribute('hidden','');}
+      if(dc){var s=!!(lpDropoffEl&&lpDropoffEl.value.trim());if(s)dc.removeAttribute('hidden');else dc.setAttribute('hidden','');}
+    }
+    function updateCompactArrow(){if(!compactNext)return;var ok=currentMode==='hourly'?!!(pickupEl&&pickupEl.value.trim()):!!(pickupEl&&pickupEl.value.trim()&&dropoffEl&&dropoffEl.value.trim());compactNext.classList.toggle('is-ready',ok);}
+    function openLocPicker(){
+      _vrSheetHide('lp');setNavBg('blur');
+      if(window.__vrMorphOpen)window.__vrMorphOpen(locPicker);
+      else{locPicker.removeAttribute('hidden');locPicker.classList.remove('is-closing');}
+      hideSuggestions();
+      if(lpPickupEl){
+        if(_gpsActive){var r=(pickupEl&&pickupEl.value.trim())||'';lpPickupEl.value=r;lpPickupEl.placeholder=t(r?'currentLocation':'detectingLocation');lpPickupEl.setAttribute('readonly','');}
+        else{lpPickupEl.value=pickupEl?pickupEl.value:'';lpPickupEl.placeholder=t('enterPickup');lpPickupEl.removeAttribute('readonly');}
+      }
+      if(lpDropoffEl){
+        lpDropoffEl.value = dropoffEl ? dropoffEl.value : '';
+        lpDropoffEl.placeholder=t('whereto');
+      }
+      updateClearBtns();
+      setTimeout(function(){if(lpDropoffEl&&!lpDropoffEl.value)lpDropoffEl.focus()},280);
+      if(window.__vrLpRenderRecent)window.__vrLpRenderRecent(lpDropoffEl);
+    }
+    function closeLocPicker(skipClean){
+      hideSuggestions();_locPickerPrev=null;_vrSheetShow('lp');
+      var _dC=function(){
+        locPicker.setAttribute('hidden','');locPicker.classList.remove('is-closing');
+        if(skipClean)return;
+        setNavBg(null);
+        try{clearRoute();routeDurationSec=null;hideMarkerLabels();if(dropoffMarker){dropoffMarker.remove();dropoffMarker=null}dropoffPlace=null;if(dropoffEl)dropoffEl.value='';if(lpDropoffEl)lpDropoffEl.value='';}catch(e){}
+        if(currentStep!==1){
+          currentStep=1;if(sheet)sheet.setAttribute('data-vipride-step','1');
+          var s1=root.querySelector('[data-vipride-step-panel="1"]'),s3=root.querySelector('[data-vipride-step-panel="3"]');
+          if(s3)s3.hidden=true;
+          if(s1){s1.hidden=false;s1.classList.remove('is-entering','is-entering-back','is-exiting','is-exiting-back')}
+          var mb=root.querySelector('[data-vipride-map-back]');if(mb)mb.hidden=true;
+        }
+        updateCompactArrow();
+      };
+      if(window.__vrMorphClose)window.__vrMorphClose(locPicker,_dC);else{locPicker.classList.add('is-closing');setTimeout(_dC,280);}
+    }
+    openBtn.addEventListener('click',openLocPicker);
+    closeBtn&&closeBtn.addEventListener('click',function(){closeLocPicker()});
+    var mapBackBtn=root.querySelector('[data-vipride-map-back]');
+    if(mapBackBtn) mapBackBtn.addEventListener('click',function(){
+      if(currentStep===3){window.__vrFlying=false;_mpActive=false;try{clearRoute();hideMarkerLabels();}catch(_){}openLocPicker();}
+    });
+    if(compactNext){
+      compactNext.addEventListener('click',function(){
+        var ok=currentMode==='hourly'?!!(pickupEl&&pickupEl.value.trim()):!!(pickupEl&&pickupEl.value.trim()&&dropoffEl&&dropoffEl.value.trim());
+        if(ok) goToStep(3,'forward');
+        else openLocPicker();
+      });
+    }
+    var laterOverlay=document.querySelector('[data-vipride-later-overlay]'),closeLaterBtn=document.querySelector('[data-vipride-close-later]'),segEl=root.querySelector('[data-vipride-seg]');
+    function openLaterOverlay(){if(!laterOverlay)return;_vrSheetHide('later');setNavBg('dark');if(window.__vrMorphOpen)window.__vrMorphOpen(laterOverlay);else{laterOverlay.removeAttribute('hidden');laterOverlay.classList.remove('is-closing');}}
+    function closeLaterOverlay(){
+      if(!laterOverlay)return;
+      setNavBg(null);_vrSheetShow('later');
+      var fn=function(){laterOverlay.setAttribute('hidden','');laterOverlay.classList.remove('is-closing');};
+      if(window.__vrMorphClose)window.__vrMorphClose(laterOverlay,fn);else{laterOverlay.classList.add('is-closing');setTimeout(fn,460);}
+      compactPills.forEach(function(b){b.classList.toggle('is-active',b.getAttribute('data-compact-mode')==='now');});
+      var rail=segEl&&segEl.querySelector('.vipRide__seg__rail');if(rail)rail.style.transform='';
+    }
+    if(closeLaterBtn) closeLaterBtn.addEventListener('click', closeLaterOverlay);
+    var _schedOverlay=document.querySelector('[data-vipride-schedule-overlay]'),_schedHr=10,_schedMin=0,_schedAmPm='AM',_schedDate=null,_schedAirport=false;
+    function _openSchedule(){
+      if(!_schedOverlay)return;
+      _vrSheetHide('sched');setNavBg('blur');
+      _schedOverlay.classList.add('is-entering');
+      _schedOverlay.removeAttribute('hidden');_schedOverlay.classList.remove('is-closing');
+      _buildCalendar(new Date());
+      var dp=_schedOverlay.querySelector('[data-vipride-sched-page="date"]'),tp=_schedOverlay.querySelector('[data-vipride-sched-page="time"]');
+      if(dp){dp.hidden=false;dp.style.opacity='1';}
+      if(tp)tp.hidden=true;
+      requestAnimationFrame(function(){requestAnimationFrame(function(){_schedOverlay.classList.remove('is-entering')})});
+      closeLaterOverlay();
+    }
+    function _closeSchedule(){
+      if(!_schedOverlay)return;_vrSheetShow('sched');
+      var fn=function(){_schedOverlay.setAttribute('hidden','');_schedOverlay.classList.remove('is-closing');setNavBg(null);};
+      if(window.__vrMorphClose)window.__vrMorphClose(_schedOverlay,fn);else{_schedOverlay.classList.add('is-closing');setTimeout(fn,460);}
+    }
+    function _buildCalendar(refDate){
+      var cal=_schedOverlay.querySelector('[data-vipride-sched-calendar]');
+      if(!cal)return;
+      var y=refDate.getFullYear(),m=refDate.getMonth(),today=new Date();today.setHours(0,0,0,0);
+      var months=['January','February','March','April','May','June','July','August','September','October','November','December'],days=['S','M','T','W','T','F','S'],firstDay=new Date(y,m,1).getDay(),daysInMonth=new Date(y,m+1,0).getDate();
+      var html='<div class="vipRide__schedCalNav">';
+      html+='<span class="vipRide__schedCalMonth">'+months[m]+' '+y+'</span>';
+      html+='<div class="vipRide__schedCalNavBtns"><button type="button" class="vipRide__schedCalNavBtn" data-cal-prev>&lt;</button><button type="button" class="vipRide__schedCalNavBtn" data-cal-next>&gt;</button></div></div>';
+      html+='<div class="vipRide__schedCalGrid">';
+      days.forEach(function(d){html+='<span class="vipRide__schedCalDay">'+d+'</span>'});
+      for(var i=0;i<firstDay;i++)html+='<span class="vipRide__schedCalCell is-empty"></span>';
+      for(var d=1;d<=daysInMonth;d++){
+        var dt=new Date(y,m,d);dt.setHours(0,0,0,0);
+        var cls='vipRide__schedCalCell';
+        if(dt<today)cls+=' is-past';
+        if(dt.getTime()===today.getTime())cls+=' is-today';
+        if(_schedDate&&dt.getTime()===_schedDate.getTime()) cls+=' is-selected';
+        html+='<button type="button" class="'+cls+'" data-cal-day="'+d+'">'+d+'</button>';
+      }
+      html+='</div>';
+      cal.innerHTML=html;
+      cal.querySelectorAll('[data-cal-day]').forEach(function(btn){btn.addEventListener('click',function(){_schedDate=new Date(y,m,parseInt(btn.getAttribute('data-cal-day'),10));cal.querySelectorAll('.is-selected').forEach(function(s){s.classList.remove('is-selected')});btn.classList.add('is-selected');var nb=_schedOverlay.querySelector('[data-vipride-sched-next]');if(nb)nb.disabled=false})});
+      var prev=cal.querySelector('[data-cal-prev]'),next=cal.querySelector('[data-cal-next]');
+      if(prev)prev.addEventListener('click',function(){_buildCalendar(new Date(y,m-1,1))});
+      if(next)next.addEventListener('click',function(){_buildCalendar(new Date(y,m+1,1))});
+    }
+    function _updateTimeSummary(){
+      var sum=_schedOverlay.querySelector('[data-vipride-sched-summary]'),lbl=_schedOverlay.querySelector('[data-vipride-sched-ampm-label]');
+      if(lbl)lbl.textContent=_schedAmPm;
+      if(sum&&_schedDate)sum.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E8C547" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg> '+((_schedDate.getMonth()+1)+'/'+_schedDate.getDate()+'/'+_schedDate.getFullYear())+' <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E8C547" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> '+pad2(_schedHr)+':'+pad2(_schedMin)+' '+_schedAmPm;
+      var hrEl=_schedOverlay.querySelector('[data-vipride-sched-hr]'),minEl=_schedOverlay.querySelector('[data-vipride-sched-min]');
+      if(hrEl)hrEl.textContent=pad2(_schedHr);
+      if(minEl)minEl.textContent=pad2(_schedMin);
+    }
+    if(_schedOverlay){
+      var schedBackCal=_schedOverlay.querySelector('[data-vipride-sched-back-cal]');
+      if(schedBackCal)schedBackCal.addEventListener('click',function(){_closeSchedule();if(laterOverlay){laterOverlay.setAttribute('hidden','');laterOverlay.classList.remove('is-closing','is-entering')}});
+      var schedNext=_schedOverlay.querySelector('[data-vipride-sched-next]');
+      function _schedFadeTo(showSel,hideSel){var h=_schedOverlay.querySelector(hideSel),s=_schedOverlay.querySelector(showSel);if(h)h.style.opacity='0';setTimeout(function(){if(h)h.hidden=true;if(s){s.hidden=false;s.style.opacity='1';s.classList.add('is-entering')}requestAnimationFrame(function(){requestAnimationFrame(function(){if(s)s.classList.remove('is-entering')})})},300)}
+      if(schedNext)schedNext.addEventListener('click',function(){if(!_schedDate)return;_updateTimeSummary();_schedFadeTo('[data-vipride-sched-page="time"]','[data-vipride-sched-page="date"]')});
+      if(window.__vrSchedChips)window.__vrSchedChips(_schedOverlay,function(t){_schedDate=t;_buildCalendar(t);var nb=_schedOverlay.querySelector('[data-vipride-sched-next]');if(nb)nb.disabled=false});
+      var schedBack=_schedOverlay.querySelector('[data-vipride-sched-back]');
+      if(schedBack)schedBack.addEventListener('click',function(){_schedFadeTo('[data-vipride-sched-page="date"]','[data-vipride-sched-page="time"]')});
+      function _vrMinAllowed(){
+        var n=new Date();
+        if(_schedDate&&(_schedDate.getFullYear()!==n.getFullYear()||_schedDate.getMonth()!==n.getMonth()||_schedDate.getDate()!==n.getDate()))return{h:0,m:0};
+        var mi=n.getMinutes(),ad=mi%30?(30-mi%30):30;
+        n.setMinutes(mi+ad,0,0);
+        return {h:n.getHours(),m:n.getMinutes()};
+      }
+      function _vrSetTime(h24,m){_schedAmPm=h24>=12?'PM':'AM';_schedHr=h24%12||12;_schedMin=m;_updateTimeSummary()}
+      function _vrCurTime24(){var h24=_schedAmPm==='PM'?(_schedHr===12?12:_schedHr+12):(_schedHr===12?0:_schedHr);return h24*60+_schedMin}
+      function _vrInitTime(){var a=_vrMinAllowed();_vrSetTime(a.h,a.m);}
+      _vrInitTime();
+      var stepUp=_schedOverlay.querySelector('[data-vipride-sched-step-up]'),stepDown=_schedOverlay.querySelector('[data-vipride-sched-step-down]');
+      if(stepUp)stepUp.addEventListener('click',function(){var t=_vrCurTime24()+30;if(t>=24*60)t=24*60-30;_vrSetTime(Math.floor(t/60),t%60)});
+      if(stepDown)stepDown.addEventListener('click',function(){var t=_vrCurTime24()-30,min=_vrMinAllowed(),minT=min.h*60+min.m;if(t<minT)t=minT;_vrSetTime(Math.floor(t/60),t%60)});
+      if(window.__vrSchedTimeChips)window.__vrSchedTimeChips(_schedOverlay,function(d,h,m){_schedDate=d;_vrSetTime(h,m);});
+      var schedConfirm=_schedOverlay.querySelector('[data-vipride-sched-confirm]');
+      if(schedConfirm)schedConfirm.addEventListener('click',function(){
+        if(_schedDate){dateEl.value=_schedDate.getFullYear()+'-'+pad2(_schedDate.getMonth()+1)+'-'+pad2(_schedDate.getDate());var h24=_schedAmPm==='PM'?(_schedHr===12?12:_schedHr+12):(_schedHr===12?0:_schedHr);timeEl.value=pad2(h24)+':'+pad2(_schedMin);}
+        var _a=_schedOverlay.querySelector('[data-vipride-sched-airport]');_schedAirport=!!(_a&&_a.checked);
+        window.__vrScheduleActive=true;_locPickerPrev='schedule';
+        if(_schedAirport)_vrAptOpen();else openLocPicker();
+        _schedOverlay.classList.add('is-closing');
+        setTimeout(function(){_schedOverlay.setAttribute('hidden','');_schedOverlay.classList.remove('is-closing');_vrSheetShow('sched');},380);
+      });
+    }
+    if(laterOverlay)laterOverlay.querySelectorAll('[data-later-type]').forEach(function(card){card.addEventListener('click',function(){var type=card.getAttribute('data-later-type');if(type==='schedule')_openSchedule();else if(type==='airport'){_vrAptOpen();closeLaterOverlay();}else{setNavBg('blur');openLocPicker();closeLaterOverlay();}})});
+    function _vrAptOpen(){
+      if(typeof window.__vrAptOpen!=='function')return;
+      _vrSheetHide('apt');
+      window.__vrAptOpen({
+        onConfirm:function(s){
+          var a=s&&s.airport;if(!a||a.length<6)return;
+          var code=a[0],name=a[1],surcharge=a[3],aptLat=a[4],aptLng=a[5];
+          var w=window;w.__vrAptActive=true;w.__vrAptSurchargeCents=surcharge*100;w.__vrAptCode=code;w.__vrAptTerminal=s.terminal||null;w.__vrAptAirline=(s.airline&&s.airline[0])||null;w.__vrAptDoor=s.door||null;w.__vrAptFlight=s.flight||null;w.__vrAptDirection=s.type||null;
+          var parts=[];
+          if(s.terminal)parts.push(s.terminal);
+          if(s.type==='from'&&s.door)parts.push(s.door);
+          if(s.type==='to'&&s.airline)parts.push(s.airline[0]);
+          var label=code+' — '+name+(parts.length?' ('+parts.join(' — ')+')':''),obj={label:label,lat:aptLat,lng:aptLng};
+          if(s.type==='to'){dropoffPlace=obj;if(dropoffEl)dropoffEl.value=label;setMarker('dropoff',aptLat,aptLng);}
+          else{pickupPlace=obj;_pickupManuallySet=true;_gpsActive=false;if(pickupEl)pickupEl.value=label;setMarker('pickup',aptLat,aptLng);}
+          try{afterInputChange()}catch(_){}
+          var needOther=s.type==='to'?!pickupPlace:!dropoffPlace;
+          if(needOther||window.__vrScheduleActive){openLocPicker();_vrSheetShow('apt');}
+          else{
+            try{goToStep(3,'forward');fitRouteBounds();computeRoute();}catch(_){}
+            if(typeof updateCardPrices==='function')updateCardPrices(routeDurationSec);
+            setTimeout(function(){_vrSheetShow('apt')},3300);
+          }
+          if(typeof _vrTrack==='function')_vrTrack('airport_confirmed',{airport:code,airline:s.airline&&s.airline[0],terminal:s.terminal,door:s.door,type:s.type,flight:s.flight});
+        },
+        onClose:function(){_vrSheetShow('apt');var w=window;if(w.__vrAptGoHome){w.__vrAptGoHome=false;w.__vrScheduleActive=false;if(laterOverlay){laterOverlay.setAttribute('hidden','');laterOverlay.classList.remove('is-entering','is-closing');}return;}if(laterOverlay){var l=laterOverlay;l.classList.add('is-entering');l.removeAttribute('hidden');requestAnimationFrame(function(){requestAnimationFrame(function(){l.classList.remove('is-entering')})})}},
+        onOpen:function(){if(typeof _vrTrack==='function')_vrTrack('airport_opened');}
+      });
+    }
+    window.__vrAptGetSurcharge=function(){return window.__vrAptActive?window.__vrAptSurchargeCents:0;};
+    window.__vrAptGetFlight=function(){return(window.__vrAptActive&&window.__vrAptFlight)||'';};
+    compactPills.forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();var mode=btn.getAttribute('data-compact-mode');compactPills.forEach(function(b){b.classList.remove('is-active')});btn.classList.add('is-active');if(segEl)segEl.classList.toggle('is-later',mode==='later');if(mode==='later')openLaterOverlay();else setMode('ride')})});
+    var _li=-1;
+    function _lpSa(i){var I=lpSugEl?lpSugEl.querySelectorAll('.vipRide__locPicker__suggestion'):[];if(!I.length)return;I.forEach(function(t,x){t.classList.toggle('is-active',x===i)});_li=i;if(I[i])I[i].scrollIntoView({block:'nearest'})}
+    function renderSuggestions(sugs, forWhich){
+      if(!lpSugEl)return;
+      lpSugEl.innerHTML='';_li=-1;
+      if(!sugs||!sugs.length){hideSuggestions();return}
+      sugs.forEach(function(sug){
+        var item=document.createElement('div');item.className='vipRide__locPicker__suggestion';
+        var main=sug.name||sug.full_address||'',sub=sug.full_address||sug.place_formatted||'';
+        if(sub.indexOf(main)===0)sub=sub.substring(main.length).replace(/^[\s,]+/,'');
+        item.innerHTML='<span class="vipRide__locPicker__sugDot"></span><div><div class="vipRide__locPicker__sugMain">'+escapeHtml(main)+'</div>'+(sub?'<div class="vipRide__locPicker__sugSub">'+escapeHtml(sub)+'</div>':'')+'</div>';
+        item.addEventListener('mousedown',function(e){e.preventDefault()});
+        item.__vrSelect=function(){
+          if(!sug.mapbox_id)return;
+          hideSuggestions();
+          fetch('https://api.mapbox.com/search/searchbox/v1/retrieve/'+encodeURIComponent(sug.mapbox_id)+'?access_token='+encodeURIComponent(MAPBOX_TOKEN)+'&session_token='+_acSessionToken).then(function(r){return r.json()}).then(function(rd){
+              if(!rd.features||!rd.features[0])return;
+              var f=rd.features[0],coords=f.geometry.coordinates,lng=coords[0],lat=coords[1];
+              var name=f.properties.full_address||f.properties.name||main,obj={label:name,lat:lat,lng:lng};
+              if(forWhich==='dropoff'){dropoffPlace=obj;if(dropoffEl)dropoffEl.value=name;if(lpDropoffEl)lpDropoffEl.value=name;if(window.__vrLpAdd)window.__vrLpAdd(name);}
+              else if(forWhich==='pickup'){_gpsActive=false;_pickupManuallySet=true;pickupPlace=obj;if(pickupEl)pickupEl.value=name;if(lpPickupEl){lpPickupEl.value=name;lpPickupEl.removeAttribute('readonly')}}
+              afterInputChange();setMarker(forWhich,lat,lng);computeRoute();
+              updateClearBtns();updateCompactArrow();
+              _acSessionToken=crypto.randomUUID?crypto.randomUUID():(Date.now()+''+Math.random()).replace('.','');
+              var done=currentMode==='hourly'?pickupPlace:(pickupPlace&&dropoffPlace);
+              if(currentStep===3&&done)setTimeout(function(){closeLocPicker(true);setTimeout(function(){try{computeRoute();fitRouteBounds();setTimeout(showMarkerLabels,2000)}catch(_){}},300)},150);
+              else{window.__vrAdjustFor=forWhich;setTimeout(function(){closeLocPicker(true);setTimeout(function(){if(typeof openMapPicker==='function')openMapPicker()},250)},150)}
+            }).catch(function(){});
+        };
+        item.addEventListener('click',item.__vrSelect);
+        lpSugEl.appendChild(item);
+      });
+      var f=lpSugEl.querySelector('.vipRide__locPicker__suggestion');if(f){f.classList.add('is-active');_li=0}
+      showSuggestions();
+    }
+    function fetchSug(query,which){
+      clearTimeout(_debounce[which]);
+      if(query.length<2){hideSuggestions();return}
+      _debounce[which]=setTimeout(function(){
+        var c=map?map.getCenter():{lng:defaultLng,lat:defaultLat};
+        fetch('https://api.mapbox.com/search/searchbox/v1/suggest?q='+encodeURIComponent(query)+'&access_token='+encodeURIComponent(MAPBOX_TOKEN)+'&session_token='+_acSessionToken+'&language='+(currentLang==='es'?'es':'en')+'&limit=8&types=address,poi&country=us&proximity='+c.lng+','+c.lat).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){renderSuggestions(d.suggestions||[],which)}).catch(function(){hideSuggestions();_mbErr('Búsqueda no disponible','Search unavailable')});
+      },270);
+    }
+    function _lpKey(e){var I=lpSugEl?lpSugEl.querySelectorAll('.vipRide__locPicker__suggestion'):[];if(!I.length||(lpSugEl&&lpSugEl.hasAttribute('hidden')))return;if(e.key==='ArrowDown'){e.preventDefault();_lpSa((_li+1)%I.length)}else if(e.key==='ArrowUp'){e.preventDefault();_lpSa((_li-1+I.length)%I.length)}else if(e.key==='Enter'){e.preventDefault();var t=I[_li>=0?_li:0];if(t&&t.__vrSelect)t.__vrSelect()}else if(e.key==='Escape')hideSuggestions()}
+    if(lpDropoffEl){
+      lpDropoffEl.addEventListener('focus',function(){_focused='dropoff'});
+      lpDropoffEl.addEventListener('input',function(){updateClearBtns();fetchSug(lpDropoffEl.value.trim(),'dropoff')});
+      lpDropoffEl.addEventListener('keydown',_lpKey);
+    }
+    if(lpPickupEl){
+      lpPickupEl.addEventListener('touchstart',function(e){
+        if(lpPickupEl.hasAttribute('readonly')){
+          e.preventDefault();lpPickupEl.removeAttribute('readonly');
+          var realAddr=(pickupEl&&pickupEl.value.trim())?pickupEl.value.trim():'';
+          lpPickupEl.value=realAddr;lpPickupEl.placeholder=t('searchPickup');
+          lpPickupEl.focus();lpPickupEl.setSelectionRange(0,lpPickupEl.value.length);
+          _focused='pickup';
+        }
+      },{passive:false});
+      lpPickupEl.addEventListener('focus',function(){
+        _focused='pickup';
+        if(lpPickupEl.hasAttribute('readonly')){
+          lpPickupEl.removeAttribute('readonly');
+          var realAddr=(pickupEl&&pickupEl.value.trim())?pickupEl.value.trim():'';
+          lpPickupEl.value=realAddr;lpPickupEl.placeholder=t('searchPickup');
+          lpPickupEl.setSelectionRange(0,lpPickupEl.value.length);
+        }
+      });
+      lpPickupEl.addEventListener('input',function(){_gpsActive=false;_pickupManuallySet=true;updateClearBtns();fetchSug(lpPickupEl.value.trim(),'pickup')});
+      lpPickupEl.addEventListener('keydown',_lpKey);
+      lpPickupEl.addEventListener('blur',function(){
+        if(!lpPickupEl.value.trim()&&_lastGeoLat!==null){
+          _gpsActive=true;_pickupManuallySet=false;
+          var realAddr=(pickupEl&&pickupEl.value.trim())?pickupEl.value.trim():'';
+          lpPickupEl.value=realAddr;lpPickupEl.setAttribute('readonly','');
+        }
+        _focused=null;try{_vrSyncPickupMask()}catch(_){}
+      });
+      var _pf=document.querySelector('[data-vipride-lp-field="pickup"]');
+      function _vrSyncPickupMask(){if(!_pf||!lpPickupEl)return;var h=!!(lpPickupEl.value&&lpPickupEl.value.trim()),f=document.activeElement===lpPickupEl;if(h&&!f)_pf.classList.add('is-masked');else _pf.classList.remove('is-masked');}
+      lpPickupEl.addEventListener('focus',function(){_pf&&_pf.classList.remove('is-masked');});
+      lpPickupEl.addEventListener('input',_vrSyncPickupMask);
+      if(_pf)_pf.addEventListener('click',function(){if(_pf.classList.contains('is-masked')){try{lpPickupEl.focus();lpPickupEl.setSelectionRange(0,lpPickupEl.value.length);}catch(_){}}});
+      setInterval(_vrSyncPickupMask,500);
+    }
+    locPicker.querySelectorAll('[data-vipride-lp-clear]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var w=btn.getAttribute('data-vipride-lp-clear');
+        hideSuggestions();
+        if(w==='dropoff'){
+          if(lpDropoffEl)lpDropoffEl.value='';
+          dropoffPlace=null;if(dropoffEl)dropoffEl.value='';
+          if(dropoffMarker){dropoffMarker.remove();dropoffMarker=null}
+          routeDurationSec=null;if(routeEstimate)routeEstimate.hidden=true;clearRoute();
+        }
+        if(w==='pickup'){
+          _gpsActive=false;_pickupManuallySet=false;
+          if(lpPickupEl){lpPickupEl.value='';lpPickupEl.removeAttribute('readonly')}
+          pickupPlace=null;if(pickupEl)pickupEl.value='';
+          if(pickupMarker){pickupMarker.remove();pickupMarker=null}
+        }
+        updateClearBtns();afterInputChange();updateCompactArrow();
+      })});
+    var mapPickerEl=document.querySelector('[data-vipride-mappicker]'),mapPickerBack=document.querySelector('[data-vipride-mappicker-back]'),mapPickerPin=document.querySelector('[data-vipride-mappicker-pin]'),mpCanvas=document.querySelector('.vipRide__mapPicker__canvas'),_mpGeoTimer=null,_mpPendingAddr=null,_mpPendingCoords=null,_mpDragging=false,_mpActive=false,_origMapContainer=document.getElementById('vipRideMap-{{ section.id }}'),_origMapParent=_origMapContainer?_origMapContainer.parentNode:null;
+    var mapPickerFooter=document.createElement('div');mapPickerFooter.id='vipMpFooter';
+    if(window.__vrMpFooterHtml)mapPickerFooter.innerHTML=window.__vrMpFooterHtml();
+    document.body.appendChild(mapPickerFooter);
+    var mapPickerAddr=document.getElementById('vipMpFooterAddr'),mapPickerConfirm=document.getElementById('vipMpFooterBtn'),mapPickerTitle=document.getElementById('vipMpFooterTitle'),mapPickerSub=document.getElementById('vipMpFooterSub'),mpFooterCard=document.getElementById('vipMpFooterCard'),mpFooterInput=document.getElementById('vipMpFooterInput'),mpFooterSugs=document.getElementById('vipMpFooterSugs');
+    if(window.__vrMpSearchInit)window.__vrMpSearchInit({card:mpFooterCard,addr:mapPickerAddr,inp:mpFooterInput,sugs:mpFooterSugs,token:MAPBOX_TOKEN,getMap:function(){return map},getCtr:function(){return map?map.getCenter():{lng:defaultLng,lat:defaultLat}},getSess:function(){return _acSessionToken}});
+    var _mpDragStartHandler=function(){if(!_mpActive)return;_mpDragging=true;if(mapPickerPin)mapPickerPin.classList.add('is-dragging')};
+    var _mpDragEndHandler=function(){if(!_mpActive)return;_mpDragging=false;if(mapPickerPin)mapPickerPin.classList.remove('is-dragging');_mpReverseCenter()};
+    var _mpMoveEndHandler=function(){if(!_mpActive)return;if(!_mpDragging)_mpReverseCenter()};
+    function openMapPicker(){
+      if(!mapPickerEl||!map)return;
+      _vrSheetHide('mp');setNavBg('navy');hideSuggestions();_mpActive=true;
+      if(_gpsPinMarker)_gpsPinMarker.getElement().style.display='none';
+      if(pickupMarker)pickupMarker.getElement().style.display='none';
+      if(dropoffMarker)dropoffMarker.getElement().style.display='none';
+      if(pickupLabelMk)pickupLabelMk.getElement().style.display='none';
+      if(dropoffLabelMk)dropoffLabelMk.getElement().style.display='none';
+      mapPickerEl.removeAttribute('hidden');mapPickerEl.classList.remove('is-closing');
+      if(window.__vrRadial)window.__vrRadial(mapPickerEl,document.querySelector('[data-vipride-shortcut="map"]'));
+      mapPickerFooter.style.display='block';
+      var _mpP=window.__vrAdjustFor==='pickup';
+      if(mapPickerTitle)mapPickerTitle.textContent=t(_mpP?'setPickup':'setDropoff');
+      if(mapPickerSub)mapPickerSub.textContent=t(_mpP?'moveMapPickup':'moveMapDropoff');
+      if(mapPickerConfirm){mapPickerConfirm.disabled=true;mapPickerConfirm.style.opacity='.35'}
+      if(mapPickerAddr){mapPickerAddr.textContent=t('detecting');mapPickerAddr.style.opacity='.45'}
+      var startCenter=dropoffPlace?[dropoffPlace.lng,dropoffPlace.lat]:(pickupPlace?[pickupPlace.lng,pickupPlace.lat]:(_lastGeoLng!==null?[_lastGeoLng,_lastGeoLat]:[defaultLng,defaultLat]));
+      requestAnimationFrame(function(){
+        if(mpCanvas&&_origMapContainer)mpCanvas.insertBefore(_origMapContainer,mapPickerPin);
+        clearRoute();
+        map.jumpTo({center:startCenter,zoom:16,pitch:0,bearing:0});
+        requestAnimationFrame(function(){requestAnimationFrame(function(){
+          map.resize();
+          _mpReverseCenter();
+        });});
+        map.on('dragstart',_mpDragStartHandler);map.on('dragend',_mpDragEndHandler);map.on('moveend',_mpMoveEndHandler);
+      });
+    }
+    function _returnMapToHome(){
+      map.off('dragstart',_mpDragStartHandler);map.off('dragend',_mpDragEndHandler);map.off('moveend',_mpMoveEndHandler);
+      if(_gpsPinMarker)_gpsPinMarker.getElement().style.display='';
+      if(pickupMarker)pickupMarker.getElement().style.display='';
+      if(dropoffMarker)dropoffMarker.getElement().style.display='';
+      if(pickupLabelMk)pickupLabelMk.getElement().style.display='';
+      if(dropoffLabelMk)dropoffLabelMk.getElement().style.display='';
+      if(_origMapParent&&_origMapContainer){_origMapParent.appendChild(_origMapContainer);requestAnimationFrame(function(){requestAnimationFrame(function(){map.resize()})});}
+    }
+    function closeMapPicker(){
+      if(!mapPickerEl)return;
+      _mpActive=false;mapPickerFooter.style.display='none';setNavBg('blur');mapPickerEl.classList.add('is-closing');
+      setTimeout(function(){
+        _returnMapToHome();
+        mapPickerEl.setAttribute('hidden','');
+        mapPickerEl.classList.remove('is-closing','is-entering');
+        _vrSheetShow('mp');
+      }, 460);
+    }
+    function _mpReverseCenter(){
+      if(!map)return;
+      var c=map.getCenter(),lat=c.lat,lng=c.lng;
+      _mpPendingCoords={lat:lat,lng:lng};
+      if(mapPickerAddr){mapPickerAddr.textContent=t('detecting');mapPickerAddr.style.opacity='.45'}
+      if(mapPickerConfirm){mapPickerConfirm.disabled=true;mapPickerConfirm.style.opacity='.35'}
+      clearTimeout(_mpGeoTimer);
+      _mpGeoTimer=setTimeout(function(){reverseGeocode(lat,lng,function(name){if(!name)name=lat.toFixed(5)+', '+lng.toFixed(5);_mpPendingAddr=name;if(mapPickerAddr){mapPickerAddr.textContent=name;mapPickerAddr.style.opacity='1'}if(mapPickerConfirm){mapPickerConfirm.disabled=false;mapPickerConfirm.style.opacity='1'}})},150);
+    }
+    if(mapPickerBack) mapPickerBack.addEventListener('click', closeMapPicker);
+    mapPickerConfirm.addEventListener('click',function(){
+      if(!_mpPendingCoords||!_mpPendingAddr)return;
+      var name=_mpPendingAddr,lat=_mpPendingCoords.lat,lng=_mpPendingCoords.lng,which=window.__vrAdjustFor==='pickup'?'pickup':'dropoff';window.__vrAdjustFor=null;_mpActive=false;
+      if(which==='pickup'){pickupPlace={label:name,lat:lat,lng:lng};_pickupManuallySet=true;_gpsActive=false;if(pickupEl)pickupEl.value=name;if(lpPickupEl)lpPickupEl.value=name;}
+      else{dropoffPlace={label:name,lat:lat,lng:lng};if(dropoffEl)dropoffEl.value=name;if(lpDropoffEl)lpDropoffEl.value=name;}
+      var done=currentMode==='hourly'?pickupPlace:(pickupPlace&&dropoffPlace);
+      setNavBg(null);mapPickerEl.classList.add('is-handoff');
+      try{document.body.classList.add('vipMp-handoff')}catch(_){}
+      try{clearRoute()}catch(_){}
+      try{setMarker(which,lat,lng)}catch(_){}
+      try{afterInputChange();updateClearBtns();updateCompactArrow()}catch(_){}
+      if(done){window.__vrFlying=true;_vrSheetHide('cf');try{goToStep(3,'forward');computeRoute()}catch(_){}_vrSheetHide('cf');setTimeout(function(){try{fitRouteBounds()}catch(_){}},360);setTimeout(function(){window.__vrFlying=false},5000)}
+      setTimeout(function(){_returnMapToHome();mapPickerFooter.style.display='none';mapPickerEl.setAttribute('hidden','');mapPickerEl.classList.remove('is-handoff','is-closing','is-entering');try{document.body.classList.remove('vipMp-handoff')}catch(_){}if(mapPickerPin)mapPickerPin.classList.remove('is-dropping');if(locPicker){locPicker.setAttribute('hidden','');locPicker.classList.remove('is-closing')}_vrSheetShow('lp');if(!done)setTimeout(openLocPicker,200)},280);
+      setTimeout(function(){requestAnimationFrame(function(){_vrSheetShow('mp');_vrSheetShow('cf');});},800)
+    });
+    locPicker.querySelectorAll('[data-vipride-shortcut]').forEach(function(btn){btn.addEventListener('click',function(){if(btn.getAttribute('data-vipride-shortcut')==='map')openMapPicker()})});
+    var _origAfterInput=afterInputChange;
+    afterInputChange=function(){_origAfterInput();updateCompactArrow()};
+    updateCompactArrow();
+    var _payOverlay = document.querySelector('[data-vipride-pay-overlay]');
+    var _payCloseBtn = document.querySelector('[data-vipride-pay-close]');
+    var _payOptions = document.querySelectorAll('[data-vipride-pay-option]');
+    function _openPayOverlay(){
+      if(!_payOverlay) return;
+      _vrSheetHide('pay');
+      setNavBg('blur');
+      _payOverlay.removeAttribute('hidden');
+      _payOverlay.classList.add('is-entering');
+      _payOverlay.classList.remove('is-closing');
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          _payOverlay.classList.remove('is-entering');
+        });
+      });
+    }
+    function _closePayOverlay(){
+      if(!_payOverlay) return;
+      _vrSheetShow('pay');
+      _payOverlay.classList.add('is-closing');
+      setTimeout(function(){
+        _payOverlay.setAttribute('hidden','');
+        _payOverlay.classList.remove('is-closing');
+        setNavBg(null);
+      },380);
+    }
+    if(_paymentBtn){
+      _paymentBtn.addEventListener('click', function(){
+        if(!_isLoggedIn() && typeof __vipShowGate==='function'){_vrPostAuth='pay';_showAuthGate();return;}
+        _openPayOverlay();
+      });
+    }
+    if(_payCloseBtn){
+      _payCloseBtn.addEventListener('click', _closePayOverlay);
+    }
+    _payOptions.forEach(function(opt){
+      opt.addEventListener('click', function(){
+        _payOptions.forEach(function(o){ o.classList.remove('is-selected'); });
+        opt.classList.add('is-selected');
+        _selectedPayment = opt.getAttribute('data-vipride-pay-option');
+        var _tok=(typeof __vipAuthToken==='function')?__vipAuthToken():null;
+        if(_tok){
+          var _lbl=opt.querySelector('.vipRide__payLabel');
+          fetch(_apiBase+'/auth/web/set-default-payment',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_tok},body:JSON.stringify({method_type:_selectedPayment,display_name:_lbl?_lbl.textContent.trim():_selectedPayment})}).catch(function(){});
+        }
+        if(_paymentBtn){
+          var icon = opt.querySelector('.vipRide__payIcon');
+          var label = opt.querySelector('.vipRide__payLabel');
+          var oldIcon = _paymentBtn.querySelector('.vipRide__payBtnIcon');
+          if(oldIcon && icon){
+            var cloned = icon.cloneNode(true);
+            cloned.className = 'vipRide__payBtnIcon';
+            cloned.style.cssText = 'width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;' + (icon.getAttribute('style')||'');
+            oldIcon.replaceWith(cloned);
+          }
+          var btnLabel = _paymentBtn.querySelector('.vipRide__payBtnLabel');
+          if(btnLabel) btnLabel.textContent = label ? label.textContent : _selectedPayment;
+        }
+        setTimeout(function(){
+          _closePayOverlay();
+          if(_requestBtn) _requestBtn.disabled = false;
+        }, 300);
+      });
+    });
+    var _stripe=window.Stripe?Stripe('pk_live_51T4BXG4JZyaaA3VKQmdt1gQp3Mi4jGVSmYZ6aWl8ZEQ7k07gzzGzlOKde9n4zdLbhhmclJKysCdAVnNy5Uh8TeMf00YAldU9fo'):null;
+    var _webKey='{{ section.settings.web_checkout_key | escape }}',_apiBase='https://cruise-api-proxy.cruise-api.workers.dev',_payReq=null,_payReqAvailable=false,_payClientSecret=null,_pendingPaymentIntentId=null;
+    try{window.__vrWebKey=_webKey;}catch(_){}
+    function _payFailed(err){
+      if(_requestBtn){_requestBtn.disabled=false;_requestBtn.textContent=t('requestRide')}
+      _payClientSecret=null;_pendingPaymentIntentId=null;
+      if(window.__vrPayFailedShow)__vrPayFailedShow(err,currentLang);
+      else _vrToast((err&&(err.message||err.code))||'Payment declined','err');
+    }
+    if(_stripe){
+      try{
+        _payReq=_stripe.paymentRequest({country:'US',currency:'usd',total:{label:'Cruise Ride',amount:100},requestPayerName:true,requestPayerEmail:true});
+        _payReq.canMakePayment().then(function(result){_payReqAvailable=!!result}).catch(function(e){console.warn('[Cruise Pay] canMakePayment error:',e)});
+        _payReq.on('paymentmethod',function(ev){
+          function _waitAndConfirm(attempts){
+            if(_payClientSecret){
+              _stripe.confirmCardPayment(_payClientSecret,{
+                payment_method:ev.paymentMethod.id
+              },{handleActions:false})
+              .then(function(res){
+                if(res.error){ev.complete('fail');_payBusy=false;_payFailed(res.error);}
+                else{
+                  ev.complete('success');
+                  _pendingPaymentIntentId=res.paymentIntent.id;
+                  if(res.paymentIntent.status==='requires_action'){
+                    _stripe.confirmCardPayment(_payClientSecret).then(function(r2){
+                      _payBusy=false;
+                      if(r2.error)_payFailed(r2.error);
+                      else _showTestConfirm();
+                    }).catch(function(e2){_payBusy=false;_payFailed(e2||{message:t('paymentError')});});
+                  }else{_payBusy=false;_showTestConfirm();}
+                }
+              })
+              .catch(function(err){try{ev.complete('fail');}catch(_){}_payBusy=false;_payFailed(err||{message:t('connectionError')});});
+              return;
+            }
+            if(attempts>40){try{ev.complete('fail');}catch(_){}_payBusy=false;_payFailed({message:t('paymentTimeout'),code:'timeout'});return;}
+            setTimeout(function(){_waitAndConfirm(attempts+1);},250);
+          }
+          _waitAndConfirm(0);
+        });
+        _payReq.on('cancel',function(){
+          _payBusy=false;
+          _payClientSecret=null;_pendingPaymentIntentId=null;
+          if(_requestBtn){_requestBtn.disabled=false;_requestBtn.textContent=t('requestRide');}
+        });
+      }catch(e){console.warn('[Cruise Pay] PaymentRequest init error:',e);}
+    }
+    function _getRideData(){
+      var cents=Number(selectedRide.priceCents)||0;
+      if(cents<=0)cents=Math.round(Number(String(selectedRide.price||'').replace(/[^0-9.]/g,''))*100)||0;
+      return {cents:cents,vehicle:selectedRide.title||'Ride',metadata:{trip_type:(selectedRide.title||'ride').toLowerCase(),pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',payment_method:_selectedPayment,date:dateEl?dateEl.value:'',time:timeEl?timeEl.value:''}};
+    }
+    var _payBusy=false;
+    function _payWithNativeSheet(){
+      if(_payBusy)return;
+      _payBusy=true;
+      _payClientSecret=null;_pendingPaymentIntentId=null;
+      var d=_getRideData();
+      if(d.cents<=0){_vrToast(t('priceError'),'err');_payBusy=false;return;}
+      if(!_payReq||!_payReqAvailable){_payBusy=false;_payWithCheckout();return;}
+      _requestBtn.disabled=true;_requestBtn.textContent=t('processing');
+      var _lbl='Cruise '+d.vehicle+' Ride',_dispItems=[];
+      if(d.metadata.pickup){var _pu=d.metadata.pickup.length>34?d.metadata.pickup.substring(0,34)+'…':d.metadata.pickup;_dispItems.push({label:t('from')+_pu,amount:0});}
+      if(d.metadata.dropoff){var _dr=d.metadata.dropoff.length>34?d.metadata.dropoff.substring(0,34)+'…':d.metadata.dropoff;_dispItems.push({label:t('to')+_dr,amount:0});}
+      if(d.metadata.date||d.metadata.time){
+        var _when='';
+        if(d.metadata.date){var _dp=d.metadata.date.split('-'),_mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];_when+=_mo[parseInt(_dp[1],10)-1]+' '+parseInt(_dp[2],10);}
+        if(d.metadata.time){var _tp=d.metadata.time.split(':'),_hh=parseInt(_tp[0],10),_mm=parseInt(_tp[1],10),_ap=_hh>=12?'PM':'AM';_hh=_hh%12||12;_when+=(_when?' · ':'')+_hh+':'+(_mm<10?'0'+_mm:_mm)+' '+_ap;}
+        if(_when){_lbl+=' · '+_when;_dispItems.push({label:t('when')+_when,amount:0});}
+      }
+      _dispItems.push({label:d.vehicle+' Ride',amount:d.cents});
+      _payReq.update({
+        total:{label:_lbl,amount:d.cents},
+        displayItems:_dispItems
+      });
+      try{_payReq.show();}catch(e){_payBusy=false;_payWithCheckout();return;}
+      fetch(_apiBase+'/payments/web/create-intent',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+_webKey},
+        body:JSON.stringify({amount:d.cents,currency:'usd',description:'Cruise '+d.vehicle+' Ride',metadata:d.metadata})
+      })
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+      .then(function(data){if(!data.client_secret)throw new Error(data.detail||'Intent error');_payClientSecret=data.client_secret;})
+      .catch(function(e){_payBusy=false;_payFailed(e||{message:t('paymentError')});_requestBtn.disabled=false;_requestBtn.textContent=t('requestRide');});
+    }
+    function _payWithCheckout(){
+      if(_payBusy)return;
+      _payBusy=true;
+      var d=_getRideData();
+      if(d.cents<=0){_vrToast(t('priceError'),'err');_payBusy=false;return;}
+      _requestBtn.disabled=true;_requestBtn.textContent=t('processing');
+      fetch(_apiBase+'/payments/web/checkout',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+_webKey},
+        body:JSON.stringify({
+          amount:d.cents,currency:'usd',
+          description:'Cruise '+d.vehicle+' Ride',
+          success_url:window.location.origin+'/pages/booking-confirmed?session_id={CHECKOUT_SESSION_ID}',
+          cancel_url:window.location.href,
+          metadata:d.metadata
+        })
+      })
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+      .then(function(data){
+        if(data.url)window.location.href=data.url;
+        else{_payBusy=false;_payFailed({message:data.detail||'Payment error',code:data.code||'decline'});_requestBtn.disabled=false;_requestBtn.textContent=t('requestRide');}
+      })
+      .catch(function(){_payBusy=false;_vrToast(t('connectionError'),'err');_requestBtn.disabled=false;_requestBtn.textContent=t('requestRide');});
+    }
+    var _VR_SB_URL='https://elvszwazwvpgqvnzxwnq.supabase.co';
+    var _VR_SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsdnN6d2F6d3ZwZ3F2bnp4d25xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTEzMzMsImV4cCI6MjA5MDc2NzMzM30.EhrXsgSF7nK2jvebOgO4mvzJSqGXJ0Je6j2vi9ZvMX4';
+    var _VR_MENU_URL='https://rides-vip-menu.vercel.app';
+    var _vrVipPending=null;
+    function _vrNormEmail(e){return(e||'').toString().trim().toLowerCase();}
+    function _vrNormPhone(p){return(p||'').toString().replace(/[^0-9+]/g,'');}
+    function _vrCreateVipMenuReservation(bookingData){
+      var gi={};try{if(typeof window.__vrGuestGet==='function')gi=window.__vrGuestGet()||{};}catch(_){}
+      var email=_vrNormEmail(gi.email);var phone=_vrNormPhone(gi.phone);
+      if(!email&&!phone)return;
+      var body={status:'active',email:email||null,phone:phone||null,booking_id:(bookingData&&bookingData.booking_id)||null,vehicle:selectedRide&&selectedRide.title||'',pickup:(pickupEl&&pickupEl.value.trim())||'',dropoff:(dropoffEl&&dropoffEl.value.trim())||'',ride_date:dateEl&&dateEl.value||'',ride_time:timeEl&&timeEl.value||'',tier:'vip',created_at:new Date().toISOString()};
+      _vrVipPending={body:body,gi:gi,email:email,reservation_id:null,emailed:false};
+      fetch(_VR_SB_URL+'/rest/v1/reservations',{method:'POST',headers:{apikey:_VR_SB_KEY,Authorization:'Bearer '+_VR_SB_KEY,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(body)})
+        .then(function(r){if(!r.ok)throw new Error('sb '+r.status);return r.json();})
+        .then(function(rows){
+          var row=Array.isArray(rows)?rows[0]:rows;
+          if(_vrVipPending) _vrVipPending.reservation_id=(row&&row.id)||null;
+          _vrTrack('vip_menu_reservation_created',{email:!!email,phone:!!phone});
+        })
+        .catch(function(e){console.warn('[VIP Menu reservation]',e);_vrTrack('vip_menu_reservation_failed',{err:String(e&&e.message||e)});});
+    }
+    function _vrSendVipMenuEmail(driverData){
+      if(!_vrVipPending || _vrVipPending.emailed) return;
+      var p=_vrVipPending; if(!p.email) return;
+      p.emailed=true;
+      if(typeof emailjs==='undefined') return;
+      var firstName=(p.gi && p.gi.first_name||'').trim();
+      var params={to_email:p.email,to_name:firstName||'VIP Guest',menu_link:_VR_MENU_URL,vehicle:p.body.vehicle,pickup:p.body.pickup,dropoff:p.body.dropoff,ride_date:p.body.ride_date,ride_time:p.body.ride_time,reservation_id:p.reservation_id||'',driver_name:(driverData&&driverData.driver_name)||''};
+      try{emailjs.send('service_mhj1mcp','template_vip_menu',params).then(function(){_vrTrack('vip_menu_email_sent');}).catch(function(e){console.warn('[VIP Menu email]',e);_vrTrack('vip_menu_email_failed',{err:String(e&&e.message||e)});p.emailed=false;});}catch(e){console.warn('[VIP Menu email]',e);p.emailed=false;}
+    }
+
+    /* ════ Scheduled Ride Emails — 3 momentos: confirmación, driver asignado, 5 min antes ════ */
+    function _vrFmtWhen(dateStr,timeStr){
+      if(!dateStr||!timeStr)return '';
+      try{
+        var d=new Date(dateStr+'T'+timeStr),hh=d.getHours(),mm=d.getMinutes(),ap=hh>=12?'PM':'AM';hh=hh%12||12;
+        var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return months[d.getMonth()]+' '+d.getDate()+', '+hh+':'+(mm<10?'0'+mm:mm)+' '+ap;
+      }catch(_){return dateStr+' '+timeStr;}
+    }
+    function _vrSchedGuest(bookingData){
+      var gi={};try{if(typeof window.__vrGuestGet==='function')gi=window.__vrGuestGet()||{};}catch(_){}
+      return {
+        email:_vrNormEmail(gi.email),
+        first_name:(gi.first_name||'').trim(),
+        bookingId:(bookingData&&bookingData.booking_id)||window.__vrActiveBookingId||'',
+        vehicle:selectedRide&&selectedRide.title||'',
+        pickup:(pickupEl&&pickupEl.value.trim())||'',
+        dropoff:(dropoffEl&&dropoffEl.value.trim())||'',
+        whenStr:_vrFmtWhen(dateEl&&dateEl.value,timeEl&&timeEl.value),
+        price:selectedRide&&selectedRide.price||''
+      };
+    }
+    function _vrPostEmail(endpoint,params){
+      return fetch(_apiBase+endpoint,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_webKey},body:JSON.stringify(params||{})}).then(function(r){if(!r.ok)throw new Error('email '+r.status);return r.json();});
+    }
+    function _vrSendSchedConfirm(bookingData){
+      if(!window.__vrScheduleActive)return;
+      var g=_vrSchedGuest(bookingData);if(!g.email)return;
+      var params={to_email:g.email,to_name:g.first_name||'Guest',vehicle:g.vehicle,pickup:g.pickup,dropoff:g.dropoff,scheduled_when:g.whenStr,price:g.price,booking_id:g.bookingId};
+      _vrPostEmail('/emails/web/sched-confirm',params).then(function(){_vrTrack('sched_confirm_sent');}).catch(function(e){console.warn('[Sched confirm]',e);_vrTrack('sched_confirm_failed',{err:String(e&&e.message||e)});});
+    }
+    var _vrSchedDriverSent=false;
+    function _vrSendSchedDriverAssigned(driverData){
+      if(_vrSchedDriverSent)return;
+      var g=_vrSchedGuest(driverData);if(!g.email)return;
+      /* Only for scheduled: require saved scheduled_at */
+      try{var sv=localStorage.getItem('vr_active_booking');if(sv){var p=JSON.parse(sv);if(!p||!p.scheduled_at)return;}else return;}catch(_){return;}
+      _vrSchedDriverSent=true;
+      var params={to_email:g.email,to_name:g.first_name||'Guest',vehicle:g.vehicle,pickup:g.pickup,dropoff:g.dropoff,scheduled_when:g.whenStr,booking_id:g.bookingId,driver_name:(driverData&&driverData.driver_name)||'',driver_rating:driverData&&driverData.driver_rating?Number(driverData.driver_rating).toFixed(1):'',vehicle_make:(driverData&&driverData.vehicle_make)||'',vehicle_model:(driverData&&driverData.vehicle_model)||'',vehicle_plate:(driverData&&driverData.vehicle_plate)||''};
+      _vrPostEmail('/emails/web/sched-driver',params).then(function(){_vrTrack('sched_driver_sent');}).catch(function(e){console.warn('[Sched driver]',e);_vrTrack('sched_driver_failed',{err:String(e&&e.message||e)});_vrSchedDriverSent=false;});
+    }
+    var _vrSchedEnRouteSent=false;
+    function _vrSendSchedEnRoute(driverData){
+      if(_vrSchedEnRouteSent)return;
+      var g=_vrSchedGuest(driverData);if(!g.email)return;
+      _vrSchedEnRouteSent=true;
+      var params={to_email:g.email,to_name:g.first_name||'Guest',vehicle:g.vehicle,pickup:g.pickup,driver_name:(driverData&&driverData.driver_name)||'',booking_id:g.bookingId,live_tracking_url:'https://cruiseinride.com/products/vip-service'};
+      _vrPostEmail('/emails/web/sched-enroute',params).then(function(){_vrTrack('sched_enroute_sent');}).catch(function(e){console.warn('[Sched enroute]',e);_vrTrack('sched_enroute_failed',{err:String(e&&e.message||e)});_vrSchedEnRouteSent=false;});
+    }
+    try{window.__vrSendSchedDriverAssigned=_vrSendSchedDriverAssigned;window.__vrSendSchedEnRoute=_vrSendSchedEnRoute;}catch(_){}
+    function _postBookingToCruise(paymentIntentId, onSuccess, onError){
+      var d=_getRideData();
+      if(!paymentIntentId&&_pendingPaymentIntentId){paymentIntentId=_pendingPaymentIntentId;_pendingPaymentIntentId=null;}
+      var _piForError=paymentIntentId||null;
+      var _gi=(typeof window.__vrGuestGet==='function')?window.__vrGuestGet():null;
+      fetch(_apiBase+'/bookings/web/create',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+_webKey},
+        body:JSON.stringify({
+          pickup:{address:d.metadata.pickup,lat:pickupPlace?pickupPlace.lat:null,lng:pickupPlace?pickupPlace.lng:null},
+          dropoff:{address:d.metadata.dropoff,lat:dropoffPlace?dropoffPlace.lat:null,lng:dropoffPlace?dropoffPlace.lng:null},
+          vehicle_type:d.vehicle,amount_cents:d.cents,currency:'usd',payment_method:_selectedPayment,
+          scheduled_date:d.metadata.date||null,scheduled_time:d.metadata.time||null,
+          scheduled_at:(window.__vrScheduleActive&&d.metadata.date&&d.metadata.time)?new Date(d.metadata.date+'T'+d.metadata.time).toISOString():null,
+          is_airport:!!window.__vrAptActive,airport_code:window.__vrAptCode||null,terminal:window.__vrAptTerminal||null,
+          pickup_zone:window.__vrAptDoor||window.__vrAptAirline||null,flight_number:window.__vrAptFlight||null,
+          trip_type:currentMode||'ride',payment_intent_id:paymentIntentId||null,
+          user_token:(typeof __vipAuthToken==='function'?__vipAuthToken():null)||_vrLS.get('vr_at')||null,
+          rider_first_name:_gi?_gi.first_name:null,rider_last_name:_gi?_gi.last_name:null,rider_email:_gi?_gi.email:null,rider_phone:_gi?_gi.phone:null,
+          contact_name:_gi?(_gi.first_name+' '+_gi.last_name):null,contact_phone:_gi?_gi.phone:null,
+          notes:window.__vrAptFlight?('Flight: '+window.__vrAptFlight):''
+        })
+      })
+      .then(function(r){
+        var _ok=r.ok,_status=r.status;
+        return r.json().catch(function(){return {};}).then(function(data){return {ok:_ok,status:_status,data:data||{}};});
+      })
+      .then(function(resp){
+        var data=resp.data,ok=resp.ok;
+        if(ok && data && data.booking_id){
+          _vrTrack('booking_created',{booking_id:data.booking_id});
+          _vrCart.clear();
+          if(onSuccess) onSuccess(data);
+        } else {
+          var detail=(data&&(data.detail||data.error||data.message))||('HTTP '+resp.status);
+          _vrTrack('booking_failed',{detail:detail,pi:_piForError,http:resp.status});
+          var err={message:detail,code:(data&&data.code)||'booking_failed',payment_intent_id:_piForError,http_status:resp.status};
+          if(onError) onError(err); else console.warn('[Cruise Booking] failed after payment:',err);
+        }
+      })
+      .catch(function(e){
+        _vrTrack('booking_network_error',{pi:_piForError,msg:String(e&&e.message||e)});
+        console.warn('[Cruise Booking]',e);
+        var err={message:(e&&e.message)||'Network error',code:'network',payment_intent_id:_piForError};
+        if(onError) onError(err);
+      });
+    }
+    function _showBookingAfterPaymentError(err){
+      var _pi=(err&&err.payment_intent_id)||'';
+      var _isEs=(currentLang==='es');
+      var _title=_isEs?'No pudimos crear tu viaje':'We could not create your ride';
+      var _msg=_isEs?'Tu pago fue recibido pero hubo un problema al crear la reserva. Tu dinero está seguro. Por favor contáctanos y lo resolvemos de inmediato.':'Your payment went through, but we had a problem creating the booking. Your money is safe. Please contact us and we will resolve it immediately.';
+      var _ref=_isEs?'Código de referencia':'Reference code';
+      var _contact=_isEs?'Contactar soporte':'Contact support';
+      var _close=_isEs?'Cerrar':'Close';
+      var _prev=document.getElementById('vrBookErrOverlay'); if(_prev) _prev.remove();
+      var o=document.createElement('div');
+      o.id='vrBookErrOverlay';
+      o.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(5,8,20,.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity 240ms ease';
+      function _escT(s){var d=document.createElement('div');d.appendChild(document.createTextNode(String(s==null?'':s)));return d.innerHTML;}
+      o.innerHTML='<div style="max-width:420px;width:100%;background:linear-gradient(180deg,#1a0f0f,#0f0a0a);border:1px solid rgba(232,120,71,.4);border-radius:22px;padding:30px 26px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.7)">'+
+        '<div style="width:60px;height:60px;margin:0 auto 18px;border-radius:50%;background:linear-gradient(135deg,rgba(232,120,71,.18),rgba(232,120,71,.06));border:1px solid rgba(232,120,71,.4);display:flex;align-items:center;justify-content:center">'+
+        '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E88547" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>'+
+        '</div>'+
+        '<h3 style="margin:0 0 10px;font-size:19px;font-weight:800;color:#fff">'+_escT(_title)+'</h3>'+
+        '<p style="margin:0 0 16px;font-size:13.5px;line-height:1.55;color:rgba(255,255,255,.78)">'+_escT(_msg)+'</p>'+
+        (_pi?'<div style="padding:10px 14px;background:rgba(232,120,71,.08);border:1px solid rgba(232,120,71,.22);border-radius:10px;margin-bottom:18px;font-size:11px;color:#E88547;letter-spacing:.04em;font-weight:600;word-break:break-all"><div style="opacity:.75;margin-bottom:4px">'+_escT(_ref)+'</div><div style="font-family:monospace;font-size:12px;color:#fff">'+_escT(_pi)+'</div></div>':'')+
+        '<a href="https://wa.me/16593052974" target="_blank" rel="noopener" data-vrbeok style="display:block;padding:14px;background:linear-gradient(135deg,#F5DC7A,#E8C547,#D4A800);border:none;border-radius:100px;color:#0a0a0a;font-size:14px;font-weight:800;letter-spacing:.04em;cursor:pointer;text-decoration:none;margin-bottom:10px">'+_escT(_contact)+'</a>'+
+        '<button type="button" data-vrbeclose style="width:100%;padding:12px;background:transparent;border:1px solid rgba(255,255,255,.18);border-radius:100px;color:rgba(255,255,255,.7);font-size:13px;font-weight:600;cursor:pointer">'+_escT(_close)+'</button>'+
+        '</div>';
+      document.body.appendChild(o);
+      requestAnimationFrame(function(){o.style.opacity='1';});
+      function _cl(){o.style.opacity='0';setTimeout(function(){try{o.remove();}catch(_){}},260);}
+      var _cb=o.querySelector('[data-vrbeclose]'); if(_cb) _cb.addEventListener('click',_cl);
+      o.addEventListener('click',function(e){if(e.target===o)_cl();});
+      try{_vrTrack('booking_error_shown',{pi:_pi,code:err&&err.code});}catch(_){}
+    }
+    function _showReserveOk(overlay){
+      var p2=overlay.querySelector('[data-vipride-test-p2]'),rOk=overlay.querySelector('[data-vipride-reserve-ok]');
+      if(p2){p2.classList.remove('is-visible');setTimeout(function(){p2.style.display='none'},400);}
+      if(!rOk||!window.__vrReserveHtml)return;
+      var pu=(pickupEl&&pickupEl.value.trim())||'--',dr=(dropoffEl&&dropoffEl.value.trim())||'--',wh=(dateEl&&timeEl)?t('scheduledFor',{d:dateEl.value,t:timeEl.value}):t('scheduled'),vh=selectedRide&&selectedRide.title||'';
+      rOk.innerHTML=window.__vrReserveHtml(pu,dr,wh,vh);
+      setTimeout(function(){rOk.classList.add('is-visible')},420);
+      var c=30,cntEl=rOk.querySelector('[data-vipride-reserve-count]'),doneBtn=rOk.querySelector('[data-vipride-reserve-done]'),cancelBtn=rOk.querySelector('[data-vipride-reserve-cancel]');
+      var iv=setInterval(function(){c--;if(cntEl)cntEl.textContent='('+c+')';if(c<=0){clearInterval(iv);_closeTestConfirm(overlay)}},1000);
+      window.__vrReserveIv=iv;
+      if(doneBtn)doneBtn.addEventListener('click',function(){clearInterval(iv);_closeTestConfirm(overlay)},{once:true});
+      if(cancelBtn)cancelBtn.addEventListener('click',function(){clearInterval(iv);if(window.__vrCancelBooking&&window.__vrCancelBooking(_apiBase,_webKey))_vrToast(t('reservationCancelled'),'ok');_closeTestConfirm(overlay);},{once:true});
+    }
+    function _showDriverFound(overlay,driverData){
+      _vrTrack('driver_found',{driver:driverData&&driverData.driver_name});
+      try{_vrSendVipMenuEmail(driverData);}catch(_){}
+      var q=function(s){return overlay.querySelector(s)},p2=q('[data-vipride-test-p2]'),pDriver=q('[data-vipride-test-driver]'),barDriver=q('[data-vipride-test-bar-driver]');
+      if(p2){p2.classList.remove('is-visible');setTimeout(function(){p2.style.display='none'},400);}
+      var nameEl=q('[data-vipride-driver-name]'),ratingEl=q('[data-vipride-driver-rating]'),ratingWrapEl=q('[data-vipride-driver-rating-wrap]'),onwayEl=q('[data-vipride-driver-onway]'),photoEl=q('[data-vipride-driver-photo]'),vehicleEl=q('[data-vipride-driver-vehicle]'),plateEl=q('[data-vipride-driver-plate]');
+      var dName=(driverData&&driverData.driver_name)||t('yourDriver'),dRatingRaw=driverData?driverData.driver_rating:null,dPhoto=(driverData&&driverData.driver_photo_url)||null;
+      if(nameEl)nameEl.textContent=dName;
+      if(ratingWrapEl){
+        var hR=dRatingRaw!==null&&dRatingRaw!==undefined&&dRatingRaw!==''&&Number(dRatingRaw)>0;
+        if(hR){if(ratingEl)ratingEl.textContent=Number(dRatingRaw).toFixed(1);ratingWrapEl.hidden=false;}else ratingWrapEl.hidden=true;
+      }
+      if(onwayEl)onwayEl.textContent=t('onWay',{n:dName.split(' ')[0]});
+      if(photoEl&&dPhoto){var img=document.createElement('img');img.src=dPhoto;img.alt=dName;photoEl.innerHTML='';photoEl.appendChild(img);}
+      if(vehicleEl){
+        var vMake=(driverData&&driverData.vehicle_make)||'',vModel=(driverData&&driverData.vehicle_model)||'',vPlate=(driverData&&driverData.vehicle_plate)||'',vYear=(driverData&&driverData.vehicle_year)||'',vColor=(driverData&&driverData.vehicle_color)||'',vParts=[];
+        if(vYear&&vMake&&vModel)vParts.push(vYear+' '+vMake+' '+vModel);else if(vMake&&vModel)vParts.push(vMake+' '+vModel);
+        if(vColor)vParts.push(vColor);
+        vehicleEl.textContent=vParts.join(' • ');vehicleEl.style.display=vParts.length?'':'none';
+        if(plateEl){if(vPlate){plateEl.textContent=vPlate;plateEl.hidden=false;}else plateEl.hidden=true;}
+      }
+      var _mapBack=root.querySelector('[data-vipride-map-back]');
+      if(_mapBack)_mapBack.hidden=true;
+      window.__vrLastPickup=pickupEl?pickupEl.value:'';window.__vrLastDropoff=dropoffEl?dropoffEl.value:'';
+      setTimeout(function(){
+        if(pDriver)pDriver.classList.add('is-visible');
+        if(barDriver)barDriver.style.width='100%';
+        setTimeout(function(){
+          var nx=function(){_showAppPromo(overlay)};
+          if(window.__vrLTShow)window.__vrLTShow(driverData,window.__vrActiveBookingId,_apiBase,_webKey,nx);else nx();
+        },4500);
+      },420);
+    }
+    function _pollForDriver(bookingId, overlay){
+      if(!bookingId)return;
+      if(window._vrActivePoll){clearInterval(window._vrActivePoll);window._vrActivePoll=null;}
+      var attempts=0,maxAttempts=150,poll=setInterval(function(){
+        attempts++;
+        if(attempts>maxAttempts){clearInterval(poll);window._vrActivePoll=null;return;}
+        fetch(_apiBase+'/bookings/web/'+bookingId+'/status',{headers:{'Authorization':'Bearer '+_webKey}})
+        .then(function(r){return r.json()})
+        .then(function(data){
+          if(!data)return;
+          var s=(data.status||'').toLowerCase();
+          if(s==='accepted'||s==='driver_assigned'||s==='in_progress'||data.driver_name){clearInterval(poll);window._vrActivePoll=null;_showDriverFound(overlay,data);}
+          else if(s==='cancelled'||s==='canceled'){clearInterval(poll);window._vrActivePoll=null;window.__vrNoDriverShow&&window.__vrNoDriverShow(overlay);}
+        })
+        .catch(function(){});
+      },2000);
+      window._vrActivePoll=poll;
+    }
+    /* Global helper: open the app-promo directly (used when resuming LT on refresh) */
+    if(!window.__vrOpenAppPromo){
+      window.__vrOpenAppPromo=function(){
+        try{
+          var ov=document.querySelector('[data-vipride-test-confirm]');
+          if(!ov)return;
+          ov.removeAttribute('hidden');
+          ov.classList.add('is-visible');
+          /* Hide phase1/phase2/driver card — show only app-promo directly */
+          var p1=ov.querySelector('[data-vipride-test-p1]');if(p1)p1.style.display='none';
+          var p2=ov.querySelector('[data-vipride-test-p2]');if(p2)p2.style.display='none';
+          var pDriver=ov.querySelector('[data-vipride-test-driver]');if(pDriver)pDriver.style.display='none';
+          var pReserve=ov.querySelector('[data-vipride-reserve-ok]');if(pReserve)pReserve.style.display='none';
+          _showAppPromo(ov);
+        }catch(_){}
+      };
+    }
+    function _showAppPromo(overlay){
+      var pDriver=overlay.querySelector('[data-vipride-test-driver]');
+      var pPromo=overlay.querySelector('[data-vipride-test-apppromo]');
+      if(!pPromo) return;
+      if(pDriver){pDriver.classList.remove('is-visible');setTimeout(function(){pDriver.style.display='none'},400);}
+      var st3=overlay.querySelector('[data-vipride-test-stars3]');
+      if(st3&&!st3.children.length){
+        for(var i=0;i<25;i++){
+          var s=document.createElement('div');s.className='vipRide__testStar';
+          var sz=(Math.random()*2.5+1).toFixed(1);
+          s.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*96+2)+'%;top:'+(Math.random()*96+2)+'%;--dur:'+(1.6+Math.random()*2.2).toFixed(2)+'s;--delay:-'+(Math.random()*3).toFixed(2)+'s;';
+          st3.appendChild(s);
+        }
+      }
+      setTimeout(function(){
+        if(pPromo)pPromo.classList.add('is-visible');
+        var vid=pPromo.querySelector('[data-vr-video]'),endCTA=pPromo.querySelector('[data-vr-endcta]'),screenEl=vid?vid.closest('.vR-app__screen'):null;
+        if(vid){
+          try{vid.currentTime=0;if(screenEl)screenEl.classList.remove('is-ended');if(endCTA)endCTA.classList.remove('is-shown');var pp=vid.play();if(pp&&pp.catch)pp.catch(function(){});}catch(e){}
+          var onEnded=function(){if(screenEl)screenEl.classList.add('is-ended');setTimeout(function(){if(endCTA)endCTA.classList.add('is-shown')},250);};
+          vid.removeEventListener('ended',onEnded);vid.addEventListener('ended',onEnded,{once:true});
+        }
+        var skip=pPromo.querySelector('[data-vrp-skip]');
+        if(skip)skip.addEventListener('click',function(){_closeTestConfirm(overlay)},{once:true});
+        /* Back button: return to Live Tracker (or scheduled card) — force immediate reopen */
+        var backBtn=pPromo.querySelector('[data-vipride-apppromo-back]');
+        if(backBtn){
+          var _backH=function(ev){
+            ev.preventDefault();ev.stopPropagation();
+            try{if(vid)vid.pause();}catch(_){}
+            /* Reset the internal resume flag so it runs again */
+            try{if(typeof window.__vrResetResume==='function')window.__vrResetResume();}catch(_){}
+            /* Close the promo */
+            try{_closeTestConfirm(overlay);}catch(_){}
+            /* Trigger resume (opens LT or Sched card depending on booking) */
+            try{
+              if(typeof window.__vrCoreResume==='function'){
+                window.__vrCoreResume();
+                setTimeout(function(){if(typeof window.__vrCoreResume==='function')window.__vrCoreResume();},300);
+                setTimeout(function(){if(typeof window.__vrCoreResume==='function')window.__vrCoreResume();},900);
+                setTimeout(function(){if(typeof window.__vrCoreResume==='function')window.__vrCoreResume();},2000);
+              }
+            }catch(_){}
+            /* Direct fallback: if we have a booking in localStorage, force-open LT */
+            try{
+              var sv=localStorage.getItem('vr_active_booking');
+              if(sv){
+                var p=JSON.parse(sv);
+                if(p&&p.id&&typeof window.__vrLTShow==='function'){
+                  setTimeout(function(){
+                    /* Only if neither sched nor LT is already visible */
+                    var ltVisible=document.querySelector('[data-vr-livetracker]:not([hidden])');
+                    var schedVisible=document.querySelector('#vrSched:not([hidden])');
+                    if(!ltVisible&&!schedVisible){
+                      fetch(window.__vrEarlyApi+'/bookings/web/'+p.id+'/status',{headers:{'Authorization':'Bearer '+window.__vrEarlyKey}})
+                        .then(function(r){return r.ok?r.json():null;})
+                        .then(function(d){
+                          var st=d?(d.status||'').toLowerCase():'';
+                          if(st==='completed'||st==='cancelled'||st==='canceled')return;
+                          var data=d||{status:'requested',booking_id:p.id,pickup_address:p.pickup,dropoff_address:p.dropoff};
+                          window.__vrLTShow(data,p.id,window.__vrEarlyApi,window.__vrEarlyKey,function(){if(window.__vrOpenAppPromo)window.__vrOpenAppPromo();});
+                        }).catch(function(){
+                          window.__vrLTShow({status:'requested',booking_id:p.id,pickup_address:p.pickup,dropoff_address:p.dropoff},p.id,window.__vrEarlyApi,window.__vrEarlyKey,function(){if(window.__vrOpenAppPromo)window.__vrOpenAppPromo();});
+                        });
+                    }
+                  },500);
+                }
+              }
+            }catch(_){}
+          };
+          backBtn.onclick=_backH;
+          backBtn.addEventListener('click',_backH);
+          backBtn.addEventListener('touchend',_backH,{passive:false});
+        }
+      },420);
+    }
+    function _showTestConfirm(){
+      var overlay=root.querySelector('[data-vipride-test-confirm]');
+      if(!overlay) return;
+      var p1=overlay.querySelector('[data-vipride-test-p1]');
+      var p2=overlay.querySelector('[data-vipride-test-p2]');
+      var pDriver=overlay.querySelector('[data-vipride-test-driver]');
+      var pPromo=overlay.querySelector('[data-vipride-test-apppromo]');
+      var pReserve=overlay.querySelector('[data-vipride-reserve-ok]');
+      var bar2=overlay.querySelector('[data-vipride-test-bar2]');
+      var routeEl=overlay.querySelector('[data-vipride-test-route]');
+      [p1,p2,pDriver,pPromo,pReserve].forEach(function(p){
+        if(!p) return;
+        p.classList.remove('is-visible','is-hiding');
+        p.style.display='';
+      });
+      if(p1) p1.style.display='none'; 
+      if(routeEl){
+        var _pu=pickupEl?pickupEl.value.trim():'',_dr=dropoffEl?dropoffEl.value.trim():'',_short=function(s){return s.length>22?s.substring(0,22)+'…':s};
+        routeEl.textContent=(_pu?_short(_pu):'Pickup')+' → '+(_dr?_short(_dr):'Dropoff');
+      }
+      if(sheet)sheet.classList.add('is-test-hidden');
+      overlay.removeAttribute('hidden');
+      var _isRes=window.__vrScheduleActive;
+      if(!_isRes){root.classList.add('is-searching');if(window.__vrMsgIv)clearInterval(window.__vrMsgIv);window.__vrMsgIv=window.__vrRotateMsg&&window.__vrRotateMsg(overlay.querySelector('[data-vipride-test-msg]'));}
+      requestAnimationFrame(function(){
+        if(p2&&!_isRes)p2.classList.add('is-visible');
+        if(map&&pickupPlace&&dropoffPlace){
+          var _b=new mapboxgl.LngLatBounds();_b.extend([pickupPlace.lng,pickupPlace.lat]);_b.extend([dropoffPlace.lng,dropoffPlace.lat]);
+          var _cam=map.cameraForBounds(_b,{padding:{top:80,right:36,bottom:220,left:36},maxZoom:15.5,pitch:52,bearing:15});
+          if(_cam)map.flyTo({center:_cam.center,zoom:_cam.zoom,pitch:52,bearing:15,duration:1400,essential:true,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2}});
+        }
+        if(typeof showMarkerLabels==='function')setTimeout(showMarkerLabels,600);
+        if(bar2)bar2.style.width='100%';
+        _postBookingToCruise(null,function(data){
+          if(data&&data.booking_id){window.__vrActiveBookingId=data.booking_id;try{var _schedAt=(window.__vrScheduleActive&&dateEl&&timeEl&&dateEl.value&&timeEl.value)?new Date(dateEl.value+'T'+timeEl.value).toISOString():null;localStorage.setItem('vr_active_booking',JSON.stringify({id:data.booking_id,ts:Date.now(),scheduled_at:_schedAt,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||''}));}catch(_){}}
+          try{if(selectedRide&&selectedRide.tier==='vip')_vrCreateVipMenuReservation(data);}catch(_){}
+          if(window.__vrScheduleActive){
+            /* Email 1: scheduled ride confirmation (to rider) */
+            try{_vrSendSchedConfirm(data);}catch(_){}
+            /* Ensure localStorage has scheduled_at */
+            try{
+              var _sAtNow=(dateEl&&timeEl&&dateEl.value&&timeEl.value)?new Date(dateEl.value+'T'+timeEl.value).toISOString():null;
+              var _bid=(data&&data.booking_id)||window.__vrActiveBookingId||'TEMP-'+Date.now();
+              var _lsData={id:_bid,ts:Date.now(),scheduled_at:_sAtNow,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||''};
+              localStorage.setItem('vr_active_booking',JSON.stringify(_lsData));
+              window.__vrActiveBookingId=_bid;
+            }catch(_){}
+            /* Skip the mobile-style confirm overlay — go directly to new card with smooth transition */
+            try{_closeTestConfirm(overlay);}catch(_){}
+            try{if(window.__vrReserveIv){clearInterval(window.__vrReserveIv);window.__vrReserveIv=null;}}catch(_){}
+            setTimeout(function(){
+              try{
+                var savedRaw=localStorage.getItem('vr_active_booking');
+                var saved=savedRaw?JSON.parse(savedRaw):null;
+                if(saved&&saved.scheduled_at&&window.__vrSchedShow){
+                  window.__vrSchedShow(saved,data||{},_apiBase,_webKey);
+                }
+              }catch(e){console.warn('[Sched open failed]',e);}
+            },250);
+            return;
+          }
+          if(data&&data.booking_id){_pollForDriver(data.booking_id,overlay);}
+          else if(data&&(data.status==='accepted'||data.driver_name))_showDriverFound(overlay,data);
+        },function(e){
+          console.warn('[Cruise Booking]',e);
+          if(window.__vrScheduleActive){_showReserveOk(overlay);return;}
+          try{_closeTestConfirm(overlay);}catch(_){}
+          /* Only show "payment received but booking failed" overlay when there WAS a payment.
+             Test mode and cash flows have no PaymentIntent — show a simple toast instead. */
+          var _hadPayment=(e&&e.payment_intent_id)||(_selectedPayment!=='test_mode'&&_selectedPayment!=='cash');
+          if(_hadPayment){
+            try{_showBookingAfterPaymentError(e);}catch(_){_vrToast((e&&e.message)||'Booking error','err');}
+          } else {
+            _vrToast((e&&e.message)||'Booking error — please try again','err');
+          }
+        });
+      });
+      overlay.querySelectorAll('[data-vipride-test-cancel],[data-vipride-test-cancel2]').forEach(function(btn){btn.addEventListener('click',function(){if(window.__vrCancelBooking&&window.__vrCancelBooking(_apiBase,_webKey))_vrToast(t('rideCancelled'),'ok');_closeTestConfirm(overlay);},{once:true});});
+    }
+    function _closeTestConfirm(overlay){
+      if(!overlay) overlay=root.querySelector('[data-vipride-test-confirm]');
+      if(!overlay) return;
+      try{if(window._vrActivePoll){clearInterval(window._vrActivePoll);window._vrActivePoll=null;}if(window.__vrReserveIv){clearInterval(window.__vrReserveIv);window.__vrReserveIv=null;}if(window.__vrMsgIv){clearInterval(window.__vrMsgIv);window.__vrMsgIv=null;}root.classList.remove('is-searching');}catch(_){}
+      var w=window;w.__vrAptActive=false;w.__vrAptSurchargeCents=0;w.__vrScheduleActive=false;w.__vrAptCode=w.__vrAptTerminal=w.__vrAptAirline=w.__vrAptDoor=w.__vrAptFlight=null;
+      overlay.querySelectorAll('[data-vipride-test-stars],[data-vipride-test-stars2],[data-vipride-test-stars3]').forEach(function(el){el.innerHTML='';});
+      overlay.style.opacity='0';overlay.style.transition='opacity 380ms ease';
+      setTimeout(function(){_vrFullReset(overlay);},400);
+    }
+    function _vrFullReset(overlay){
+      if(!overlay)overlay=root.querySelector('[data-vipride-test-confirm]');
+      if(overlay){
+        overlay.setAttribute('hidden','');
+        overlay.style.opacity='';overlay.style.transition='';
+        overlay.querySelectorAll('.vipRide__testConfirm__phase1,.vipRide__testConfirm__phase2,.vipRide__driverFound').forEach(function(p){p.classList.remove('is-visible','is-hiding');p.style.display='';});
+        overlay.querySelectorAll('[data-vipride-test-bar],[data-vipride-test-bar2],[data-vipride-test-bar3],[data-vipride-test-bar-driver]').forEach(function(b){b.style.width='0%';});
+      }
+      _vrSheetReset();
+      var _mb=root.querySelector('[data-vipride-map-back]');if(_mb)_mb.hidden=true;
+      selectedRide=null;_selectedPayment=null;currentMode='ride';
+      if(dropoffEl)dropoffEl.value='';
+      if(dropoffMarker){try{dropoffMarker.remove();}catch(_){}dropoffMarker=null;}
+      dropoffPlace=null;
+      try{if(map&&map.getLayer){_rtLayers.forEach(function(id){if(map.getLayer(id))map.removeLayer(id);});if(map.getSource('route'))map.removeSource('route');}}catch(_){}
+      routeDurationSec=null;
+      try{cards.forEach(function(c){c.classList.remove('is-active','is-hidden');});_cardsCollapsed=false;}catch(_){}
+      if(_actionBtns)_actionBtns.setAttribute('hidden','');
+      var payBtnLbl=root.querySelector('.vipRide__payBtnLabel');
+      if(payBtnLbl)payBtnLbl.textContent=t('paymentMethod');
+      root.querySelectorAll('[data-vipride-pay-option]').forEach(function(o){o.classList.remove('is-active');});
+      if(_requestBtn){_requestBtn.disabled=true;_requestBtn.textContent=t('requestRide');}
+      try{validateCTA(null);}catch(_){}
+      try{compactPills.forEach(function(b){b.classList.toggle('is-active',b.getAttribute('data-compact-mode')==='now');});if(segEl)segEl.classList.remove('is-later');}catch(_){}
+      window.__vrAptActive=false;window.__vrAptSurchargeCents=0;
+      try{_schedDate=null;}catch(_){}
+      if(dateEl)dateEl.value='';
+      if(timeEl)timeEl.value='';
+      try{goToStep(1,'back');}catch(_){}
+      if(pickupPlace&&pickupEl&&/^\w{3} — /.test(pickupEl.value||'')){
+        if(pickupMarker){try{pickupMarker.remove();}catch(_){}pickupMarker=null;}
+        pickupPlace=null;pickupEl.value='';_pickupManuallySet=false;_gpsActive=false;
+      }
+      setTimeout(function(){
+        try{
+          var tgt=pickupPlace?[pickupPlace.lng,pickupPlace.lat]:(_lastGeoLng!==null?[_lastGeoLng,_lastGeoLat]:null);
+          if(tgt&&map) map.flyTo({center:tgt,zoom:16.5,pitch:50,bearing:-10,duration:1200,essential:true,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+          if(!pickupPlace){var _lb=root.querySelector('[data-vipride-locate-btn]')||root.querySelector('.vipRide__locateBtn');if(_lb)_lb.click();}
+        }catch(_){}
+      },300);
+      if(typeof _vrTrack==='function')_vrTrack('booking_cancelled');
+    }
+    if(_requestBtn){
+      _requestBtn.addEventListener('click', function(){
+        if(!selectedRide || !_selectedPayment) return;
+        if(_payBusy || _requestBtn.disabled) return;
+        _vrTrack('request_ride_clicked',{vehicle:selectedRide.title,payment:_selectedPayment,amount_cents:selectedRide.priceCents});
+        function _proceed(){
+          if(_selectedPayment==='cash'){doCheckout(_requestBtn);return;}
+          if(_selectedPayment==='test_mode'){_showTestConfirm();return;}
+          if((_selectedPayment==='apple_pay'||_selectedPayment==='google_pay') && _stripe){
+            _payWithNativeSheet();
+          } else {
+            _payWithCheckout();
+          }
+        }
+        var isAuthed=!!(typeof __vipAuthToken==='function'?__vipAuthToken():_vrLS.get('vr_at'));
+        if(_selectedPayment==='cash'&&!isAuthed){_vrToast('Sign in required for Cash','err');if(typeof __vipShowGate==='function')_showAuthGate();return;}
+        if(isAuthed){_proceed();return;}
+        if(typeof window.__vrGuestCollect==='function'){
+          window.__vrGuestCollect(function(info){if(info&&info.first_name&&info.last_name&&info.email)_proceed();else _vrToast(t('provideEmailPhone')||'Please provide your info','err');});
+          return;
+        }
+        _vrToast('Please sign in or provide guest info','err');
+        if(typeof __vipShowGate==='function'){_vrTrack('auth_required');_showAuthGate();}
+      });
+    }
+    _vrGuest=false;
+    _vrLS.del('vr_guest');
+    window.__vipAuth={apiBase:_apiBase,webKey:_webKey,root:root,step1NextBtn:step1NextBtn};
+    var _vrPostAuth=null;
+    var _gb=document.querySelector('[data-vipride-auth-guest]');
+    if(_gb) _gb.addEventListener('click',function(e){
+      e.preventDefault();e.stopPropagation();
+      _vrGuest=true;
+      var g=document.querySelector('[data-vipride-auth-gate]');
+      if(g){g.removeAttribute('data-visible');setTimeout(function(){g.setAttribute('hidden','');},360);}
+      _vrTrack('guest_continue');
+      if(_vrPostAuth==='pay'){_vrPostAuth=null;setTimeout(_openPayOverlay,400);}
+    });
+    document.addEventListener('click',function(e){
+      var gate=document.querySelector('[data-vipride-auth-gate][data-visible]');
+      if(!gate)return;
+      var el=e.target.closest('a[href*="/account"],a[href*="/login"],a[href="/cart"],[aria-label*="account" i],[aria-label*="sign in" i],[aria-label*="cart" i]');
+      if(!el||el.closest('.vipRide'))return;
+      e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+      location.href='/cart';
+    },true);
+    window.__vipAuthGoogleId='{{ section.settings.google_client_id | default: "" | escape }}';
+    window.__vipAuthAppleId='{{ section.settings.apple_client_id | default: "" | escape }}';
+    if(window.__vrInitAuth)window.__vrInitAuth(_apiBase,_webKey);
+    (function(){
+      var g=document.querySelector('[data-vipride-auth-gate]');
+      if(!g)return;
+      g.addEventListener('click',function(e){
+        if(e.target===g||!e.target.closest('.vipRide__authGate__card')){
+          e.stopImmediatePropagation();e.preventDefault();return false;
+        }
+      },true);
+      g.addEventListener('touchstart',function(e){
+        if(e.target===g||!e.target.closest('.vipRide__authGate__card')){
+          e.stopImmediatePropagation();e.preventDefault();return false;
+        }
+      },true);
+    })();
+    (function(){
+      var DARK='#0a0d14';
+      var origThemeColor=null;
+      function setMeta(c){
+        var m=document.querySelector('meta[name="theme-color"]');
+        if(m){if(origThemeColor===null)origThemeColor=m.getAttribute('content')||'';m.setAttribute('content',c);}
+        else{var n=document.createElement('meta');n.name='theme-color';n.content=c;document.head.appendChild(n);}
+      }
+      function restoreMeta(){
+        var m=document.querySelector('meta[name="theme-color"]');
+        if(m&&origThemeColor!==null)m.setAttribute('content',origThemeColor);
+      }
+      function anyOpen(){
+        var g=document.querySelector('[data-vipride-auth-gate]');
+        if(g&&!g.hidden&&g.hasAttribute('data-visible'))return true;
+        var pgs=document.querySelectorAll('.vipRide__authPage');
+        for(var i=0;i<pgs.length;i++){if(!pgs[i].hidden&&pgs[i].hasAttribute('data-visible'))return true;}
+        return false;
+      }
+      function update(){
+        if(anyOpen()){
+          document.documentElement.classList.add('vipride-auth-open');
+          document.body.classList.add('vipride-auth-open');
+          setMeta(DARK);
+        } else {
+          document.documentElement.classList.remove('vipride-auth-open');
+          document.body.classList.remove('vipride-auth-open');
+          restoreMeta();
+        }
+      }
+      var targets=[].slice.call(document.querySelectorAll('[data-vipride-auth-gate],.vipRide__authPage'));
+      var mo=new MutationObserver(update);
+      targets.forEach(function(t){mo.observe(t,{attributes:true,attributeFilter:['hidden','data-visible']});});
+      update();
+    })();
+  })();
+})();
+</script>

@@ -1,0 +1,118 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "cart-section": {
+      "type": "main-cart",
+      "blocks": {
+        "cart-page-title": {
+          "type": "_cart-title",
+          "static": true,
+          "settings": {
+            "title": "Cart",
+            "show_count": true,
+            "type_preset": "h4",
+            "alignment": "left",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "cart-page-items": {
+          "type": "_cart-products",
+          "static": true,
+          "settings": {
+            "gap": 24,
+            "image_ratio": "portrait",
+            "dividers": true,
+            "vendor": false,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "cart-page-summary": {
+          "type": "_cart-summary",
+          "static": true,
+          "settings": {
+            "extend_summary": true,
+            "inherit_color_scheme": false,
+            "color_scheme": "scheme-2",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0
+          },
+          "blocks": {}
+        }
+      },
+      "disabled": true,
+      "settings": {
+        "section_width": "page-width",
+        "color_scheme": "",
+        "padding-block-start": 24,
+        "padding-block-end": 0
+      }
+    },
+    "custom_liquid_yGxqUE": {
+      "type": "custom-liquid",
+      "name": "t:names.custom_liquid",
+      "settings": {
+        "custom_liquid": "<!-- VIP SERVICE SECTION (Slow Luxury Text Animations, No Scroll Animation) -->\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n<link href=\"https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;500;600;800&display=swap\" rel=\"stylesheet\">\n\n<section class=\"vipX\" id=\"vip-service\" aria-label=\"VIP Service\">\n\n  <!-- Background Video -->\n  <div class=\"vipX__bg\" aria-hidden=\"true\">\n    <video class=\"vipX__video\" autoplay muted loop playsinline preload=\"metadata\">\n      <source src=\"https://cdn.shopify.com/videos/c/o/v/f3a11ffc3ca7407e9f7d62511e7da1cc.mp4\" type=\"video/mp4\">\n    </video>\n    <div class=\"vipX__overlay\"></div>\n  </div>\n\n  <div class=\"vipX__wrap\">\n    <div class=\"vipX__content\">\n      <div class=\"vipX__kicker\">VIP SERVICE</div>\n\n      <h2 class=\"vipX__title\">\n        Premium Private <span>Transportation</span>\n      </h2>\n\n      <p class=\"vipX__desc\">\n        Enjoy a first-class experience with our exclusive VIP transportation service.\n        Designed for airport transfers, executive travel, special events, and luxury comfort.\n        Professional drivers. Absolute privacy. Maximum elegance.\n      </p>\n\n      <a href=\"/products/vip-service\" class=\"vipX__btn\">\n        BOOK YOUR RIDE NOW\n      </a>\n    </div>\n  </div>\n</section>\n\n<style>\n:root{\n  --gold1:#f5d77a;\n  --gold2:#d4af37;\n  --gold3:#b98d1c;\n}\n\n/* SECTION (sin transición de scroll, fijo) */\n.vipX{\n  position:relative;\n  min-height:100vh;\n  padding:120px 20px;\n  color:white;\n  overflow:hidden;\n\n  opacity:1;\n  transform:none;\n  filter:none;\n}\n\n/* Background */\n.vipX__bg{\n  position:absolute;\n  inset:0;\n  z-index:-2;\n  overflow:hidden;\n  background:#000;\n}\n\n.vipX__video{\n  position:absolute;\n  inset:0;\n  width:100%;\n  height:100%;\n  object-fit:cover;\n  transform:none;\n}\n\n/* Sombreado superior + inferior */\n.vipX__overlay{\n  position:absolute;\n  inset:0;\n  background:\n    linear-gradient(to bottom,\n      rgba(0,0,0,1) 0%,\n      rgba(0,0,0,.85) 12%,\n      rgba(0,0,0,.55) 25%,\n      rgba(0,0,0,0) 45%\n    ),\n    linear-gradient(to top,\n      rgba(0,0,0,1) 0%,\n      rgba(0,0,0,.90) 15%,\n      rgba(0,0,0,.60) 30%,\n      rgba(0,0,0,0) 55%\n    ),\n    radial-gradient(circle at 50% 35%,\n      rgba(212,175,55,.15),\n      transparent 60%\n    );\n}\n\n/* Content */\n.vipX__wrap{\n  max-width:1000px;\n  margin:auto;\n  text-align:center;\n  position:relative;\n  z-index:2;\n}\n\n/* =========\n   ANIMACIÓN LENTA (solo al cargar)\n   ========= */\n.vipX__content{\n  --ease: cubic-bezier(.2,.8,.2,1);\n  opacity:0;\n  transform: translateY(22px);\n  filter: blur(6px);\n  animation: vipIn 2.2s var(--ease) forwards;\n}\n\n.vipX__kicker,\n.vipX__title,\n.vipX__desc,\n.vipX__btn{\n  opacity:0;\n  transform: translateY(18px);\n  animation: vipUp 2.2s var(--ease) forwards;\n}\n\n/* Stagger */\n.vipX__kicker{ animation-delay: .20s; }\n.vipX__title { animation-delay: .40s; }\n.vipX__desc  { animation-delay: .62s; }\n.vipX__btn   { animation-delay: .85s; }\n\n@keyframes vipIn{\n  to{\n    opacity:1;\n    transform: translateY(0);\n    filter: blur(0);\n  }\n}\n@keyframes vipUp{\n  to{\n    opacity:1;\n    transform: translateY(0);\n  }\n}\n\n/* Typography */\n.vipX__kicker{\n  letter-spacing:.45em;\n  font-size:12px;\n  color:var(--gold2);\n  margin-bottom:20px;\n  font-family:\"Inter\", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;\n  text-transform:uppercase;\n}\n\n.vipX__title{\n  font-family:\"Cinzel\", serif;\n  font-size:clamp(48px,5vw,82px);\n  line-height:1.05;\n  margin:0;\n}\n.vipX__title span{ color:var(--gold2); }\n\n.vipX__desc{\n  max-width:700px;\n  margin:30px auto;\n  opacity:.75;\n  line-height:1.7;\n  font-family:\"Inter\", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;\n}\n\n/* Button */\n.vipX__btn{\n  display:inline-flex;\n  align-items:center;\n  justify-content:center;\n  margin-top:30px;\n  height:45px;\n  padding:0 20px;\n  border-radius:14px;\n  text-decoration:none;\n\n  font-weight:800;\n  letter-spacing:.25em;\n  font-size:12px;\n  text-transform:uppercase;\n  font-family:\"Inter\", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;\n\n  background:linear-gradient(135deg,var(--gold1) 0%,var(--gold2) 40%,var(--gold3) 100%);\n  color:#111;\n  border:1px solid rgba(255,215,120,.6);\n\n  box-shadow:\n    0 0 0 1px rgba(255,215,120,.2),\n    0 20px 45px rgba(212,175,55,.35),\n    0 30px 80px rgba(0,0,0,.7);\n\n  transition:transform .3s ease, box-shadow .3s ease;\n}\n\n.vipX__btn:hover{\n  transform:translateY(-4px);\n  box-shadow:\n    0 0 25px rgba(255,215,120,.6),\n    0 25px 60px rgba(212,175,55,.5),\n    0 40px 100px rgba(0,0,0,.8);\n}\n\n/* Reduce motion */\n@media (prefers-reduced-motion: reduce){\n  .vipX__content,\n  .vipX__kicker,\n  .vipX__title,\n  .vipX__desc,\n  .vipX__btn{\n    animation:none !important;\n    opacity:1 !important;\n    transform:none !important;\n    filter:none !important;\n  }\n}\n</style>",
+        "color_scheme": "scheme-58084d4c-a86e-4d0a-855e-a0966e5043f7",
+        "section_width": "full-width",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "custom_liquid_bRjcHj": {
+      "type": "custom-liquid",
+      "name": "t:names.custom_liquid",
+      "settings": {
+        "custom_liquid": "<!-- CONTACT SECTION – FULL CLEAN VERSION -->\n\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n<link href=\"https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap\" rel=\"stylesheet\">\n\n<section class=\"contactX\" id=\"contact\" aria-label=\"Contact\">\n\n  <!-- VIDEO BACKGROUND -->\n  <div class=\"contactX__bg\" aria-hidden=\"true\">\n    <video class=\"contactX__video\" autoplay muted loop playsinline preload=\"metadata\">\n      <source src=\"https://cdn.shopify.com/videos/c/o/v/f3a11ffc3ca7407e9f7d62511e7da1cc.mp4\" type=\"video/mp4\">\n    </video>\n    <div class=\"contactX__overlay\"></div>\n  </div>\n\n  <div class=\"contactX__wrap\">\n\n    <header class=\"contactX__head\">\n      <div class=\"contactX__kicker\">CONTACT</div>\n      <h2 class=\"contactX__title\">\n        We are here to <span class=\"contactX__accent\">serve you</span>\n      </h2>\n    </header>\n\n    <div class=\"contactX__grid\">\n\n      <!-- INFO CARDS -->\n      <div class=\"contactX__cards\">\n\n        <!-- PHONE -->\n        <div class=\"contactX__card\">\n          <div class=\"contactX__icon contactX__icon--outline\">\n            <svg width=\"26\" height=\"26\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\">\n              <path d=\"M22 16.92v3a2 2 0 0 1-2.18 2\n              19.86 19.86 0 0 1-8.63-3.07\n              19.5 19.5 0 0 1-6-6\n              19.86 19.86 0 0 1-3.07-8.67\n              A2 2 0 0 1 4.11 2h3\n              a2 2 0 0 1 2 1.72\n              c.12.89.33 1.76.63 2.6\n              a2 2 0 0 1-.45 2.11L8.09 9.91\n              a16 16 0 0 0 6 6l1.48-1.48\n              a2 2 0 0 1 2.11-.45\n              c.84.3 1.71.51 2.6.63\n              A2 2 0 0 1 22 16.92z\"/>\n            </svg>\n          </div>\n          <div class=\"contactX__cardTitle\">Phone</div>\n          <div class=\"contactX__cardText\">+1 (659) 305-2974</div>\n        </div>\n\n        <!-- EMAIL -->\n        <div class=\"contactX__card\">\n          <div class=\"contactX__icon contactX__icon--outline\">\n            <svg width=\"26\" height=\"26\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\">\n              <rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/>\n              <path d=\"M3 7l9 6 9-6\"/>\n            </svg>\n          </div>\n          <div class=\"contactX__cardTitle\">Email</div>\n          <div class=\"contactX__cardText\">royalpurplecorp@gmail.com</div>\n        </div>\n\n        <!-- HOURS -->\n        <div class=\"contactX__card contactX__card--wide\">\n          <div class=\"contactX__icon contactX__icon--circle\">\n            <svg width=\"26\" height=\"26\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\">\n              <circle cx=\"12\" cy=\"12\" r=\"9\"/>\n              <path d=\"M12 7v5l3 2\"/>\n            </svg>\n          </div>\n          <div class=\"contactX__cardTitle\">Hours</div>\n          <div class=\"contactX__cardText\">24/7</div>\n        </div>\n\n      </div>\n\n      <!-- FORM -->\n      <aside class=\"contactX__panel\">\n        <div class=\"contactX__panelTitle\">Send us a message</div>\n\n        <form class=\"contactX__form\">\n          <div class=\"contactX__row\">\n            <input class=\"contactX__input\" placeholder=\"Your name\" required>\n            <input class=\"contactX__input\" type=\"email\" placeholder=\"your@email.com\" required>\n          </div>\n\n          <input class=\"contactX__input\" placeholder=\"Message subject\">\n          <textarea class=\"contactX__textarea\" placeholder=\"Write your message...\" required></textarea>\n\n          <button class=\"contactX__btn\" type=\"submit\">\n            SEND MESSAGE ✈\n          </button>\n        </form>\n      </aside>\n\n    </div>\n  </div>\n</section>\n\n<style>\n:root{\n  --gold:#c9a23a;\n}\n\n/* SECTION */\n.contactX{\n  position:relative;\n  min-height:95vh;\n  padding:100px 16px;\n  color:white;\n  overflow:hidden;\n  font-family:\"Inter\",sans-serif;\n}\n\n/* Background */\n.contactX__bg{\n  position:absolute;\n  inset:0;\n  z-index:-2;\n  background:#000;\n}\n.contactX__video{\n  width:100%;\n  height:100%;\n  object-fit:cover;\n}\n.contactX__overlay{\n  position:absolute;\n  inset:0;\n  background:\n    linear-gradient(to bottom,rgba(0,0,0,1) 0%,rgba(0,0,0,.6) 25%,transparent 45%),\n    linear-gradient(to top,rgba(0,0,0,1) 0%,rgba(0,0,0,.7) 25%,transparent 55%),\n    radial-gradient(circle at 50% 18%,rgba(201,162,58,.14),transparent 62%);\n}\n\n/* Layout */\n.contactX__wrap{\n  max-width:1100px;\n  margin:auto;\n  text-align:center;\n}\n.contactX__kicker{\n  letter-spacing:.4em;\n  font-size:12px;\n  color:var(--gold);\n}\n.contactX__title{\n  font-family:\"Cinzel\",serif;\n  font-size:clamp(34px,8vw,70px);\n}\n.contactX__accent{\n  color:var(--gold);\n}\n\n/* Grid */\n.contactX__grid{\n  display:grid;\n  grid-template-columns:1fr 1.3fr;\n  gap:40px;\n}\n@media(max-width:980px){\n  .contactX__grid{grid-template-columns:1fr;}\n}\n\n/* Cards */\n.contactX__cards{\n  display:grid;\n  grid-template-columns:1fr 1fr;\n  gap:18px;\n}\n@media(max-width:520px){\n  .contactX__cards{grid-template-columns:1fr;}\n}\n\n.contactX__card{\n  background:rgba(20,22,25,.55);\n  backdrop-filter:blur(12px);\n  border:1px solid rgba(255,255,255,.14);\n  border-radius:16px;\n  padding:26px 20px;\n  text-align:center;\n  box-shadow:0 20px 60px rgba(0,0,0,.65);\n}\n.contactX__card--wide{\n  grid-column:1/-1;\n}\n@media(max-width:520px){\n  .contactX__card--wide{grid-column:auto;}\n}\n\n.contactX__icon{\n  width:60px;height:60px;\n  margin:0 auto 14px;\n  border-radius:16px;\n  display:flex;\n  align-items:center;\n  justify-content:center;\n  background:var(--gold);\n  color:black;\n  font-size:22px;\n}\n\n.contactX__icon--outline{\n  background:transparent;\n  border:1px solid var(--gold);\n  color:var(--gold);\n}\n\n.contactX__icon--circle{\n  border-radius:999px;\n  border:1px solid var(--gold);\n  background:rgba(0,0,0,.15);\n  color:var(--gold);\n}\n\n.contactX__cardTitle{\n  font-family:\"Cinzel\";\n  font-size:17px;\n  margin-bottom:6px;\n}\n.contactX__cardText{\n  opacity:.75;\n  font-size:14px;\n}\n\n/* Panel */\n.contactX__panel{\n  background:rgba(20,22,25,.55);\n  backdrop-filter:blur(12px);\n  border:1px solid rgba(255,255,255,.14);\n  border-radius:16px;\n  padding:26px;\n  text-align:center;\n  box-shadow:0 26px 70px rgba(0,0,0,.7);\n}\n.contactX__panelTitle{\n  font-family:\"Cinzel\";\n  margin-bottom:18px;\n  font-size:20px;\n}\n\n/* FORM */\n.contactX__form{\n  display:flex;\n  flex-direction:column;\n  gap:14px;\n}\n.contactX__row{\n  display:grid;\n  grid-template-columns:1fr 1fr;\n  gap:14px;\n}\n@media(max-width:600px){\n  .contactX__row{grid-template-columns:1fr;}\n}\n\n.contactX__input,\n.contactX__textarea{\n  background:#ffffff !important;\n  border:1px solid rgba(0,0,0,.15) !important;\n  padding:14px;\n  border-radius:10px;\n  color:#000 !important;\n  font-weight:500;\n  outline:none;\n}\n\n.contactX__input::placeholder,\n.contactX__textarea::placeholder{\n  color:rgba(0,0,0,.45);\n}\n\n.contactX__input:focus,\n.contactX__textarea:focus{\n  border:1px solid var(--gold) !important;\n}\n\n.contactX__btn{\n  background:var(--gold);\n  color:black;\n  height:54px;\n  border-radius:12px;\n  font-weight:800;\n  letter-spacing:.2em;\n  cursor:pointer;\n  border:none;\n  transition:.25s;\n}\n.contactX__btn:hover{\n  transform:translateY(-3px);\n}\n</style>",
+        "color_scheme": "scheme-58084d4c-a86e-4d0a-855e-a0966e5043f7",
+        "section_width": "full-width",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "profil_cruise_9Pmi7P": {
+      "type": "profil-cruise",
+      "name": "Cruise Auth",
+      "settings": {
+        "api_base": "https://cruiseapp2-production.up.railway.app",
+        "web_key": "5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad",
+        "api_key": "5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad",
+        "google_client_id": "562266680819-4fc4jtt1hu33euq7n0vbjbidojov2o62.apps.googleusercontent.com",
+        "apple_client_id": "com.cruiseinride.web",
+        "logo_image": "shopify://shop_images/Untitled_design_069defa2-9e36-4d98-831f-f776d4c6f7a5.png",
+        "background_video_url": "",
+        "background_color": "#0a0e1a",
+        "promo_badge": "Limited offer",
+        "gate_title": "Sign up & get 20% off today!",
+        "gate_sub": "Create an account to save your trips, track rides in real-time, and unlock your 20% first-ride discount.",
+        "gate_btn_signup": "Sign up · Save 20%",
+        "gate_btn_signin": "I already have an account",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    }
+  },
+  "order": [
+    "cart-section",
+    "custom_liquid_yGxqUE",
+    "custom_liquid_bRjcHj",
+    "profil_cruise_9Pmi7P"
+  ]
+}

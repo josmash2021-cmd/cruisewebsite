@@ -1,0 +1,363 @@
+{% assign current_lang = localization.language.iso_code | default: shop.locale | slice: 0,2 | downcase %}
+{% if current_lang != 'es' %}{% assign current_lang = 'en' %}{% endif %}
+
+<!-- CONTACT SECTION -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+
+<section class="contactX" id="contact-{{ section.id }}" aria-label="{% if current_lang == 'es' %}Contacto{% else %}Contact{% endif %}" data-lang="{{ current_lang }}">
+
+  <div class="contactX__bg" aria-hidden="true">
+    <video class="contactX__video" autoplay muted loop playsinline preload="metadata">
+      <source src="https://cdn.shopify.com/videos/c/o/v/f3a11ffc3ca7407e9f7d62511e7da1cc.mp4" type="video/mp4">
+    </video>
+    <div class="contactX__overlay"></div>
+    <div class="contactX__sharpen"></div>
+    <div class="contactX__vignette"></div>
+  </div>
+
+  <div class="contactX__wrap">
+
+    <header class="contactX__head">
+      <div class="contactX__kicker">
+        {% if current_lang == 'es' %}CONTACTO{% else %}CONTACT{% endif %}
+      </div>
+      <h2 class="contactX__title">
+        {% if current_lang == 'es' %}
+          Estamos aquí para <span class="contactX__accent">servirte</span>
+        {% else %}
+          We are here to <span class="contactX__accent">serve you</span>
+        {% endif %}
+      </h2>
+      <div class="contactX__divider" aria-hidden="true">
+        <span></span>
+        <span>◆</span>
+        <span></span>
+      </div>
+    </header>
+
+    <div class="contactX__grid">
+
+      <div class="contactX__cards">
+
+        <div class="contactX__card">
+          <div class="contactX__icon contactX__icon--outline">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.86 19.86 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.89.33 1.76.63 2.6a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.48-1.48a2 2 0 0 1 2.11-.45c.84.3 1.71.51 2.6.63A2 2 0 0 1 22 16.92z"/>
+            </svg>
+          </div>
+          <div class="contactX__cardTitle">
+            {% if current_lang == 'es' %}Teléfono{% else %}Phone{% endif %}
+          </div>
+          <div class="contactX__cardText">
+            <a href="tel:+16593052974">+1 (659) 305-2974</a>
+          </div>
+          <div class="contactX__card-action">
+            <a href="https://wa.me/16593052974" target="_blank" class="contactX__whatsapp">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              {% if current_lang == 'es' %}WhatsApp{% else %}WhatsApp{% endif %}
+            </a>
+          </div>
+        </div>
+
+        <div class="contactX__card">
+          <div class="contactX__icon contactX__icon--outline">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <rect x="3" y="5" width="18" height="14" rx="2"/>
+              <path d="M3 7l9 6 9-6"/>
+            </svg>
+          </div>
+          <div class="contactX__cardTitle">
+            {% if current_lang == 'es' %}Correo{% else %}Email{% endif %}
+          </div>
+          <div class="contactX__cardText">
+            <a href="mailto:SUPPORT@CRUISEINRIDE.COM">SUPPORT@CRUISEINRIDE.COM</a>
+          </div>
+          <div class="contactX__card-action">
+            <button class="contactX__copy" onclick="navigator.clipboard.writeText('SUPPORT@CRUISEINRIDE.COM'); this.textContent='{% if current_lang == 'es' %}¡Copiado!{% else %}Copied!{% endif %}'; setTimeout(() => this.textContent='{% if current_lang == 'es' %}Copiar{% else %}Copy{% endif %}', 2000)">
+              {% if current_lang == 'es' %}Copiar{% else %}Copy{% endif %}
+            </button>
+          </div>
+        </div>
+
+        <div class="contactX__card contactX__card--wide">
+          <div class="contactX__icon contactX__icon--circle">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 7v5l3 2"/>
+            </svg>
+          </div>
+          <div class="contactX__cardTitle">
+            {% if current_lang == 'es' %}Horario{% else %}Hours{% endif %}
+          </div>
+          <div class="contactX__cardText contactX__cardText--highlight">24/7</div>
+          <div class="contactX__card-subtext">
+            {% if current_lang == 'es' %}Siempre disponibles para ti{% else %}Always available for you{% endif %}
+          </div>
+        </div>
+
+      </div>
+
+      <aside class="contactX__panel">
+        <div class="contactX__panelTitle">
+          {% if current_lang == 'es' %}Envíanos un mensaje{% else %}Send us a message{% endif %}
+        </div>
+
+        <form class="contactX__form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+          <div class="contactX__row">
+            <div class="contactX__field">
+              <input class="contactX__input" name="name" placeholder="{% if current_lang == 'es' %}Tu nombre{% else %}Your name{% endif %}" required>
+            </div>
+            <div class="contactX__field">
+              <input class="contactX__input" name="email" type="email" placeholder="{% if current_lang == 'es' %}tu@email.com{% else %}your@email.com{% endif %}" required>
+            </div>
+          </div>
+
+          <div class="contactX__field">
+            <input class="contactX__input" name="subject" placeholder="{% if current_lang == 'es' %}Asunto del mensaje{% else %}Message subject{% endif %}">
+          </div>
+
+          <div class="contactX__field">
+            <textarea class="contactX__textarea" name="message" placeholder="{% if current_lang == 'es' %}Escribe tu mensaje...{% else %}Write your message...{% endif %}" required></textarea>
+          </div>
+
+          <button class="contactX__btn" type="submit">
+            <span class="contactX__btn-text">
+              {% if current_lang == 'es' %}ENVIAR MENSAJE{% else %}SEND MESSAGE{% endif %}
+            </span>
+            <span class="contactX__btn-icon">✈</span>
+          </button>
+        </form>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<style>
+:root{
+  --gold:#c9a23a;
+  --gold-light:#f5d77a;
+  --gold-dark:#b98d1c;
+}
+
+#shopify-section-{{ section.id }}{ background:#000 !important; }
+
+.contactX{
+  position:relative;isolation:isolate;z-index:1;
+  min-height:95vh;padding:120px 16px;
+  color:white;overflow:visible;
+  box-shadow:0 -60px 40px -10px #000;
+  font-family:"Inter",sans-serif;
+}
+.contactX::before,.contactX::after{
+  content:'';position:absolute;left:0;right:0;height:150px;z-index:3;pointer-events:none;
+}
+.contactX::before{top:-80px;background:linear-gradient(to bottom,#000 0%,#000 40%,rgba(0,0,0,.6) 70%,transparent 100%);}
+.contactX::after{bottom:0;background:linear-gradient(to top,#000 0%,rgba(0,0,0,.6) 40%,rgba(0,0,0,.3) 70%,transparent 100%);}
+
+.contactX__bg{position:absolute;inset:0;z-index:-1;background:#000;overflow:hidden;}
+.contactX__video{
+  width:100%;height:100%;object-fit:cover;
+  transform:scale(1.02) translateZ(0);
+  filter:contrast(1.2) saturate(1.15) brightness(1.08);
+  backface-visibility:hidden;
+}
+.contactX__overlay{
+  position:absolute;inset:0;
+  background:
+    linear-gradient(to bottom,rgba(0,0,0,.85) 0%,rgba(0,0,0,.4) 20%,transparent 45%),
+    linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.5) 20%,transparent 50%),
+    radial-gradient(circle at 50% 18%,rgba(201,162,58,.14),transparent 62%);
+}
+.contactX__sharpen{position:absolute;inset:0;backdrop-filter:contrast(1.1) saturate(1.05);pointer-events:none;opacity:.3;}
+.contactX__vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,.4) 100%);pointer-events:none;}
+
+.contactX__wrap{max-width:1100px;margin:auto;text-align:center;position:relative;z-index:2;}
+
+.contactX__head{margin-bottom:50px;}
+.contactX__kicker{
+  letter-spacing:.45em;font-size:12px;color:var(--gold);font-weight:600;
+  margin-bottom:15px;display:inline-block;padding:8px 16px;
+  border:1px solid rgba(201,162,58,.3);border-radius:50px;
+  background:rgba(201,162,58,.1);
+}
+.contactX__title{font-family:"Cinzel",serif;font-size:clamp(34px,8vw,70px);margin:0;line-height:1.1;}
+.contactX__accent{color:var(--gold);position:relative;display:inline-block;}
+.contactX__accent::after{
+  content:'';position:absolute;bottom:-5px;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);border-radius:3px;
+}
+.contactX__divider{display:flex;align-items:center;justify-content:center;gap:15px;margin-top:25px;}
+.contactX__divider span:first-child,
+.contactX__divider span:last-child{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.contactX__divider span:nth-child(2){color:var(--gold);font-size:12px;}
+
+.contactX__grid{display:grid;grid-template-columns:1fr 1.3fr;gap:40px;align-items:start;}
+@media(max-width:980px){.contactX__grid{grid-template-columns:1fr;}}
+
+.contactX__cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+
+.contactX__card{
+  position:relative;background:rgba(20,22,25,.55);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:30px 22px;
+  text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.65);overflow:hidden;
+}
+.contactX__card--wide{grid-column:1/-1;}
+
+.contactX__icon{
+  width:60px;height:60px;margin:0 auto 16px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--gold);color:black;font-size:22px;
+  box-shadow:0 10px 30px rgba(201,162,58,.2);
+}
+.contactX__icon--outline{background:transparent;border:2px solid var(--gold);color:var(--gold);}
+.contactX__icon--circle{border-radius:999px;border:2px solid var(--gold);background:rgba(0,0,0,.15);color:var(--gold);}
+
+.contactX__cardTitle{font-family:"Cinzel";font-size:18px;font-weight:600;margin-bottom:8px;color:#fff;}
+.contactX__cardText{opacity:.85;font-size:14px;font-weight:500;}
+.contactX__cardText a{color:inherit;text-decoration:none;}
+.contactX__cardText--highlight{font-size:28px;font-weight:700;color:var(--gold);text-shadow:0 0 20px rgba(201,162,58,.3);}
+.contactX__card-subtext{font-size:12px;opacity:.6;margin-top:5px;}
+
+.contactX__card-action{margin-top:15px;}
+.contactX__whatsapp,.contactX__copy{
+  display:inline-flex;align-items:center;gap:8px;padding:8px 16px;
+  border-radius:25px;font-size:12px;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;text-decoration:none;cursor:pointer;border:none;
+}
+.contactX__whatsapp{background:#25D366;color:white;}
+.contactX__copy{background:rgba(201,162,58,.2);color:var(--gold);border:1px solid rgba(201,162,58,.4);}
+
+.contactX__panel{
+  position:relative;background:rgba(20,22,25,.55);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:35px;
+  text-align:left;box-shadow:0 26px 70px rgba(0,0,0,.7);overflow:hidden;
+}
+.contactX__panelTitle{font-family:"Cinzel";margin-bottom:25px;font-size:22px;font-weight:600;color:#fff;text-align:center;position:relative;}
+.contactX__panelTitle::after{
+  content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);
+  width:60px;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+
+.contactX__form{display:flex;flex-direction:column;gap:20px;}
+.contactX__row{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+.contactX__field{position:relative;}
+
+.contactX__input,.contactX__textarea,
+.contactX input[type="text"],.contactX input[type="email"],.contactX textarea{
+  display:block !important;width:100% !important;
+  background:rgba(0,0,0,.4) !important;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.2) !important;
+  padding:16px;border-radius:12px;
+  color:var(--gold) !important;font-weight:500;font-size:16px;
+  font-family:"Inter",sans-serif;outline:none !important;
+  -webkit-appearance:none;appearance:none;
+  box-sizing:border-box !important;
+}
+.contactX__input:focus,.contactX__textarea:focus,.contactX input:focus,.contactX textarea:focus{
+  border-color:var(--gold) !important;
+  box-shadow:0 0 0 4px rgba(201,162,58,.15);
+}
+.contactX__input::placeholder,.contactX__textarea::placeholder,
+.contactX input::placeholder,.contactX textarea::placeholder{color:rgba(201,162,58,.5) !important;}
+
+.contactX__textarea{min-height:120px;resize:vertical;}
+
+.contactX__btn{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--gold-light) 0%,var(--gold) 50%,var(--gold-dark) 100%);
+  color:black;height:56px;border-radius:14px;font-weight:800;letter-spacing:.15em;
+  cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;
+  gap:12px;margin-top:10px;
+  box-shadow:0 16px 40px rgba(201,162,58,.3);
+}
+.contactX__btn-text{position:relative;z-index:2;}
+.contactX__btn-icon{position:relative;z-index:2;font-size:18px;}
+
+@media (max-width:768px){
+  .contactX{
+    padding:14px 12px !important;
+    min-height:100dvh !important;
+    height:100dvh !important;
+    overflow:hidden !important;
+    box-shadow:none !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+  }
+  .contactX::before,.contactX::after{display:none !important;}
+
+  .contactX__wrap{
+    width:100% !important;
+    max-height:100% !important;
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+    gap:10px !important;
+  }
+
+  .contactX__head{margin-bottom:6px !important;}
+  .contactX__kicker{font-size:11px;padding:5px 14px;margin-bottom:8px;letter-spacing:.35em;}
+  .contactX__title{font-size:22px !important;line-height:1.15 !important;}
+  .contactX__divider{margin-top:6px;gap:10px;}
+  .contactX__divider span:first-child,
+  .contactX__divider span:last-child{width:50px;}
+
+  .contactX__grid{gap:10px !important;}
+  .contactX__cards{grid-template-columns:1fr 1fr !important;gap:8px !important;}
+
+  .contactX__card{padding:12px 10px !important;border-radius:14px !important;}
+  .contactX__icon{width:38px !important;height:38px !important;margin-bottom:6px !important;border-radius:10px !important;}
+  .contactX__icon svg{width:18px !important;height:18px !important;}
+  .contactX__cardTitle{font-size:13px !important;margin-bottom:3px !important;}
+  .contactX__cardText{font-size:11px !important;line-height:1.2 !important;}
+  .contactX__cardText--highlight{font-size:20px !important;}
+  .contactX__card-subtext{font-size:10px !important;margin-top:2px !important;}
+  .contactX__card-action{margin-top:6px !important;}
+  .contactX__whatsapp,.contactX__copy{padding:5px 12px !important;font-size:10px !important;}
+
+  .contactX__card--wide{
+    padding:8px 12px !important;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:12px !important;
+    text-align:left !important;
+  }
+  .contactX__card--wide .contactX__icon{margin:0 !important;width:32px !important;height:32px !important;flex-shrink:0 !important;}
+  .contactX__card--wide .contactX__icon svg{width:16px !important;height:16px !important;}
+  .contactX__card--wide .contactX__cardTitle{font-size:12px !important;margin:0 !important;}
+  .contactX__card--wide .contactX__cardText--highlight{font-size:16px !important;margin:0 !important;}
+  .contactX__card--wide .contactX__card-subtext{font-size:9px !important;margin:0 !important;}
+
+  .contactX__panel{padding:12px !important;border-radius:14px !important;}
+  .contactX__panelTitle{font-size:14px !important;margin-bottom:8px !important;}
+  .contactX__panelTitle::after{bottom:-3px;width:35px;}
+
+  .contactX__form{gap:6px !important;}
+  .contactX__row{grid-template-columns:1fr 1fr !important;gap:6px !important;}
+
+  .contactX__input,.contactX__textarea,
+  .contactX input,.contactX textarea{
+    padding:9px 10px !important;
+    font-size:16px !important;
+    min-height:36px !important;
+    border-radius:8px !important;
+  }
+  .contactX__textarea{min-height:48px !important;resize:none !important;}
+  .contactX__btn{
+    height:40px !important;margin-top:2px !important;
+    font-size:11px !important;border-radius:9px !important;
+    letter-spacing:.1em !important;
+  }
+}
+</style>

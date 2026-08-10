@@ -1,0 +1,311 @@
+{% assign current_lang = localization.language.iso_code | default: shop.locale | slice: 0,2 | downcase %}
+{% if current_lang != 'es' %}{% assign current_lang = 'en' %}{% endif %}
+
+<!-- VIP SERVICE – OPTIMIZED -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<div class="vipx-pin-outer" id="vip-service-{{ section.id }}">
+  <section class="vipX" aria-label="{% if current_lang == 'es' %}Servicio VIP{% else %}VIP Service{% endif %}" data-lang="{{ current_lang }}">
+
+    <div class="vipX__bg" aria-hidden="true">
+      <video class="vipX__video" autoplay muted loop playsinline preload="none" loading="lazy">
+        <source src="https://cdn.shopify.com/videos/c/o/v/b6f44477618048e4bb389cbf97c59467.mp4" type="video/mp4">
+      </video>
+      <div class="vipX__overlay"></div>
+    </div>
+
+    <div class="vipX__wrap">
+      <div class="vipX__content">
+
+        <div class="vipX__kicker" data-anim>
+          <span class="vipX__kicker-star" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="10" height="10"><path d="M12 2l2.4 6.9L22 10l-5.5 4.8 1.7 7.2L12 18l-6.2 4 1.7-7.2L2 10l7.6-1.1L12 2z" fill="currentColor"/></svg>
+          </span>
+          {% if current_lang == 'es' %}EXPERIENCIA VIP{% else %}VIP EXPERIENCE{% endif %}
+          <span class="vipX__kicker-star" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="10" height="10"><path d="M12 2l2.4 6.9L22 10l-5.5 4.8 1.7 7.2L12 18l-6.2 4 1.7-7.2L2 10l7.6-1.1L12 2z" fill="currentColor"/></svg>
+          </span>
+        </div>
+
+        <div class="vipX__rotator">
+          {% if current_lang == 'es' %}
+          <div class="vipX__slide is-active" data-slide="0">
+            <h2 class="vipX__title" data-anim>Transporte Privado <span>Premium</span></h2>
+            <p class="vipX__desc" data-anim>Vive una experiencia de primera clase con nuestro servicio exclusivo de transporte VIP. Conductores profesionales, privacidad absoluta y máxima elegancia en cada viaje.</p>
+            <div class="vipX__features" data-anim>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg><span>Chofer Privado</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2 5 5 1-4 4 1 6-4-3-4 3 1-6-4-4 5-1 2-5z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Interior de Lujo</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" stroke-width="1.6" fill="none"/></svg><span>Total Discreción</span></div>
+            </div>
+          </div>
+          <div class="vipX__slide" data-slide="1">
+            <h2 class="vipX__title" data-anim>Traslados al <span>Aeropuerto</span></h2>
+            <p class="vipX__desc" data-anim>Llega y sal del aeropuerto con estilo. Monitoreo de vuelos en tiempo real, espera gratuita y recibimiento personalizado. Tu tiempo vale cada minuto.</p>
+            <div class="vipX__features" data-anim>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16l-8-5V5a1.5 1.5 0 00-3 0v6l-8 5v2l8-2.5V21l-2 1.5V23l3-.5 3 .5v-.5L12 21v-5.5l8 2.5v-2z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Tracking de Vuelo</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="1.6" fill="none"/></svg><span>Espera Gratuita 60 min</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg><span>Meet & Greet</span></div>
+            </div>
+          </div>
+          <div class="vipX__slide" data-slide="2">
+            <h2 class="vipX__title" data-anim>Eventos & <span>Ocasiones Especiales</span></h2>
+            <p class="vipX__desc" data-anim>Bodas, galas, cenas privadas o noches inolvidables. Llega como se debe — con clase, puntualidad y el servicio impecable que un momento único merece.</p>
+            <div class="vipX__features" data-anim>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3l-3 6h18l-3-6H6zm-3 6v12h18V9M10 13h4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Servicio por Horas</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2h8l-1 5a3 3 0 01-6 0l-1-5zm3 8v8m-3 3h6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Detalles Premium</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Disponible 24/7</span></div>
+            </div>
+          </div>
+          <div class="vipX__slide" data-slide="3">
+            <h2 class="vipX__title" data-anim>Viajes <span>Ejecutivos</span></h2>
+            <p class="vipX__desc" data-anim>Transporte corporativo de élite para reuniones, clientes importantes y viajes de negocios. Conectividad a bordo, agua cortesía y el ambiente perfecto para trabajar en movimiento.</p>
+            <div class="vipX__features" data-anim>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" stroke="currentColor" stroke-width="1.6" fill="none"/></svg><span>Ambiente Profesional</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13a10 10 0 0114 0M8.5 16.5a5 5 0 017 0M12 20h.01" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg><span>Wi-Fi a Bordo</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c-3 4-5 7-5 10a5 5 0 0010 0c0-3-2-6-5-10z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Agua & Amenidades</span></div>
+            </div>
+          </div>
+          {% else %}
+          <div class="vipX__slide is-active" data-slide="0">
+            <h2 class="vipX__title" data-anim>Travel Like a <span>VIP</span></h2>
+            <p class="vipX__desc" data-anim>Experience first-class comfort with our exclusive VIP transportation service. Professional chauffeurs, absolute privacy, and maximum elegance on every ride.</p>
+            <div class="vipX__features" data-anim>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg><span>Private Chauffeur</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2 5 5 1-4 4 1 6-4-3-4 3 1-6-4-4 5-1 2-5z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Luxury Interior</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" stroke-width="1.6" fill="none"/></svg><span>Full Discretion</span></div>
+            </div>
+          </div>
+          <div class="vipX__slide" data-slide="1">
+            <h2 class="vipX__title" data-anim>Airport <span>Transfers</span></h2>
+            <p class="vipX__desc" data-anim>Arrive and depart in style. Real-time flight tracking, complimentary wait time, and personalized meet & greet. Your time is worth every minute.</p>
+            <div class="vipX__features" data-anim>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16l-8-5V5a1.5 1.5 0 00-3 0v6l-8 5v2l8-2.5V21l-2 1.5V23l3-.5 3 .5v-.5L12 21v-5.5l8 2.5v-2z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Flight Tracking</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="1.6" fill="none"/></svg><span>60-min Free Wait</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg><span>Meet & Greet</span></div>
+            </div>
+          </div>
+          <div class="vipX__slide" data-slide="2">
+            <h2 class="vipX__title" data-anim>Events & <span>Special Occasions</span></h2>
+            <p class="vipX__desc" data-anim>Weddings, galas, private dinners or unforgettable nights. Arrive the way you should — with class, punctuality, and flawless service your special moment deserves.</p>
+            <div class="vipX__features" data-anim>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3l-3 6h18l-3-6H6zm-3 6v12h18V9M10 13h4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Hourly Service</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2h8l-1 5a3 3 0 01-6 0l-1-5zm3 8v8m-3 3h6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Premium Details</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Available 24/7</span></div>
+            </div>
+          </div>
+          <div class="vipX__slide" data-slide="3">
+            <h2 class="vipX__title" data-anim>Executive <span>Travel</span></h2>
+            <p class="vipX__desc" data-anim>Elite corporate transportation for meetings, VIP clients, and business trips. On-board connectivity, complimentary water, and the perfect setting to work on the move.</p>
+            <div class="vipX__features" data-anim>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" stroke="currentColor" stroke-width="1.6" fill="none"/></svg><span>Executive Vibe</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13a10 10 0 0114 0M8.5 16.5a5 5 0 017 0M12 20h.01" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg><span>On-board Wi-Fi</span></div>
+              <div class="vipX__feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c-3 4-5 7-5 10a5 5 0 0010 0c0-3-2-6-5-10z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span>Water & Amenities</span></div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="vipX__dots" role="tablist" aria-label="{% if current_lang == 'es' %}Servicios{% else %}Services{% endif %}">
+          <button class="vipX__dot is-active" data-dot="0" type="button" aria-label="Slide 1"></button>
+          <button class="vipX__dot" data-dot="1" type="button" aria-label="Slide 2"></button>
+          <button class="vipX__dot" data-dot="2" type="button" aria-label="Slide 3"></button>
+          <button class="vipX__dot" data-dot="3" type="button" aria-label="Slide 4"></button>
+        </div>
+
+        <a href="book.html" class="vipX__btn">
+          <span class="vipX__btn-text">{% if current_lang == 'es' %}RESERVA TU VIAJE AHORA{% else %}RESERVE YOUR RIDE TODAY{% endif %}</span>
+          <span class="vipX__btn-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="vipX__btn-shine" aria-hidden="true"></span>
+        </a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+:root{--gold1:#f5d77a;--gold2:#d4af37;--gold3:#b98d1c;}
+#shopify-section-{{ section.id }}{background:#000!important;}
+
+/* PIN */
+.vipx-pin-outer{position:relative;height:300vh;background:#000;}
+.vipx-pin-outer .vipX{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;box-sizing:border-box;}
+
+/* LAYOUT */
+.vipX{position:relative;z-index:1;min-height:100vh;padding:80px 20px;color:#fff;display:flex;align-items:center;justify-content:center;}
+.vipX::before,.vipX::after{content:'';position:absolute;left:0;right:0;height:100px;z-index:2;pointer-events:none;}
+.vipX::before{top:0;background:linear-gradient(to bottom,#000 0%,transparent 100%);}
+.vipX::after{bottom:0;background:linear-gradient(to top,#000 0%,transparent 100%);}
+
+/* BACKGROUND */
+.vipX__bg{position:absolute;inset:0;z-index:-1;overflow:hidden;background:#000;}
+.vipX__video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.02);filter:brightness(0.5) contrast(1.1);}
+.vipX__overlay{position:absolute;inset:0;background:linear-gradient(to bottom,#000 0%,transparent 20%),linear-gradient(to top,#000 0%,transparent 20%),radial-gradient(ellipse at 50% 50%,rgba(212,175,55,.08),transparent 70%);}
+
+/* WRAP */
+.vipX__wrap{max-width:900px;margin:auto;text-align:center;position:relative;z-index:1;width:100%;}
+
+/* ===== ANIMACIÓN DE ENTRADA AL VIEWPORT ===== */
+.vipX__content > * {
+  opacity: 0;
+  transform: translateY(35px);
+  transition: opacity 0.9s cubic-bezier(.16,1,.3,1), transform 0.9s cubic-bezier(.16,1,.3,1);
+}
+
+.vipX--visible .vipX__content > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.08s; }
+.vipX--visible .vipX__content > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.22s; }
+.vipX--visible .vipX__content > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.36s; }
+.vipX--visible .vipX__content > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.5s; }
+
+/* KICKER */
+.vipX__kicker{display:inline-flex;align-items:center;gap:12px;letter-spacing:.4em;font-size:11px;color:var(--gold1);margin-bottom:24px;font-family:"Inter",sans-serif;text-transform:uppercase;font-weight:600;padding:7px 18px;border:1px solid rgba(232,197,95,.3);border-radius:50px;background:rgba(20,16,8,.6);opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
+.vipX__kicker.is-visible{opacity:1;transform:translateY(0);}
+.vipX__kicker-star{color:var(--gold2);opacity:.8;}
+
+/* ROTATOR */
+.vipX__rotator{position:relative;min-height:320px;margin-bottom:16px;}
+.vipX__slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .5s ease,visibility .5s ease;display:flex;flex-direction:column;align-items:center;}
+.vipX__slide.is-active{opacity:1;visibility:visible;}
+
+/* ELEMENTS – animación escalonada por slide activa */
+.vipX__slide [data-anim]{opacity:0;transform:translateY(25px);transition:opacity .5s ease,transform .5s ease,filter .5s ease;filter:blur(4px);}
+.vipX__slide.is-active [data-anim]{opacity:1;transform:translateY(0);filter:blur(0);}
+.vipX__slide.is-active [data-anim]:nth-child(1){transition-delay:.1s;}
+.vipX__slide.is-active [data-anim]:nth-child(2){transition-delay:.2s;}
+.vipX__slide.is-active [data-anim]:nth-child(3){transition-delay:.3s;}
+.vipX__slide.is-active [data-anim]:nth-child(4){transition-delay:.4s;}
+
+/* TYPOGRAPHY */
+.vipX__title{font-family:"Cinzel",serif;font-weight:700;font-size:clamp(36px,5vw,68px);line-height:1.05;margin:0 0 18px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.5);}
+.vipX__title span{background:linear-gradient(135deg,#fff4c4 0%,var(--gold1) 40%,var(--gold2) 75%,var(--gold3) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;}
+.vipX__desc{max-width:620px;margin:0 auto 22px;line-height:1.65;font-size:15px;font-weight:300;color:rgba(255,255,255,.85);font-family:"Inter",sans-serif;}
+
+/* FEATURES */
+.vipX__features{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;max-width:640px;margin:0 auto;}
+.vipX__feature{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:50px;border:1px solid rgba(232,197,95,.25);background:rgba(30,25,10,.5);font-family:"Inter",sans-serif;font-size:12px;font-weight:500;color:rgba(255,255,255,.9);letter-spacing:.02em;}
+.vipX__feature svg{width:15px;height:15px;flex-shrink:0;color:var(--gold1);}
+
+/* DOTS */
+.vipX__dots{display:flex;justify-content:center;gap:8px;margin:0 auto 24px;}
+.vipX__dot{width:28px;height:4px;border-radius:2px;border:none;padding:0;cursor:pointer;background:rgba(255,255,255,.2);transition:background .3s ease,width .3s ease;}
+.vipX__dot.is-active{background:linear-gradient(90deg,var(--gold1),var(--gold2));width:40px;}
+.vipX__dot:hover:not(.is-active){background:rgba(255,255,255,.4);}
+
+/* BUTTON */
+.vipX__btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 28px;border-radius:12px;text-decoration:none;font-weight:700;letter-spacing:.15em;font-size:11px;text-transform:uppercase;font-family:"Inter",sans-serif;background:linear-gradient(135deg,#f8e29a 0%,#e8c56a 22%,var(--gold2) 50%,var(--gold3) 78%,#9a7514 100%);color:#1a1208;border:1px solid rgba(255,225,140,.7);box-shadow:0 6px 20px rgba(0,0,0,.4);overflow:hidden;transition:transform .3s ease,box-shadow .3s ease;}
+.vipX__btn-text{position:relative;z-index:2;}
+.vipX__btn-arrow{position:relative;z-index:2;display:inline-flex;transition:transform .3s ease;}
+.vipX__btn-shine{position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.4) 50%,transparent 100%);transform:translateX(-100%);transition:transform .6s ease;}
+.vipX__btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.5);}
+.vipX__btn:hover .vipX__btn-shine{transform:translateX(100%);}
+.vipX__btn:hover .vipX__btn-arrow{transform:translateX(3px);}
+
+/* MOBILE */
+@media(max-width:768px){
+  .vipx-pin-outer{height:250vh;}
+  .vipX{padding:70px 16px;}
+  .vipX::before,.vipX::after{height:80px;}
+  .vipX__kicker{font-size:9.5px;padding:6px 14px;gap:8px;margin-bottom:18px;letter-spacing:.3em;}
+  .vipX__title{font-size:clamp(28px,8vw,44px);margin-bottom:14px;}
+  .vipX__desc{font-size:13.5px;line-height:1.55;margin-bottom:16px;}
+  .vipX__features{gap:6px;}
+  .vipX__feature{font-size:11px;padding:6px 12px;}
+  .vipX__feature svg{width:13px;height:13px;}
+  .vipX__rotator{min-height:340px;margin-bottom:10px;}
+  .vipX__dots{margin-bottom:18px;}
+  .vipX__btn{height:44px;padding:0 22px;font-size:10px;letter-spacing:.12em;}
+}
+@media(max-width:420px){
+  .vipX__title{font-size:clamp(24px,7vw,36px);}
+  .vipX__rotator{min-height:360px;}
+}
+
+/* REDUCED MOTION */
+@media(prefers-reduced-motion:reduce){
+  .vipX__content > * { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .vipX__slide [data-anim] { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
+}
+</style>
+
+<script>
+(function(){
+  var section = document.getElementById('vip-service-{{ section.id }}');
+  if(!section) return;
+  var inner = section.querySelector('.vipX');
+  var slides = section.querySelectorAll('.vipX__slide');
+  var dots = section.querySelectorAll('.vipX__dot');
+  var kicker = section.querySelector('.vipX__kicker');
+  var video = section.querySelector('.vipX__video');
+
+  /* ===== ENTRADA AL VIEWPORT: animación automática ===== */
+  var entryObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        inner.classList.add('vipX--visible');
+        entryObs.unobserve(inner);
+      }
+    });
+  }, {threshold: 0.15});
+  if(inner) entryObs.observe(inner);
+
+  /* IntersectionObserver: activar video y scroll handler solo cuando visible */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        if(video && video.paused) video.play().catch(function(){});
+        window.addEventListener('scroll', onScroll, {passive:true});
+        onScroll();
+      } else {
+        if(video && !video.paused) video.pause();
+        window.removeEventListener('scroll', onScroll);
+      }
+    });
+  }, {threshold:0.05});
+
+  io.observe(section);
+
+  // Throttled scroll handler
+  var ticking = false;
+  function onScroll(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(function(){
+      var r = section.getBoundingClientRect();
+      var vh = window.innerHeight;
+      var total = r.height - vh;
+      var p = total > 0 ? Math.max(0, Math.min(1, (-r.top) / total)) : 0;
+
+      // Kicker reveal por scroll
+      if(p > 0.02) kicker.classList.add('is-visible');
+      else kicker.classList.remove('is-visible');
+
+      // Slide index from progress
+      var idx = Math.min(3, Math.floor(p * 4.5));
+      if(idx < 0) idx = 0;
+
+      slides.forEach(function(s, i){
+        s.classList.toggle('is-active', i === idx);
+      });
+      dots.forEach(function(d, i){
+        d.classList.toggle('is-active', i === idx);
+      });
+
+      ticking = false;
+    });
+  }
+
+  // Dot clicks
+  dots.forEach(function(dot, i){
+    dot.addEventListener('click', function(){
+      var r = section.getBoundingClientRect();
+      var vh = window.innerHeight;
+      var total = r.height - vh;
+      var target = window.scrollY + r.top + (total * (i / 4)) + 20;
+      window.scrollTo({top:target, behavior:'smooth'});
+    });
+  });
+})();
+</script>

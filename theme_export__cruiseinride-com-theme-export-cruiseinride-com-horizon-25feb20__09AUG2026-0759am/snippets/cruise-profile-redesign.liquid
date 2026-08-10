@@ -1,0 +1,349 @@
+{%- comment -%}
+  CRUISE PROFILE REDESIGN — sobrescribe el estilo del profile en /cart
+  (section: profil-cruise.liquid)
+{%- endcomment -%}
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   CRUISE PROFILE — rediseño premium luxury
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Card principal con mejor glassmorphism y bordes dorados */
+.cruise-auth__sub-card{
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(232,197,95,.08) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(18,14,6,.85) 0%, rgba(8,6,3,.92) 100%) !important;
+  border: 1px solid rgba(232,197,95,.22) !important;
+  border-radius: 24px !important;
+  padding: 28px 22px !important;
+  backdrop-filter: blur(28px) saturate(1.4) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.4) !important;
+  box-shadow:
+    0 0 0 1px rgba(232,197,95,.08) inset,
+    0 20px 50px rgba(0,0,0,.6),
+    0 0 40px rgba(212,175,55,.08),
+    inset 0 1px 0 rgba(255,235,170,.1) !important;
+}
+
+/* Header del profile */
+.cruise-auth__profile-title{
+  font-family: "Cinzel", "Inter", serif !important;
+  letter-spacing: .04em !important;
+  background: linear-gradient(180deg, #fff4c4 0%, #f5d77a 40%, #d4af37 80%, #b98d1c 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+.cruise-auth__edit-btn{
+  color: #f5d77a !important;
+  font-weight: 700 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  font-size: 11px !important;
+  padding: 6px 14px !important;
+  border: 1px solid rgba(232,197,95,.3) !important;
+  border-radius: 50px !important;
+  background: rgba(30,25,10,.55) !important;
+  transition: all 300ms cubic-bezier(.22,1,.36,1) !important;
+}
+.cruise-auth__edit-btn:hover{
+  border-color: rgba(245,215,122,.75) !important;
+  background: rgba(50,40,15,.8) !important;
+  color: #fff4c4 !important;
+  box-shadow: 0 0 18px rgba(212,175,55,.3) !important;
+}
+
+.cruise-auth__back{
+  background: rgba(30,25,10,.6) !important;
+  border: 1px solid rgba(232,197,95,.22) !important;
+  color: #f5d77a !important;
+  transition: all 300ms ease !important;
+}
+.cruise-auth__back:hover{
+  background: rgba(50,40,15,.8) !important;
+  border-color: rgba(245,215,122,.6) !important;
+}
+
+/* Hero — avatar + name area */
+.cruise-auth__hero{
+  padding: 8px 0 22px !important;
+  position: relative !important;
+}
+.cruise-auth__hero::after{
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,197,95,.4), transparent);
+}
+
+/* Avatar luxury con glow dorado anillado */
+.cruise-auth__avatar{
+  width: 102px !important;
+  height: 102px !important;
+  background: linear-gradient(135deg, #fff4c4 0%, #f5d77a 30%, #d4af37 65%, #b98d1c 100%) !important;
+  padding: 3px !important;
+  box-shadow:
+    0 0 0 2px rgba(232,197,95,.15),
+    0 0 0 6px rgba(232,197,95,.06),
+    0 12px 36px rgba(212,175,55,.35),
+    0 20px 50px rgba(0,0,0,.55),
+    inset 0 2px 0 rgba(255,255,255,.4) !important;
+  margin: 0 auto 16px !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+/* Inner ring negro para efecto doble borde dorado */
+.cruise-auth__avatar::before{
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #0a0804;
+  z-index: 0;
+}
+.cruise-auth__avatar-initial,
+.cruise-auth__avatar-img{
+  position: relative;
+  z-index: 1;
+  border-radius: 50% !important;
+}
+.cruise-auth__avatar-img{
+  inset: 3px !important;
+  width: calc(100% - 6px) !important;
+  height: calc(100% - 6px) !important;
+}
+.cruise-auth__avatar-initial{
+  font-family: "Cinzel", serif !important;
+  font-weight: 700 !important;
+  font-size: 42px !important;
+  background: linear-gradient(180deg, #fff4c4 0%, #f5d77a 50%, #d4af37 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.cruise-auth__avatar-edit{
+  width: 32px !important;
+  height: 32px !important;
+  background: linear-gradient(135deg, #f5d77a 0%, #d4af37 100%) !important;
+  border: 2.5px solid #0a0804 !important;
+  color: #0a0804 !important;
+  z-index: 3 !important;
+  box-shadow: 0 4px 14px rgba(212,175,55,.5), 0 0 0 1px rgba(0,0,0,.4) !important;
+  transition: transform 300ms cubic-bezier(.22,1.4,.36,1) !important;
+}
+.cruise-auth__avatar:hover .cruise-auth__avatar-edit{
+  transform: scale(1.15) rotate(-8deg);
+}
+
+/* Nombre con tipografía luxury */
+.cruise-auth__name{
+  font-family: "Cinzel", "Inter", serif !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  letter-spacing: .5px !important;
+  margin: 4px 0 8px !important;
+  color: #fff !important;
+  text-shadow: 0 2px 12px rgba(0,0,0,.6);
+}
+
+/* Rating con chip dorado elegante */
+.cruise-auth__rating{
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 5px 14px !important;
+  border-radius: 50px !important;
+  background: linear-gradient(135deg, rgba(30,25,10,.8) 0%, rgba(15,12,5,.9) 100%) !important;
+  border: 1px solid rgba(232,197,95,.35) !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: .05em !important;
+  color: #f5d77a !important;
+  box-shadow: 0 0 14px rgba(212,175,55,.15), inset 0 1px 0 rgba(255,235,170,.1);
+  margin-bottom: 6px !important;
+}
+.cruise-auth__rating svg{
+  width: 11px !important;
+  height: 11px !important;
+  filter: drop-shadow(0 0 3px rgba(232,197,95,.5));
+}
+
+.cruise-auth__member{
+  font-size: 11px !important;
+  color: rgba(255,255,255,.55) !important;
+  letter-spacing: .03em !important;
+  font-weight: 500 !important;
+}
+
+/* Stats — cards más luxury */
+.cruise-auth__stats{
+  gap: 10px !important;
+  margin: 0 0 20px !important;
+}
+.cruise-auth__stat{
+  background:
+    radial-gradient(circle at 50% 0%, rgba(232,197,95,.12) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(30,25,10,.7) 0%, rgba(15,12,5,.8) 100%) !important;
+  border: 1px solid rgba(232,197,95,.18) !important;
+  border-radius: 16px !important;
+  padding: 14px 8px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transition: border-color 350ms ease, transform 350ms cubic-bezier(.22,1.2,.36,1) !important;
+  box-shadow:
+    0 4px 14px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,235,170,.08);
+}
+.cruise-auth__stat::after{
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,197,95,.4), transparent);
+}
+.cruise-auth__stat:hover{
+  border-color: rgba(245,215,122,.45) !important;
+  transform: translateY(-2px);
+}
+.cruise-auth__stat-val{
+  font-family: "Cinzel", "Inter", serif !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  background: linear-gradient(180deg, #fff4c4 0%, #f5d77a 50%, #d4af37 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  margin-bottom: 4px !important;
+  letter-spacing: -.3px !important;
+}
+.cruise-auth__stat-lbl{
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: .08em !important;
+  color: rgba(255,255,255,.55) !important;
+  font-weight: 600 !important;
+}
+
+/* Rows — list items con look premium */
+.cruise-auth__rows{
+  gap: 8px !important;
+  margin: 0 0 18px !important;
+}
+.cruise-auth__row{
+  padding: 14px 16px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, rgba(30,25,10,.55) 0%, rgba(15,12,5,.7) 100%) !important;
+  border: 1px solid rgba(232,197,95,.15) !important;
+  backdrop-filter: blur(8px) !important;
+  box-shadow: 0 3px 12px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,235,170,.05) !important;
+  transition:
+    border-color 350ms ease,
+    background 350ms ease,
+    transform 300ms cubic-bezier(.22,1.2,.36,1),
+    box-shadow 350ms ease !important;
+}
+.cruise-auth__row:hover{
+  border-color: rgba(245,215,122,.4) !important;
+  background: linear-gradient(135deg, rgba(50,40,15,.7) 0%, rgba(25,20,8,.8) 100%) !important;
+  transform: translateX(3px);
+  box-shadow:
+    0 6px 20px rgba(0,0,0,.45),
+    0 0 24px rgba(212,175,55,.15),
+    inset 0 1px 0 rgba(255,235,170,.12) !important;
+}
+.cruise-auth__row-ico{
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, rgba(232,197,95,.25) 0%, rgba(212,175,55,.15) 100%) !important;
+  border: 1px solid rgba(232,197,95,.3) !important;
+  color: #f5d77a !important;
+  box-shadow: inset 0 1px 0 rgba(255,235,170,.15), 0 0 10px rgba(212,175,55,.1) !important;
+}
+.cruise-auth__row-ico svg{
+  filter: drop-shadow(0 0 3px rgba(232,197,95,.4));
+}
+.cruise-auth__row-text b{
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: .01em !important;
+}
+.cruise-auth__row-text small{
+  font-size: 11.5px !important;
+  color: rgba(255,255,255,.5) !important;
+  letter-spacing: .02em !important;
+  margin-top: 2px !important;
+}
+.cruise-auth__row-chev{
+  color: rgba(245,215,122,.5) !important;
+  font-size: 22px !important;
+  transition: transform 300ms ease, color 300ms ease !important;
+}
+.cruise-auth__row:hover .cruise-auth__row-chev{
+  transform: translateX(3px);
+  color: #f5d77a !important;
+}
+
+/* Sign out button — más refinado */
+.cruise-auth__signout{
+  padding: 13px !important;
+  background: linear-gradient(135deg, rgba(180,50,50,.12) 0%, rgba(120,30,30,.18) 100%) !important;
+  border: 1px solid rgba(255,80,80,.25) !important;
+  border-radius: 14px !important;
+  color: #ff7070 !important;
+  font-weight: 700 !important;
+  font-size: 12.5px !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase !important;
+  backdrop-filter: blur(8px) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03), 0 4px 14px rgba(255,80,80,.08) !important;
+  transition: all 300ms cubic-bezier(.22,1,.36,1) !important;
+  margin-top: 6px !important;
+  margin-bottom: 12px !important;
+}
+.cruise-auth__signout:hover{
+  background: linear-gradient(135deg, rgba(200,60,60,.18) 0%, rgba(140,40,40,.25) 100%) !important;
+  border-color: rgba(255,100,100,.5) !important;
+  box-shadow: 0 6px 22px rgba(255,80,80,.2), inset 0 1px 0 rgba(255,255,255,.06) !important;
+  color: #ff9090 !important;
+}
+
+/* Version label */
+.cruise-auth__version{
+  text-align: center !important;
+  font-size: 10px !important;
+  color: rgba(255,255,255,.28) !important;
+  letter-spacing: .2em !important;
+  text-transform: uppercase !important;
+  padding-top: 6px !important;
+  font-weight: 500 !important;
+}
+
+/* Sub titles para Edit, Trip History, etc */
+.cruise-auth__sub-title{
+  font-family: "Cinzel", "Inter", serif !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  letter-spacing: .3px !important;
+  background: linear-gradient(180deg, #fff4c4 0%, #f5d77a 50%, #d4af37 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+  margin-bottom: 18px !important;
+}
+
+@media(max-width:600px){
+  .cruise-auth__sub-card{padding:22px 18px !important;border-radius:20px !important;}
+  .cruise-auth__avatar{width:92px !important;height:92px !important;}
+  .cruise-auth__avatar-initial{font-size:36px !important;}
+  .cruise-auth__name{font-size:20px !important;}
+  .cruise-auth__stat-val{font-size:19px !important;}
+}
+</style>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CruiseInRide — Transporte Privado de Lujo</title>
+<meta name="description" content="Servicio de transporte privado premium con chofer. Flota Chevrolet Suburban, disponible 24/7.">
+<link rel="icon" href="assets/media/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/home.css">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet">
+</head>
+<body class="has-hero">
+<header class="cruise-header">
+  <a class="ch-logo" href="index.html">
+    <img src="assets/media/logo.png" alt="CruiseInRide" height="41">
+  </a>
+  <nav class="ch-nav"><a href="index.html" aria-current="page">Inicio</a><a href="book.html">Reservar</a><a href="contact.html">Contacto</a></nav>
+  <div class="ch-actions">
+    <a class="ch-lang" href="en/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.3 9h17.4M3.3 15h17.4"/><path d="M12 3c2.6 2.4 4 5.4 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.4-4-9s1.4-6.6 4-9Z"/></svg>EN</a>
+    <a class="ch-login" href="auth.html">Iniciar sesión</a>
+    <a class="ch-signup" href="auth.html">Registrarse</a>
+    <button class="ch-burger" aria-label="Menu" onclick="document.body.classList.toggle('ch-open')">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<main>
+<section class="hero">
+  <video class="hero-video" autoplay muted playsinline preload="auto" aria-hidden="true">
+    <source src="assets/media/hero-video.mp4" type="video/mp4">
+  </video>
+  <div class="hero-inner">
+    <div class="h-col h-col--left">
+      <p class="h-kicker reveal">Bienvenido a</p>
+      <h1 class="h-title reveal">CRUISE</h1>
+      <div class="h-divider reveal" aria-hidden="true"><span></span><i></i></div>
+      <p class="h-tagline reveal">Transporte de Lujo</p>
+      <p class="h-sub reveal">Experimenta una comodidad sin igual con nuestra flota premium de Chevrolet Suburban. Choferes profesionales, servicio impecable y atención a cada detalle.</p>
+    </div>
+    <div class="h-col h-col--right">
+      <div class="h-badges reveal"><span class="h-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10z"/><path d="M9 11.5l2 2 4-4.5"/></svg>Licenciado y Asegurado</span><span class="h-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Servicio 24/7</span><span class="h-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>5 Estrellas</span></div>
+      <div class="h-buttons reveal">
+        <a class="btn-gold" href="book.html">Reservar ahora</a>
+        <a class="btn-ghost" href="book.html">Reserva ya</a>
+      </div>
+      <div class="h-stores reveal">
+        <p>Próximamente en</p>
+        <div class="h-store-row">
+          <a class="h-store" href="https://apps.apple.com/us/app/cruise-in-ride/id6760517086" target="_blank" rel="noopener"><img class="hs-icon" src="assets/media/app-store.png" alt="App Store"><span><small>Descárgalo en</small><b>App Store</b></span></a>
+          <span class="h-store h-store--soon"><img class="hs-icon" src="assets/media/google-play.png" alt="Google Play"><span><small>Próximamente</small><b>Google Play</b></span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="h-phase2" aria-hidden="true">
+    <div class="h-phase2-col h-phase2-col--left">
+      <div class="h-badges2"><span class="h-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10z"/><path d="M9 11.5l2 2 4-4.5"/></svg>Licenciado y Asegurado</span><span class="h-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Servicio 24/7</span><span class="h-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>5 Estrellas</span></div>
+      <div class="h-buttons">
+        <a class="btn-gold" href="book.html">Reservar ahora</a>
+        <a class="btn-ghost" href="book.html">Reserva ya</a>
+      </div>
+      <p class="h-sub2">Experimenta una comodidad sin igual con nuestra flota premium de Chevrolet Suburban. Choferes profesionales, servicio impecable y atención a cada detalle.</p>
+    </div>
+    <div class="h-phase2-col h-phase2-col--right">
+      <div class="h-stores">
+        <p>Próximamente en</p>
+        <div class="h-store-row">
+          <a class="h-store" href="https://apps.apple.com/us/app/cruise-in-ride/id6760517086" target="_blank" rel="noopener"><img class="hs-icon" src="assets/media/app-store.png" alt="App Store"><span><small>Descárgalo en</small><b>App Store</b></span></a>
+          <span class="h-store h-store--soon"><img class="hs-icon" src="assets/media/google-play.png" alt="Google Play"><span><small>Próximamente</small><b>Google Play</b></span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section compare" id="comparar">
+  <div class="sec-head reveal">
+    <span class="kicker">Planifica tu viaje</span>
+    <h2 class="sec-title">Compara tus <em>opciones de viaje</em></h2>
+    <p class="sec-sub">Introduce la recogida y el destino para ver el tiempo estimado y el precio de cada forma de moverte.</p>
+  </div>
+  <div class="cmp-grid">
+    <div class="cmp-col reveal">
+      <form class="cmp-card" id="tripForm" autocomplete="off" novalidate>
+        <div class="cmp-card__head">
+          <h3>Detalles del viaje</h3>
+        </div>
+        <div class="cmp-seg" role="tablist" aria-label="Detalles del viaje">
+          <span class="cmp-seg__pill" aria-hidden="true"></span>
+          <button type="button" class="cmp-seg__btn is-on" data-trip="one" role="tab" aria-selected="true">Solo ida</button>
+          <button type="button" class="cmp-seg__btn" data-trip="round" role="tab" aria-selected="false">Ida y vuelta</button>
+        </div>
+        <div class="cmp-route">
+          <span class="cmp-rail" aria-hidden="true"><i class="cmp-rail__from"></i><i class="cmp-rail__line"></i><i class="cmp-rail__to"></i></span>
+          <div class="cmp-fields">
+            <div class="cmp-field">
+              <input type="text" id="tripFrom" placeholder="Introduce la recogida" aria-label="Punto de recogida">
+              <button type="button" class="cmp-geo" id="tripGeo" aria-label="Usar mi ubicación" title="Usar mi ubicación"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 3 3 10.5l7.2 3.3L13.5 21z"/></svg></button>
+              <ul class="cmp-sugg" id="tripFromSugg" hidden></ul>
+            </div>
+            <div class="cmp-field">
+              <input type="text" id="tripTo" placeholder="Introduce el destino" aria-label="Destino">
+              <ul class="cmp-sugg" id="tripToSugg" hidden></ul>
+            </div>
+          </div>
+        </div>
+        <div class="cmp-meta">
+          <label class="cmp-meta__f"><span>Fecha</span>
+            <input type="date" id="tripDate"></label>
+          <label class="cmp-meta__f"><span>Hora</span>
+            <select id="tripTime"><option value="now" selected>Ahora</option><option value="00:00">00:00</option><option value="00:30">00:30</option><option value="01:00">01:00</option><option value="01:30">01:30</option><option value="02:00">02:00</option><option value="02:30">02:30</option><option value="03:00">03:00</option><option value="03:30">03:30</option><option value="04:00">04:00</option><option value="04:30">04:30</option><option value="05:00">05:00</option><option value="05:30">05:30</option><option value="06:00">06:00</option><option value="06:30">06:30</option><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00">09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option><option value="19:30">19:30</option><option value="20:00">20:00</option><option value="20:30">20:30</option><option value="21:00">21:00</option><option value="21:30">21:30</option><option value="22:00">22:00</option><option value="22:30">22:30</option><option value="23:00">23:00</option><option value="23:30">23:30</option></select></label>
+          <label class="cmp-meta__f is-off" id="tripDurWrap"><span>Duración</span>
+            <select id="tripDur" disabled><option value="same">Mismo día</option><option value="2">2 días</option><option value="3">3 días o más</option></select></label>
+        </div>
+        <button type="submit" class="btn-gold cmp-submit">Comparar opciones</button>
+        <p class="cmp-msg" id="tripMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div class="cmp-results" id="tripResults" hidden></div>
+    </div>
+    <div class="cmp-map-wrap reveal">
+      <div id="tripMap" class="cmp-map-frame"></div>
+      <div class="cmp-map-badge" id="tripSummary" hidden></div>
+    </div>
+  </div>
+  <script type="application/json" id="tripConfig">{"options": [{"key": "rideshare", "name": "Rideshare Premium", "car": "Sedán ejecutivo", "seats": "Hasta 3 pasajeros"}, {"key": "suburban", "name": "Chofer Privado", "car": "Chevrolet Suburban", "seats": "Hasta 6 pasajeros"}, {"key": "hourly", "name": "Por horas", "car": "Vehículo a tu disposición", "seats": "Hasta 6 pasajeros"}], "fares": {"rideshare": {"base": 9.0, "perMile": 1.95, "perMin": 0.35, "min": 22.0}, "suburban": {"base": 28.0, "perMile": 3.2, "perMin": 0.55, "min": 85.0}, "hourly": {"hourly": 95.0, "minHours": 3}}, "center": [-86.8104, 33.5186], "book": "book.html", "labels": {"calc": "Calculando ruta…", "errFields": "Introduce una recogida y un destino.", "errRoute": "No hemos podido calcular esa ruta. Prueba con otra dirección.", "errGeo": "No hemos podido obtener tu ubicación.", "results": "Opciones para tu viaje", "note": "Precios estimados a partir de la distancia y el tiempo de conducción. El importe final se confirma al reservar.", "book": "Reservar", "eta": "Tiempo de viaje", "dist": "Distancia", "roundNote": "ida y vuelta", "hourlyNote": "mínimo {h} h"}}</script>
+</section>
+
+<section class="showreel" aria-hidden="true">
+  <video class="showreel-video" muted loop playsinline preload="metadata">
+    <source src="assets/media/showcase.mp4" type="video/mp4">
+  </video>
+  <span class="showreel-fade"></span>
+</section>
+
+<section class="section services" id="servicios">
+  <div class="sec-head reveal">
+    <span class="kicker">Nuestros servicios</span>
+    <h2 class="sec-title">Experiencia <em>de Lujo</em></h2>
+  </div>
+  <div class="sv-grid">
+<article class="sv-card reveal" style="--i:0">
+  <img class="sv-img" src="assets/media/svc-private.jpg" alt="Opciones de viaje" width="1100" height="1100" loading="lazy" decoding="async">
+  <div class="sv-body">
+    <h3>Opciones de viaje</h3>
+    <p>Hay más de una forma de moverte con Cruise in Ride, estés donde estés y sea cual sea tu destino.</p>
+    <a class="sv-btn" href="book.html"><span>Reservar ahora</span></a>
+  </div>
+</article><article class="sv-card reveal" style="--i:1">
+  <img class="sv-img" src="assets/media/svc-interior.jpg" alt="Eventos Especiales" width="1100" height="1100" loading="lazy" decoding="async">
+  <div class="sv-body">
+    <h3>Eventos Especiales</h3>
+    <p>Hacemos que sus bodas, galas y celebraciones trasciendan con un servicio de clase mundial.</p>
+    <a class="sv-btn" href="book.html"><span>Reservar</span></a>
+  </div>
+</article><article class="sv-card reveal" style="--i:2">
+  <div class="sv-loop" role="img" aria-label="Traslados al Aeropuerto"><video class="sv-video is-front" src="assets/media/svc-airport.mp4" poster="assets/media/svc-airport.jpg" muted playsinline preload="auto" aria-hidden="true"></video><video class="sv-video" src="assets/media/svc-airport.mp4" poster="assets/media/svc-airport.jpg" muted playsinline preload="auto" aria-hidden="true"></video></div>
+  <div class="sv-body">
+    <h3>Traslados al Aeropuerto</h3>
+    <p>Puntualidad absoluta y monitoreo de vuelos en tiempo real para una llegada sin complicaciones.</p>
+    <a class="sv-btn" href="book.html"><span>Reservar</span></a>
+  </div>
+</article><article class="sv-card reveal" style="--i:3">
+  <img class="sv-img" src="assets/media/svc-chauffeur.jpg" alt="Chófer Privado" width="1100" height="1100" loading="lazy" decoding="async">
+  <div class="sv-body">
+    <h3>Chófer Privado</h3>
+    <p>Conductores certificados y vehículos impecables dedicados exclusivamente a su seguridad y confort.</p>
+    <a class="sv-btn" href="book.html"><span>Reservar</span></a>
+  </div>
+</article>
+  </div>
+</section>
+
+<section class="section appqr" id="descarga">
+  <div class="sec-head reveal">
+    <span class="kicker">Descarga la app</span>
+    <h2 class="sec-title">Descarga la app <em>y en marcha</em></h2>
+    <p class="sec-sub">Apunta la cámara del móvil al código y descarga CruiseInRide en iOS.</p>
+  </div>
+  <div class="aq-grid">
+      <div class="aq-card reveal">
+        <a class="aq-qr" href="https://apps.apple.com/us/app/cruise-in-ride/id6760517086" target="_blank" rel="noopener" aria-label="Regístrate para viajar">
+          <svg viewBox="0 0 45 45" width="45" height="45" class="segno"><path class="qrline" stroke="#fff" d="M2 2.5h7m1 0h1m4 0h4m2 0h1m1 0h1m1 0h2m3 0h1m1 0h3m1 0h7m-41 1h1m5 0h1m1 0h1m1 0h7m1 0h1m3 0h2m3 0h1m2 0h1m1 0h1m1 0h1m5 0h1m-41 1h1m1 0h3m1 0h1m1 0h1m3 0h1m4 0h1m1 0h1m1 0h1m5 0h2m5 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m2 0h1m2 0h2m1 0h3m1 0h3m1 0h1m3 0h6m1 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m2 0h1m4 0h3m1 0h2m1 0h3m4 0h1m2 0h2m1 0h1m1 0h3m1 0h1m-41 1h1m5 0h1m1 0h1m1 0h3m1 0h1m3 0h3m1 0h6m2 0h1m1 0h1m1 0h1m5 0h1m-41 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-33 1h9m2 0h2m2 0h1m1 0h1m1 0h1m3 0h2m-31 1h3m1 0h1m1 0h1m7 0h1m2 0h1m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m1 0h3m2 0h3m-39 1h1m1 0h2m4 0h5m2 0h1m1 0h1m4 0h1m3 0h1m2 0h2m1 0h3m1 0h3m-39 1h2m2 0h1m2 0h3m4 0h2m2 0h1m1 0h1m2 0h3m4 0h1m2 0h2m-37 1h1m1 0h1m5 0h1m6 0h1m2 0h2m1 0h4m1 0h1m1 0h1m2 0h2m1 0h1m2 0h1m2 0h1m-40 1h6m1 0h2m1 0h1m2 0h2m2 0h4m1 0h4m2 0h1m1 0h3m3 0h2m1 0h1m-41 1h2m2 0h1m4 0h5m1 0h3m1 0h3m1 0h3m1 0h1m1 0h1m1 0h1m2 0h3m2 0h2m-38 1h2m1 0h3m3 0h1m3 0h2m2 0h1m6 0h1m1 0h1m2 0h2m-33 1h1m1 0h1m1 0h1m1 0h1m2 0h2m1 0h3m4 0h1m1 0h4m2 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h1m-39 1h1m1 0h1m1 0h1m2 0h2m7 0h1m1 0h1m1 0h6m1 0h2m2 0h1m1 0h1m2 0h1m1 0h1m-41 1h2m1 0h1m3 0h1m2 0h1m3 0h2m2 0h1m1 0h1m1 0h5m1 0h1m1 0h3m1 0h3m3 0h1m-41 1h3m1 0h1m1 0h2m3 0h1m1 0h3m1 0h1m2 0h2m2 0h1m1 0h4m2 0h2m2 0h3m-37 1h1m1 0h1m2 0h3m1 0h1m1 0h2m2 0h2m1 0h2m2 0h4m4 0h1m1 0h1m1 0h2m1 0h1m-36 1h4m1 0h2m1 0h1m2 0h2m5 0h3m1 0h1m1 0h4m3 0h1m1 0h3m-38 1h4m3 0h2m5 0h3m3 0h2m2 0h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h3m-41 1h1m4 0h2m1 0h3m2 0h3m1 0h2m1 0h1m2 0h1m3 0h2m1 0h1m1 0h2m3 0h1m-38 1h4m3 0h1m2 0h1m1 0h2m1 0h2m1 0h4m1 0h1m3 0h1m2 0h1m1 0h1m1 0h4m-37 1h2m3 0h2m2 0h2m1 0h2m1 0h1m1 0h2m1 0h1m3 0h3m1 0h1m1 0h1m6 0h3m-38 1h2m3 0h1m2 0h1m1 0h1m1 0h2m5 0h1m1 0h1m6 0h1m1 0h5m1 0h2m-40 1h1m1 0h2m1 0h1m6 0h1m2 0h3m1 0h1m6 0h4m1 0h1m2 0h2m2 0h1m-38 1h2m1 0h1m3 0h1m4 0h1m5 0h2m1 0h2m1 0h1m4 0h7m-38 1h1m2 0h2m1 0h1m1 0h3m1 0h4m2 0h4m1 0h1m2 0h8m3 0h2m-39 1h2m2 0h2m2 0h1m2 0h4m1 0h3m1 0h3m6 0h3m2 0h1m1 0h5m-41 1h1m1 0h1m1 0h10m1 0h1m2 0h1m1 0h1m4 0h1m1 0h1m5 0h4m2 0h1m-40 1h1m4 0h1m3 0h2m2 0h1m1 0h1m2 0h1m3 0h1m4 0h1m5 0h5m1 0h1m-40 1h1m1 0h2m2 0h1m3 0h3m4 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h1m2 0h5m1 0h2m-32 1h1m2 0h4m1 0h2m2 0h3m2 0h2m1 0h1m3 0h1m3 0h1m3 0h1m-41 1h7m2 0h1m3 0h2m1 0h2m1 0h4m1 0h4m2 0h3m1 0h1m1 0h1m1 0h1m-39 1h1m5 0h1m2 0h1m2 0h2m1 0h3m1 0h3m1 0h1m2 0h1m3 0h1m1 0h1m3 0h2m-38 1h1m1 0h3m1 0h1m1 0h6m3 0h4m3 0h1m1 0h2m1 0h2m1 0h8m-40 1h1m1 0h3m1 0h1m1 0h1m1 0h3m2 0h1m1 0h3m2 0h2m1 0h2m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m2 0h1m-41 1h1m1 0h3m1 0h1m1 0h4m1 0h1m1 0h1m1 0h1m1 0h3m1 0h3m1 0h2m1 0h2m1 0h4m2 0h1m-40 1h1m5 0h1m2 0h1m1 0h1m6 0h1m9 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m-40 1h7m3 0h3m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h2m1 0h2m1 0h1m2 0h5"/></svg>
+          <span class="aq-qr__badge"><img src="assets/media/qr-ride.png" alt="" width="320" height="320"></span>
+        </a>
+        <h3>Regístrate para viajar</h3>
+        <p>Escanea el código QR para descargar.</p>
+      </div>
+      <div class="aq-card reveal">
+        <a class="aq-qr" href="https://apps.apple.com/us/app/cruise-in-ride/id6760517086" target="_blank" rel="noopener" aria-label="Solicita conducir">
+          <svg viewBox="0 0 45 45" width="45" height="45" class="segno"><path class="qrline" stroke="#fff" d="M2 2.5h7m1 0h1m4 0h4m2 0h1m1 0h1m1 0h2m3 0h1m1 0h3m1 0h7m-41 1h1m5 0h1m1 0h1m1 0h7m1 0h1m3 0h2m3 0h1m2 0h1m1 0h1m1 0h1m5 0h1m-41 1h1m1 0h3m1 0h1m1 0h1m3 0h1m4 0h1m1 0h1m1 0h1m5 0h2m5 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m2 0h1m2 0h2m1 0h3m1 0h3m1 0h1m3 0h6m1 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m2 0h1m4 0h3m1 0h2m1 0h3m4 0h1m2 0h2m1 0h1m1 0h3m1 0h1m-41 1h1m5 0h1m1 0h1m1 0h3m1 0h1m3 0h3m1 0h6m2 0h1m1 0h1m1 0h1m5 0h1m-41 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-33 1h9m2 0h2m2 0h1m1 0h1m1 0h1m3 0h2m-31 1h3m1 0h1m1 0h1m7 0h1m2 0h1m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m1 0h3m2 0h3m-39 1h1m1 0h2m4 0h5m2 0h1m1 0h1m4 0h1m3 0h1m2 0h2m1 0h3m1 0h3m-39 1h2m2 0h1m2 0h3m4 0h2m2 0h1m1 0h1m2 0h3m4 0h1m2 0h2m-37 1h1m1 0h1m5 0h1m6 0h1m2 0h2m1 0h4m1 0h1m1 0h1m2 0h2m1 0h1m2 0h1m2 0h1m-40 1h6m1 0h2m1 0h1m2 0h2m2 0h4m1 0h4m2 0h1m1 0h3m3 0h2m1 0h1m-41 1h2m2 0h1m4 0h5m1 0h3m1 0h3m1 0h3m1 0h1m1 0h1m1 0h1m2 0h3m2 0h2m-38 1h2m1 0h3m3 0h1m3 0h2m2 0h1m6 0h1m1 0h1m2 0h2m-33 1h1m1 0h1m1 0h1m1 0h1m2 0h2m1 0h3m4 0h1m1 0h4m2 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h1m-39 1h1m1 0h1m1 0h1m2 0h2m7 0h1m1 0h1m1 0h6m1 0h2m2 0h1m1 0h1m2 0h1m1 0h1m-41 1h2m1 0h1m3 0h1m2 0h1m3 0h2m2 0h1m1 0h1m1 0h5m1 0h1m1 0h3m1 0h3m3 0h1m-41 1h3m1 0h1m1 0h2m3 0h1m1 0h3m1 0h1m2 0h2m2 0h1m1 0h4m2 0h2m2 0h3m-37 1h1m1 0h1m2 0h3m1 0h1m1 0h2m2 0h2m1 0h2m2 0h4m4 0h1m1 0h1m1 0h2m1 0h1m-36 1h4m1 0h2m1 0h1m2 0h2m5 0h3m1 0h1m1 0h4m3 0h1m1 0h3m-38 1h4m3 0h2m5 0h3m3 0h2m2 0h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h3m-41 1h1m4 0h2m1 0h3m2 0h3m1 0h2m1 0h1m2 0h1m3 0h2m1 0h1m1 0h2m3 0h1m-38 1h4m3 0h1m2 0h1m1 0h2m1 0h2m1 0h4m1 0h1m3 0h1m2 0h1m1 0h1m1 0h4m-37 1h2m3 0h2m2 0h2m1 0h2m1 0h1m1 0h2m1 0h1m3 0h3m1 0h1m1 0h1m6 0h3m-38 1h2m3 0h1m2 0h1m1 0h1m1 0h2m5 0h1m1 0h1m6 0h1m1 0h5m1 0h2m-40 1h1m1 0h2m1 0h1m6 0h1m2 0h3m1 0h1m6 0h4m1 0h1m2 0h2m2 0h1m-38 1h2m1 0h1m3 0h1m4 0h1m5 0h2m1 0h2m1 0h1m4 0h7m-38 1h1m2 0h2m1 0h1m1 0h3m1 0h4m2 0h4m1 0h1m2 0h8m3 0h2m-39 1h2m2 0h2m2 0h1m2 0h4m1 0h3m1 0h3m6 0h3m2 0h1m1 0h5m-41 1h1m1 0h1m1 0h10m1 0h1m2 0h1m1 0h1m4 0h1m1 0h1m5 0h4m2 0h1m-40 1h1m4 0h1m3 0h2m2 0h1m1 0h1m2 0h1m3 0h1m4 0h1m5 0h5m1 0h1m-40 1h1m1 0h2m2 0h1m3 0h3m4 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h1m2 0h5m1 0h2m-32 1h1m2 0h4m1 0h2m2 0h3m2 0h2m1 0h1m3 0h1m3 0h1m3 0h1m-41 1h7m2 0h1m3 0h2m1 0h2m1 0h4m1 0h4m2 0h3m1 0h1m1 0h1m1 0h1m-39 1h1m5 0h1m2 0h1m2 0h2m1 0h3m1 0h3m1 0h1m2 0h1m3 0h1m1 0h1m3 0h2m-38 1h1m1 0h3m1 0h1m1 0h6m3 0h4m3 0h1m1 0h2m1 0h2m1 0h8m-40 1h1m1 0h3m1 0h1m1 0h1m1 0h3m2 0h1m1 0h3m2 0h2m1 0h2m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m2 0h1m-41 1h1m1 0h3m1 0h1m1 0h4m1 0h1m1 0h1m1 0h1m1 0h3m1 0h3m1 0h2m1 0h2m1 0h4m2 0h1m-40 1h1m5 0h1m2 0h1m1 0h1m6 0h1m9 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m-40 1h7m3 0h3m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h2m1 0h2m1 0h1m2 0h5"/></svg>
+          <span class="aq-qr__badge"><img src="assets/media/qr-drive.png" alt="" width="320" height="320"></span>
+        </a>
+        <h3>Solicita conducir</h3>
+        <p>Escanea el código QR para descargar.</p>
+      </div>
+  </div>
+</section>
+
+<section class="section reviews" id="resenas">
+  <div class="sec-head reveal">
+    <span class="rv-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Reseñas verificadas</span>
+    <h2 class="sec-title">Lo que dicen nuestros clientes</h2>
+    <p class="sec-sub">Miles de personas confían en nosotros cada día</p>
+  </div>
+  <div class="rv-stage reveal">
+    <div class="rv-stage__featured"><article class="rv-card rv-card--featured">
+  <div class="rv-glow" aria-hidden="true"></div>
+  <span class="rv-quote-mark">"</span>
+  <div class="rv-top">
+    <span class="rv-avatar">CR</span>
+    <div class="rv-meta">
+      <strong class="rv-name">Carl R.</strong>
+      <span class="rv-verified"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Compra verificada</span>
+    </div>
+  </div>
+  <div class="rv-stars"><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="st-part"><svg viewBox="0 0 24 24" class="st st-bg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="st-fill" style="width:90%"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span></span><b>4.9</b></div>
+  <p class="rv-text">As a frequent business traveler, I need reliability. CruiseInRide has never let me down in over 50 rides. Truly exceptional.</p>
+  <span class="rv-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8 7V5.5A2.5 2.5 0 0110.5 3h3A2.5 2.5 0 0116 5.5V7M3 12.5h18"/></svg>Executive Transport</span>
+</article></div>
+    <div class="rv-stage__deck"><article class="rv-card rv-card--normal">
+  <div class="rv-glow" aria-hidden="true"></div>
+  
+  <div class="rv-top">
+    <span class="rv-avatar">GC</span>
+    <div class="rv-meta">
+      <strong class="rv-name">Gregory C.</strong>
+      <span class="rv-verified"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Compra verificada</span>
+    </div>
+  </div>
+  <div class="rv-stars"><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="st-part"><svg viewBox="0 0 24 24" class="st st-bg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="st-fill" style="width:80%"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span></span><b>4.8</b></div>
+  <p class="rv-text">Professional from start to finish. The email confirmation system gives confidence, and the drivers always know the best routes.</p>
+  <span class="rv-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8 7V5.5A2.5 2.5 0 0110.5 3h3A2.5 2.5 0 0116 5.5V7M3 12.5h18"/></svg>Executive Transport</span>
+</article><article class="rv-card rv-card--normal">
+  <div class="rv-glow" aria-hidden="true"></div>
+  
+  <div class="rv-top">
+    <span class="rv-avatar">NG</span>
+    <div class="rv-meta">
+      <strong class="rv-name">Nathan G.</strong>
+      <span class="rv-verified"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Compra verificada</span>
+    </div>
+  </div>
+  <div class="rv-stars"><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="st-part"><svg viewBox="0 0 24 24" class="st st-bg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="st-fill" style="width:90%"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span></span><b>4.9</b></div>
+  <p class="rv-text">From the moment I opened the door, the leather interior and ambient lighting created the perfect atmosphere. Pure class.</p>
+  <span class="rv-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8 7V5.5A2.5 2.5 0 0110.5 3h3A2.5 2.5 0 0116 5.5V7M3 12.5h18"/></svg>Premium Suburban Ride</span>
+</article><article class="rv-card rv-card--normal">
+  <div class="rv-glow" aria-hidden="true"></div>
+  
+  <div class="rv-top">
+    <span class="rv-avatar">JR</span>
+    <div class="rv-meta">
+      <strong class="rv-name">Julia R.</strong>
+      <span class="rv-verified"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Compra verificada</span>
+    </div>
+  </div>
+  <div class="rv-stars"><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24" class="st"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="st-part"><svg viewBox="0 0 24 24" class="st st-bg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="st-fill" style="width:90%"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span></span><b>4.9</b></div>
+  <p class="rv-text">My wife and I use CruiseInRide for date nights now. It's become part of the experience. Luxury, comfort, and zero stress.</p>
+  <span class="rv-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8 7V5.5A2.5 2.5 0 0110.5 3h3A2.5 2.5 0 0116 5.5V7M3 12.5h18"/></svg>VIP Protocol</span>
+</article></div>
+  </div>
+  <div class="rv-stats reveal"><div class="rs-item"><div class="rs-ring" aria-hidden="true"></div><div class="rs-num-wrap"><span class="rs-num" data-target="500">0</span><span class="rs-suffix">+</span></div><span class="rs-label">Reseñas</span></div><div class="rs-item"><div class="rs-ring" aria-hidden="true"></div><div class="rs-num-wrap"><span class="rs-num" data-target="4.8">0</span><span class="rs-suffix"></span></div><span class="rs-label">Promedio</span></div><div class="rs-item"><div class="rs-ring" aria-hidden="true"></div><div class="rs-num-wrap"><span class="rs-num" data-target="3k">0</span><span class="rs-suffix">+</span></div><span class="rs-label">Clientes</span></div></div>
+</section>
+</main>
+<footer class="cruise-footer">
+  <div class="cf-hero">
+    <div class="cf-hero__copy">
+      <img src="assets/media/logo.png" alt="CruiseInRide" height="44">
+      <p>Transporte privado premium con chofer</p>
+    </div>
+    <a class="cf-hero__cta" href="book.html">Reservar ahora</a>
+  </div>
+
+  <div class="cf-route" aria-hidden="true">
+    <svg class="cf-route__line" viewBox="0 0 1000 40" preserveAspectRatio="none"><path pathLength="1000" d="M0 28 C42 27 84 21 125 20 C205 17 300 2 375 20 C450 36 545 30 625 20 C690 15 810 11 875 20 C935 25 972 29 1000 30"/></svg>
+    <div class="cf-route__stops">
+      <div class="cf-stop">
+        <span class="cf-stop__dot"><svg viewBox="0 0 24 24" fill="none"><path d="M13.83 16.57a1 1 0 0 0 1.22-.3l.35-.47A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.47.35a1 1 0 0 0-.29 1.23 14 14 0 0 0 6.39 6.39z" fill="currentColor"/><circle class="ico-gold" cx="18.6" cy="5.4" r="3.1"/></svg></span>
+        <small>Llámanos</small>
+        <strong>+1 (659) 305-2974</strong>
+      </div>
+      <div class="cf-stop">
+        <span class="cf-stop__dot"><svg viewBox="0 0 24 24" fill="none"><rect x="2.4" y="4.6" width="19.2" height="14.8" rx="4.2" fill="currentColor"/><path class="ico-gold-line" d="m6.4 9.4 4.7 3.1a1.7 1.7 0 0 0 1.8 0l4.7-3.1" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <small>Escríbenos</small>
+        <strong>support@cruiseinride.com</strong>
+      </div>
+      <div class="cf-stop">
+        <span class="cf-stop__dot"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21.8c4.6-4.9 6.9-8.7 6.9-11.5a6.9 6.9 0 1 0-13.8 0c0 2.8 2.3 6.6 6.9 11.5Z" fill="currentColor"/><circle class="ico-gold" cx="12" cy="10.1" r="2.7"/></svg></span>
+        <small>Cobertura</small>
+        <strong>Alabama / Sur de Florida</strong>
+      </div>
+      <div class="cf-stop">
+        <span class="cf-stop__dot cf-stop__dot--pulse"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.3" fill="currentColor"/><path class="ico-gold-line" d="M12 6.9v5.4l3.3 2" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <small>Siempre abierto</small>
+        <strong>24 / 7</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="cf-bottom">
+    <div class="cf-bottom__inner">
+      <nav class="cf-bottom__links">
+        <a href="index.html">Inicio</a>
+        <a href="book.html">Reservar</a>
+        <a href="contact.html">Contacto</a>
+        <a href="index.html">Términos</a>
+      </nav>
+      <div class="cf-bottom__social">
+        <a href="https://facebook.com/cruiseinride" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.9.3-1.5 1.6-1.5h1.3V4.9c-.3 0-1.1-.1-2.1-.1-2.1 0-3.6 1.3-3.6 3.7V11H8.3v3h2.4v7h2.8z"/></svg></a>
+        <a href="https://instagram.com/cruiseinride" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.2-.1-1.6-.1-4.8s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.2-.1 1.6-.1 4.8-.1zm0 2c-3.1 0-3.5 0-4.7.1-1.1.1-1.4.2-1.7.3-.4.2-.7.3-1 .6-.3.3-.5.6-.6 1-.1.3-.3.6-.3 1.7-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.4.3 1.7.2.4.3.7.6 1 .3.3.6.5 1 .6.3.1.6.3 1.7.3 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.4-.2 1.7-.3.4-.2.7-.3 1-.6.3-.3.5-.6.6-1 .1-.3.3-.6.3-1.7.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.4-.3-1.7-.2-.4-.3-.7-.6-1-.3-.3-.6-.5-1-.6-.3-.1-.6-.3-1.7-.3-1.2-.1-1.6-.1-4.7-.1zm0 3.3a5.1 5.1 0 110 10.2 5.1 5.1 0 010-10.2zm0 8.4a3.3 3.3 0 100-6.6 3.3 3.3 0 000 6.6zm6.5-8.6a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z"/></svg></a>
+      </div>
+      <p class="cf-bottom__copy">© 2026 CruiseInRide. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
+<script src="assets/home.js"></script>
+<a class="wa-fab" href="https://wa.me/16593052974" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+</body>
+</html>

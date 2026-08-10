@@ -1,0 +1,392 @@
+{% comment %}
+  Scene Scroll — scroll-snap cinematic storytelling.
+  Each .shopify-section on the home becomes a full-viewport "scene".
+  Content inside each scene animates with a unique effect.
+  Respects reduced-motion. Desktop-first; softened on mobile.
+{% endcomment %}
+
+<style>
+  /* ═══ Body / scene container ════════════════════════════════════════ */
+  body.scene-mode{
+    background:#05070d;
+    color:#f5f5f7;
+  }
+  body.scene-mode main,
+  body.scene-mode #MainContent{
+    scroll-snap-type:y mandatory;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  body.scene-mode .shopify-section[data-scene]{
+    position:relative;
+    min-height:100vh;
+    min-height:100dvh;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    isolation:isolate;
+  }
+
+  /* Header/footer excluded from snap */
+  body.scene-mode .shopify-section#shopify-section-header,
+  body.scene-mode .shopify-section[id*="announcement"],
+  body.scene-mode .shopify-section[id*="footer"]{
+    min-height:auto;
+    scroll-snap-align:none;
+  }
+
+  /* ═══ Ambient background layer inside each scene ════════════════════ */
+  .scene-ambient{
+    position:absolute;
+    inset:0;
+    z-index:-1;
+    overflow:hidden;
+    background:radial-gradient(ellipse 80% 60% at 50% 40%,
+      rgba(212,175,55,.08) 0%,
+      rgba(10,10,15,0) 60%),
+      linear-gradient(180deg,#05070d 0%,#0a0e1a 100%);
+  }
+  .scene-ambient::before{
+    content:'';
+    position:absolute;
+    inset:-20%;
+    background:
+      radial-gradient(circle at 20% 30%,rgba(245,215,122,.06) 0%,transparent 40%),
+      radial-gradient(circle at 80% 70%,rgba(212,175,55,.05) 0%,transparent 40%);
+    filter:blur(60px);
+    animation:sceneAmbient 14s ease-in-out infinite alternate;
+  }
+  @keyframes sceneAmbient{
+    0%{transform:translate3d(0,0,0) rotate(0deg);}
+    100%{transform:translate3d(-4%,2%,0) rotate(2deg);}
+  }
+
+  /* ═══ Scene content wrapper ═════════════════════════════════════════ */
+  .scene-inner{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:100%;
+    padding:clamp(24px,6vw,72px);
+  }
+
+  /* ═══ Enter animations — one per scene effect ══════════════════════ */
+  /* All start invisible. Get animated when [data-scene-active] is set. */
+  [data-scene] [data-scene-anim]{
+    opacity:0;
+    transition:opacity 1100ms cubic-bezier(.22,1,.36,1),
+               transform 1200ms cubic-bezier(.22,1,.36,1),
+               filter 900ms cubic-bezier(.22,1,.36,1);
+    will-change:opacity,transform,filter;
+  }
+
+  /* ▸ Effect 1: rise — translate Y up while fading in */
+  [data-scene-anim="rise"]{transform:translate3d(0,80px,0);}
+
+  /* ▸ Effect 2: zoom — from distant, blurred, small */
+  [data-scene-anim="zoom"]{
+    transform:translate3d(0,0,-320px) scale(.82);
+    filter:blur(10px);
+  }
+
+  /* ▸ Effect 3: unfurl — like a curtain opens, from clip path */
+  [data-scene-anim="unfurl"]{
+    transform:translate3d(0,30px,0);
+    clip-path:inset(50% 0 50% 0);
+  }
+
+  /* ▸ Effect 4: tilt — 3D tilt coming into view */
+  [data-scene-anim="tilt"]{
+    transform:perspective(1200px) rotateX(24deg) translate3d(0,60px,-80px);
+    transform-origin:50% 100%;
+  }
+
+  /* ▸ Effect 5: slide-right — comes from left */
+  [data-scene-anim="slide-right"]{transform:translate3d(-120px,0,0);}
+
+  /* ▸ Effect 6: slide-left — comes from right */
+  [data-scene-anim="slide-left"]{transform:translate3d(120px,0,0);}
+
+  /* ▸ Effect 7: emerge — subtle, pro default */
+  [data-scene-anim="emerge"]{
+    transform:translate3d(0,40px,-120px) scale(.94);
+    filter:blur(4px);
+  }
+
+  /* Active state — reset to neutral */
+  [data-scene][data-scene-active] [data-scene-anim]{
+    opacity:1;
+    transform:translate3d(0,0,0) scale(1) perspective(1200px) rotateX(0);
+    filter:blur(0);
+    clip-path:inset(0 0 0 0);
+  }
+
+  /* Stagger children */
+  [data-scene][data-scene-active] [data-scene-anim][data-scene-delay="1"]{transition-delay:120ms;}
+  [data-scene][data-scene-active] [data-scene-anim][data-scene-delay="2"]{transition-delay:240ms;}
+  [data-scene][data-scene-active] [data-scene-anim][data-scene-delay="3"]{transition-delay:360ms;}
+  [data-scene][data-scene-active] [data-scene-anim][data-scene-delay="4"]{transition-delay:480ms;}
+
+  /* ═══ Scene progress indicator (right-side dots) ═══════════════════ */
+  .scene-nav{
+    position:fixed;
+    right:clamp(12px,2vw,24px);
+    top:50%;
+    transform:translateY(-50%);
+    z-index:80;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    pointer-events:auto;
+    opacity:0;
+    transition:opacity 600ms cubic-bezier(.22,1,.36,1);
+  }
+  body.scene-mode .scene-nav.is-ready{opacity:1;}
+  .scene-nav__dot{
+    width:6px;height:6px;
+    border-radius:50%;
+    background:rgba(255,255,255,.22);
+    border:none;
+    padding:0;
+    cursor:pointer;
+    transition:all 420ms cubic-bezier(.22,1,.36,1);
+  }
+  .scene-nav__dot.is-current{
+    background:var(--lux-gold-2,#d4af37);
+    box-shadow:0 0 14px rgba(212,175,55,.6);
+    width:8px;height:8px;
+  }
+  .scene-nav__dot:hover{transform:scale(1.4);}
+
+  /* ═══ Scene counter (top-right, subtle) ════════════════════════════ */
+  .scene-counter{
+    position:fixed;
+    top:clamp(16px,3vw,32px);
+    right:clamp(16px,3vw,32px);
+    z-index:79;
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,.55);
+    pointer-events:none;
+    opacity:0;
+    transform:translateY(-6px);
+    transition:opacity 700ms cubic-bezier(.22,1,.36,1),
+               transform 700ms cubic-bezier(.22,1,.36,1);
+  }
+  body.scene-mode .scene-counter.is-ready{opacity:1;transform:translateY(0);}
+
+  /* ═══ Scroll hint at first scene ═══════════════════════════════════ */
+  .scene-hint{
+    position:absolute;
+    bottom:clamp(20px,4vh,48px);
+    left:50%;
+    transform:translateX(-50%);
+    z-index:3;
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:10px;
+    letter-spacing:.3em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,.55);
+    pointer-events:none;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    animation:sceneHintFloat 2.8s ease-in-out infinite;
+  }
+  .scene-hint__line{
+    width:1px;height:32px;
+    background:linear-gradient(180deg,rgba(212,175,55,0),rgba(212,175,55,.75));
+  }
+  @keyframes sceneHintFloat{
+    0%,100%{transform:translate(-50%,0);opacity:.55;}
+    50%{transform:translate(-50%,6px);opacity:.95;}
+  }
+
+  /* ═══ Mobile adjustments — reduce intensity ═══════════════════════ */
+  @media (max-width:760px){
+    [data-scene-anim="zoom"]{transform:translate3d(0,0,-160px) scale(.92);filter:blur(6px);}
+    [data-scene-anim="tilt"]{transform:perspective(1000px) rotateX(14deg) translate3d(0,40px,-40px);}
+    [data-scene-anim="slide-right"]{transform:translate3d(-60px,0,0);}
+    [data-scene-anim="slide-left"]{transform:translate3d(60px,0,0);}
+    .scene-nav{right:8px;gap:10px;}
+    .scene-nav__dot{width:5px;height:5px;}
+    .scene-nav__dot.is-current{width:7px;height:7px;}
+  }
+
+  /* ═══ Reduced motion — everything instant ═════════════════════════ */
+  @media (prefers-reduced-motion:reduce){
+    [data-scene] [data-scene-anim]{
+      opacity:1!important;
+      transform:none!important;
+      filter:none!important;
+      clip-path:none!important;
+      transition:none!important;
+    }
+    .scene-ambient::before{animation:none!important;}
+    .scene-hint{animation:none!important;}
+    body.scene-mode main,
+    body.scene-mode #MainContent{scroll-snap-type:none;}
+  }
+
+  /* ═══ Home-only guard — don't affect other pages ═════════════════ */
+  body:not(.scene-mode) .scene-ambient,
+  body:not(.scene-mode) .scene-nav,
+  body:not(.scene-mode) .scene-counter,
+  body:not(.scene-mode) .scene-hint{display:none!important;}
+</style>
+
+<script>
+(function(){
+  if(window.__sceneScroll)return; window.__sceneScroll=1;
+  if(!('IntersectionObserver' in window))return;
+
+  var EFFECTS=['emerge','rise','zoom','unfurl','tilt','slide-right','emerge','slide-left'];
+
+  function isHome(){
+    var p=location.pathname;
+    return p==='/'||p==='/es/'||p==='/en/'||/^\/(es|en)\/?$/.test(p);
+  }
+
+  function pickEffect(idx){
+    return EFFECTS[idx % EFFECTS.length];
+  }
+
+  function setupScenes(){
+    if(!isHome())return;
+    document.body.classList.add('scene-mode');
+
+    var main=document.querySelector('main, #MainContent')||document.body;
+    var sections=Array.prototype.slice.call(
+      (main).querySelectorAll(':scope > .shopify-section')
+    );
+    if(!sections.length) sections=Array.prototype.slice.call(document.querySelectorAll('.shopify-section'));
+
+    /* Filter out header/footer/announcement */
+    var scenes=sections.filter(function(s){
+      var id=(s.id||'').toLowerCase();
+      if(/header|footer|announcement/i.test(id))return false;
+      return true;
+    });
+
+    if(scenes.length<2)return;
+
+    scenes.forEach(function(sec,idx){
+      sec.setAttribute('data-scene','');
+      sec.setAttribute('data-scene-index',idx);
+
+      /* Inject ambient bg if not present */
+      if(!sec.querySelector('.scene-ambient')){
+        var amb=document.createElement('div');
+        amb.className='scene-ambient';
+        amb.setAttribute('aria-hidden','true');
+        sec.insertBefore(amb, sec.firstChild);
+      }
+
+      /* Wrap direct children (except ambient) into scene-inner if not done */
+      if(!sec.querySelector(':scope > .scene-inner')){
+        var inner=document.createElement('div');
+        inner.className='scene-inner';
+        var kids=Array.prototype.slice.call(sec.children);
+        kids.forEach(function(k){
+          if(k===sec.querySelector('.scene-ambient'))return;
+          inner.appendChild(k);
+        });
+        sec.appendChild(inner);
+      }
+
+      /* Assign a unique effect to direct descendant text/media blocks */
+      var effect=pickEffect(idx);
+      var inner=sec.querySelector(':scope > .scene-inner');
+      if(inner){
+        /* Pick candidate animatable elements */
+        var candidates=inner.querySelectorAll(':scope > *, :scope h1, :scope h2, :scope h3, :scope p, :scope a, :scope button, :scope img, :scope video, :scope .vipX__content, :scope [data-hero-content]');
+        var assigned=0;
+        candidates.forEach(function(el,i){
+          if(el.hasAttribute('data-scene-anim'))return;
+          if(el.closest('.scene-ambient'))return;
+          /* Skip tiny/invisible nodes */
+          el.setAttribute('data-scene-anim',effect);
+          if(assigned>0) el.setAttribute('data-scene-delay',String(Math.min(assigned,4)));
+          assigned++;
+          if(assigned>=5)return;
+        });
+        if(assigned===0){
+          /* Fallback: animate inner itself */
+          inner.setAttribute('data-scene-anim',effect);
+        }
+      }
+    });
+
+    /* Hint on first scene */
+    if(scenes[0] && !scenes[0].querySelector('.scene-hint')){
+      var hint=document.createElement('div');
+      hint.className='scene-hint';
+      var lang=(document.documentElement.getAttribute('lang')||'en').toLowerCase();
+      var label=lang.indexOf('es')===0?'Desliza':'Scroll';
+      hint.innerHTML='<span>'+label+'</span><span class="scene-hint__line"></span>';
+      scenes[0].appendChild(hint);
+    }
+
+    setupNav(scenes);
+    setupObserver(scenes);
+  }
+
+  function setupNav(scenes){
+    var nav=document.createElement('nav');
+    nav.className='scene-nav';
+    nav.setAttribute('aria-label','Scene navigation');
+    scenes.forEach(function(sec,idx){
+      var b=document.createElement('button');
+      b.type='button';
+      b.className='scene-nav__dot';
+      b.setAttribute('aria-label','Scene '+(idx+1));
+      b.addEventListener('click',function(){
+        sec.scrollIntoView({behavior:'smooth',block:'start'});
+      });
+      nav.appendChild(b);
+    });
+    document.body.appendChild(nav);
+
+    var counter=document.createElement('div');
+    counter.className='scene-counter';
+    counter.innerHTML='<span data-scene-now>01</span> <span style="opacity:.35;margin:0 .35em">/</span> <span data-scene-total>'+String(scenes.length).padStart(2,'0')+'</span>';
+    document.body.appendChild(counter);
+
+    requestAnimationFrame(function(){
+      nav.classList.add('is-ready');
+      counter.classList.add('is-ready');
+    });
+  }
+
+  function setupObserver(scenes){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        var idx=Number(e.target.getAttribute('data-scene-index'));
+        var dots=document.querySelectorAll('.scene-nav__dot');
+        if(e.isIntersecting && e.intersectionRatio>=0.5){
+          e.target.setAttribute('data-scene-active','');
+          if(dots[idx]){
+            document.querySelectorAll('.scene-nav__dot.is-current').forEach(function(d){d.classList.remove('is-current');});
+            dots[idx].classList.add('is-current');
+          }
+          var now=document.querySelector('[data-scene-now]');
+          if(now) now.textContent=String(idx+1).padStart(2,'0');
+        }
+      });
+    },{threshold:[0,0.2,0.5,0.8,1]});
+    scenes.forEach(function(s){io.observe(s);});
+  }
+
+  function init(){
+    if(!isHome())return;
+    setupScenes();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+</script>

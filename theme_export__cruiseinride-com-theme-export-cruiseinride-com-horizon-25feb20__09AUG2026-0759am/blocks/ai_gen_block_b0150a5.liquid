@@ -1,0 +1,383 @@
+{% doc %}
+  @prompt
+    generame un footer donde salga © 2026 cruise
+    Terms and Policies y que sea transparente para que se vea el video de fondo , conectalo con el video de la seccion de arriba 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-footer-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    background-color: transparent;
+    padding: {{ block.settings.padding_vertical }}px {{ block.settings.padding_horizontal }}px;
+    position: {{ block.settings.position_type }};
+    {% if block.settings.position_type == 'absolute' or block.settings.position_type == 'fixed' %}
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+    {% endif %}
+  }
+
+  .ai-footer-container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: {{ block.settings.spacing }}px;
+  }
+
+  .ai-footer-copyright-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.copyright_font_size }}px;
+    text-align: center;
+    margin: 0;
+    text-shadow: {{ block.settings.text_shadow_x }}px {{ block.settings.text_shadow_y }}px {{ block.settings.text_shadow_blur }}px {{ block.settings.text_shadow_color }};
+  }
+
+  .ai-footer-links-{{ ai_gen_id }} {
+    display: flex;
+    gap: {{ block.settings.link_spacing }}px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .ai-footer-link-{{ ai_gen_id }} {
+    color: {{ block.settings.link_color }};
+    font-size: {{ block.settings.link_font_size }}px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    text-shadow: {{ block.settings.text_shadow_x }}px {{ block.settings.text_shadow_y }}px {{ block.settings.text_shadow_blur }}px {{ block.settings.text_shadow_color }};
+  }
+
+  .ai-footer-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.link_hover_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-footer-{{ ai_gen_id }} {
+      padding: {{ block.settings.padding_vertical_mobile }}px {{ block.settings.padding_horizontal_mobile }}px;
+    }
+
+    .ai-footer-container-{{ ai_gen_id }} {
+      gap: {{ block.settings.spacing_mobile }}px;
+    }
+
+    .ai-footer-copyright-{{ ai_gen_id }} {
+      font-size: {{ block.settings.copyright_font_size_mobile }}px;
+    }
+
+    .ai-footer-link-{{ ai_gen_id }} {
+      font-size: {{ block.settings.link_font_size_mobile }}px;
+    }
+  }
+{% endstyle %}
+
+<footer-transparent-{{ ai_gen_id }} class="ai-footer-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-footer-container-{{ ai_gen_id }}">
+    <p class="ai-footer-copyright-{{ ai_gen_id }}">
+      {{ block.settings.copyright_text }}
+    </p>
+    
+    {% if block.settings.show_links %}
+      <nav class="ai-footer-links-{{ ai_gen_id }}" aria-label="Footer navigation">
+        {% if block.settings.terms_link != blank %}
+          <a href="{{ block.settings.terms_link }}" class="ai-footer-link-{{ ai_gen_id }}">
+            {{ block.settings.terms_text }}
+          </a>
+        {% endif %}
+        
+        {% if block.settings.policies_link != blank %}
+          <a href="{{ block.settings.policies_link }}" class="ai-footer-link-{{ ai_gen_id }}">
+            {{ block.settings.policies_text }}
+          </a>
+        {% endif %}
+      </nav>
+    {% endif %}
+  </div>
+</footer-transparent-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class FooterTransparent{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+      }
+    }
+
+    customElements.define('footer-transparent-{{ ai_gen_id }}', FooterTransparent{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Transparent footer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Position"
+    },
+    {
+      "type": "select",
+      "id": "position_type",
+      "label": "Position type",
+      "options": [
+        {
+          "value": "relative",
+          "label": "Normal (relative)"
+        },
+        {
+          "value": "absolute",
+          "label": "Overlay (absolute)"
+        },
+        {
+          "value": "fixed",
+          "label": "Fixed to bottom"
+        }
+      ],
+      "default": "absolute",
+      "info": "Use 'Overlay' to place footer over video background"
+    },
+    {
+      "type": "header",
+      "content": "Copyright"
+    },
+    {
+      "type": "text",
+      "id": "copyright_text",
+      "label": "Copyright text",
+      "default": "© 2026 cruise"
+    },
+    {
+      "type": "range",
+      "id": "copyright_font_size",
+      "label": "Font size (desktop)",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "copyright_font_size_mobile",
+      "label": "Font size (mobile)",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Links"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_links",
+      "label": "Show links",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "terms_text",
+      "label": "Terms link text",
+      "default": "Terms"
+    },
+    {
+      "type": "url",
+      "id": "terms_link",
+      "label": "Terms link URL"
+    },
+    {
+      "type": "text",
+      "id": "policies_text",
+      "label": "Policies link text",
+      "default": "Policies"
+    },
+    {
+      "type": "url",
+      "id": "policies_link",
+      "label": "Policies link URL"
+    },
+    {
+      "type": "range",
+      "id": "link_font_size",
+      "label": "Link font size (desktop)",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "link_font_size_mobile",
+      "label": "Link font size (mobile)",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "link_spacing",
+      "label": "Link spacing (desktop)",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Copyright text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Link color",
+      "default": "#d4af37"
+    },
+    {
+      "type": "color",
+      "id": "link_hover_color",
+      "label": "Link hover color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Text shadow"
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_x",
+      "label": "Shadow horizontal offset",
+      "min": -10,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_y",
+      "label": "Shadow vertical offset",
+      "min": -10,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "text_shadow_blur",
+      "label": "Shadow blur",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "color",
+      "id": "text_shadow_color",
+      "label": "Shadow color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "spacing",
+      "label": "Spacing between elements (desktop)",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "spacing_mobile",
+      "label": "Spacing between elements (mobile)",
+      "min": 5,
+      "max": 30,
+      "step": 5,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "label": "Vertical padding (desktop)",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "label": "Horizontal padding (desktop)",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical_mobile",
+      "label": "Vertical padding (mobile)",
+      "min": 10,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal_mobile",
+      "label": "Horizontal padding (mobile)",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    }
+  ],
+  "presets": [
+    {
+      "name": "Transparent footer"
+    }
+  ]
+}
+{% endschema %}

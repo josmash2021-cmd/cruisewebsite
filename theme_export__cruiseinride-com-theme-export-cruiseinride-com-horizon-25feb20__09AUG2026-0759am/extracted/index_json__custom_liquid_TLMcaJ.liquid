@@ -1,0 +1,754 @@
+{% assign current_lang = localization.language.iso_code | default: shop.locale | slice: 0,2 | downcase %}
+{% if current_lang != 'es' %}{% assign current_lang = 'en' %}{% endif %}
+
+<!-- CONTACTO CRUISE -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- 
+  ============================================================
+  CSS GLOBAL: Elimina TODA separacion entre secciones de Shopify
+  Aplica al wrapper de esta seccion y fuerza fondo transparente
+  ============================================================
+-->
+<style>
+/* === RESET AGRESIVO DEL WRAPPER DE SHOPIFY === */
+#shopify-section-{{ section.id }}{
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  margin: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  position: relative !important;
+}
+
+/* Elimina cualquier pseudo-elemento separador del tema */
+#shopify-section-{{ section.id }}::before,
+#shopify-section-{{ section.id }}::after{
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  border: none !important;
+  height: 0 !important;
+}
+
+/* Resetea cualquier wrapper interno del tema */
+#shopify-section-{{ section.id }} .section-wrapper,
+#shopify-section-{{ section.id }} [class*="section-wrapper"],
+#shopify-section-{{ section.id }} [class*="color-scheme"],
+#shopify-section-{{ section.id }} > div:first-child{
+  background: transparent !important;
+  background-color: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+</style>
+
+<section id="contact-{{ section.id }}" class="contact-minimal" data-lang="{{ current_lang }}" aria-label="{% if current_lang == 'es' %}Contacto{% else %}Contact{% endif %}">
+
+  <div class="contact-minimal__bg">
+    <video 
+      class="contact-minimal__video" 
+      autoplay 
+      muted 
+      loop 
+      playsinline 
+      webkit-playsinline="true" 
+      preload="auto"
+    >
+      <source src="https://cdn.shopify.com/videos/c/o/v/f3a11ffc3ca7407e9f7d62511e7da1cc.mp4" type="video/mp4">
+    </video>
+    <!-- 
+      Overlay con gradientes que SE FUNDEN con las secciones de arriba y abajo.
+      Arriba: negro puro que se desvanece gradualmente
+      Abajo: igual, para que no haya "corte" visual
+    -->
+    <div class="contact-minimal__overlay"></div>
+  </div>
+
+  <div class="contact-minimal__inner">
+
+    <header class="contact-minimal__header" data-reveal="0">
+      <span class="contact-minimal__eyebrow">
+        {% if current_lang == 'es' %}Contacto{% else %}Contact{% endif %}
+      </span>
+      <h2 class="contact-minimal__title">
+        {% if current_lang == 'es' %}
+          Estamos aqui para <em>servirte</em>
+        {% else %}
+          We are here to <em>serve you</em>
+        {% endif %}
+      </h2>
+      <p class="contact-minimal__lead">
+        {% if current_lang == 'es' %}
+          Reserva tu viaje o resuelve tus dudas en minutos.
+        {% else %}
+          Book your ride or get answers within minutes.
+        {% endif %}
+      </p>
+    </header>
+
+    <div class="contact-minimal__grid">
+
+      <div class="contact-minimal__info-wrap" data-reveal="1">
+        <div class="contact-minimal__info">
+
+          <div class="info-item" data-reveal="2">
+            <div class="info-item__icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.86 19.86 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.89.33 1.76.63 2.6a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.48-1.48a2 2 0 0 1 2.11-.45c.84.3 1.71.51 2.6.63A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </div>
+            <div class="info-item__body">
+              <span class="info-item__label">{% if current_lang == 'es' %}Telefono{% else %}Phone{% endif %}</span>
+              <a href="tel:+16593052974" class="info-item__value">+1 (659) 305-2974</a>
+              <a href="https://wa.me/16593052974" target="_blank" rel="noopener" class="info-item__action info-item__action--primary">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                WhatsApp
+              </a>
+            </div>
+          </div>
+
+          <div class="info-divider" data-reveal="3"></div>
+
+          <div class="info-item" data-reveal="4">
+            <div class="info-item__icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+            </div>
+            <div class="info-item__body">
+              <span class="info-item__label">{% if current_lang == 'es' %}Correo{% else %}Email{% endif %}</span>
+              <a href="mailto:SUPPORT@CRUISEINRIDE.COM" class="info-item__value">SUPPORT@CRUISEINRIDE.COM</a>
+              <button type="button" class="info-item__action info-item__action--ghost" onclick="copyEmail{{ section.id | replace: '-', '_' }}(this)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span class="copy-text">{% if current_lang == 'es' %}Copiar{% else %}Copy{% endif %}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="info-divider" data-reveal="5"></div>
+
+          <div class="info-item" data-reveal="6">
+            <div class="info-item__icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
+            <div class="info-item__body">
+              <span class="info-item__label">{% if current_lang == 'es' %}Horario{% else %}Hours{% endif %}</span>
+              <span class="info-item__value info-item__value--large">24 / 7</span>
+              <span class="info-item__meta">{% if current_lang == 'es' %}Siempre disponibles{% else %}Always available{% endif %}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="contact-minimal__form-wrap" data-reveal="7">
+        <form class="contact-minimal__form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+          <div class="form-row">
+            <div class="form-field" data-reveal="8">
+              <label class="form-field__label" for="cName-{{ section.id }}">{% if current_lang == 'es' %}Nombre{% else %}Name{% endif %}</label>
+              <input id="cName-{{ section.id }}" class="form-field__input" name="name" type="text" placeholder="{% if current_lang == 'es' %}Tu nombre{% else %}Your name{% endif %}" required>
+            </div>
+            <div class="form-field" data-reveal="9">
+              <label class="form-field__label" for="cEmail-{{ section.id }}">Email</label>
+              <input id="cEmail-{{ section.id }}" class="form-field__input" name="email" type="email" placeholder="name@example.com" required>
+            </div>
+          </div>
+
+          <div class="form-field" data-reveal="10">
+            <label class="form-field__label" for="cSubject-{{ section.id }}">{% if current_lang == 'es' %}Asunto{% else %}Subject{% endif %}</label>
+            <input id="cSubject-{{ section.id }}" class="form-field__input" name="subject" type="text" placeholder="{% if current_lang == 'es' %}En que podemos ayudarte?{% else %}How can we help?{% endif %}">
+          </div>
+
+          <div class="form-field" data-reveal="11">
+            <label class="form-field__label" for="cMessage-{{ section.id }}">{% if current_lang == 'es' %}Mensaje{% else %}Message{% endif %}</label>
+            <textarea id="cMessage-{{ section.id }}" class="form-field__textarea" name="message" rows="2" placeholder="{% if current_lang == 'es' %}Escribe tu mensaje...{% else %}Write your message...{% endif %}" required></textarea>
+          </div>
+
+          <button class="contact-minimal__submit" type="submit" data-reveal="12">
+            <span>{% if current_lang == 'es' %}Enviar mensaje{% else %}Send message{% endif %}</span>
+            <svg class="submit-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12h20"/>
+              <path d="M22 12 13 3"/>
+              <path d="M22 12 13 21"/>
+              <path d="M16 12H2"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+/* ============================================================
+   SECCION: Sin min-height forzado, padding reducido
+   para conectar arriba y abajo sin espacios
+   ============================================================ */
+.contact-minimal{
+  position: relative;
+  width: 100%;
+  min-height: 0;
+  color: #fff;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  padding: 50px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+/* ===== FONDO VIDEO ===== */
+.contact-minimal__bg{
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #000;
+  overflow: hidden;
+}
+
+.contact-minimal__video{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ===== OVERLAY: gradiente que SE FUNDEN con secciones vecinas =====
+   Arriba: negro puro (0-8%) que se desvanece rapido - se funde con la seccion anterior
+   Centro: velo ligero para legibilidad
+   Abajo: negro puro (0-8%) que se desvanece rapido - se funde con la siguiente seccion */
+.contact-minimal__overlay{
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    /* Gradiente superior: se funde CON LA SECCION DE ARRIBA */
+    linear-gradient(to bottom, 
+      rgba(0,0,0, 0.92) 0%, 
+      rgba(0,0,0, 0.70) 5%, 
+      rgba(0,0,0, 0.35) 15%, 
+      rgba(0,0,0, 0.10) 28%, 
+      transparent 40%
+    ),
+    /* Gradente inferior: se funde CON LA SECCION DE ABAJO */
+    linear-gradient(to top, 
+      rgba(0,0,0, 0.92) 0%, 
+      rgba(0,0,0, 0.70) 5%, 
+      rgba(0,0,0, 0.35) 15%, 
+      rgba(0,0,0, 0.10) 28%, 
+      transparent 40%
+    ),
+    /* Velo central muy ligero */
+    rgba(0,0,0, 0.20);
+  pointer-events: none;
+}
+
+/* ===== CONTENIDO ===== */
+.contact-minimal__inner{
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto;
+  z-index: 2;
+  width: 100%;
+}
+
+/* ===== ANIMACION ===== */
+[data-reveal]{
+  opacity: 0;
+  transform: translateY(30px);
+  filter: blur(3px);
+  transition: opacity .65s cubic-bezier(.16,1,.3,1),
+              transform .65s cubic-bezier(.16,1,.3,1),
+              filter .65s cubic-bezier(.16,1,.3,1);
+  will-change: opacity, transform, filter;
+}
+
+[data-reveal].is-visible{
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* ===== HEADER ===== */
+.contact-minimal__header{
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.contact-minimal__eyebrow{
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: #d4af37 !important;
+  margin-bottom: 10px;
+}
+
+.contact-minimal__title{
+  font-family: "Cinzel", serif;
+  font-size: clamp(26px, 5vw, 44px);
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0 0 10px;
+  color: #fff;
+}
+
+.contact-minimal__title em{
+  font-style: normal;
+  color: #d4af37;
+}
+
+.contact-minimal__lead{
+  font-size: 14px;
+  font-weight: 300;
+  color: #fff;
+  margin: 0 auto;
+  line-height: 1.5;
+  max-width: 420px;
+  opacity: .55;
+}
+
+/* ===== GRID ===== */
+.contact-minimal__grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: stretch;
+}
+
+/* ===== INFO / FORM ===== */
+.contact-minimal__info-wrap,
+.contact-minimal__form-wrap{
+  background: rgba(0,0,0, .50);
+  border: 1px solid rgba(212,175,55, .10);
+  border-radius: 18px;
+  padding: 28px 24px;
+  backdrop-filter: blur(10px);
+}
+
+.contact-minimal__info{
+  display: flex;
+  flex-direction: column;
+}
+
+.info-item{
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 0;
+}
+
+.info-item:first-child{ padding-top: 0; }
+.info-item:last-child{ padding-bottom: 0; }
+
+.info-divider{
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,.15), transparent);
+  margin-left: 38px;
+}
+
+.info-item__icon{
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(212,175,55, .22);
+  color: #d4af37;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-item__body{
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.info-item__label{
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: #d4af37 !important;
+}
+
+.info-item__value,
+.info-item__value:link,
+.info-item__value:visited{
+  font-size: 14px;
+  font-weight: 400;
+  color: #ffffff !important;
+  text-decoration: none;
+  letter-spacing: .01em;
+  transition: opacity .3s ease;
+  word-break: break-word;
+}
+
+.info-item__value:hover{
+  opacity: .75;
+  color: #ffffff !important;
+}
+
+.info-item__value--large{
+  font-family: "Cinzel", serif;
+  font-size: 18px;
+  color: #ffffff !important;
+  letter-spacing: .05em;
+}
+
+.info-item__meta{
+  font-size: 11px;
+  color: #ffffff !important;
+  opacity: .4;
+  font-weight: 300;
+}
+
+/* Actions */
+.info-item__action{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
+  padding: 5px 11px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  width: fit-content;
+  transition: all .25s ease;
+}
+
+.info-item__action--primary{
+  background: #25D366 !important;
+  color: #ffffff !important;
+}
+
+.info-item__action--primary svg{
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+.info-item__action--primary:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(37,211,102, .25);
+  color: #ffffff !important;
+}
+
+.info-item__action--ghost{
+  background: transparent;
+  border: 1px solid rgba(212,175,55, .28);
+  color: #d4af37;
+}
+
+.info-item__action--ghost:hover{
+  border-color: rgba(212,175,55, .7);
+  background: rgba(212,175,55, .08);
+  color: #fff;
+}
+
+/* ===== FORM ===== */
+.contact-minimal__form{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-row{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-field{
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-field__label{
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #d4af37 !important;
+}
+
+.form-field__input,
+.form-field__textarea{
+  width: 100%;
+  background: rgba(0,0,0, .30);
+  border: 1px solid rgba(212,175,55, .22);
+  border-radius: 10px;
+  padding: 11px 13px;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #d4af37;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color .3s ease, background .3s ease, box-shadow .3s ease;
+  box-sizing: border-box;
+  box-shadow: inset 0 0 0 100px rgba(0,0,0, .30);
+}
+
+.form-field__input::placeholder,
+.form-field__textarea::placeholder{
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: .4;
+}
+
+.form-field__input:focus,
+.form-field__textarea:focus{
+  border-color: rgba(212,175,55, .7);
+  background: rgba(0,0,0, .45);
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  box-shadow: inset 0 0 0 100px rgba(0,0,0, .45), 0 0 0 3px rgba(212,175,55, .08);
+}
+
+.form-field__input:-webkit-autofill,
+.form-field__input:-webkit-autofill:hover,
+.form-field__input:-webkit-autofill:focus,
+.form-field__textarea:-webkit-autofill,
+.form-field__textarea:-webkit-autofill:hover,
+.form-field__textarea:-webkit-autofill:focus{
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: inset 0 0 0 100px rgba(0,0,0, .45) !important;
+  box-shadow: inset 0 0 0 100px rgba(0,0,0, .45) !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: #d4af37;
+  border-color: rgba(212,175,55, .7);
+}
+
+.form-field__textarea{
+  resize: vertical;
+  min-height: 70px;
+  line-height: 1.5;
+}
+
+.contact-minimal__submit{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  margin-top: 2px;
+  border: 1px solid rgba(212,175,55, .28);
+  border-radius: 12px;
+  background: transparent;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: .02em;
+  cursor: pointer;
+  transition: all .3s ease;
+}
+
+.contact-minimal__submit:hover,
+.contact-minimal__submit:active{
+  background: #d4af37;
+  color: #0a0a0a;
+  border-color: #d4af37;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(212,175,55, .25);
+}
+
+/* ===== TABLET ===== */
+@media (max-width: 900px){
+  .contact-minimal__grid{
+    grid-template-columns: 1fr;
+    gap: 16px;
+    max-width: 520px;
+    margin-inline: auto;
+  }
+  .contact-minimal__info-wrap,
+  .contact-minimal__form-wrap{
+    padding: 22px 18px;
+  }
+}
+
+/* ===== MOVIL ===== */
+@media (max-width: 640px){
+  .contact-minimal{
+    padding: 30px 16px;
+  }
+
+  .contact-minimal__header{ margin-bottom: 16px; }
+  .contact-minimal__eyebrow{ font-size: 9px; letter-spacing: .2em; margin-bottom: 5px; }
+  .contact-minimal__title{ font-size: clamp(20px, 7vw, 26px); line-height: 1.15; margin-bottom: 5px; }
+  .contact-minimal__lead{ font-size: 12px; max-width: 100%; line-height: 1.4; opacity: .6; }
+
+  .contact-minimal__grid{
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .contact-minimal__info-wrap,
+  .contact-minimal__form-wrap{
+    padding: 14px 12px;
+    border-radius: 14px;
+    background: rgba(0,0,0, .55);
+    backdrop-filter: blur(8px);
+  }
+
+  .info-item{ padding: 8px 0; gap: 8px; }
+  .info-item__icon{ width: 26px; height: 26px; border-radius: 8px; }
+  .info-item__icon svg{ width: 13px; height: 13px; }
+  .info-item__value{ font-size: 12px; }
+  .info-item__value--large{ font-size: 15px; }
+  .info-item__label{ font-size: 8px; letter-spacing: .12em; }
+  .info-item__meta{ font-size: 10px; }
+  .info-divider{ margin-left: 34px; }
+  .info-item__action{ font-size: 10px; padding: 4px 9px; margin-top: 3px; }
+
+  .contact-minimal__form{ gap: 9px; }
+  .form-row{ grid-template-columns: 1fr; gap: 9px; }
+
+  .form-field__label{ font-size: 8px; letter-spacing: .08em; }
+  .form-field__input,
+  .form-field__textarea{
+    padding: 9px 10px;
+    font-size: 12px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 100px rgba(0,0,0, .35);
+  }
+  .form-field__textarea{ min-height: 55px; resize: none; }
+
+  .form-field__input:focus,
+  .form-field__textarea:focus{
+    box-shadow: inset 0 0 0 100px rgba(0,0,0, .50), 0 0 0 3px rgba(212,175,55, .08);
+  }
+
+  .contact-minimal__submit{
+    padding: 11px;
+    font-size: 12px;
+    border-radius: 10px;
+    margin-top: 3px;
+  }
+  .contact-minimal__submit .submit-icon{ width: 13px; height: 13px; }
+
+  [data-reveal]{
+    transform: translateY(18px);
+    filter: blur(2px);
+    transition-duration: .5s;
+  }
+}
+
+/* ===== SMALL PHONES ===== */
+@media (max-width: 380px){
+  .contact-minimal{ padding: 24px 12px; }
+  .contact-minimal__info-wrap,
+  .contact-minimal__form-wrap{ padding: 12px 10px; border-radius: 12px; }
+  .contact-minimal__title{ font-size: 18px; }
+  .info-item{ gap: 7px; padding: 7px 0; }
+  .info-item__icon{ width: 22px; height: 22px; }
+  .info-item__value{ font-size: 11px; }
+  .info-item__value--large{ font-size: 13px; }
+  .form-field__input,
+  .form-field__textarea{ padding: 8px 9px; font-size: 12px; }
+  .contact-minimal__submit{ font-size: 12px; padding: 9px; }
+}
+
+/* REDUCED MOTION */
+@media (prefers-reduced-motion: reduce){
+  [data-reveal]{
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
+</style>
+
+<script>
+(function(){
+  var section = document.getElementById('contact-{{ section.id }}');
+  if(!section) return;
+
+  var video = section.querySelector('.contact-minimal__video');
+  var reveals = section.querySelectorAll('[data-reveal]');
+
+  /* VIDEO: autoplay inmediato */
+  function forcePlay(){
+    if(!video) return;
+    video.play().catch(function(){
+      document.addEventListener('touchstart', function(){
+        video.play().catch(function(){});
+      }, {once:true});
+    });
+  }
+
+  forcePlay();
+  if(video){
+    video.addEventListener('loadeddata', forcePlay);
+    video.addEventListener('canplay', forcePlay);
+  }
+
+  /* ANIMACIONES AUTOMATICAS: SIN SCROLL */
+  function startRevealAnimations(){
+    var orderedReveals = Array.from(reveals).sort(function(a, b){
+      return parseInt(a.getAttribute('data-reveal') || '0') - parseInt(b.getAttribute('data-reveal') || '0');
+    });
+
+    orderedReveals.forEach(function(el, i){
+      setTimeout(function(){
+        el.classList.add('is-visible');
+      }, 200 + i * 100);
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', startRevealAnimations);
+  } else {
+    startRevealAnimations();
+  }
+
+  /* Copy email */
+  window['copyEmail{{ section.id | replace: "-", "_" }}'] = function(btn){
+    navigator.clipboard.writeText('SUPPORT@CRUISEINRIDE.COM').then(function(){
+      var span = btn.querySelector('.copy-text');
+      var original = span.textContent;
+      var isEs = (section.getAttribute('data-lang') === 'es');
+      span.textContent = isEs ? 'Copiado!' : 'Copied!';
+      btn.style.borderColor = 'rgba(212,175,55,.7)';
+      setTimeout(function(){
+        span.textContent = original;
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  };
+})();
+</script>

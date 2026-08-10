@@ -1,0 +1,160 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "ride_request_npEFAz": {
+      "type": "ride-request",
+      "blocks": {
+        "vehicle_nLzFj8": {
+          "type": "vehicle",
+          "settings": {
+            "title": "VIP Suburban",
+            "seats": 7,
+            "badge": "Most Popular",
+            "desc": "",
+            "image": "shopify://shop_images/Untitled_design.png",
+            "product": "",
+            "vehicle_rate": 170
+          }
+        },
+        "vehicle_BbAG4C": {
+          "type": "vehicle",
+          "settings": {
+            "title": "Premium Camry",
+            "seats": 4,
+            "badge": "Premium",
+            "desc": "",
+            "image": "shopify://shop_images/Untitled_design_1.png",
+            "product": "",
+            "vehicle_rate": 120
+          }
+        },
+        "vehicle_LwmQGK": {
+          "type": "vehicle",
+          "settings": {
+            "title": "Comfort Fusion",
+            "seats": 4,
+            "badge": "Standard",
+            "desc": "",
+            "image": "shopify://shop_images/Untitled_design_3.png",
+            "product": "",
+            "vehicle_rate": 120
+          }
+        }
+      },
+      "block_order": [
+        "vehicle_nLzFj8",
+        "vehicle_BbAG4C",
+        "vehicle_LwmQGK"
+      ],
+      "name": "VIP Ride Booker",
+      "settings": {
+        "hourly_rate": 100,
+        "heading": "Request a ride",
+        "pickup_label": "Pickup location",
+        "pickup_placeholder": "Enter pickup address",
+        "pickup_pill_default": "Pickup",
+        "dropoff_label": "Dropoff location",
+        "dropoff_placeholder": "Enter destination address",
+        "dropoff_pill_default": "Dropoff",
+        "date_label": "Date",
+        "time_label": "Time",
+        "see_prices_text": "See prices",
+        "choose_ride_text": "Choose a ride",
+        "cta_default_text": "Reserve",
+        "cta_hint_text": "Enter pickup & dropoff, then choose a vehicle to continue.",
+        "booking_product": "vip-service",
+        "default_lat": "33.5207",
+        "default_lng": "-86.8025",
+        "default_zoom": 11,
+        "bg_video": "shopify://files/videos/video-servicios.mp4",
+        "bg_video_url": "https://example.com/your-video.mp4"
+      }
+    },
+    "main": {
+      "type": "product-information",
+      "blocks": {
+        "media-gallery": {
+          "type": "_product-media-gallery",
+          "static": true,
+          "settings": {
+            "media_presentation": "grid",
+            "media_columns": "two",
+            "image_gap": 4,
+            "large_first_image": false,
+            "icons_style": "none",
+            "slideshow_controls_style": "counter",
+            "slideshow_mobile_controls_style": "dots",
+            "thumbnail_position": "right",
+            "thumbnail_width": 44,
+            "thumbnail_radius": 0,
+            "aspect_ratio": "adapt",
+            "constrain_to_viewport": true,
+            "media_fit": "contain",
+            "media_radius": 0,
+            "extend_media": false,
+            "zoom": true,
+            "video_loop": false,
+            "hide_variants": true,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "product-details": {
+          "type": "_product-details",
+          "static": true,
+          "settings": {
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "details_position": "flex-start",
+            "gap": 28,
+            "sticky_details_desktop": true,
+            "inherit_color_scheme": true,
+            "color_scheme": "scheme-1",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "padding-block-start": 24,
+            "padding-block-end": 24,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        }
+      },
+      "disabled": true,
+      "settings": {
+        "content_width": "content-center-aligned",
+        "desktop_media_position": "left",
+        "equal_columns": false,
+        "limit_details_width": false,
+        "gap": 0,
+        "enable_sticky_add_to_cart": false,
+        "color_scheme": "scheme-6",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    }
+  },
+  "order": [
+    "ride_request_npEFAz",
+    "main"
+  ]
+}

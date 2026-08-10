@@ -1,0 +1,114 @@
+{% comment %}
+  Video Reveal — bidirectional.
+  Videos fade in + focus when entering viewport,
+  and fade out + soften when leaving.
+{% endcomment %}
+
+<style>
+  .vx-wrap{
+    position:relative;
+    overflow:hidden;
+    display:block;
+    width:100%;
+    height:100%;
+    isolation:isolate;
+  }
+  .vx-wrap video{
+    width:100%;
+    height:100%;
+    display:block;
+    object-fit:cover;
+    opacity:0;
+    transform:scale(1.06);
+    transition:opacity 1100ms cubic-bezier(.16,1,.3,1),
+               transform 1400ms cubic-bezier(.16,1,.3,1);
+    will-change:opacity,transform;
+  }
+  .vx-wrap.is-playing video{
+    opacity:1;
+    transform:scale(1);
+  }
+  .vx-wrap.is-leaving video{
+    opacity:0;
+    transform:scale(.97);
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .vx-wrap video{
+      opacity:1!important;
+      transform:none!important;
+      transition:none!important;
+    }
+  }
+</style>
+
+<script>
+(function(){
+  if(window.__videoReveal)return; window.__videoReveal=1;
+  if(!('IntersectionObserver' in window))return;
+
+  function isHome(){
+    var p=location.pathname;
+    return p==='/'||p==='/es/'||p==='/en/'||/^\/(es|en)\/?$/.test(p);
+  }
+  function isHeavyPage(){
+    return /\/products\/vip-service|\/products\/vip-ride-for-events/.test(location.pathname);
+  }
+
+  function wrap(video){
+    if(video.closest('.vx-wrap'))return null;
+    var parent=video.parentNode;
+    if(!parent)return null;
+    var w=document.createElement('div');
+    w.className='vx-wrap';
+    parent.insertBefore(w,video);
+    w.appendChild(video);
+    return w;
+  }
+
+  function scan(){
+    if(!isHome())return;
+    document.querySelectorAll('video:not([data-vx-init])').forEach(function(v){
+      v.setAttribute('data-vx-init','1');
+      if(v.closest('.vx-wrap'))return;
+      var r=v.getBoundingClientRect();
+      if(r.width<80||r.height<60)return;
+      wrap(v);
+    });
+    observe();
+  }
+
+  function observe(){
+    var wraps=document.querySelectorAll('.vx-wrap:not([data-vx-watched])');
+    if(!wraps.length)return;
+    /* Bidirectional — enters at 12% visible, leaves when <5% visible */
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        var el=e.target;
+        var r=e.intersectionRatio;
+        if(r>=0.12){
+          el.classList.add('is-playing');
+          el.classList.remove('is-leaving');
+        } else if(r<0.05 && el.classList.contains('is-playing')){
+          el.classList.remove('is-playing');
+          el.classList.add('is-leaving');
+        }
+      });
+    },{threshold:[0,0.05,0.12,0.3,0.6]});
+    wraps.forEach(function(w){
+      w.setAttribute('data-vx-watched','1');
+      io.observe(w);
+    });
+  }
+
+  function init(){
+    if(isHeavyPage())return;
+    if(!isHome())return;
+    scan();
+    var mo=new MutationObserver(function(){scan();});
+    mo.observe(document.body,{childList:true,subtree:true});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>

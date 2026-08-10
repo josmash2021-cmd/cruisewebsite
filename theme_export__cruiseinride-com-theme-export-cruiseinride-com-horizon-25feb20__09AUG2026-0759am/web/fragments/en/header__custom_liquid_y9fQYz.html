@@ -1,0 +1,252 @@
+<!-- CRUISE SPLASH OVERLAY — standalone, pegar en sección custom HTML de la home -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+
+<div id="cruiseSplash" role="dialog" aria-label="Loading Cruise" aria-live="polite">
+  <div class="cs-bg" aria-hidden="true"></div>
+  <div class="cs-content">
+    <div class="cs-deco cs-deco--top" aria-hidden="true">
+      <span class="cs-line"></span>
+      <span class="cs-diamond"></span>
+      <span class="cs-line"></span>
+    </div>
+    <div class="cs-logo" aria-label="CRUISE">
+      <span class="cs-letter" style="--i:0">C</span>
+      <span class="cs-letter" style="--i:1">R</span>
+      <span class="cs-letter" style="--i:2">U</span>
+      <span class="cs-letter" style="--i:3">I</span>
+      <span class="cs-letter" style="--i:4">S</span>
+      <span class="cs-letter" style="--i:5">E</span>
+    </div>
+    <div class="cs-tagline">PREMIUM&nbsp;&nbsp;RIDE&nbsp;&nbsp;EXPERIENCE</div>
+    <div class="cs-deco cs-deco--bottom" aria-hidden="true">
+      <span class="cs-line"></span>
+      <span class="cs-diamond"></span>
+      <span class="cs-line"></span>
+    </div>
+  </div>
+</div>
+
+<style>
+#cruiseSplash{
+  position:fixed;inset:0;z-index:2147483647;
+  background:#000;
+  display:none;align-items:center;justify-content:center;
+  cursor:pointer;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  transition:opacity 1200ms cubic-bezier(.4,0,.2,1);
+  will-change:opacity;
+}
+#cruiseSplash.cs-active{display:flex;}
+#cruiseSplash.cs-done{opacity:0;pointer-events:none;}
+#cruiseSplash.cs-hidden{display:none;}
+
+/* Oculta visualmente el header/menu sin tumbar scripts del tema */
+html.cs-splash-active header,
+html.cs-splash-active .shopify-section-header,
+html.cs-splash-active #header-group,
+html.cs-splash-active header-component,
+html.cs-splash-active #header-component,
+html.cs-splash-active .header-section,
+html.cs-splash-active .announcement-bar,
+html.cs-splash-active .shopify-section--announcement-bar{
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+html.cs-splash-active,
+html.cs-splash-active body{overflow:hidden!important;}
+
+#cruiseSplash .cs-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 50%,#1A1500 0%,#0A0900 40%,#000 75%);
+  opacity:.5;
+  animation:csBgPulse 3100ms ease-in-out forwards;
+}
+
+#cruiseSplash .cs-content{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;align-items:center;
+  gap:14px;
+}
+
+/* Decorative top/bottom lines + diamond */
+#cruiseSplash .cs-deco{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  opacity:0;
+  animation:csDecoIn 1900ms ease-out 1700ms forwards;
+}
+#cruiseSplash .cs-line{
+  display:block;width:60px;height:0.8px;
+  background:linear-gradient(to right,transparent,rgba(232,197,71,.7),transparent);
+}
+#cruiseSplash .cs-diamond{
+  display:block;width:5px;height:5px;
+  background:rgba(232,197,71,.8);
+  transform:rotate(45deg);
+}
+
+/* CRUISE letters */
+#cruiseSplash .cs-logo{
+  display:flex;align-items:center;justify-content:center;
+  font-family:"Cinzel",serif;
+  font-size:46px;font-weight:900;letter-spacing:6px;
+}
+#cruiseSplash .cs-letter{
+  display:inline-block;margin:0 1.5px;
+  background:linear-gradient(to bottom,#FFF1C1 0%,#F0D477 40%,#E8C547 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  opacity:0;
+  transform:translateY(60px) scale(.3);
+  text-shadow:0 0 20px rgba(232,197,71,.5);
+  animation:
+    csLetterIn 1500ms cubic-bezier(.68,-.55,.27,1.55) calc(var(--i) * 140ms) forwards,
+    csLetterGlow 2400ms cubic-bezier(.4,0,.2,1) 1700ms forwards;
+  will-change:transform,opacity,filter;
+}
+
+/* Tagline */
+#cruiseSplash .cs-tagline{
+  font-family:"Cinzel",serif;
+  font-size:14px;font-weight:400;letter-spacing:6px;
+  color:rgba(232,197,71,.7);
+  opacity:0;
+  animation:csTaglineIn 1900ms ease-out 1700ms forwards;
+}
+
+/* ── Keyframes ── */
+@keyframes csLetterIn{
+  0%{opacity:0;transform:translateY(60px) scale(.3);}
+  100%{opacity:1;transform:translateY(0) scale(1);}
+}
+@keyframes csLetterGlow{
+  0%{filter:drop-shadow(0 0 8px rgba(232,197,71,.35));}
+  25%{filter:drop-shadow(0 0 16px rgba(245,220,130,.65)) drop-shadow(0 0 30px rgba(232,197,71,.35));}
+  50%{filter:drop-shadow(0 0 24px rgba(255,241,193,.9)) drop-shadow(0 0 50px rgba(232,197,71,.5));}
+  75%{filter:drop-shadow(0 0 20px rgba(250,230,160,.75)) drop-shadow(0 0 42px rgba(232,197,71,.45));}
+  100%{filter:drop-shadow(0 0 14px rgba(232,197,71,.6));}
+}
+@keyframes csDecoIn{
+  0%{opacity:0;}
+  100%{opacity:1;}
+}
+@keyframes csTaglineIn{
+  0%{opacity:0;}
+  100%{opacity:1;}
+}
+@keyframes csBgPulse{
+  0%{opacity:.3;}
+  30%{opacity:.55;}
+  60%{opacity:.9;}
+  85%{opacity:.8;}
+  100%{opacity:.7;}
+}
+
+/* Exit: fade uniforme del splash completo (gestionado por transition del contenedor) */
+
+/* ── Mobile ── */
+@media(max-width:600px){
+  #cruiseSplash .cs-logo{font-size:36px;letter-spacing:4px;}
+  #cruiseSplash .cs-line{width:45px;}
+  #cruiseSplash .cs-tagline{font-size:12px;letter-spacing:4px;}
+}
+
+/* ── Reduced motion ── */
+@media(prefers-reduced-motion:reduce){
+  #cruiseSplash .cs-letter,
+  #cruiseSplash .cs-tagline,
+  #cruiseSplash .cs-deco,
+  #cruiseSplash .cs-bg{
+    animation:none!important;
+    opacity:1!important;
+    transform:none!important;
+    filter:none!important;
+  }
+  #cruiseSplash{transition:opacity 300ms ease!important;}
+  #cruiseSplash.cs-done{transform:none!important;}
+}
+</style>
+
+<script>
+(function(){
+  var splash=document.getElementById('cruiseSplash');
+  if(!splash) return;
+
+  var path=window.location.pathname.replace(/\/+$/,'');
+  var isHome=path===''||path==='/'||/^\/(es|en|fr|de|it|pt)(-[a-z]{2})?$/i.test(path);
+  if(!isHome){
+    splash.parentNode&&splash.parentNode.removeChild(splash);
+    return;
+  }
+  if(splash.parentNode!==document.body){
+    document.body.appendChild(splash);
+  }
+  splash.classList.add('cs-active');
+  document.documentElement.classList.add('cs-splash-active');
+
+  function pauseAllVideos(){
+    var vids=document.querySelectorAll('video');
+    for(var i=0;i<vids.length;i++){
+      try{
+        vids[i].pause();
+        vids[i].setAttribute('data-cs-paused','1');
+        if(!vids[i].hasAttribute('data-cs-original-time')){
+          vids[i].setAttribute('data-cs-original-time',vids[i].currentTime||0);
+        }
+      }catch(e){}
+    }
+  }
+  pauseAllVideos();
+  var videoGuardInterval=setInterval(pauseAllVideos,200);
+
+  var startTime=Date.now();
+  var MIN_DURATION=3000;
+  var dismissed=false;
+
+  function dismiss(){
+    if(dismissed) return;
+    dismissed=true;
+    clearInterval(videoGuardInterval);
+    splash.classList.add('cs-done');
+    document.documentElement.classList.remove('cs-splash-active');
+    try{
+      window.cruiseSplashDone=true;
+      document.dispatchEvent(new Event('splashDone'));
+    }catch(e){}
+    var vids=document.querySelectorAll('video[data-cs-paused]');
+    for(var i=0;i<vids.length;i++){
+      try{
+        var t=parseFloat(vids[i].getAttribute('data-cs-original-time'))||0;
+        vids[i].currentTime=t;
+        vids[i].removeAttribute('data-cs-paused');
+        vids[i].removeAttribute('data-cs-original-time');
+        var p=vids[i].play();
+        if(p&&p.catch) p.catch(function(){});
+      }catch(e){}
+    }
+    setTimeout(function(){
+      splash.classList.add('cs-hidden');
+    },1300);
+  }
+
+  function tryDismiss(){
+    var elapsed=Date.now()-startTime;
+    var remaining=Math.max(0,MIN_DURATION-elapsed);
+    setTimeout(dismiss,remaining);
+  }
+
+  if(document.readyState==='complete'){
+    tryDismiss();
+  }else{
+    window.addEventListener('load',tryDismiss);
+    setTimeout(tryDismiss,8000);
+  }
+
+  splash.addEventListener('click',dismiss);
+  splash.addEventListener('touchend',dismiss,{passive:true});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'||e.key===' '||e.key==='Enter') dismiss();
+  });
+})();
+</script>

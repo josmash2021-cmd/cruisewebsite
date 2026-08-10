@@ -1,0 +1,219 @@
+{%- comment -%}
+  CRUISE HEADER OVERRIDE
+  Pega este bloque en una sección "Custom Liquid" colocada DENTRO del Header group
+  (arriba del todo) o en theme.liquid justo después de la apertura de <body>.
+
+  Qué hace:
+  1. Redisena el menú con estilo premium dorado luxury
+  2. Oculta el icono del carrito
+  3. Reemplaza el icono de cuenta → va a tu propio Cruise Auth
+  4. Mejora el hover y spacing del menú
+{%- endcomment -%}
+
+{%- assign current_lang = localization.language.iso_code | default: shop.locale | slice: 0,2 | downcase -%}
+{%- if current_lang != 'es' -%}{%- assign current_lang = 'en' -%}{%- endif -%}
+
+{%- comment -%}
+  URL de tu sección Cruise Auth (section: profil-cruise.liquid).
+  La tienes insertada en la página /cart
+{%- endcomment -%}
+{%- if current_lang == 'es' -%}
+  {%- assign cruise_auth_url = '/es/cart' -%}
+{%- else -%}
+  {%- assign cruise_auth_url = '/cart' -%}
+{%- endif -%}
+
+<style>
+/* ============================================
+   CRUISE HEADER OVERRIDE — estilo luxury dorado
+   ============================================ */
+
+/* ── 1. OCULTAR ICONO DEL CARRITO del theme (pero NO mi botón login) ── */
+#header-component .header-actions__action--cart,
+#header-component [aria-label*="Cart" i]:not(.cruise-auth-link),
+#header-component [aria-label*="Carrito" i]:not(.cruise-auth-link),
+.header__actions cart-icon,
+header-component cart-icon,
+header a[href="/cart"]:not(.cruise-auth-link),
+header a[href$="/cart"]:not(.cruise-auth-link) {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  opacity: 0 !important;
+}
+
+/* ── 2. MENU PREMIUM (links del header) ── */
+#header-component nav a,
+#header-component .header__menu a,
+#header-component [class*="menu"] a,
+header nav a,
+header-component a[href]:not([href*="/account"]):not([href*="/cart"]):not([aria-label*="search" i]):not([href*="cdn.shopify"]) {
+  position: relative;
+  font-family: "Inter", sans-serif !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: rgba(255,255,255,.92) !important;
+  padding: 10px 4px !important;
+  transition: color 350ms cubic-bezier(.4,0,.2,1),
+              text-shadow 350ms cubic-bezier(.4,0,.2,1) !important;
+}
+
+#header-component nav a::after,
+header nav a::after,
+header-component a[href]:not([href*="/account"]):not([href*="/cart"]):not([aria-label*="search" i]):not([href*="cdn.shopify"])::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #f5d77a, #d4af37, #f5d77a, transparent);
+  transform: translateX(-50%);
+  transition: width 400ms cubic-bezier(.22,1,.36,1);
+  box-shadow: 0 0 10px rgba(212,175,55,.6);
+}
+
+#header-component nav a:hover,
+header nav a:hover,
+header-component a[href]:not([href*="/account"]):not([href*="/cart"]):not([aria-label*="search" i]):hover {
+  color: #f5d77a !important;
+  text-shadow: 0 0 12px rgba(245,215,122,.5) !important;
+}
+
+#header-component nav a:hover::after,
+header nav a:hover::after {
+  width: 80% !important;
+}
+
+/* Active link (página actual) */
+#header-component nav a[aria-current],
+#header-component nav a.is-active,
+header nav a[aria-current="page"] {
+  color: #f5d77a !important;
+}
+#header-component nav a[aria-current]::after,
+header nav a[aria-current="page"]::after {
+  width: 60% !important;
+}
+
+/* ── 3. ICONO DE CUENTA / LOGIN → redirige a Cruise Auth (icono sin fondo) ── */
+.cruise-auth-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 6px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  text-decoration: none;
+  transition:
+    transform 400ms cubic-bezier(.22,1.2,.36,1),
+    filter 400ms ease;
+  z-index: 10;
+}
+.cruise-auth-link svg {
+  width: 100%;
+  height: 100%;
+  color: #f5d77a;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,.7)) drop-shadow(0 0 8px rgba(232,197,95,.5));
+  transition: transform 350ms cubic-bezier(.22,1.2,.36,1), filter 350ms ease, color 350ms ease;
+}
+.cruise-auth-link:hover {
+  transform: translateY(-2px) scale(1.08);
+}
+.cruise-auth-link:hover svg {
+  color: #fff4c4;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.8)) drop-shadow(0 0 14px rgba(255,244,196,.9));
+}
+.cruise-auth-link:active {
+  transform: translateY(0) scale(.95);
+  transition-duration: 120ms;
+}
+
+/* Ocultar el ícono original de account/login del tema */
+#header-component .header-actions__action--account,
+#header-component [aria-label*="Account" i],
+#header-component [aria-label*="Cuenta" i],
+#header-component [aria-label*="Login" i],
+header a[href*="/account"] {
+  display: none !important;
+}
+
+/* ── 4. Spacing general del header ── */
+#header-component nav > ul,
+#header-component .header__menu,
+header nav ul {
+  gap: 4px !important;
+}
+
+/* Mobile menu link styling */
+@media (max-width: 768px) {
+  .cruise-auth-link {
+    width: 40px;
+    height: 40px;
+  }
+  .cruise-auth-link svg {
+    width: 19px;
+    height: 19px;
+  }
+}
+</style>
+
+<script>
+(function(){
+  function injectCruiseAuth(){
+    var header =
+      document.querySelector('#header-component') ||
+      document.querySelector('header-component') ||
+      document.querySelector('.header-section') ||
+      document.querySelector('#header-group') ||
+      document.querySelector('header');
+
+    if (!header) { setTimeout(injectCruiseAuth, 500); return; }
+    if (document.querySelector('.cruise-auth-link')) return;
+
+    var actionsContainer =
+      header.querySelector('header-actions') ||
+      header.querySelector('.header-actions') ||
+      header.querySelector('[class*="header-actions"]') ||
+      header.querySelector('[class*="actions"]') ||
+      header.querySelector('.header__icons') ||
+      header.querySelector('.header__inline-links') ||
+      header;
+
+    var link = document.createElement('a');
+    link.className = 'cruise-auth-link';
+    var _baseAuthUrl = {{ cruise_auth_url | json }};
+    var _p = (window.location.pathname||'').toLowerCase();
+    var _isRideRequest = _p.indexOf('ride-request')>=0 || _p.indexOf('ride_request')>=0 || _p.indexOf('/rides')>=0 || _p.indexOf('/ride')>=0 || !!document.querySelector('.vipRide') || !!document.querySelector('[id*="vipRide"]');
+    link.href = _isRideRequest ? (_baseAuthUrl + '?view=profile') : _baseAuthUrl;
+    link.setAttribute('aria-label', '{% if current_lang == "es" %}Iniciar sesión en Cruise{% else %}Sign in to Cruise{% endif %}');
+    link.setAttribute('title', 'Cruise Auth');
+    link.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+        /* Cabeza sólida */
+        '<circle cx="12" cy="8" r="4.2" fill="currentColor"/>' +
+        /* Cuerpo/hombros redondeados sólidos */
+        '<path d="M4 20c0-4 3.6-7 8-7s8 3 8 7v.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 20.5V20z" fill="currentColor"/>' +
+      '</svg>';
+
+    actionsContainer.appendChild(link);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', injectCruiseAuth);
+  } else {
+    injectCruiseAuth();
+  }
+  setTimeout(injectCruiseAuth, 500);
+  setTimeout(injectCruiseAuth, 1500);
+  setTimeout(injectCruiseAuth, 3000);
+  window.addEventListener('load', injectCruiseAuth);
+})();
+</script>

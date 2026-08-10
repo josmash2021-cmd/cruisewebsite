@@ -1,0 +1,229 @@
+<!doctype html>
+<html
+  {% if request.design_mode %}
+    class="shopify-design-mode"
+  {% endif %}
+  lang="{{ request.locale.iso_code }}"
+>
+  <style>
+  /* ===== TRANSPARENT HEADER MODE (WHEN HERO EXISTS) ===== */
+  body.has-hero-video .shopify-section-header,
+  body.has-hero-video #shopify-section-header,
+  body.has-hero-video .section-header,
+  body.has-hero-video sticky-header,
+  body.has-hero-video sticky-header .header-wrapper,
+  body.has-hero-video .header-wrapper,
+  body.has-hero-video header.header,
+  body.has-hero-video .header {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+
+  /* Muchos themes pintan el fondo en ::before */
+  body.has-hero-video .header-wrapper::before,
+  body.has-hero-video .header::before,
+  body.has-hero-video .section-header::before {
+    content: none !important;
+    background: transparent !important;
+  }
+
+  /* Hacerlo flotante encima del video */
+  body.has-hero-video .shopify-section-header,
+  body.has-hero-video #shopify-section-header,
+  body.has-hero-video .section-header,
+  body.has-hero-video sticky-header,
+  body.has-hero-video .header-wrapper {
+    position: absolute !important;
+    top: 0; left: 0; right: 0;
+    width: 100%;
+    z-index: 999;
+  }
+
+  /* Texto/íconos en blanco sobre video */
+  body.has-hero-video .header__menu-item,
+  body.has-hero-video .header__menu-item span,
+  body.has-hero-video .header__heading-link,
+  body.has-hero-video .header__icon,
+  body.has-hero-video .header__icon .icon,
+  body.has-hero-video .header__active-menu-item {
+    color: #fff !important;
+    fill: #fff !important;
+  }
+
+  /* Opcional: cuando haces scroll, que sea “glass” oscuro (no blanco) */
+  body.has-hero-video.header-glass-on .shopify-section-header,
+  body.has-hero-video.header-glass-on #shopify-section-header,
+  body.has-hero-video.header-glass-on .section-header,
+  body.has-hero-video.header-glass-on sticky-header,
+  body.has-hero-video.header-glass-on .header-wrapper,
+  body.has-hero-video.header-glass-on header.header,
+  body.has-hero-video.header-glass-on .header{
+    background: rgba(0,0,0,.55) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 12px 34px rgba(0,0,0,.35) !important;
+  }
+
+  /* Evita que el contenido se “suba” debajo del header absoluto */
+  body.has-hero-video .cruise-hero{
+    padding-top: 140px;
+  }
+
+  @media (max-width: 749px){
+    body.has-hero-video .cruise-hero{ padding-top: 110px; }
+  }
+</style>
+  <head>
+    {%- if settings.favicon != blank -%}
+      <link
+        rel="icon"
+        type="image/png"
+        href="{{ settings.favicon | image_url: width: 32, height: 32 }}"
+      >
+    {%- endif -%}
+
+    {% comment %} This a way to wait for main content to load when navigating to a new page so that the view transitions can work consistently {% endcomment %}
+    {% if settings.transition_to_main_product or settings.page_transition_enabled %}
+      <link
+        rel="expect"
+        href="#MainContent"
+        blocking="render"
+        id="view-transition-render-blocker"
+      >
+    {% endif %}
+
+    {%- render 'meta-tags' -%}
+    {%- render 'stylesheets' -%}
+    {%- render 'fonts' -%}
+    {%- render 'scripts' -%}
+    {%- render 'theme-styles-variables' -%}
+    {%- render 'color-schemes' -%}
+
+    {% if request.design_mode %}
+      {%- render 'theme-editor' -%}
+    {% endif %}
+
+    {{ content_for_header }}
+
+ 
+  </head>
+<script>
+  (function () {
+    // Si existe el hero de video, activamos modo transparente
+    var hero = document.querySelector('.cruise-hero');
+    if (!hero) return;
+
+    document.body.classList.add('has-hero-video');
+
+    // Al hacer scroll, ponemos “glass header” (oscuro) para legibilidad
+    var onScroll = function () {
+      if (window.scrollY > 20) {
+        document.body.classList.add('header-glass-on');
+      } else {
+        document.body.classList.remove('header-glass-on');
+      }
+    };
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+</script>
+  <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
+    {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
+    <div id="header-group">
+      {% sections 'header-group' %}
+    </div>
+
+    <script>
+      // Inline header height and menu style calculations to prevent layout shift
+      // Note: Updates in calculateHeaderGroupHeight(), updateTransparentHeaderOffset() and setHeaderMenuStyle() utilities.js should be kept in sync with this function
+      (function setHeaderHeighCustomProperties() {
+        /*
+         * Header calculation functions for maintaining CSS variables
+         * Mimic calculateHeaderGroupHeight() in utilities.js
+         */
+        const header = document.querySelector('header-component');
+        const headerGroup = document.querySelector('#header-group');
+        const hasHeaderSection = headerGroup?.querySelector('.header-section');
+
+        if (!header || !headerGroup) return;
+
+        const headerTopRow = header.querySelector('.header__row--top');
+        const headerHeight = header.offsetHeight;
+
+        // Calculate the total height of the header group
+        let headerGroupHeight = 0;
+        const children = headerGroup.children;
+        for (let i = 0; i < children.length; i++) {
+          const element = children[i];
+          if (element === header || !(element instanceof HTMLElement)) continue;
+          headerGroupHeight += element.offsetHeight;
+        }
+
+        // Check for transparent header special case
+        if (header.hasAttribute('transparent') && header.parentElement?.nextElementSibling) {
+          headerGroupHeight += headerHeight;
+        }
+
+        // Set CSS variables
+        document.body.style.setProperty('--header-height', `${headerHeight}px`);
+        document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
+
+        if (headerTopRow) {
+          window.requestAnimationFrame(function () {
+            document.body.style.setProperty('--top-row-height', `${headerTopRow.offsetHeight}px`);
+          });
+        }
+
+        /**
+         * Updates CSS custom properties for transparent header offset calculation
+         * Mimic updateTransparentHeaderOffset() in utilities.js
+         */
+
+        if (!hasHeaderSection || !header?.hasAttribute('transparent')) {
+          document.body.style.setProperty('--transparent-header-offset-boolean', '0');
+          return;
+        }
+
+        const hasImmediateSection = hasHeaderSection.nextElementSibling?.classList.contains('shopify-section');
+
+        const shouldApplyOffset = !hasImmediateSection ? '1' : '0';
+        document.body.style.setProperty('--transparent-header-offset-boolean', shouldApplyOffset);
+      })();
+
+      (function setHeaderMenuStyle() {
+        const headerComponent = document.querySelector('#header-component');
+        if (headerComponent) {
+          const isTouchDevice = 'ontouchstart' in window && navigator.maxTouchPoints > 0;
+          const overflowList = headerComponent?.querySelector('overflow-list');
+          const hasReachedMinimum = overflowList && overflowList.hasAttribute('minimum-reached');
+          headerComponent.dataset.menuStyle = isTouchDevice || hasReachedMinimum ? 'drawer' : 'menu';
+        }
+      })();
+    </script>
+
+    <main
+      id="MainContent"
+      class="content-for-layout"
+      role="main"
+      data-page-transition-enabled="{{ settings.page_transition_enabled }}"
+      data-product-transition="{{ settings.transition_to_main_product }}"
+      data-template="{{ template }}"
+    >
+      {{ content_for_layout }}
+    </main>
+
+    <footer>
+      {% sections 'footer-group' %}
+    </footer>
+
+    {% render 'search-modal' %}
+
+    {% if settings.quick_add or settings.mobile_quick_add %}
+      {% render 'quick-add-modal' %}
+    {% endif %}
+  </body>
+</html>

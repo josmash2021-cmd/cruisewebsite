@@ -1,0 +1,211 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "ride_request_48wXbE": {
+      "type": "ride-request",
+      "blocks": {
+        "vehicle_HVJUQn": {
+          "type": "vehicle",
+          "settings": {
+            "title": "BLACK",
+            "seats": 7,
+            "badge": "Most Popular",
+            "desc": "",
+            "manual_price": "From $50",
+            "image": "shopify://shop_images/Cruise_1_db7fa853-881e-4bb8-bed9-c92e19dff524.png",
+            "product": "",
+            "vehicle_rate": 170,
+            "hourly_rate": 100,
+            "disabled": false
+          }
+        },
+        "vehicle_tr4jpV": {
+          "type": "vehicle",
+          "settings": {
+            "title": "PREMIUM",
+            "seats": 4,
+            "badge": "Premium",
+            "desc": "",
+            "manual_price": "From $50",
+            "image": "shopify://shop_images/Cruise_3.png",
+            "product": "",
+            "vehicle_rate": 120,
+            "hourly_rate": 100,
+            "disabled": false
+          }
+        },
+        "vehicle_Cm9tKx": {
+          "type": "vehicle",
+          "settings": {
+            "title": "COMPACT",
+            "seats": 4,
+            "badge": "Compact",
+            "desc": "",
+            "manual_price": "From $50",
+            "image": "",
+            "product": "",
+            "vehicle_rate": 110,
+            "hourly_rate": 100,
+            "disabled": false
+          }
+        },
+        "vehicle_Pf47zR": {
+          "type": "vehicle",
+          "settings": {
+            "title": "STANDARD",
+            "seats": 4,
+            "badge": "Standard",
+            "desc": "",
+            "manual_price": "From $50",
+            "image": "shopify://shop_images/Cruise_8.png",
+            "product": "",
+            "vehicle_rate": 100,
+            "hourly_rate": 100,
+            "disabled": false
+          }
+        }
+      },
+      "block_order": [
+        "vehicle_HVJUQn",
+        "vehicle_tr4jpV",
+        "vehicle_Cm9tKx",
+        "vehicle_Pf47zR"
+      ],
+      "name": "VIP Ride Booker",
+      "settings": {
+        "mapbox_access_token": "pk.eyJ1Ijoicm95YWxwdXJwbGVjb3JwIiwiYSI6ImNtbHk4cmpsNjExamwzZm9sOGFobXZoZTMifQ.YNkz-m3W7noKKDKbwn9y3w",
+        "web_checkout_key": "5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad",
+        "n8n_webhook_url": "",
+        "airport_bg_video": "shopify://files/videos/WhatsApp Video 2026-04-19 at 2.16.43 AM.mp4",
+        "hourly_rate": 100,
+        "heading": "Where to ?",
+        "ride_mode_text": "Point to Point",
+        "hourly_mode_text": "By the Hour",
+        "min_hours": 1,
+        "max_hours": 5,
+        "default_hours": 4,
+        "hours_label": "Duration",
+        "hours_unit": "hours",
+        "hours_hint": "Minimum 1 hour, maximum 5 hours",
+        "service_location_label": "Service location",
+        "pickup_label": "Pickup location",
+        "pickup_placeholder": "Enter pickup address",
+        "pickup_pill_default": "Pickup",
+        "dropoff_label": "Dropoff location",
+        "dropoff_placeholder": "Enter destination address",
+        "dropoff_pill_default": "Dropoff",
+        "date_label": "Date",
+        "time_label": "Time",
+        "see_prices_text": "See prices",
+        "choose_ride_text": "Choose a ride",
+        "choose_hourly_text": "Choose your vehicle",
+        "cta_default_text": "Reserve",
+        "cta_hint_text": "Enter pickup & dropoff, then choose a vehicle to continue.",
+        "booking_product": "vip-service",
+        "default_lat": "33.5207",
+        "default_lng": "-86.8025",
+        "default_zoom": 11,
+        "bg_video": "shopify://files/videos/WhatsApp Video 2026-04-08 at 8.02.49 AM.mp4",
+        "bg_video_url": "",
+        "later_airport_icon": "shopify://shop_images/Untitled_design_10.png",
+        "later_schedule_icon": "shopify://shop_images/Untitled_design_9.png",
+        "apt_to_icon": "shopify://shop_images/2.png",
+        "apt_from_icon": "shopify://shop_images/3.png",
+        "app_promo_logo": "shopify://shop_images/Untitled_design_5.png",
+        "app_promo_name": "Cruise",
+        "app_promo_video_url": "https://cdn.shopify.com/videos/c/o/v/614747e5b52142888ba67488a836ef00.mp4",
+        "app_store_url": "",
+        "google_play_url": "",
+        "auth_gate_logo": "shopify://shop_images/Untitled_design_069defa2-9e36-4d98-831f-f776d4c6f7a5.png",
+        "google_client_id": "562266680819-4fc4jtt1hu33euq7n0vbjbidojov2o62.apps.googleusercontent.com",
+        "apple_client_id": "com.cruiseinride.web"
+      }
+    },
+    "main": {
+      "type": "product-information",
+      "blocks": {
+        "media-gallery": {
+          "type": "_product-media-gallery",
+          "static": true,
+          "settings": {
+            "media_presentation": "grid",
+            "media_columns": "two",
+            "image_gap": 4,
+            "large_first_image": false,
+            "icons_style": "none",
+            "slideshow_controls_style": "counter",
+            "slideshow_mobile_controls_style": "dots",
+            "thumbnail_position": "right",
+            "thumbnail_width": 44,
+            "thumbnail_radius": 0,
+            "aspect_ratio": "adapt",
+            "constrain_to_viewport": true,
+            "media_fit": "contain",
+            "media_radius": 0,
+            "extend_media": false,
+            "zoom": true,
+            "video_loop": false,
+            "hide_variants": true,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "product-details": {
+          "type": "_product-details",
+          "static": true,
+          "settings": {
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "details_position": "flex-start",
+            "gap": 28,
+            "sticky_details_desktop": true,
+            "inherit_color_scheme": true,
+            "color_scheme": "scheme-1",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "padding-block-start": 24,
+            "padding-block-end": 24,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        }
+      },
+      "disabled": true,
+      "settings": {
+        "content_width": "content-center-aligned",
+        "desktop_media_position": "left",
+        "equal_columns": false,
+        "limit_details_width": false,
+        "gap": 0,
+        "enable_sticky_add_to_cart": false,
+        "color_scheme": "scheme-6",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    }
+  },
+  "order": [
+    "ride_request_48wXbE",
+    "main"
+  ]
+}

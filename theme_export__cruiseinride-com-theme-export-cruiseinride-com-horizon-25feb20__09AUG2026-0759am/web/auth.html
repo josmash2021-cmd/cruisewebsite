@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iniciar sesión — CruiseInRide</title>
+<meta name="description" content="Inicia sesión o crea tu cuenta CruiseInRide para guardar tus viajes y desbloquear tu descuento.">
+<link rel="icon" href="assets/media/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&display=swap');
+  .cruise-auth{
+    --ca-gold:#E8C547;
+    --ca-bg:#0a0e1a;
+    --ca-card:rgba(12,16,28,.38);
+    --ca-border:rgba(255,255,255,.1);
+    --ca-muted:rgba(255,255,255,.62);
+    --ca-input-bg:rgba(255,255,255,.06);
+    --ca-input-border:rgba(255,255,255,.14);
+    --ca-ease:cubic-bezier(.22,1,.36,1);
+    position:relative;
+    width:100%;
+    height:100vh;
+    height:100dvh;
+    max-height:100vh;
+    max-height:100dvh;
+    background-color:var(--ca-bg);
+    color:#fff;
+    font-family:'Poppins','Inter',-apple-system,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  .cruise-auth__bg-video-wrap{position:absolute;inset:0;overflow:hidden;z-index:0;pointer-events:none;background:var(--ca-bg);}
+  .cruise-auth__bg-video{position:absolute;top:50%;left:50%;min-width:100%;min-height:100%;width:auto;height:auto;transform:translate3d(-50%,-50%,0);-webkit-transform:translate3d(-50%,-50%,0);object-fit:cover;will-change:transform;}
+  /* Ensure the video element starts visible immediately — no fade-in that would hide it behind the card animation */
+  .cruise-auth__bg-video[poster]{background-color:transparent;}
+  .cruise-auth__bg-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,14,26,.55) 0%,rgba(10,14,26,.78) 60%,rgba(10,14,26,.92) 100%);pointer-events:none;z-index:1;}
+  .cruise-auth__inner{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;}
+  /* Screens — stacked absolute overlays filling the full section, only one visible at a time */
+  .cruise-auth__screen{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:calc(var(--header-height,60px) + 14px) 22px 28px;overflow-y:auto;-webkit-overflow-scrolling:touch;opacity:0;transform:translateY(14px);transition:opacity 500ms var(--ca-ease),transform 500ms var(--ca-ease);will-change:opacity,transform;}
+  .cruise-auth__screen.is-active{display:flex;opacity:1;transform:translateY(0);transition:opacity 560ms var(--ca-ease) 160ms,transform 560ms var(--ca-ease) 160ms;}
+  .cruise-auth__screen.is-leaving{display:flex;opacity:0;transform:translateY(-12px);pointer-events:none;transition:opacity 380ms var(--ca-ease),transform 380ms var(--ca-ease);}
+  .cruise-auth__screen::-webkit-scrollbar{display:none;}
+  @media (max-width:480px){
+    .cruise-auth__screen{padding:calc(var(--header-height,60px) + 10px) 16px 20px;}
+  }
+  /* ═══════════ GATE ═══════════ */
+  .cruise-auth__gate{align-items:center;justify-content:center;}
+  .cruise-auth__card{position:relative;background:rgba(0,0,0,.62);border:1px solid rgba(232,197,71,.28);border-radius:22px;padding:36px 22px 22px;max-width:340px;width:100%;text-align:center;box-shadow:0 0 0 1px rgba(232,197,71,.1),0 20px 60px rgba(0,0,0,.55),0 0 60px rgba(232,197,71,.1),inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);animation:caCardIn 760ms var(--ca-ease) 100ms both;will-change:transform,opacity;}
+  @keyframes caCardIn{0%{opacity:0;transform:translateY(26px) scale(.96);}60%{opacity:1;}100%{opacity:1;transform:translateY(0) scale(1);}}
+  .cruise-auth__card>*{opacity:0;transform:translateY(14px);animation:caItemIn 680ms var(--ca-ease) both;}
+  @keyframes caItemIn{to{opacity:1;transform:translateY(0);}}
+  .cruise-auth__card>.cruise-auth__badge{animation-delay:380ms;}
+  .cruise-auth__card>.cruise-auth__logo{animation-delay:300ms;}
+  .cruise-auth__card>.cruise-auth__brand{animation-delay:380ms;}
+  .cruise-auth__card>.cruise-auth__title{animation-delay:460ms;}
+  .cruise-auth__card>.cruise-auth__sub{animation-delay:540ms;}
+  .cruise-auth__card>.cruise-auth__actions{animation-delay:620ms;}
+  .cruise-auth__card>.cruise-auth__perks{animation-delay:720ms;}
+  .cruise-auth__badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;padding:6px 14px;background:linear-gradient(135deg,#E8C547,#d4a017);color:#0a0e1a;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;box-shadow:0 4px 16px rgba(232,197,71,.38),0 0 0 3px rgba(10,14,26,.6);white-space:nowrap;}
+  .cruise-auth__card>.cruise-auth__badge{transform:translateX(-50%) translateY(14px);}
+  @keyframes caBadgeIn{to{opacity:1;transform:translateX(-50%) translateY(0);}}
+  .cruise-auth__card>.cruise-auth__badge{animation-name:caBadgeIn;}
+  .cruise-auth__logo{width:96px;height:96px;border-radius:50%;background:rgba(232,197,71,.08);border:2.5px solid rgba(232,197,71,.5);display:flex;align-items:center;justify-content:center;color:var(--ca-gold);margin:0 auto 10px;box-shadow:0 0 0 5px rgba(232,197,71,.06),0 14px 40px rgba(232,197,71,.22),0 0 60px rgba(232,197,71,.18);overflow:hidden;}
+  .cruise-auth__logo svg{width:42px;height:42px;}
+  .cruise-auth__logo img{width:100%;height:100%;object-fit:contain;}
+  .cruise-auth__brand{font-family:'Cinzel','Playfair Display',Georgia,serif;font-size:28px;font-weight:700;letter-spacing:.22em;color:#fff;margin:0 0 16px;text-transform:uppercase;text-shadow:0 0 18px rgba(255,255,255,.5),0 0 36px rgba(232,197,71,.3),0 2px 8px rgba(0,0,0,.4);}
+  .cruise-auth__title{margin:0 0 10px;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.3px;line-height:1.2;}
+  .cruise-auth__sub{margin:0 0 24px;font-size:13px;color:var(--ca-muted);line-height:1.55;}
+  .cruise-auth__actions{display:flex;flex-direction:column;gap:10px;margin-bottom:22px;}
+  .cruise-auth__perks{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);}
+  .cruise-auth__perk{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--ca-muted);font-weight:500;}
+  .cruise-auth__perk span{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:rgba(232,197,71,.15);color:var(--ca-gold);font-size:10px;font-weight:800;}
+  /* ═══════════ FORM SCREENS ═══════════ */
+  .cruise-auth__form-screen{flex-direction:column;align-items:center;justify-content:center;}
+  .cruise-auth__form-screen.is-active{display:flex;}
+  .cruise-auth__form-card{width:100%;max-width:340px;background:#20242d;border:1px solid rgba(232,197,71,.22);border-radius:22px;padding:22px 22px 24px;backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);box-shadow:0 0 0 1px rgba(232,197,71,.08),0 20px 60px rgba(0,0,0,.5),0 0 60px rgba(232,197,71,.08),inset 0 1px 0 rgba(255,255,255,.06);animation:caCardIn 660ms var(--ca-ease) 80ms both;}
+  .cruise-auth__back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.06);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;margin-bottom:10px;flex-shrink:0;}
+  .cruise-auth__back:active{background:rgba(255,255,255,.14);transform:scale(.94);}
+  .cruise-auth__heading{margin:0 0 4px;font-size:24px;font-weight:800;color:#fff;letter-spacing:-.4px;line-height:1.15;text-align:center;}
+  .cruise-auth__heading-sub{margin:0 0 18px;font-size:12px;color:var(--ca-muted);text-align:center;}
+  .cruise-auth__heading-tip{margin:0 0 18px;font-size:12px;color:var(--ca-muted);text-align:center;line-height:1.5;}
+  .cruise-auth__wiz-content{opacity:1;transform:translateY(0);transition:opacity 440ms var(--ca-ease),transform 440ms var(--ca-ease);will-change:opacity,transform;}
+  .cruise-auth__wiz-content.is-fading{opacity:0;transform:translateY(10px);}
+  .cruise-auth__rules{list-style:none;padding:0;margin:0 0 20px;}
+  .cruise-auth__rules li{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,.4);padding:4px 0;}
+  .cruise-auth__rules li.ok{color:var(--ca-gold);}
+  .cruise-auth__rules li::before{content:'';width:14px;height:14px;border-radius:50%;border:1.5px solid currentColor;display:inline-block;flex-shrink:0;background:transparent;transition:background 180ms,border-color 180ms;}
+  .cruise-auth__rules li.ok::before{background:var(--ca-gold);border-color:var(--ca-gold);}
+  .cruise-auth__photo-circle{width:140px;height:140px;border-radius:50%;background:rgba(232,197,71,.15);border:2px solid rgba(232,197,71,.4);display:flex;align-items:center;justify-content:center;margin:30px auto;overflow:hidden;}
+  .cruise-auth__photo-circle img{width:100%;height:100%;object-fit:cover;}
+  .cruise-auth__input{display:flex;align-items:center;gap:10px;background:var(--ca-input-bg);border:1px solid var(--ca-input-border);border-radius:14px;padding:14px 16px;margin-bottom:10px;transition:border-color 200ms,background 200ms;}
+  .cruise-auth__input:focus-within{border-color:rgba(232,197,71,.4);background:rgba(255,255,255,.06);}
+  .cruise-auth__input-ico{color:var(--ca-muted);flex-shrink:0;}
+  .cruise-auth__input input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-family:inherit;font-size:16px;font-weight:500;min-width:0;padding:0;-webkit-text-size-adjust:100%;}
+  .cruise-auth__input input::placeholder{color:rgba(255,255,255,.4);}
+  @supports (-webkit-touch-callout:none){.cruise-auth__input input{font-size:16px!important;}}
+  .cruise-auth__err{min-height:18px;margin:4px 4px 8px;font-size:12px;font-weight:600;color:#ff6b6b;opacity:0;transition:opacity 220ms;}
+  .cruise-auth__err.is-visible{opacity:1;}
+  .cruise-auth__btn{width:100%;padding:15px;border:none;border-radius:14px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;transition:transform 180ms var(--ca-ease),box-shadow 220ms;}
+  .cruise-auth__btn:active:not(:disabled){transform:scale(.97);}
+  .cruise-auth__btn:disabled{opacity:.5;cursor:not-allowed;}
+  .cruise-auth__btn--primary{background:linear-gradient(135deg,#E8C547,#d4a017);color:#fff;font-weight:800;box-shadow:0 6px 22px rgba(232,197,71,.35),0 0 0 1px rgba(232,197,71,.3);transition:transform 180ms var(--ca-ease),box-shadow 220ms;}
+  .cruise-auth__btn--primary:hover:not(:disabled){box-shadow:0 8px 28px rgba(232,197,71,.5),0 0 0 1px rgba(232,197,71,.4);}
+  .cruise-auth__btn--dark{background:rgba(255,255,255,.04);color:#fff;border:1px solid rgba(255,255,255,.08);font-size:14px;}
+  .cruise-auth__btn--dark:hover{background:rgba(255,255,255,.07);}
+  .cruise-auth__btn--ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.18);font-size:13px;font-weight:600;}
+  .cruise-auth__btn--ghost:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.3);}
+  .cruise-auth__btn--outline{background:transparent;color:var(--ca-gold);border:1.5px solid rgba(232,197,71,.4);}
+  .cruise-auth__btn--outline:hover{background:rgba(232,197,71,.06);}
+  .cruise-auth__divider{display:flex;align-items:center;gap:12px;margin:14px 0;color:var(--ca-muted);font-size:11px;letter-spacing:.08em;font-weight:600;}
+  .cruise-auth__divider::before,.cruise-auth__divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08);}
+  .cruise-auth__link{background:none;border:1.5px solid rgba(232,197,71,.4);width:100%;padding:14px;border-radius:14px;color:var(--ca-gold);font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;margin-top:4px;}
+  .cruise-auth__link--gold{color:var(--ca-gold);}
+  .cruise-auth__terms{margin:18px 0 0;text-align:center;font-size:11px;color:var(--ca-muted);line-height:1.5;}
+  .cruise-auth__terms a{color:var(--ca-gold);text-decoration:underline;}
+  /* ═══════════ PROFILE ═══════════ */
+  .cruise-auth__profile{flex-direction:column;align-items:center;justify-content:flex-start;}
+  .cruise-auth__profile.is-active{display:flex;}
+  .cruise-auth__profile-header{display:flex;align-items:center;gap:12px;padding:8px 0 14px;width:100%;max-width:340px;flex-shrink:0;}
+  .cruise-auth__back--sub{position:static;}
+  .cruise-auth__profile-title{flex:1;margin:0;font-size:18px;font-weight:800;color:#fff;text-align:center;}
+  .cruise-auth__edit-btn{background:transparent;border:none;color:var(--ca-gold);font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;padding:6px 10px;}
+  .cruise-auth__sub-screen{display:none;width:100%;max-width:340px;will-change:opacity,transform;}
+  .cruise-auth__sub-screen.is-active{display:block;}
+  .cruise-auth__sub-card{background:rgba(0,0,0,.62);border:1px solid rgba(232,197,71,.18);border-radius:20px;padding:22px 18px;backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);box-shadow:0 0 0 1px rgba(232,197,71,.06),0 14px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);max-height:calc(100vh - 200px);max-height:calc(100dvh - 200px);overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .cruise-auth__sub-card::-webkit-scrollbar{display:none;}
+  .cruise-auth__sub-title{margin:0 0 16px;font-size:18px;font-weight:800;color:#fff;text-align:center;letter-spacing:-.3px;}
+  .cruise-auth__hero{text-align:center;padding:4px 0 16px;}
+  .cruise-auth__avatar{position:relative;width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#E8C547,#d4a017);border:none;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;overflow:visible;box-shadow:0 0 0 3px rgba(232,197,71,.12),0 8px 28px rgba(232,197,71,.25),0 14px 40px rgba(0,0,0,.4);}
+  .cruise-auth__avatar:active{transform:scale(.97);}
+  .cruise-auth__avatar-initial{font-size:36px;font-weight:800;color:#0a0e1a;}
+  .cruise-auth__avatar-img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;}
+  .cruise-auth__avatar-edit{position:absolute;bottom:-2px;right:-2px;width:28px;height:28px;border-radius:50%;background:#0a0e1a;border:2px solid #E8C547;display:flex;align-items:center;justify-content:center;color:#E8C547;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.5);}
+  .cruise-auth__name{margin:0 0 4px;font-size:18px;font-weight:800;color:#fff;letter-spacing:-.2px;}
+  .cruise-auth__rating{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ca-gold);font-weight:600;margin-bottom:3px;}
+  .cruise-auth__rating svg{width:12px;height:12px;}
+  .cruise-auth__member{font-size:11px;color:var(--ca-muted);}
+  .cruise-auth__stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 16px;}
+  .cruise-auth__stat{background:rgba(255,255,255,.04);border:1px solid var(--ca-border);border-radius:12px;padding:12px 8px;text-align:center;}
+  .cruise-auth__stat-val{font-size:18px;font-weight:800;color:var(--ca-gold);margin-bottom:2px;}
+  .cruise-auth__stat-lbl{font-size:10px;color:var(--ca-muted);}
+  .cruise-auth__rows{display:flex;flex-direction:column;gap:6px;margin:0 0 16px;}
+  .cruise-auth__row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--ca-border);color:#fff;cursor:pointer;text-align:left;font-family:inherit;transition:transform 160ms,background 200ms;}
+  .cruise-auth__row:hover{background:rgba(255,255,255,.07);}
+  .cruise-auth__row:active{transform:scale(.985);}
+  .cruise-auth__row-ico{width:36px;height:36px;border-radius:10px;background:rgba(232,197,71,.12);color:var(--ca-gold);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .cruise-auth__row-ico svg{width:18px;height:18px;}
+  .cruise-auth__row-text{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0;}
+  .cruise-auth__row-text b{font-size:14px;font-weight:700;color:#fff;}
+  .cruise-auth__row-text small{font-size:11px;color:var(--ca-muted);}
+  .cruise-auth__row-chev{color:rgba(255,255,255,.3);font-size:20px;font-weight:300;}
+  .cruise-auth__signout{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;background:rgba(255,80,80,.06);border:1px solid rgba(255,80,80,.2);border-radius:12px;color:#ff6b6b;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;margin-bottom:8px;margin-top:4px;transition:transform 160ms var(--ca-ease),background 200ms,box-shadow 200ms;}
+  .cruise-auth__signout:hover{background:rgba(255,80,80,.1);box-shadow:0 4px 16px rgba(255,80,80,.1);}
+  .cruise-auth__signout:active{transform:scale(.97);background:rgba(255,80,80,.14);}
+  .cruise-auth__signout svg{width:16px;height:16px;}
+  .cruise-auth__version{text-align:center;font-size:10px;color:rgba(255,255,255,.25);margin-top:2px;}
+  .cruise-auth__edit-form{display:flex;flex-direction:column;gap:14px;padding:8px 0;}
+  .cruise-auth__field{display:flex;flex-direction:column;gap:6px;}
+  .cruise-auth__field span{font-size:12px;font-weight:600;color:var(--ca-muted);text-transform:uppercase;letter-spacing:.04em;}
+  .cruise-auth__field input{padding:14px 16px;background:var(--ca-input-bg);border:1px solid var(--ca-input-border);border-radius:12px;color:#fff;font-family:inherit;font-size:16px;outline:none;transition:border-color 200ms;-webkit-text-size-adjust:100%;}
+  .cruise-auth__field input:focus{border-color:var(--ca-gold);background:rgba(255,255,255,.06);}
+  .cruise-auth__edit-actions{display:flex;gap:10px;margin-top:12px;}
+  .cruise-auth__edit-actions .cruise-auth__btn{margin-bottom:0;}
+  .cruise-auth__list{display:flex;flex-direction:column;gap:12px;padding:8px 0;}
+  .cruise-auth__trip{background:var(--ca-card);border:1px solid var(--ca-border);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:transform 160ms var(--ca-ease),border-color 200ms,box-shadow 200ms;}
+  .cruise-auth__trip:hover{border-color:rgba(232,197,71,.2);box-shadow:0 4px 16px rgba(232,197,71,.06);}
+  .cruise-auth__trip:active{transform:scale(.985);}
+  .cruise-auth__trip-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--ca-muted);}
+  .cruise-auth__trip-fare{font-size:16px;font-weight:800;color:var(--ca-gold);}
+  .cruise-auth__trip-route{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,.85);}
+  .cruise-auth__trip-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .cruise-auth__trip-dot--g{background:#4CAF50;}
+  .cruise-auth__trip-dot--y{background:var(--ca-gold);border-radius:3px;}
+  .cruise-auth__trip-time{font-size:11px;color:var(--ca-muted);}
+  .cruise-auth__trip-status{display:inline-block;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;text-transform:uppercase;background:rgba(232,197,71,.14);color:var(--ca-gold);align-self:flex-start;letter-spacing:.03em;}
+  .cruise-auth__trip-status--completed{background:rgba(76,175,80,.14);color:#4CAF50;}
+  .cruise-auth__trip-status--cancelled{background:rgba(255,100,100,.12);color:#ff6b6b;}
+  .cruise-auth__pm{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--ca-card);border:1px solid var(--ca-border);border-radius:14px;margin-bottom:8px;transition:transform 160ms var(--ca-ease),border-color 200ms,box-shadow 200ms;}
+  .cruise-auth__pm:hover{border-color:rgba(232,197,71,.2);box-shadow:0 4px 16px rgba(232,197,71,.06);}
+  .cruise-auth__pm:active{transform:scale(.98);}
+  .cruise-auth__pm--empty{border-style:dashed;border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.02);cursor:pointer;transition:transform 160ms var(--ca-ease),background 200ms,border-color 200ms;}
+  .cruise-auth__pm--empty:hover{background:rgba(255,255,255,.04);border-color:rgba(232,197,71,.25);}
+  .cruise-auth__pm--empty:active{transform:scale(.98);}
+  .cruise-auth__pm-ico{width:40px;height:40px;border-radius:10px;background:rgba(232,197,71,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ca-gold);}
+  .cruise-auth__pm-brand{font-size:10px;font-weight:800;color:var(--ca-gold);letter-spacing:.05em;}
+  .cruise-auth__pm-info{flex:1;min-width:0;}
+  .cruise-auth__pm-type{font-size:14px;font-weight:700;color:#fff;}
+  .cruise-auth__pm-sub{font-size:11px;color:var(--ca-muted);margin-top:1px;}
+  .cruise-auth__pm-badge{padding:4px 10px;background:rgba(232,197,71,.14);color:var(--ca-gold);border-radius:8px;font-size:10px;font-weight:700;text-transform:uppercase;flex-shrink:0;}
+  .cruise-auth__pm-add{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;color:var(--ca-muted);font-size:18px;flex-shrink:0;}
+  .cruise-auth__empty{padding:40px 20px;text-align:center;color:var(--ca-muted);font-size:14px;}
+  /* Toast */
+  .cruise-auth__toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(232,197,71,.95);color:#0a0e1a;padding:12px 20px;border-radius:999px;font-size:13px;font-weight:700;box-shadow:0 10px 30px rgba(232,197,71,.35);opacity:0;pointer-events:none;transition:opacity 300ms,transform 300ms var(--ca-ease);z-index:100;max-width:90vw;text-align:center;}
+  .cruise-auth__toast.is-visible{opacity:1;transform:translateX(-50%) translateY(0);}
+  .cruise-auth__toast.is-err{background:rgba(255,80,80,.95);color:#fff;box-shadow:0 10px 30px rgba(255,80,80,.3);}
+  @media (max-width:480px){
+    .cruise-auth__card{padding:36px 22px 22px;}
+    .cruise-auth__logo{width:76px;height:76px;margin:0 auto 8px;}
+    .cruise-auth__logo svg{width:34px;height:34px;}
+    .cruise-auth__brand{font-size:22px;letter-spacing:.18em;margin-bottom:10px;}
+    .cruise-auth__title{font-size:19px;margin-bottom:8px;}
+    .cruise-auth__sub{font-size:12px;margin-bottom:18px;}
+    .cruise-auth__actions{gap:8px;margin-bottom:16px;}
+    .cruise-auth__btn{padding:13px;font-size:14px;}
+    .cruise-auth__perks{gap:6px 12px;padding-top:12px;}
+    .cruise-auth__perk{font-size:10px;}
+    .cruise-auth__heading{font-size:24px;}
+    .cruise-auth__heading-sub{font-size:12px;margin-bottom:18px;}
+    .cruise-auth__input{padding:12px 14px;margin-bottom:8px;}
+    .cruise-auth__input input{font-size:14px;}
+    .cruise-auth__divider{margin:10px 0;}
+    .cruise-auth__avatar{width:100px;height:100px;}
+    .cruise-auth__avatar-initial{font-size:40px;}
+  }
+  @media (max-height:720px){
+    .cruise-auth__card{padding:32px 24px 22px;}
+    .cruise-auth__logo{width:70px;height:70px;margin-bottom:6px;}
+    .cruise-auth__brand{font-size:20px;margin-bottom:8px;}
+    .cruise-auth__title{font-size:18px;margin-bottom:6px;}
+    .cruise-auth__sub{margin-bottom:14px;}
+    .cruise-auth__actions{margin-bottom:12px;}
+    .cruise-auth__perks{padding-top:10px;}
+  }
+  .cruise-auth__otp{display:flex;gap:12px;justify-content:center;margin:18px 0;}
+  .cruise-auth__otp-digit{width:56px;height:64px;text-align:center;font-size:24px;border:1.5px solid rgba(255,255,255,.2);border-radius:12px;background:#17191f;color:#fff;}
+  .cruise-auth__otp-digit:focus{border-color:#d4af37;outline:none;}
+  .cruise-auth__otp-actions{display:flex;flex-direction:column;gap:10px;align-items:flex-start;margin-top:18px;}
+  .cruise-auth__link--text{background:transparent;border:none;color:rgba(255,255,255,.7);font-size:13px;padding:0;text-decoration:underline;cursor:pointer;font-family:inherit;}
+  .cruise-auth__nav-btns{display:flex;justify-content:space-between;margin-top:28px;}
+  .cruise-auth__nav-btn{width:48px;height:48px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;background:#262b35;color:#fff;cursor:pointer;}
+  .cruise-auth__nav-btn--next{width:auto;padding:0 22px;border-radius:999px;gap:6px;}
+  .cruise-auth__nav-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .cruise-auth__input--password{position:relative;}
+  .cruise-auth__eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:rgba(255,255,255,.55);cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;}
+  .cruise-auth__btn--social,.cruise-auth__btn--qr{background:#262b35;color:#fff;border:none;border-radius:18px;gap:10px;}
+  .cruise-auth__pw-actions{display:flex;flex-direction:column;gap:10px;align-items:flex-start;margin-top:18px;}
+
+  /* ── Static-site adaptations (Shopify rules removed) ── */
+  .auth-main{padding-top:66px;background:#17191f;}
+  .cruise-auth{height:calc(100vh - 66px)!important;height:calc(100dvh - 66px)!important;max-height:none!important;}
+
+  /* ══════════════════════════════════════════════════════════
+     CLAYMORFISMO OSCURO — override sobre el tema Shopify.
+     Solo CSS: tokens de web/assets/site.css (--bg/#17191f,
+     --surface/#20242d, --surface-hi/#262b35, sombras nm).
+     ══════════════════════════════════════════════════════════ */
+  .cruise-auth{
+    --ca-gold:#f5d77a;
+    --ca-bg:#17191f;
+    --ca-card:#20242d;
+    --ca-border:rgba(255,255,255,.05);
+    --ca-muted:rgba(236,238,242,.62);
+    --ca-input-bg:#17191f;
+    --ca-input-border:transparent;
+  }
+
+  /* tarjetas → superficie arcilla en relieve */
+  .cruise-auth__card,.cruise-auth__form-card,.cruise-auth__sub-card{
+    background:#20242d;
+    border:none;
+    border-radius:26px;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    box-shadow:
+      inset 2px 2px 5px rgba(255,255,255,.09),
+      inset -6px -6px 12px rgba(0,0,0,.38),
+      10px 14px 28px rgba(0,0,0,.42),
+      inset 0 0 0 1px rgba(212,175,55,.10);
+  }
+  /* bordes/resplandores dorados decorativos de la card (profile) fuera */
+  .cruise-auth__card::before,.cruise-auth__card::after{content:none;}
+
+  /* badge promo: anillo acorde al nuevo fondo */
+  .cruise-auth__badge{box-shadow:0 4px 16px rgba(212,175,55,.38),0 0 0 3px #17191f;}
+
+  /* logo del gate → círculo hundido con anillo dorado */
+  .cruise-auth__logo{
+    background:#17191f;
+    border:none;
+    box-shadow:
+      inset 6px 6px 12px rgba(0,0,0,.48),
+      inset -3px -3px 8px rgba(255,255,255,.05),
+      inset 0 0 0 1.5px rgba(212,175,55,.30);
+  }
+  .cruise-auth__logo::after{content:none;}
+  .cruise-auth__brand{text-shadow:0 2px 10px rgba(0,0,0,.45);}
+
+  /* inputs → arcilla hundida */
+  .cruise-auth__input,.cruise-auth__field input{
+    background:#17191f;
+    border:none;
+    border-radius:18px;
+    box-shadow:inset 6px 6px 12px rgba(0,0,0,.48),inset -3px -3px 8px rgba(255,255,255,.05);
+  }
+  .cruise-auth__input:focus-within{
+    background:#17191f;
+    box-shadow:inset 6px 6px 12px rgba(0,0,0,.48),inset -3px -3px 8px rgba(255,255,255,.05),inset 0 0 0 1.5px rgba(212,175,55,.45);
+  }
+  .cruise-auth__field input:focus{
+    background:#17191f;
+    border:none;
+    box-shadow:inset 6px 6px 12px rgba(0,0,0,.48),inset -3px -3px 8px rgba(255,255,255,.05),inset 0 0 0 1.5px rgba(212,175,55,.45);
+  }
+  .cruise-auth__input input::placeholder{color:rgba(236,238,242,.38);}
+
+  /* botones */
+  .cruise-auth__btn{border-radius:18px;}
+  .cruise-auth__btn--primary{
+    background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);
+    color:#241c05;
+    box-shadow:8px 8px 18px rgba(0,0,0,.42),-6px -6px 14px rgba(255,255,255,.09),inset 0 1px 0 rgba(255,255,255,.45);
+  }
+  .cruise-auth__btn--primary:hover:not(:disabled){
+    box-shadow:10px 12px 24px rgba(0,0,0,.42),-6px -6px 14px rgba(255,255,255,.09),inset 0 1px 0 rgba(255,255,255,.5),0 0 26px rgba(212,175,55,.35);
+  }
+  .cruise-auth__btn--dark{
+    background:#262b35;
+    border:none;
+    color:#eceef2;
+    box-shadow:inset 1px 1px 3px rgba(255,255,255,.09),inset -4px -4px 8px rgba(0,0,0,.35),6px 8px 16px rgba(0,0,0,.38);
+  }
+  .cruise-auth__btn--dark:hover{
+    background:#262b35;
+    box-shadow:inset 4px 4px 8px rgba(0,0,0,.45),inset -2px -2px 5px rgba(255,255,255,.05);
+  }
+  .cruise-auth__btn--ghost,.cruise-auth__btn--outline,.cruise-auth__link{
+    background:#262b35;
+    border:none;
+    color:#f5d77a;
+    box-shadow:inset 1px 1px 3px rgba(255,255,255,.09),inset -4px -4px 8px rgba(0,0,0,.35),6px 8px 16px rgba(0,0,0,.38);
+  }
+  .cruise-auth__btn--ghost:hover,.cruise-auth__btn--outline:hover{
+    background:#262b35;
+    box-shadow:inset 4px 4px 8px rgba(0,0,0,.45),inset -2px -2px 5px rgba(255,255,255,.05);
+  }
+
+  /* botón back circular */
+  .cruise-auth__back{
+    background:#262b35;
+    box-shadow:inset 1px 1px 3px rgba(255,255,255,.09),inset -4px -4px 8px rgba(0,0,0,.35),6px 8px 16px rgba(0,0,0,.38);
+  }
+  .cruise-auth__back:active{
+    background:#262b35;
+    box-shadow:inset 4px 4px 8px rgba(0,0,0,.45),inset -2px -2px 5px rgba(255,255,255,.05);
+  }
+
+  /* stats / filas / viajes / métodos de pago → relieve suave */
+  .cruise-auth__stat,.cruise-auth__row{
+    background:#262b35;
+    border:none;
+    border-radius:16px;
+    box-shadow:inset 1px 1px 3px rgba(255,255,255,.09),inset -4px -4px 8px rgba(0,0,0,.35),6px 8px 16px rgba(0,0,0,.38);
+  }
+  .cruise-auth__row:hover{
+    background:#262b35;
+    box-shadow:inset 4px 4px 8px rgba(0,0,0,.45),inset -2px -2px 5px rgba(255,255,255,.05);
+  }
+  .cruise-auth__row-ico{
+    background:#17191f;
+    border-radius:12px;
+    box-shadow:inset 4px 4px 8px rgba(0,0,0,.45),inset -2px -2px 5px rgba(255,255,255,.05);
+  }
+  .cruise-auth__trip,.cruise-auth__pm{
+    background:#262b35;
+    border:none;
+    border-radius:18px;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    box-shadow:inset 1px 1px 3px rgba(255,255,255,.09),inset -4px -4px 8px rgba(0,0,0,.35),6px 8px 16px rgba(0,0,0,.38);
+  }
+  .cruise-auth__trip:hover,.cruise-auth__pm:hover{
+    border:none;
+    box-shadow:inset 4px 4px 8px rgba(0,0,0,.45),inset -2px -2px 5px rgba(255,255,255,.05);
+  }
+  .cruise-auth__pm--empty{
+    background:#17191f;
+    border:none;
+    box-shadow:inset 6px 6px 12px rgba(0,0,0,.48),inset -3px -3px 8px rgba(255,255,255,.05);
+  }
+  .cruise-auth__pm--empty:hover{background:#17191f;border:none;}
+  .cruise-auth__pm-ico{
+    background:#17191f;
+    box-shadow:inset 4px 4px 8px rgba(0,0,0,.45),inset -2px -2px 5px rgba(255,255,255,.05);
+  }
+  .cruise-auth__pm-add{
+    background:#262b35;
+    border:none;
+    box-shadow:inset 1px 1px 3px rgba(255,255,255,.09),inset -4px -4px 8px rgba(0,0,0,.35),6px 8px 16px rgba(0,0,0,.38);
+  }
+
+  /* perks y foto del wizard */
+  .cruise-auth__perk span{
+    background:#17191f;
+    color:#f5d77a;
+    box-shadow:inset 4px 4px 8px rgba(0,0,0,.45),inset -2px -2px 5px rgba(255,255,255,.05);
+  }
+  .cruise-auth__photo-circle{
+    background:#17191f;
+    border:none;
+    box-shadow:inset 6px 6px 12px rgba(0,0,0,.48),inset -3px -3px 8px rgba(255,255,255,.05),inset 0 0 0 1.5px rgba(212,175,55,.30);
+  }
+  .cruise-auth__avatar-edit{background:#17191f;border:2px solid #d4af37;}
+</style>
+</head>
+<body>
+<header class="cruise-header">
+  <a class="ch-logo" href="index.html">
+    <img src="assets/media/logo.png" alt="CruiseInRide" height="41">
+  </a>
+  <nav class="ch-nav"><a href="index.html" aria-current="page">Inicio</a><a href="book.html">Reservar</a><a href="contact.html">Contacto</a></nav>
+  <div class="ch-actions">
+    <a class="ch-lang" href="en/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.3 9h17.4M3.3 15h17.4"/><path d="M12 3c2.6 2.4 4 5.4 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.4-4-9s1.4-6.6 4-9Z"/></svg>EN</a>
+    <a class="ch-login" href="profile.html">Iniciar sesión</a>
+    <a class="ch-signup" href="profile.html">Registrarse</a>
+    <button class="ch-burger" aria-label="Menu" onclick="document.body.classList.toggle('ch-open')">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<main class="auth-main">
+<div
+  class="cruise-auth"
+  id="cruise-auth-page"
+  data-api-base="https://cruiseapp2-production.up.railway.app"
+  data-web-key="5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad"
+  data-api-key="5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad"
+  data-google-id="562266680819-4fc4jtt1hu33euq7n0vbjbidojov2o62.apps.googleusercontent.com"
+  data-apple-id="com.cruiseinride.web"
+  style="--ca-bg:#17191f;"
+>
+  <div class="cruise-auth__inner">
+
+    <!-- ═══════════════════════════════════ IDENTIFIER ═══════════════════════════════════ -->
+    <section class="cruise-auth__screen cruise-auth__form-screen is-active" data-ca-screen="identifier">
+      <div class="cruise-auth__form-card">
+        <h1 class="cruise-auth__heading">¿Cuál es tu número de teléfono o correo electrónico?</h1>
+        <div class="cruise-auth__input">
+          <input type="text" data-ca-id-input placeholder="Ingresa tu teléfono o correo" autocomplete="username">
+        </div>
+        <button type="button" class="cruise-auth__btn cruise-auth__btn--primary" data-ca-id-continue disabled>Continuar</button>
+        <div class="cruise-auth__divider"><span>or</span></div>
+        <button type="button" class="cruise-auth__btn cruise-auth__btn--social" data-ca-id-google>
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0012 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A11 11 0 001 12c0 1.77.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+          Continuar con Google
+        </button>
+        <button type="button" class="cruise-auth__btn cruise-auth__btn--social" data-ca-id-apple>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+          Continuar con Apple
+        </button>
+        <div class="cruise-auth__divider"><span>or</span></div>
+        <button type="button" class="cruise-auth__btn cruise-auth__btn--qr" data-ca-id-qr>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Iniciar sesión con código QR
+        </button>
+        <p class="cruise-auth__terms">Aceptas recibir un código de verificación por mensaje de texto o Whatsapp. Pueden aplicar tarifas de mensajes y datos.</p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════ OTP ═══════════════════════════════════ -->
+    <section class="cruise-auth__screen cruise-auth__form-screen" data-ca-screen="otp">
+      <div class="cruise-auth__form-card">
+        <button type="button" class="cruise-auth__back" data-ca-otp-back aria-label="Volver">
+          <svg width="16" height="12" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+        </button>
+        <h1 class="cruise-auth__heading" data-ca-otp-title>Ingresa el código de 4 dígitos</h1>
+        <p class="cruise-auth__heading-sub" data-ca-otp-sub></p>
+        <p class="cruise-auth__heading-tip" data-ca-otp-tip></p>
+        <div class="cruise-auth__otp">
+          <input type="text" inputmode="numeric" maxlength="1" class="cruise-auth__otp-digit" data-ca-otp-digit aria-label="Digit 1">
+          <input type="text" inputmode="numeric" maxlength="1" class="cruise-auth__otp-digit" data-ca-otp-digit aria-label="Digit 2">
+          <input type="text" inputmode="numeric" maxlength="1" class="cruise-auth__otp-digit" data-ca-otp-digit aria-label="Digit 3">
+          <input type="text" inputmode="numeric" maxlength="1" class="cruise-auth__otp-digit" data-ca-otp-digit aria-label="Digit 4">
+        </div>
+        <div class="cruise-auth__err" data-ca-otp-err></div>
+        <div class="cruise-auth__otp-actions">
+          <button type="button" class="cruise-auth__link cruise-auth__link--text" data-ca-otp-change>¿Cambiaste tu número de móvil?</button>
+          <button type="button" class="cruise-auth__link cruise-auth__link--text" data-ca-otp-resend disabled><span data-ca-otp-resend-text>Resend code</span> <span data-ca-otp-timer>(0:30)</span></button>
+          <button type="button" class="cruise-auth__link cruise-auth__link--text" data-ca-otp-options>Más opciones</button>
+        </div>
+        <div class="cruise-auth__nav-btns">
+          <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--back" data-ca-otp-back2 aria-label="Volver">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--next" data-ca-otp-next disabled>Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════ PASSWORD ═══════════════════════════════════ -->
+    <section class="cruise-auth__screen cruise-auth__form-screen" data-ca-screen="password">
+      <div class="cruise-auth__form-card">
+        <button type="button" class="cruise-auth__back" data-ca-pw-back aria-label="Volver">
+          <svg width="16" height="12" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+        </button>
+        <h1 class="cruise-auth__heading" data-ca-pw-title>Bienvenido de nuevo</h1>
+        <p class="cruise-auth__heading-sub" data-ca-pw-sub></p>
+        <div class="cruise-auth__input cruise-auth__input--password">
+          <input type="password" data-ca-pw-input placeholder="Ingresa tu contraseña" autocomplete="current-password">
+          <button type="button" class="cruise-auth__eye" data-ca-pw-eye aria-label="Mostrar contraseña">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="cruise-auth__err" data-ca-pw-err></div>
+        <div class="cruise-auth__pw-actions">
+          <button type="button" class="cruise-auth__link cruise-auth__link--text" data-ca-pw-forgot>Olvidé mi contraseña</button>
+          <button type="button" class="cruise-auth__link cruise-auth__link--text" data-ca-pw-options>Más opciones</button>
+        </div>
+        <div class="cruise-auth__nav-btns">
+          <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--back" data-ca-pw-back2 aria-label="Volver">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--next" data-ca-pw-next disabled>Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════ REGISTER (post-OTP new user) ═══════════════════════════════════ -->
+    <section class="cruise-auth__screen cruise-auth__form-screen" data-ca-screen="register">
+      <div class="cruise-auth__form-card">
+        <button type="button" class="cruise-auth__back" data-ca-reg-back aria-label="Volver">
+          <svg width="16" height="12" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+        </button>
+        <h1 class="cruise-auth__heading">Crea tu cuenta</h1>
+        <p class="cruise-auth__heading-sub">Ingresa tu nombre y crea una contraseña.</p>
+        <div class="cruise-auth__input">
+          <input type="text" data-ca-reg-fn placeholder="Nombre" autocomplete="given-name">
+        </div>
+        <div class="cruise-auth__input">
+          <input type="text" data-ca-reg-ln placeholder="Apellidos" autocomplete="family-name">
+        </div>
+        <div class="cruise-auth__input cruise-auth__input--password">
+          <input type="password" data-ca-reg-pw placeholder="Contraseña" autocomplete="new-password">
+        </div>
+        <div class="cruise-auth__err" data-ca-reg-err></div>
+        <button type="button" class="cruise-auth__btn cruise-auth__btn--primary" data-ca-reg-submit disabled>Crear cuenta</button>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════ PROFILE (logged in) ═══════════════════════════════════ -->
+    <section class="cruise-auth__screen cruise-auth__profile" data-ca-screen="profile">
+      <header class="cruise-auth__profile-header">
+        <button type="button" class="cruise-auth__back cruise-auth__back--sub" data-ca-profile-back hidden aria-label="Volver">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+        </button>
+        <h1 class="cruise-auth__profile-title" data-ca-profile-title>Perfil</h1>
+        <button type="button" class="cruise-auth__edit-btn" data-ca-edit-btn>Editar</button>
+      </header>
+
+      <div class="cruise-auth__sub-screen is-active" data-ca-sub="home">
+        <div class="cruise-auth__sub-card">
+        <div class="cruise-auth__hero">
+          <button type="button" class="cruise-auth__avatar" data-ca-avatar aria-label="Cambiar foto">
+            <span class="cruise-auth__avatar-initial" data-ca-initial>C</span>
+            <img class="cruise-auth__avatar-img" data-ca-photo alt="" hidden>
+            <span class="cruise-auth__avatar-edit">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </span>
+          </button>
+          <input type="file" accept="image/*" data-ca-photo-input hidden>
+          <h2 class="cruise-auth__name" data-ca-name>—</h2>
+          <div class="cruise-auth__rating">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#E8C547"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span data-ca-rating-text>Pasajero nuevo</span>
+          </div>
+          <div class="cruise-auth__member" data-ca-member></div>
+        </div>
+
+        <div class="cruise-auth__stats">
+          <div class="cruise-auth__stat"><div class="cruise-auth__stat-val" data-ca-stat-trips>0</div><div class="cruise-auth__stat-lbl">Viajes totales</div></div>
+          <div class="cruise-auth__stat"><div class="cruise-auth__stat-val" data-ca-stat-miles>0</div><div class="cruise-auth__stat-lbl">Millas</div></div>
+          <div class="cruise-auth__stat"><div class="cruise-auth__stat-val" data-ca-stat-since>—</div><div class="cruise-auth__stat-lbl">Antigüedad</div></div>
+        </div>
+
+        <div class="cruise-auth__rows">
+          <button type="button" class="cruise-auth__row" data-ca-sub-nav="trips">
+            <span class="cruise-auth__row-ico">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            </span>
+            <span class="cruise-auth__row-text"><b>Historial de viajes</b><small>Todos tus viajes anteriores</small></span>
+            <span class="cruise-auth__row-chev">›</span>
+          </button>
+          <button type="button" class="cruise-auth__row" data-ca-sub-nav="scheduled">
+            <span class="cruise-auth__row-ico">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </span>
+            <span class="cruise-auth__row-text"><b>Viajes programados</b><small>Próximas reservas</small></span>
+            <span class="cruise-auth__row-chev">›</span>
+          </button>
+          <button type="button" class="cruise-auth__row" data-ca-sub-nav="payments">
+            <span class="cruise-auth__row-ico">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+            </span>
+            <span class="cruise-auth__row-text"><b>Métodos de pago</b><small>Tarjetas y monederos</small></span>
+            <span class="cruise-auth__row-chev">›</span>
+          </button>
+        </div>
+
+        <button type="button" class="cruise-auth__signout" data-ca-signout>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          <span>Cerrar sesión</span>
+        </button>
+        <div class="cruise-auth__version">Cruise · v1.0.2</div>
+        </div>
+      </div>
+
+      <div class="cruise-auth__sub-screen" data-ca-sub="edit">
+        <div class="cruise-auth__sub-card">
+          <h2 class="cruise-auth__sub-title">Editar perfil</h2>
+          <form class="cruise-auth__edit-form" data-ca-edit-form>
+            <label class="cruise-auth__field"><span>Nombre</span><input type="text" data-ca-edit-first disabled style="opacity:.5;cursor:not-allowed;"></label>
+            <label class="cruise-auth__field"><span>Apellidos</span><input type="text" data-ca-edit-last disabled style="opacity:.5;cursor:not-allowed;"></label>
+            <label class="cruise-auth__field"><span>Correo electrónico</span><input type="email" data-ca-edit-email></label>
+            <label class="cruise-auth__field"><span>Teléfono</span><input type="tel" data-ca-edit-phone></label>
+            <div class="cruise-auth__edit-actions">
+              <button type="button" class="cruise-auth__btn cruise-auth__btn--outline" data-ca-edit-cancel>Cancelar</button>
+              <button type="submit" class="cruise-auth__btn cruise-auth__btn--primary">Guardar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="cruise-auth__sub-screen" data-ca-sub="trips">
+        <div class="cruise-auth__sub-card">
+          <h2 class="cruise-auth__sub-title">Historial de viajes</h2>
+          <div class="cruise-auth__list" data-ca-trips-list><div class="cruise-auth__empty">Cargando…</div></div>
+        </div>
+      </div>
+      <div class="cruise-auth__sub-screen" data-ca-sub="scheduled">
+        <div class="cruise-auth__sub-card">
+          <h2 class="cruise-auth__sub-title">Viajes programados</h2>
+          <div class="cruise-auth__list" data-ca-scheduled-list><div class="cruise-auth__empty">Cargando…</div></div>
+        </div>
+      </div>
+      <div class="cruise-auth__sub-screen" data-ca-sub="payments">
+        <div class="cruise-auth__sub-card">
+          <h2 class="cruise-auth__sub-title">Métodos de pago</h2>
+          <div class="cruise-auth__list" data-ca-payments-list><div class="cruise-auth__empty">Cargando…</div></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="cruise-auth__toast" data-ca-toast></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var root=document.getElementById('cruise-auth-page');
+  if(!root) return;
+  var API=root.getAttribute('data-api-base')||'https://cruiseapp2-production.up.railway.app';
+  var KEY=root.getAttribute('data-web-key')||'';
+  var APIKEY=root.getAttribute('data-api-key')||'';
+  var GOOGLE_ID=root.getAttribute('data-google-id')||'';
+  var APPLE_ID=root.getAttribute('data-apple-id')||'';
+
+  var $=function(s,c){return (c||root).querySelector(s);};
+  var $$=function(s,c){return Array.from((c||root).querySelectorAll(s));};
+
+  function _token(){try{return localStorage.getItem('vr_at')||'';}catch(_){return'';}}
+  function _user(){try{var u=localStorage.getItem('vr_au');return u?JSON.parse(u):null;}catch(_){return null;}}
+  function _save(t,u){try{localStorage.setItem('vr_at',t);localStorage.setItem('vr_au',JSON.stringify(u));}catch(_){}}
+  function _clear(){try{localStorage.removeItem('vr_at');localStorage.removeItem('vr_au');}catch(_){}}
+
+  var toastEl=$('[data-ca-toast]'),toastT=null;
+  function _toast(msg,type){
+    if(!toastEl) return;
+    toastEl.textContent=msg;
+    toastEl.className='cruise-auth__toast is-visible'+(type==='err'?' is-err':'');
+    clearTimeout(toastT);
+    toastT=setTimeout(function(){toastEl.classList.remove('is-visible');},2800);
+  }
+
+  function _fetch(path,opts){
+    opts=opts||{};
+    var h=opts.headers||{};
+    h['Content-Type']='application/json';
+    var tok=_token();
+    var isWebAuth=path.indexOf('/auth/web/')===0;
+    if(isWebAuth){
+      if(KEY) h['Authorization']='Bearer '+KEY;
+    } else {
+      if(APIKEY) h['X-API-Key']=APIKEY;
+      if(tok) h['Authorization']='Bearer '+tok;
+    }
+    if(opts.body&&typeof opts.body!=='string') opts.body=JSON.stringify(opts.body);
+    return fetch(API+path,{method:opts.method||'GET',headers:h,body:opts.body}).then(function(r){
+      return r.json().then(function(d){if(!r.ok){var err=new Error(d&&d.detail||('HTTP '+r.status));err.data=d;err.status=r.status;throw err;}return d;});
+    });
+  }
+
+  /* Social auth */
+  function _socialAuth(provider,id_token){
+    _fetch('/auth/web/social',{method:'POST',body:{provider:provider,id_token:id_token,role:'rider'}}).then(function(d){
+      if(d.access_token){_save(d.access_token,d.user);_toast('¡Bienvenido!','ok');_go('profile');}
+      else throw new Error('Sin token');
+    }).catch(function(e){_toast(e.message||'Error de autenticación','err');});
+  }
+  if(GOOGLE_ID){var gs=document.createElement('script');gs.src='https://accounts.google.com/gsi/client';gs.async=true;gs.defer=true;document.head.appendChild(gs);}
+  function _googleSignIn(){
+    if(!GOOGLE_ID){_toast('Google no configurado','err');return;}
+    if(!window.google||!window.google.accounts){_toast('Cargando Google, inténtalo de nuevo…','ok');return;}
+    window.google.accounts.id.initialize({client_id:GOOGLE_ID,callback:function(resp){_socialAuth('google',resp.credential);}});
+    window.google.accounts.id.prompt(function(n){
+      if(n.isNotDisplayed()||n.isSkippedMoment()){
+        var client=window.google.accounts.oauth2.initTokenClient({client_id:GOOGLE_ID,scope:'openid email profile',callback:function(resp){if(resp.access_token)_socialAuth('google',resp.access_token);}});
+        client.requestAccessToken();
+      }
+    });
+  }
+  function _appleSignIn(){
+    if(!APPLE_ID){_toast('Apple no configurado','err');return;}
+    function doApple(){
+      window.AppleID.auth.init({clientId:APPLE_ID,scope:'name email',redirectURI:window.location.origin+window.location.pathname,usePopup:true});
+      window.AppleID.auth.signIn().then(function(resp){
+        var t=resp.authorization&&resp.authorization.id_token;
+        if(t) _socialAuth('apple',t); else _toast('Error de autenticación con Apple','err');
+      }).catch(function(e){_toast(e.error||'Apple cancelado','err');});
+    }
+    if(!window.AppleID){var s=document.createElement('script');s.src='https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js';s.onload=doApple;document.head.appendChild(s);}else{doApple();}
+  }
+
+  /* Screen navigation */
+  var screens=$$('.cruise-auth__screen');
+  var _currentScreen='identifier';
+
+  function _go(name){
+    if(name===_currentScreen) return;
+    var prev=root.querySelector('.cruise-auth__screen.is-active');
+    var next=null;
+    screens.forEach(function(s){if(s.getAttribute('data-ca-screen')===name) next=s;});
+    if(!next) return;
+    if(prev){
+      prev.classList.add('is-leaving');
+      setTimeout(function(){
+        screens.forEach(function(s){s.classList.remove('is-active','is-leaving');});
+        next.classList.add('is-active');
+        if(name==='profile') _loadProfile();
+        _currentScreen=name;
+      },380);
+    } else {
+      next.classList.add('is-active');
+      if(name==='profile') _loadProfile();
+      _currentScreen=name;
+    }
+  }
+
+  /* Identifier screen */
+  var idInput=$('[data-ca-id-input]');
+  var idContinue=$('[data-ca-id-continue]');
+  var _identifier='';
+  var _idType='';
+  var _mockCode='';
+  var _isExisting=false;
+
+  function _isValidIdentifier(v){
+    v=(v||'').trim();
+    if(v.indexOf('@')>-1) return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    return v.length>=7;
+  }
+  function _getIdType(v){
+    v=(v||'').trim();
+    return v.indexOf('@')>-1?'email':'phone';
+  }
+
+  if(idInput){
+    idInput.addEventListener('input',function(){
+      var ok=_isValidIdentifier(idInput.value);
+      if(idContinue) idContinue.disabled=!ok;
+    });
+  }
+  if(idContinue){
+    idContinue.addEventListener('click',function(){
+      var v=(idInput&&idInput.value||'').trim();
+      if(!_isValidIdentifier(v)) return;
+      _identifier=v;
+      _idType=_getIdType(v);
+      _mockCode=(''+Math.floor(1000+Math.random()*9000));
+      _toast('Código enviado: '+_mockCode,'ok');
+      _resetOtp();
+      _updateOtpTexts();
+      _startResendTimer();
+      _go('otp');
+    });
+  }
+
+  var idGoogle=$('[data-ca-id-google]');
+  var idApple=$('[data-ca-id-apple]');
+  var idQr=$('[data-ca-id-qr]');
+  if(idGoogle) idGoogle.addEventListener('click',_googleSignIn);
+  if(idApple) idApple.addEventListener('click',_appleSignIn);
+  if(idQr) idQr.addEventListener('click',function(){_toast('Inicio con QR próximamente','ok');});
+
+  /* OTP screen */
+  var otpDigits=$$('[data-ca-otp-digit]');
+  var otpTitle=$('[data-ca-otp-title]');
+  var otpSub=$('[data-ca-otp-sub]');
+  var otpTip=$('[data-ca-otp-tip]');
+  var otpErr=$('[data-ca-otp-err]');
+  var otpChange=$('[data-ca-otp-change]');
+  var otpResend=$('[data-ca-otp-resend]');
+  var otpResendText=$('[data-ca-otp-resend-text]');
+  var otpTimer=$('[data-ca-otp-timer]');
+  var otpOptions=$('[data-ca-otp-options]');
+  var otpBack=$('[data-ca-otp-back]');
+  var otpBack2=$('[data-ca-otp-back2]');
+  var otpNext=$('[data-ca-otp-next]');
+  var _resendTimer=null,_resendSeconds=30;
+
+  function _formatPhone(v){
+    var digits=v.replace(/\D/g,'');
+    if(digits.length===10) return '('+digits.slice(0,3)+') '+digits.slice(3,6)+'-'+digits.slice(6,10);
+    if(digits.length===11 && digits.charAt(0)==='1') return '('+digits.slice(1,4)+') '+digits.slice(4,7)+'-'+digits.slice(7,11);
+    return v;
+  }
+
+  function _updateOtpTexts(){
+    if(_idType==='email'){
+      if(otpTitle) otpTitle.textContent='Enter the 4-digit code sent to you at: '+_identifier;
+      if(otpSub){otpSub.textContent='';otpSub.style.fontWeight='';}
+      if(otpTip) otpTip.textContent='Tip: Make sure to check your inbox and spam folders';
+      if(otpChange) otpChange.textContent='Changed your email?';
+      if(otpResendText) otpResendText.textContent='Resend';
+    } else {
+      var phone=_formatPhone(_identifier);
+      if(otpTitle) otpTitle.textContent='Ingresa el código de 4 dígitos enviado por SMS a '+phone+'.';
+      if(otpSub){otpSub.textContent='';otpSub.style.fontWeight='';}
+      if(otpTip) otpTip.textContent='';
+      if(otpChange) otpChange.textContent='¿Cambiaste tu número de móvil?';
+      if(otpResendText) otpResendText.textContent='Resend code via SMS';
+    }
+  }
+
+  function _resetOtp(){
+    otpDigits.forEach(function(d){d.value='';});
+    _checkOtpComplete();
+    if(otpErr){otpErr.textContent='';otpErr.classList.remove('is-visible');}
+  }
+
+  function _otpValue(){
+    return otpDigits.map(function(d){return d.value;}).join('');
+  }
+
+  function _checkOtpComplete(){
+    var v=_otpValue();
+    if(otpNext) otpNext.disabled=v.length!==4;
+  }
+
+  function _focusOtpDigit(idx){
+    var el=otpDigits[idx];
+    if(el){el.focus();el.select();}
+  }
+
+  function _isExistingIdentifier(v){
+    if(v==='josmash2021@gmail.com') return true;
+    var phone=(v||'').replace(/\D/g,'');
+    if(phone.slice(-4)==='7840') return true;
+    return false;
+  }
+
+  if(otpDigits.length){
+    otpDigits.forEach(function(d,idx){
+      d.addEventListener('input',function(e){
+        var val=d.value.replace(/\D/g,'').slice(0,1);
+        d.value=val;
+        if(val && idx<otpDigits.length-1) _focusOtpDigit(idx+1);
+        _checkOtpComplete();
+      });
+      d.addEventListener('keydown',function(e){
+        if(e.key==='Backspace' && !d.value && idx>0){
+          e.preventDefault();
+          _focusOtpDigit(idx-1);
+        }
+      });
+      d.addEventListener('paste',function(e){
+        e.preventDefault();
+        var paste=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,4);
+        paste.split('').forEach(function(ch,i){if(otpDigits[i]) otpDigits[i].value=ch;});
+        if(paste.length<4) _focusOtpDigit(paste.length);
+        else if(otpDigits[3]) otpDigits[3].focus();
+        _checkOtpComplete();
+      });
+      d.addEventListener('focus',function(){d.select();});
+    });
+  }
+
+  function _startResendTimer(){
+    _resendSeconds=30;
+    if(otpResend) otpResend.disabled=true;
+    if(otpResendText) otpResendText.textContent=_idType==='email'?'Resend':'Resend code via SMS';
+    if(otpTimer) otpTimer.textContent='(0:30)';
+    clearInterval(_resendTimer);
+    _resendTimer=setInterval(function(){
+      _resendSeconds--;
+      if(otpTimer) otpTimer.textContent='(0:'+(_resendSeconds<10?'0':'')+_resendSeconds+')';
+      if(_resendSeconds<=0){
+        clearInterval(_resendTimer);
+        if(otpResend) otpResend.disabled=false;
+        if(otpTimer) otpTimer.textContent='';
+      }
+    },1000);
+  }
+
+  function _handleOtpNext(){
+    var v=_otpValue();
+    if(v!==_mockCode){
+      if(otpErr){otpErr.textContent='Código incorrecto. Inténtalo de nuevo.';otpErr.classList.add('is-visible');}
+      return;
+    }
+    if(otpErr){otpErr.textContent='';otpErr.classList.remove('is-visible');}
+    _isExisting=_isExistingIdentifier(_identifier);
+    if(_isExisting){
+      _updatePasswordTexts();
+      if(pwInput) pwInput.value='';
+      if(pwNext) pwNext.disabled=true;
+      if(pwErr){pwErr.textContent='';pwErr.classList.remove('is-visible');}
+      _go('password');
+    } else {
+      _go('register');
+    }
+  }
+
+  if(otpNext) otpNext.addEventListener('click',_handleOtpNext);
+  if(otpChange) otpChange.addEventListener('click',function(){_go('identifier');});
+  if(otpResend) otpResend.addEventListener('click',function(){
+    _mockCode=(''+Math.floor(1000+Math.random()*9000));
+    _toast('Código enviado: '+_mockCode,'ok');
+    _resetOtp();
+    _startResendTimer();
+  });
+  if(otpOptions) otpOptions.addEventListener('click',function(){_toast('Más opciones próximamente','ok');});
+  if(otpBack) otpBack.addEventListener('click',function(){_go('identifier');});
+  if(otpBack2) otpBack2.addEventListener('click',function(){_go('identifier');});
+
+  /* Password screen */
+  var pwTitle=$('[data-ca-pw-title]');
+  var pwSub=$('[data-ca-pw-sub]');
+  var pwInput=$('[data-ca-pw-input]');
+  var pwEye=$('[data-ca-pw-eye]');
+  var pwErr=$('[data-ca-pw-err]');
+  var pwForgot=$('[data-ca-pw-forgot]');
+  var pwOptions=$('[data-ca-pw-options]');
+  var pwBack=$('[data-ca-pw-back]');
+  var pwBack2=$('[data-ca-pw-back2]');
+  var pwNext=$('[data-ca-pw-next]');
+
+  function _firstNameFromId(){
+    if(_idType==='email'){
+      var p=_identifier.split('@')[0];
+      return p.charAt(0).toUpperCase()+p.slice(1);
+    }
+    return 'Rider';
+  }
+
+  function _updatePasswordTexts(){
+    var fn=_firstNameFromId();
+    var name=fn;
+    if(pwTitle) pwTitle.textContent='Bienvenido de nuevo, '+fn+'.';
+    if(pwSub) pwSub.innerHTML='<button type="button" class="cruise-auth__link cruise-auth__link--text" data-ca-pw-switch>Not '+name+'?</button>';
+    var sw=$('[data-ca-pw-switch]');
+    if(sw) sw.addEventListener('click',function(){_go('identifier');});
+  }
+
+  if(pwInput && pwNext){
+    pwInput.addEventListener('input',function(){pwNext.disabled=!pwInput.value;});
+    pwNext.addEventListener('click',function(){
+      var pw=pwInput.value;
+      if(!pw){pwNext.disabled=true;return;}
+      pwNext.disabled=true;
+      if(pwErr){pwErr.textContent='';pwErr.classList.remove('is-visible');}
+      var chain=_fetch('/auth/web/login',{method:'POST',body:{identifier:_identifier,password:pw,role:'rider'}});
+      chain=chain.then(function(d){
+        if(d.login_token){return _fetch('/auth/web/complete-login',{method:'POST',body:{login_token:d.login_token}});}
+        else if(d.access_token){return d;}
+        throw new Error('Respuesta no válida');
+      });
+      chain.then(function(d){
+        if(d&&d.access_token){_save(d.access_token,d.user);_toast('¡Bienvenido de nuevo!','ok');_go('profile');}
+        else throw new Error('No se recibió token');
+      }).catch(function(e){
+        if(pwErr){pwErr.textContent=e.message||'Invalid password';pwErr.classList.add('is-visible');}
+        pwNext.disabled=false;
+      });
+    });
+  }
+
+  if(pwEye && pwInput){
+    pwEye.addEventListener('click',function(){
+      var isPw=pwInput.type==='password';
+      pwInput.type=isPw?'text':'password';
+      pwEye.setAttribute('aria-label',isPw?'Hide password':'Show password');
+    });
+  }
+  if(pwForgot) pwForgot.addEventListener('click',function(){_toast('Enlace de restablecimiento enviado','ok');});
+  if(pwOptions) pwOptions.addEventListener('click',function(){_toast('Más opciones próximamente','ok');});
+  if(pwBack) pwBack.addEventListener('click',function(){_go('otp');});
+  if(pwBack2) pwBack2.addEventListener('click',function(){_go('otp');});
+
+  /* Register screen */
+  var regFn=$('[data-ca-reg-fn]');
+  var regLn=$('[data-ca-reg-ln]');
+  var regPw=$('[data-ca-reg-pw]');
+  var regSubmit=$('[data-ca-reg-submit]');
+  var regErr=$('[data-ca-reg-err]');
+  var regBack=$('[data-ca-reg-back]');
+
+  function _checkReg(){
+    if(!regFn||!regLn||!regPw||!regSubmit) return;
+    var ok=regFn.value.trim()&&regLn.value.trim()&&regPw.value.length>=6;
+    regSubmit.disabled=!ok;
+  }
+
+  if(regFn) regFn.addEventListener('input',_checkReg);
+  if(regLn) regLn.addEventListener('input',_checkReg);
+  if(regPw) regPw.addEventListener('input',_checkReg);
+
+  if(regSubmit){
+    regSubmit.addEventListener('click',function(){
+      var body={first_name:regFn.value.trim(),last_name:regLn.value.trim(),password:regPw.value,role:'rider'};
+      if(_idType==='email') body.email=_identifier; else body.phone=_identifier;
+      regSubmit.disabled=true;
+      if(regErr){regErr.textContent='';regErr.classList.remove('is-visible');}
+      _fetch('/auth/web/register',{method:'POST',body:body}).then(function(d){
+        if(d.access_token){_save(d.access_token,d.user);_toast('¡Bienvenido a Cruise!','ok');_go('profile');}
+        else throw new Error(d.detail||'Error en el registro');
+      }).catch(function(e){
+        if(regErr){regErr.textContent=e.message||'No se pudo crear la cuenta';regErr.classList.add('is-visible');}
+        regSubmit.disabled=false;
+      });
+    });
+  }
+  if(regBack) regBack.addEventListener('click',function(){_go('identifier');});
+
+  /* Profile */
+  var _profile=null;
+  var _subScreen='home';
+
+  function _monthYear(iso){try{var d=new Date(iso);var m=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];return m[d.getMonth()]+' '+d.getFullYear();}catch(_){return'';}}
+  function _monthsAgo(iso){try{var d=new Date(iso);var months=(Date.now()-d.getTime())/(2.628e9);if(months<1)return'<1 mes';if(months<12)return Math.round(months)+' meses';return Math.round(months/12)+' años';}catch(_){return'—';}}
+
+  function _renderHome(d){
+    _profile=d;
+    var first=(d.first_name||'').trim();
+    var last=(d.last_name||'').trim();
+    $('[data-ca-name]').textContent=(first+' '+last).trim()||d.email||'Pasajero Cruise';
+    var initial=(first||d.email||'C').charAt(0).toUpperCase();
+    $('[data-ca-initial]').textContent=initial;
+    var imgEl=$('[data-ca-photo]');
+    if(d.photo_url){imgEl.src=d.photo_url;imgEl.hidden=false;$('[data-ca-initial]').style.display='none';}
+    else{imgEl.hidden=true;$('[data-ca-initial]').style.display='';}
+    if(d.average_rating&&d.ratings_count){$('[data-ca-rating-text]').textContent=d.average_rating.toFixed(1)+' · '+d.ratings_count+' trips';}
+    else{$('[data-ca-rating-text]').textContent='Pasajero nuevo';}
+    if(d.created_at){
+      $('[data-ca-member]').textContent='Miembro desde '+_monthYear(d.created_at);
+      $('[data-ca-stat-since]').textContent=_monthsAgo(d.created_at);
+    }
+  }
+
+  function _renderStats(trips){
+    var miles=0;
+    trips.forEach(function(t){miles+=parseFloat(t.distance_miles||t.distance||0);});
+    $('[data-ca-stat-trips]').textContent=trips.length;
+    $('[data-ca-stat-miles]').textContent=miles.toFixed(1);
+  }
+
+  function _renderTripList(el,trips,empty){
+    el.innerHTML='';
+    if(!trips.length){el.innerHTML='<div class="cruise-auth__empty">'+empty+'</div>';return;}
+    trips.forEach(function(t,i){
+      var c=document.createElement('div');c.className='cruise-auth__trip';
+      c.style.opacity='0';c.style.transform='translateY(10px)';
+      c.style.transition='opacity 360ms cubic-bezier(.22,1,.36,1) '+(i*60)+'ms,transform 360ms cubic-bezier(.22,1,.36,1) '+(i*60)+'ms';
+      var d=new Date(t.created_at||t.scheduled_at||Date.now());
+      var ds=d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+      var fare=t.fare?'$'+parseFloat(t.fare).toFixed(2):'—';
+      var status=(t.status||'').replace(/_/g,' ');
+      var statusClass=(t.status||'').replace(/_/g,'-');
+      var time=d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+      c.innerHTML='<div class="cruise-auth__trip-top"><span>'+ds+' · '+time+'</span><span class="cruise-auth__trip-fare">'+fare+'</span></div><div class="cruise-auth__trip-route"><span class="cruise-auth__trip-dot cruise-auth__trip-dot--g"></span><span>'+(t.pickup_address||'Origen')+'</span></div><div class="cruise-auth__trip-route"><span class="cruise-auth__trip-dot cruise-auth__trip-dot--y"></span><span>'+(t.dropoff_address||'Destino')+'</span></div><div class="cruise-auth__trip-status cruise-auth__trip-status--'+statusClass+'">'+status+'</div>';
+      el.appendChild(c);
+      requestAnimationFrame(function(){requestAnimationFrame(function(){c.style.opacity='1';c.style.transform='translateY(0)';});});
+    });
+  }
+
+  var _tripsCache=null;
+
+  function _fetchWeb(path,opts){
+    opts=opts||{};
+    var h=opts.headers||{};
+    h['Content-Type']='application/json';
+    var tok=_token();
+    if(tok) h['Authorization']='Bearer '+tok;
+    if(opts.body&&typeof opts.body!=='string') opts.body=JSON.stringify(opts.body);
+    return fetch(API+path,{method:opts.method||'GET',headers:h,body:opts.body}).then(function(r){
+      return r.json().then(function(d){if(!r.ok){var err=new Error(d&&d.detail||('HTTP '+r.status));err.data=d;err.status=r.status;throw err;}return d;});
+    });
+  }
+
+  function _loadProfile(){
+    _fetchWeb('/auth/web/me').then(function(d){
+      _renderHome(d);
+      _fetchWeb('/auth/web/trips').then(function(resp){
+        var trips=Array.isArray(resp)?resp:(resp&&resp.trips?resp.trips:[]);
+        _tripsCache=trips;
+        _renderStats(trips);
+        var past=trips.filter(function(t){return['completed','cancelled'].indexOf(t.status)>=0;});
+        var upc=trips.filter(function(t){return['scheduled','scheduled_accepted','scheduled_active','requested','accepted','driver_en_route','arrived','in_trip'].indexOf(t.status)>=0;});
+        _renderTripList($('[data-ca-trips-list]'),past,'Aún no tienes viajes');
+        _renderTripList($('[data-ca-scheduled-list]'),upc,'No tienes viajes programados');
+      }).catch(function(){
+        $('[data-ca-trips-list]').innerHTML='<div class="cruise-auth__empty">Aún no tienes viajes</div>';
+        $('[data-ca-scheduled-list]').innerHTML='<div class="cruise-auth__empty">No tienes viajes programados</div>';
+      });
+    }).catch(function(e){
+      if(e.status===401||e.status===403){_clear();_currentScreen='profile';_go('identifier');}
+    });
+  }
+
+  function _loadPayments(){
+    var pmCard=root.querySelector('[data-ca-sub="payments"] .cruise-auth__sub-card');
+    if(pmCard) _staggerChildren(pmCard,120);
+    var l=$('[data-ca-payments-list]');
+    l.innerHTML='<div class="cruise-auth__empty" style="padding:20px 0">Cargando…</div>';
+    _fetchWeb('/riders/payment-methods').then(function(methods){
+      l.innerHTML='';
+      if(!Array.isArray(methods)||!methods.length){
+        var types=[
+          {icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',label:'Tarjeta de débito',sub:'Aún no configurada'},
+          {icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><circle cx="15" cy="16" r="1.5"/></svg>',label:'Tarjeta de crédito',sub:'Aún no configurada'}
+        ];
+        types.forEach(function(t,i){
+          var c=document.createElement('div');c.className='cruise-auth__pm cruise-auth__pm--empty';
+          c.style.opacity='0';c.style.transform='translateY(8px)';
+          c.style.transition='opacity 320ms cubic-bezier(.22,1,.36,1) '+(i*80)+'ms,transform 320ms cubic-bezier(.22,1,.36,1) '+(i*80)+'ms';
+          c.innerHTML='<div class="cruise-auth__pm-ico">'+t.icon+'</div><div class="cruise-auth__pm-info"><div class="cruise-auth__pm-type">'+t.label+'</div><div class="cruise-auth__pm-sub">'+t.sub+'</div></div><span class="cruise-auth__pm-add">+</span>';
+          l.appendChild(c);
+          requestAnimationFrame(function(){requestAnimationFrame(function(){c.style.opacity='1';c.style.transform='translateY(0)';});});
+        });
+        return;
+      }
+      methods.forEach(function(m,i){
+        var c=document.createElement('div');c.className='cruise-auth__pm';
+        c.style.opacity='0';c.style.transform='translateY(8px)';
+        c.style.transition='opacity 320ms cubic-bezier(.22,1,.36,1) '+(i*80)+'ms,transform 320ms cubic-bezier(.22,1,.36,1) '+(i*80)+'ms';
+        var brand=(m.brand||m.card_brand||'card').toLowerCase();
+        var last4=m.last4||m.last_four||'****';
+        var type=m.funding||m.method_type||'card';
+        var label=(type==='debit'?'Débito':'Crédito')+' ··· '+last4;
+        var brandIcon=brand==='visa'?'VISA':brand==='mastercard'?'MC':brand==='amex'?'AMEX':brand.toUpperCase();
+        c.innerHTML='<div class="cruise-auth__pm-ico"><span class="cruise-auth__pm-brand">'+brandIcon+'</span></div><div class="cruise-auth__pm-info"><div class="cruise-auth__pm-type">'+label+'</div><div class="cruise-auth__pm-sub">'+(m.display_name||brand.charAt(0).toUpperCase()+brand.slice(1))+'</div></div>'+(m.is_default?'<span class="cruise-auth__pm-badge">Predeterminada</span>':'');
+        l.appendChild(c);
+        requestAnimationFrame(function(){requestAnimationFrame(function(){c.style.opacity='1';c.style.transform='translateY(0)';});});
+      });
+    }).catch(function(){
+      l.innerHTML='';
+      var types=[
+        {icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',label:'Tarjeta de débito',sub:'Aún no configurada'},
+        {icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><circle cx="15" cy="16" r="1.5"/></svg>',label:'Tarjeta de crédito',sub:'Aún no configurada'}
+      ];
+      types.forEach(function(t,i){
+        var c=document.createElement('div');c.className='cruise-auth__pm cruise-auth__pm--empty';
+        c.style.opacity='0';c.style.transform='translateY(8px)';
+        c.style.transition='opacity 320ms cubic-bezier(.22,1,.36,1) '+(i*80)+'ms,transform 320ms cubic-bezier(.22,1,.36,1) '+(i*80)+'ms';
+        c.innerHTML='<div class="cruise-auth__pm-ico">'+t.icon+'</div><div class="cruise-auth__pm-info"><div class="cruise-auth__pm-type">'+t.label+'</div><div class="cruise-auth__pm-sub">'+t.sub+'</div></div><span class="cruise-auth__pm-add">+</span>';
+        l.appendChild(c);
+        requestAnimationFrame(function(){requestAnimationFrame(function(){c.style.opacity='1';c.style.transform='translateY(0)';});});
+      });
+    });
+  }
+
+  function _staggerChildren(container,delay){
+    delay=delay||0;
+    var children=Array.from(container.children);
+    children.forEach(function(el,i){
+      el.style.opacity='0';el.style.transform='translateY(14px)';
+      el.style.transition='none';
+      setTimeout(function(){
+        el.style.transition='opacity 440ms cubic-bezier(.22,1,.36,1),transform 440ms cubic-bezier(.22,1,.36,1)';
+        el.style.opacity='1';el.style.transform='translateY(0)';
+        setTimeout(function(){el.style.transition='';el.style.opacity='';el.style.transform='';},480);
+      },delay+(i*70));
+    });
+  }
+
+  function _showSub(name){
+    _subScreen=name;
+    var prev=root.querySelector('.cruise-auth__sub-screen.is-active');
+    var goingBack=(name==='home');
+    if(prev){
+      prev.style.transition='opacity 280ms cubic-bezier(.22,1,.36,1),transform 280ms cubic-bezier(.22,1,.36,1)';
+      prev.style.opacity='0';
+      prev.style.transform=goingBack?'translateX(12px)':'translateX(-12px)';
+    }
+    setTimeout(function(){
+      $$('.cruise-auth__sub-screen').forEach(function(s){
+        var isTarget=s.getAttribute('data-ca-sub')===name;
+        s.classList.toggle('is-active',isTarget);
+        s.style.transition='';s.style.opacity='';s.style.transform='';
+        if(isTarget){
+          s.style.opacity='0';
+          s.style.transform=goingBack?'translateX(-12px)':'translateX(12px)';
+          requestAnimationFrame(function(){requestAnimationFrame(function(){
+            s.style.transition='opacity 340ms cubic-bezier(.22,1,.36,1),transform 340ms cubic-bezier(.22,1,.36,1)';
+            s.style.opacity='1';s.style.transform='translateX(0)';
+            setTimeout(function(){s.style.transition='';s.style.opacity='';s.style.transform='';},380);
+          });});
+          if(name!=='payments'){
+            var card=s.querySelector('.cruise-auth__sub-card');
+            if(card) _staggerChildren(card,180);
+          }
+        }
+      });
+      var titles={home:'Perfil',edit:'Editar perfil',trips:'Historial de viajes',scheduled:'Viajes programados',payments:'Métodos de pago'};
+      $('[data-ca-profile-title]').textContent=titles[name]||'Perfil';
+      $('[data-ca-profile-back]').hidden=(name==='home');
+      $('[data-ca-edit-btn]').hidden=(name!=='home');
+      if(name==='payments') _loadPayments();
+    },prev?300:0);
+  }
+
+  $$('[data-ca-sub-nav]').forEach(function(b){b.addEventListener('click',function(){_showSub(b.getAttribute('data-ca-sub-nav'));});});
+  $('[data-ca-profile-back]').addEventListener('click',function(){_showSub('home');});
+  $('[data-ca-edit-btn]').addEventListener('click',function(){
+    if(!_profile) return;
+    $('[data-ca-edit-first]').value=_profile.first_name||'';
+    $('[data-ca-edit-last]').value=_profile.last_name||'';
+    $('[data-ca-edit-email]').value=_profile.email||'';
+    $('[data-ca-edit-phone]').value=_profile.phone||'';
+    _showSub('edit');
+  });
+  $('[data-ca-edit-cancel]').addEventListener('click',function(){_showSub('home');});
+
+  $('[data-ca-edit-form]').addEventListener('submit',function(e){
+    e.preventDefault();
+    var body={
+      first_name:$('[data-ca-edit-first]').value.trim(),
+      last_name:$('[data-ca-edit-last]').value.trim(),
+      email:$('[data-ca-edit-email]').value.trim(),
+      phone:$('[data-ca-edit-phone]').value.trim(),
+    };
+    _fetchWeb('/auth/web/profile',{method:'PATCH',body:body}).then(function(d){
+      _renderHome(d);
+      try{localStorage.setItem('vr_au',JSON.stringify(d));}catch(_){}
+      _toast('Perfil actualizado','ok');
+      _showSub('home');
+    }).catch(function(e){_toast(e.message||'Error al actualizar','err');});
+  });
+
+  $('[data-ca-avatar]').addEventListener('click',function(){$('[data-ca-photo-input]').click();});
+  $('[data-ca-photo-input]').addEventListener('change',function(e){
+    var file=e.target.files&&e.target.files[0];
+    if(!file) return;
+    var reader=new FileReader();
+    reader.onload=function(){
+      var b64=reader.result.split(',')[1];
+      _toast('Subiendo foto…','ok');
+      _fetchWeb('/auth/photo',{method:'POST',body:{photo:b64}}).then(function(d){
+        if(d.photo_url){
+          $('[data-ca-photo]').src=d.photo_url;
+          $('[data-ca-photo]').hidden=false;
+          $('[data-ca-initial]').style.display='none';
+          _toast('Foto actualizada','ok');
+        }
+      }).catch(function(){_toast('Error al subir la foto','err');});
+    };
+    reader.readAsDataURL(file);
+  });
+
+  $('[data-ca-signout]').addEventListener('click',function(){
+    _clear();_profile=null;_tripsCache=null;
+    _toast('Sesión cerrada','ok');
+    _currentScreen='profile';
+    setTimeout(function(){
+      _showSub('home');
+      _go('identifier');
+      var idEl=root.querySelector('[data-ca-id-input]');
+      if(idEl) idEl.value='';
+      var errEl=root.querySelector('[data-ca-otp-err]');
+      if(errEl){errEl.textContent='';errEl.classList.remove('is-visible');}
+    },100);
+  });
+
+  /* Init */
+  if(_token()){
+    var cached=_user();
+    if(cached) _renderHome(cached);
+    _go('profile');
+  }
+})();
+</script>
+
+
+</main>
+<footer class="cruise-footer">
+  <div class="cf-hero">
+    <div class="cf-hero__copy">
+      <img src="assets/media/logo.png" alt="CruiseInRide" height="44">
+      <p>Transporte privado premium con chofer</p>
+    </div>
+    <a class="cf-hero__cta" href="book.html">Reservar ahora</a>
+  </div>
+
+  <div class="cf-route" aria-hidden="true">
+    <svg class="cf-route__line" viewBox="0 0 1000 40" preserveAspectRatio="none"><path pathLength="1000" d="M0 28 C42 27 84 21 125 20 C205 17 300 2 375 20 C450 36 545 30 625 20 C690 15 810 11 875 20 C935 25 972 29 1000 30"/></svg>
+    <div class="cf-route__stops">
+      <div class="cf-stop">
+        <span class="cf-stop__dot"><svg viewBox="0 0 24 24" fill="none"><path d="M13.83 16.57a1 1 0 0 0 1.22-.3l.35-.47A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.47.35a1 1 0 0 0-.29 1.23 14 14 0 0 0 6.39 6.39z" fill="currentColor"/><circle class="ico-gold" cx="18.6" cy="5.4" r="3.1"/></svg></span>
+        <small>Llámanos</small>
+        <strong>+1 (659) 305-2974</strong>
+      </div>
+      <div class="cf-stop">
+        <span class="cf-stop__dot"><svg viewBox="0 0 24 24" fill="none"><rect x="2.4" y="4.6" width="19.2" height="14.8" rx="4.2" fill="currentColor"/><path class="ico-gold-line" d="m6.4 9.4 4.7 3.1a1.7 1.7 0 0 0 1.8 0l4.7-3.1" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <small>Escríbenos</small>
+        <strong>support@cruiseinride.com</strong>
+      </div>
+      <div class="cf-stop">
+        <span class="cf-stop__dot"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21.8c4.6-4.9 6.9-8.7 6.9-11.5a6.9 6.9 0 1 0-13.8 0c0 2.8 2.3 6.6 6.9 11.5Z" fill="currentColor"/><circle class="ico-gold" cx="12" cy="10.1" r="2.7"/></svg></span>
+        <small>Cobertura</small>
+        <strong>Alabama / Sur de Florida</strong>
+      </div>
+      <div class="cf-stop">
+        <span class="cf-stop__dot cf-stop__dot--pulse"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.3" fill="currentColor"/><path class="ico-gold-line" d="M12 6.9v5.4l3.3 2" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <small>Siempre abierto</small>
+        <strong>24 / 7</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="cf-bottom">
+    <div class="cf-bottom__inner">
+      <nav class="cf-bottom__links">
+        <a href="index.html">Inicio</a>
+        <a href="book.html">Reservar</a>
+        <a href="contact.html">Contacto</a>
+        <a href="index.html">Términos</a>
+      </nav>
+      <div class="cf-bottom__social">
+        <a href="https://facebook.com/cruiseinride" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.9.3-1.5 1.6-1.5h1.3V4.9c-.3 0-1.1-.1-2.1-.1-2.1 0-3.6 1.3-3.6 3.7V11H8.3v3h2.4v7h2.8z"/></svg></a>
+        <a href="https://instagram.com/cruiseinride" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.2-.1-1.6-.1-4.8s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.2-.1 1.6-.1 4.8-.1zm0 2c-3.1 0-3.5 0-4.7.1-1.1.1-1.4.2-1.7.3-.4.2-.7.3-1 .6-.3.3-.5.6-.6 1-.1.3-.3.6-.3 1.7-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.4.3 1.7.2.4.3.7.6 1 .3.3.6.5 1 .6.3.1.6.3 1.7.3 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.4-.2 1.7-.3.4-.2.7-.3 1-.6.3-.3.5-.6.6-1 .1-.3.3-.6.3-1.7.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.4-.3-1.7-.2-.4-.3-.7-.6-1-.3-.3-.6-.5-1-.6-.3-.1-.6-.3-1.7-.3-1.2-.1-1.6-.1-4.7-.1zm0 3.3a5.1 5.1 0 110 10.2 5.1 5.1 0 010-10.2zm0 8.4a3.3 3.3 0 100-6.6 3.3 3.3 0 000 6.6zm6.5-8.6a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z"/></svg></a>
+      </div>
+      <p class="cf-bottom__copy">© 2026 CruiseInRide. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>
+<a class="wa-fab" href="https://wa.me/16593052974" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+</body>
+</html>

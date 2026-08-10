@@ -1,0 +1,389 @@
+{%- comment -%}
+  CRUISE MOBILE MENU DRAWER — blur + hamburger SIN fondo (nuclear v5)
+  Se renderiza en <head> para cargar antes del CSS del tema
+{%- endcomment -%}
+
+<style id="cruise-header-override-css">
+/* Fondo base negro SOLO en <html> (capa más atrás), NO en body — así el video de las secciones se ve encima */
+html{
+  background: #000 !important;
+  background-color: #000 !important;
+}
+/* Body transparente para que el contenido (videos, imágenes) se vea sin tapar */
+html body{
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* FIX CRUISE AUTH — garantizar que contenido del card/form sea visible
+   (sin tocar las animaciones de caItemIn que se aplican solo a .cruise-auth__card > *) */
+html body .cruise-auth{visibility:visible!important;opacity:1!important;}
+html body .cruise-auth .cruise-auth__screen.is-active{visibility:visible!important;opacity:1!important;}
+html body .cruise-auth .cruise-auth__btn{pointer-events:auto!important;cursor:pointer!important;}
+html body .cruise-auth .cruise-auth__back{pointer-events:auto!important;cursor:pointer!important;}
+/* Asegurar que SVGs de Google/Apple dentro de botones del card se vean */
+html body .cruise-auth .cruise-auth__btn > svg,
+html body .cruise-auth .cruise-auth__back > svg{
+  display:inline-block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  flex-shrink:0!important;
+}
+</style>
+
+<style>
+/* ═══ ATAQUE DIRECTO AL HORIZON COLOR-SCHEME del header ═══
+   El tema Horizon pinta el header con 'color-scheme-X' que se aplica
+   a .header__row y define --color-background. Eso es lo blanco.
+   Reseteamos el color-scheme a transparente solo dentro del header-group. */
+/* Cualquier elemento dentro del header-group que tenga clase tipo "color-*" o "color-scheme-*" */
+html body #header-group [class*="color-"],
+html body #shopify-section-header,
+html body .shopify-section-header,
+html body .shopify-section[class*="header"],
+html body #header-group > *,
+html body #header-group > * > *,
+html body #header-group > * > * > *{
+  --color-background: transparent !important;
+  --color-scheme-top-row: transparent !important;
+  --color-scheme-bottom-row: transparent !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Sobreescribe el style inline del <header-component> que trae
+   --color-scheme-top-row y --color-scheme-bottom-row del tema */
+html body #header-group header-component,
+html body #header-group #header-component,
+html body header-component[style],
+html body #header-component[style]{
+  --color-scheme-top-row: transparent !important;
+  --color-scheme-bottom-row: transparent !important;
+  --color-background: transparent !important;
+}
+
+/* Wrapper de sección de Shopify */
+html body .shopify-section.shopify-section-header,
+html body .shopify-section.section-header,
+html body div.shopify-section.shopify-section-header,
+html body section.shopify-section-header,
+html body .shopify-section-group-header-group,
+html body .shopify-section-group-header-group > *{
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+</style>
+
+<style>
+/* ══════════════════════════════════════════════
+   HEADER GLOBAL — transparent/glass en TODAS las
+   páginas (home, auth, rides, collections, etc).
+   El tema pintaba el header blanco en páginas sin
+   hero video; esto lo fuerza oscuro glassy siempre.
+   ══════════════════════════════════════════════ */
+/* SELECTOR ULTRA AMPLIO — cualquier cosa dentro del header-group */
+html body #header-group,
+html body #header-group *,
+html body .shopify-section-header,
+html body .shopify-section-header *,
+html body .shopify-section-group-header-group,
+html body .shopify-section-group-header-group *,
+html body sticky-header,
+html body sticky-header *,
+html body header-component,
+html body header-component *,
+html body header-drawer > details > summary,
+html body .header,
+html body .header-wrapper,
+html body .header-section,
+html body .header__row,
+html body .header__row--top,
+html body .header__row--bottom,
+html body .header__inner,
+html body .header__underlay,
+html body .header__underlay-closed,
+html body .header__underlay-open{
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+/* Excepciones: elementos interactivos del header que SÍ deben tener estilos (botones, iconos internos donde el texto/SVG se pinta, etc). Nota: el 'background' lo quitamos arriba, así que las excepciones solo restauran lo que necesiten */
+
+/* Rows del header: forzar color-scheme variables a transparente */
+html body .header__row,
+html body .header__row--top,
+html body .header__row--bottom,
+html body .header-section,
+html body .shopify-section-header,
+html body .shopify-section-group-header-group,
+html body #header-group,
+html body sticky-header,
+html body header-component{
+  --color-scheme-top-row: transparent !important;
+  --color-scheme-bottom-row: transparent !important;
+  --color-background: transparent !important;
+  --color-background-rgb: transparent !important;
+}
+
+/* Blindar la PÁGINA de contact en especial */
+html body[class*="contact"] #header-group,
+html body[class*="contact"] #header-group *,
+html body[class*="contact"] .shopify-section-header,
+html body[class*="contact"] .shopify-section-header *,
+html body #contact ~ * #header-group,
+html body:has(#contact) #header-group,
+html body:has(#contact) #header-group *,
+html body:has(#contact) .shopify-section-header,
+html body:has(#contact) .shopify-section-header *,
+html body:has(.contactX) #header-group,
+html body:has(.contactX) #header-group *,
+html body:has(.contactX) .shopify-section-header,
+html body:has(.contactX) .shopify-section-header *{
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Underlays del header — transparentes siempre para evitar el chip blanco */
+.header__underlay,
+.header__underlay-closed,
+.header__underlay-open{
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+[data-transparent-color-scheme]:hover .header__underlay-closed,
+[data-transparent-color-scheme]:focus-within .header__underlay-closed,
+[data-transparent-color-scheme]:hover .header__underlay-open,
+[data-transparent-color-scheme]:focus-within .header__underlay-open{
+  --color-scheme-top-row: transparent !important;
+  --color-scheme-bottom-row: transparent !important;
+  background: transparent !important;
+}
+
+/* Texto/íconos del header en blanco siempre para que se lean sobre fondo oscuro */
+.header__menu-item,
+.header__menu-item span,
+.header__heading-link,
+.header__icon,
+.header__icon .icon,
+.header__active-menu-item{
+  color: #fff !important;
+  fill: #fff !important;
+}
+
+/* Glass oscuro cuando scrolleas (aplica en todas las páginas, no solo hero) */
+body.header-glass-on .shopify-section-header,
+body.header-glass-on #shopify-section-header,
+body.header-glass-on .section-header,
+body.header-glass-on sticky-header,
+body.header-glass-on .header-wrapper,
+body.header-glass-on header.header,
+body.header-glass-on .header{
+  background: rgba(8,8,10,.55) !important;
+  backdrop-filter: blur(14px) saturate(1.3) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.3) !important;
+  box-shadow: 0 6px 22px rgba(0,0,0,.25) !important;
+}
+</style>
+<script>
+  (function(){
+    var onScroll=function(){
+      if(window.scrollY>20){document.body.classList.add('header-glass-on');}
+      else{document.body.classList.remove('header-glass-on');}
+    };
+    onScroll();
+    window.addEventListener('scroll',onScroll,{passive:true});
+  })();
+</script>
+
+<style>
+/* ══════════════════════════════════════════════
+   FIX REAL: el "fondo" gris del hamburger viene
+   de .header__underlay-closed / .header__underlay-open
+   que al hacer :hover/:focus-within cambian
+   --color-scheme-*-row a var(--color-background).
+   Lo forzamos transparente siempre.
+   ══════════════════════════════════════════════ */
+body.has-hero-video .header__underlay-closed,
+body.has-hero-video .header__underlay-open,
+body.has-hero-video .header__underlay{
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+body.has-hero-video [data-transparent-color-scheme]:hover .header__underlay-closed,
+body.has-hero-video [data-transparent-color-scheme]:focus-within .header__underlay-closed,
+body.has-hero-video [data-transparent-color-scheme]:hover .header__underlay-open,
+body.has-hero-video [data-transparent-color-scheme]:focus-within .header__underlay-open{
+  --color-scheme-top-row: transparent !important;
+  --color-scheme-bottom-row: transparent !important;
+  background: transparent !important;
+  background-image: none !important;
+}
+
+/* Cuando scrolleas (header-glass-on) seguimos queriendo el fondo oscuro
+   del header pero el hamburger NO debe tener un chip aparte */
+body.has-hero-video.header-glass-on .header__underlay-closed,
+body.has-hero-video.header-glass-on .header__underlay-open{
+  background: transparent !important;
+}
+
+/* ══════════════════════════════════════════════
+   Ataque nuclear al botón hamburger y todos
+   sus wrappers para quitar cualquier fondo
+   ══════════════════════════════════════════════ */
+
+/* El <header-drawer> web component, su <details>, su <summary>, y cualquier hijo envolvente */
+header-drawer,
+header-drawer > *,
+header-drawer details,
+header-drawer summary,
+header-drawer .header__icon,
+header-drawer .header__icon--summary,
+header-drawer .header__icon--menu,
+header-drawer .menu-drawer-container,
+header-drawer[class],
+.header-drawer,
+.header-drawer details,
+.header-drawer summary,
+.header-drawer > details > summary,
+.header__drawer,
+.header__drawer details,
+.header__drawer summary,
+.menu-drawer-container,
+.menu-drawer-container summary,
+summary.header__icon,
+summary.header__icon--menu,
+summary.header__icon--summary,
+.header__icon--menu,
+.header__icon--summary,
+.header__icon{
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  border-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Pseudo-elementos (algunos temas usan ::before para la sombra/fondo) */
+header-drawer::before,
+header-drawer::after,
+.header-drawer::before,
+.header-drawer::after,
+.header-drawer summary::before,
+.header-drawer summary::after,
+.header__icon::before,
+.header__icon::after,
+summary.header__icon::before,
+summary.header__icon::after,
+.menu-drawer-container::before,
+.menu-drawer-container::after{
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  content: none !important;
+  display: none !important;
+}
+
+/* Botón cerrar (X) también sin fondo */
+.menu-drawer__close-button,
+.close-button,
+button.close-button{
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* ══════════════════════════════════════════════
+   Drawer: fondo oscuro UNIFORME con blur
+   (se ve igual en toda la superficie, sin zonas
+   más claras que dejen ver lo de atrás)
+   ══════════════════════════════════════════════ */
+.menu-drawer,
+menu-drawer,
+.menu-drawer-container .menu-drawer,
+header-drawer .menu-drawer{
+  background: transparent !important;
+  background-color: transparent !important;
+  backdrop-filter: blur(14px) saturate(1.5) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.5) !important;
+  border: none !important;
+  border-right: 1px solid rgba(255,255,255,.06) !important;
+  box-shadow: none !important;
+  isolation: isolate;
+}
+
+.menu-drawer::before{
+  content:'' !important;
+  display:block !important;
+  position:absolute !important;
+  inset:0 !important;
+  z-index:-1 !important;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(245,215,122,.06), transparent 55%),
+    radial-gradient(circle at 70% 80%, rgba(245,215,122,.04), transparent 60%) !important;
+  pointer-events:none !important;
+}
+
+/* Backdrop detrás del drawer (la zona a la derecha que oscurece el resto de la página) */
+.menu-drawer__backdrop{
+  background: rgba(0,0,0,.55) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Wrappers internos del drawer transparentes */
+.menu-drawer *:not(a):not(button):not(svg):not(img):not(path):not(input):not(select):not(summary):not(span){
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Links del menú sin cuadros */
+.menu-drawer__menu-item,
+.menu-drawer__menu-item--mainlist,
+.menu-drawer__menu-item--child,
+.menu-drawer__menu-item--deep,
+.menu-drawer__menu-item--flat,
+.menu-drawer__list-item,
+.menu-drawer__menu a,
+.menu-drawer__menu button,
+li.menu-drawer__list-item--divider,
+li.menu-drawer__list-item--flat,
+li.menu-drawer__list-item--deep{
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Separadores sutiles */
+.menu-drawer__list-item--divider,
+.menu-drawer__list-item--flat,
+.menu-drawer__list-item--deep{
+  border-bottom: 1px solid rgba(255,255,255,.08) !important;
+}
+
+/* Hover dorado sin cuadro */
+.menu-drawer__menu-item:hover,
+.menu-drawer a:hover{
+  color: #f5d77a !important;
+  background: transparent !important;
+  letter-spacing: 0.18em !important;
+  text-shadow: 0 0 10px rgba(245,215,122,.4) !important;
+  transition: color 300ms ease, letter-spacing 300ms ease, text-shadow 300ms ease !important;
+}
+</style>

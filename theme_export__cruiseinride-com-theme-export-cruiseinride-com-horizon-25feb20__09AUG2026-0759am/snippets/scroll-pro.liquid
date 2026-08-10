@@ -1,0 +1,880 @@
+{% comment %}
+  scroll-pro v7.1 — Pinned-per-section build with cross-section video crossfade.
+
+  - EVERY home section (including hero) becomes pinned (sticky 100dvh)
+  - Each section's outer wrapper is taller than viewport so user scrolls to "build" it
+  - Inside each section, items appear one-by-one in 3D in priority order:
+      1. titles
+      2. cards
+      3. icons
+      4. badges/widgets/pills
+      5. paragraphs
+      6. buttons
+      7. App Store / Google Play / Download (LAST)
+  - Section 1 starts with first item pre-revealed
+  - When entering next section, current video fades out + next video fades in
+  - Reversible
+  - Adapts to device viewport (uses dvh)
+  - Home only
+{% endcomment %}
+
+<style>
+  /* SCROLL-PIN ACTIVADO — sticky con sus animaciones por scroll */
+  body.cr-spro [data-spro-pin]{
+    position:relative;
+    perspective:1600px;
+    perspective-origin:50% 50%;
+  }
+  body.cr-spro [data-spro-pin] > .cr-spro-pin-inner{
+    position:sticky;
+    top:0;
+    height:100vh;
+    height:100dvh;
+    width:100%;
+    overflow:hidden;
+    transform-style:preserve-3d;
+    background:#000;
+    display:flex;
+    flex-direction:column;
+  }
+  body.cr-spro [data-spro-pin] > .cr-spro-pin-inner > *{
+    width:100%;
+    flex:1 1 auto;
+    min-height:0;
+    overflow:hidden;
+  }
+
+  body.cr-spro [data-spro-item]{
+    opacity:var(--spro-op,0);
+    transform:translate3d(var(--spro-x,0px),var(--spro-y,0px),var(--spro-z,-300px))
+              rotateX(var(--spro-rx,0deg))
+              rotateY(var(--spro-ry,0deg))
+              rotate(var(--spro-r,0deg))
+              scale(var(--spro-s,.8));
+    filter:blur(var(--spro-b,5px));
+    transform-style:preserve-3d;
+    backface-visibility:hidden;
+    will-change:opacity,transform,filter;
+  }
+  body.cr-spro [data-spro-section3] .lux-card-v10[data-spro-item]{
+    opacity:var(--spro-op,0) !important;
+    transform:translate3d(var(--spro-x,0px),var(--spro-y,0px),var(--spro-z,-300px))
+              rotateX(var(--spro-rx,0deg))
+              rotateY(var(--spro-ry,0deg))
+              rotate(var(--spro-r,0deg))
+              scale(var(--spro-s,.8)) !important;
+    filter:blur(var(--spro-b,5px)) !important;
+  }
+
+  /* Sección VIP — siempre visible (se controla por el sistema interno de slides) */
+  body.cr-spro .vipX .vipX__slide.is-active .vipX__title,
+  body.cr-spro .vipX .vipX__slide.is-active .vipX__desc,
+  body.cr-spro .vipX .vipX__slide.is-active .vipX__feature,
+  body.cr-spro .vipX .vipX__kicker,
+  body.cr-spro .vipX .vipX__btn,
+  body.cr-spro .vipX .vipX__dots{
+    opacity:1 !important;
+    transform:none !important;
+    filter:none !important;
+    visibility:visible !important;
+  }
+  body.cr-spro .vipX .vipX__slide.is-active .vipX__title *,
+  body.cr-spro .vipX .vipX__slide.is-active .vipX__desc *{
+    opacity:1 !important;
+    transform:none !important;
+    filter:none !important;
+  }
+
+  body.cr-spro [data-spro-bgvideo]{
+    opacity:var(--spro-vop,1);
+    transition:opacity 600ms ease;
+    will-change:opacity;
+  }
+  /* Asegurar que el video nunca quede totalmente negro — minimum 50% visible */
+  body.cr-spro [data-spro-bgvideo]{
+    opacity:max(0.5, var(--spro-vop,1)) !important;
+  }
+
+  /* Remove black gap between pinned sections */
+  body.cr-spro [data-spro-pin]{
+    background:#000;
+  }
+  body.cr-spro [data-spro-pin] + [data-spro-pin]{
+    margin-top:0;
+  }
+  body.cr-spro [data-spro-pin] > .cr-spro-pin-inner{
+    background:#000;
+  }
+
+  /* SCROLL SUAVE — sin snap (chocaba con scroll-pin) */
+  html, body.cr-spro{
+    scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* Home only — only kill margin gap, never touch padding/height */
+  body.cr-spro main > .shopify-section:last-of-type,
+  body.cr-spro #MainContent > .shopify-section:last-of-type{
+    margin-bottom:0 !important;
+  }
+  /* Only kill margin gaps between sections — never touch padding */
+  body.cr-spro main > .shopify-section,
+  body.cr-spro #MainContent > .shopify-section{
+    margin-block-start:0 !important;
+    margin-block-end:0 !important;
+    background:#000 !important;
+  }
+  body.cr-spro main > .shopify-section > .section-background,
+  body.cr-spro #MainContent > .shopify-section > .section-background{
+    background:#000 !important;
+  }
+  /* VIP section uses its own pin system — don't override its min-height */
+  /* (rule removed — was breaking the vipx-pin-outer scroll-driven slides) */
+
+  /* === Section 3 (Luxury Experience) === */
+  /* Force HEADER (kicker + title) always visible.
+     The cards' INNER content (titles/descriptions) only force visibility,
+     NOT opacity — so the parent .lux-card-v10's scroll-driven opacity controls them. */
+  body.cr-spro [data-spro-section3] .lux-header-hero,
+  body.cr-spro [data-spro-section3] .lux-kicker-line,
+  body.cr-spro [data-spro-section3] .lux-kicker-text,
+  body.cr-spro [data-spro-section3] .lux-liquid-title,
+  body.cr-spro [data-spro-section3] .lux-text-white,
+  body.cr-spro [data-spro-section3] .lux-text-gold{
+    opacity:1 !important;
+    filter:none !important;
+    visibility:visible !important;
+    transform:none !important;
+  }
+  /* Inside cards: parent .lux-card-inner & .lux-card-content stay at op:1 (just containers).
+     Individual elements (icon, title, desc, badges) are controlled by my data-spro-item. */
+  body.cr-spro [data-spro-section3] .lux-card-inner,
+  body.cr-spro [data-spro-section3] .lux-card-content{
+    opacity:1 !important;
+    transform:none !important;
+    filter:none !important;
+    visibility:visible !important;
+  }
+  /* Items NOT marked as data-spro-item are forced visible (so my script doesn't fight native CSS) */
+  body.cr-spro [data-spro-section3] .lux-card-title:not([data-spro-item]),
+  body.cr-spro [data-spro-section3] .lux-card-desc:not([data-spro-item]),
+  body.cr-spro [data-spro-section3] .lux-card-meta:not([data-spro-item]),
+  body.cr-spro [data-spro-section3] .lux-card-meta span:not([data-spro-item]),
+  body.cr-spro [data-spro-section3] .lux-icon-wrap:not([data-spro-item]){
+    opacity:1 !important;
+    transform:none !important;
+    filter:none !important;
+    visibility:visible !important;
+  }
+  /* Items WITH data-spro-item: force my CSS to win even against native */
+  body.cr-spro [data-spro-section3] [data-spro-item]{
+    opacity:var(--spro-op,0) !important;
+  }
+  /* Make sure the kicker text and its line are bright + visible */
+  body.cr-spro [data-spro-section3] .lux-kicker-text{
+    color:#E8C547 !important;
+    display:inline-block !important;
+    font-size:12px !important;
+    letter-spacing:.3em !important;
+    font-weight:700 !important;
+    text-transform:uppercase !important;
+    text-shadow:0 0 8px rgba(232,197,71,.4) !important;
+    opacity:1 !important;
+    visibility:visible !important;
+  }
+  body.cr-spro [data-spro-section3] .lux-kicker-line{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    margin:0 0 18px !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    height:auto !important;
+    min-height:20px !important;
+  }
+  /* Some themes wrap kicker line decoration with pseudo-elements that may take all width */
+  body.cr-spro [data-spro-section3] .lux-kicker-line::before,
+  body.cr-spro [data-spro-section3] .lux-kicker-line::after{
+    content:'' !important;
+    display:inline-block !important;
+    width:30px !important;
+    height:1px !important;
+    background:rgba(232,197,71,.6) !important;
+    margin:0 12px !important;
+  }
+  /* Kill the card's own animation so MY scroll-driven one wins */
+  body.cr-spro [data-spro-section3] .lux-card-v10{
+    transition:none !important;
+    animation:none !important;
+  }
+  body.cr-spro [data-spro-section3] .lux-card-v10:nth-child(1),
+  body.cr-spro [data-spro-section3] .lux-card-v10:nth-child(2),
+  body.cr-spro [data-spro-section3] .lux-card-v10:nth-child(3),
+  body.cr-spro [data-spro-section3] .lux-card-v10:nth-child(4){
+    transition-delay:0s !important;
+  }
+
+  body.cr-spro [data-spro-section3] .lux-v10{
+    padding-top:90px !important;
+    padding-bottom:40px !important;
+    box-shadow:none !important;
+    min-height:100vh !important;
+    min-height:100dvh !important;
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:flex-start !important;
+    align-items:center !important;
+    gap:clamp(16px,3vh,40px) !important;
+  }
+  body.cr-spro [data-spro-section3] .lux-v10 > *{
+    width:100% !important;
+    max-width:1200px !important;
+  }
+  /* Header (OUR SERVICES + Luxury Experience) anchored at top with safe top spacing */
+  body.cr-spro [data-spro-section3] .lux-header-hero{
+    margin-top:0 !important;
+    margin-bottom:0 !important;
+    padding-top:env(safe-area-inset-top, 0px) !important;
+    flex-shrink:0 !important;
+  }
+  /* Cards grid — strict 2x2 + fills all remaining vertical space */
+  body.cr-spro [data-spro-section3] .lux-grid-v10,
+  body.cr-spro [data-spro-section3] section.lux-v10 .lux-grid-v10{
+    flex:1 1 0 !important;
+    min-height:0 !important;
+    height:100% !important;
+    display:grid !important;
+    grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows:repeat(2, minmax(0, 1fr)) !important;
+    grid-auto-flow:row !important;
+    gap:clamp(10px,2vw,20px) !important;
+    width:100% !important;
+    align-items:stretch !important;
+    justify-items:stretch !important;
+    flex-direction:initial !important;
+  }
+  body.cr-spro [data-spro-section3] .lux-card-v10{
+    height:100% !important;
+    min-height:0 !important;
+    width:100% !important;
+    max-width:100% !important;
+    position:relative !important;
+    margin:0 !important;
+    grid-column:auto !important;
+    grid-row:auto !important;
+    display:flex !important;
+    flex-direction:column !important;
+  }
+  body.cr-spro [data-spro-section3] .lux-card-inner{
+    height:100% !important;
+    width:100% !important;
+    box-sizing:border-box !important;
+    flex:1 1 auto !important;
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+    padding:clamp(16px,3vw,28px) !important;
+  }
+  body.cr-spro [data-spro-section3] .lux-card-content{
+    height:100% !important;
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+    align-items:center !important;
+  }
+  /* Bigger card text on phones */
+  @media (max-width:760px){
+    body.cr-spro [data-spro-section3] .lux-card-title{
+      font-size:14px !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-card-desc{
+      font-size:11px !important;
+      line-height:1.35 !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-icon-wrap{
+      width:42px !important;
+      height:42px !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-icon-wrap svg{
+      width:22px !important;
+      height:22px !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-card-meta span{
+      font-size:8.5px !important;
+      padding:3px 8px !important;
+    }
+  }
+  @media (max-width:760px){
+    body.cr-spro [data-spro-section3] .lux-v10{
+      padding:80px 12px 30px !important;
+      gap:14px !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-grid-v10{
+      gap:8px !important;
+    }
+    /* Force the lux-grid-v10 container into 2x2 */
+    body.cr-spro [data-spro-section3] .lux-grid-v10{
+      display:grid !important;
+      grid-template-columns:1fr 1fr !important;
+      gap:8px !important;
+      padding:8px !important;
+      width:100% !important;
+      max-width:100% !important;
+      box-sizing:border-box !important;
+    }
+
+    body.cr-spro [data-spro-section3] .lux-card-v10{
+      width:100% !important;
+      max-width:100% !important;
+      min-width:0 !important;
+      box-sizing:border-box !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-card-inner{
+      padding:10px 8px !important;
+      min-height:0 !important;
+      box-sizing:border-box !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-card-content{
+      text-align:center !important;
+      align-items:center !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-icon-wrap{
+      width:30px !important;
+      height:30px !important;
+      margin:0 auto 4px !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-icon-wrap svg{
+      width:16px !important;
+      height:16px !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-card-title{
+      font-size:11.5px !important;
+      line-height:1.15 !important;
+      margin:3px 0 2px !important;
+      font-weight:700 !important;
+      display:block !important;
+      word-break:break-word !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-card-desc{
+      font-size:9.5px !important;
+      line-height:1.25 !important;
+      margin:0 0 4px !important;
+      word-break:break-word !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-card-meta span{
+      font-size:7.5px !important;
+      padding:2px 5px !important;
+      letter-spacing:.05em !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-card-meta{
+      gap:4px !important;
+      flex-wrap:wrap !important;
+      justify-content:center !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-liquid-title{
+      font-size:clamp(26px,7vw,38px) !important;
+      line-height:1.05 !important;
+      margin:0 0 6px !important;
+    }
+    body.cr-spro [data-spro-section3] .lux-kicker{
+      font-size:10px !important;
+      letter-spacing:.18em !important;
+      margin:0 0 6px !important;
+    }
+  }
+
+  /* prefers-reduced-motion removed — animations always run on all devices */
+</style>
+
+<script>
+(function(){
+  if(window.__crScrollPro)return; window.__crScrollPro=1;
+
+  function isHome(){
+    var p=location.pathname;
+    return p==='/'||p==='/es/'||p==='/en/'||/^\/(es|en)\/?$/.test(p);
+  }
+  if(!isHome())return;
+
+  /* Always animate — ignore prefers-reduced-motion (user requested animations on all devices) */
+  var prm=false;
+  var SMOOTH=0.10;
+  var SECTION_VH=2.5;
+
+  function smoothstep(t){return t*t*(3-2*t);}
+  function clamp01(v){return Math.max(0,Math.min(1,v));}
+
+  var PRESETS=[
+    {x:0,   y:60,  z:-280, rx:0,   ry:0,   r:0,   s:0.8,  b:6},
+    {x:80,  y:30,  z:-160, rx:0,   ry:-30, r:0,   s:0.88, b:5},
+    {x:-80, y:30,  z:-160, rx:0,   ry:30,  r:0,   s:0.88, b:5},
+    {x:0,   y:60,  z:-140, rx:25,  ry:0,   r:0,   s:0.88, b:5},
+    {x:0,   y:-30, z:-140, rx:-22, ry:0,   r:0,   s:0.92, b:5},
+    {x:-100,y:80,  z:-200, rx:0,   ry:0,   r:-10, s:0.85, b:6},
+    {x:100, y:80,  z:-200, rx:0,   ry:0,   r:10,  s:0.85, b:6},
+    {x:0,   y:90,  z:-100, rx:0,   ry:0,   r:0,   s:0.92, b:4}
+  ];
+
+  function init(){
+    document.body.classList.add('cr-spro');
+
+    document.querySelectorAll('[data-reveal],[data-reveal-soft]').forEach(function(el){
+      el.removeAttribute('data-reveal');
+      el.removeAttribute('data-reveal-soft');
+      el.style.opacity='';
+      el.style.transform='';
+    });
+    document.querySelectorAll('[data-spro-perspective]').forEach(function(s){s.removeAttribute('data-spro-perspective');});
+    /* Clean any v9 marker */
+    document.querySelectorAll('[data-spro-section3]').forEach(function(s){s.removeAttribute('data-spro-section3');});
+
+    var main=document.querySelector('main, #MainContent, [role="main"]')||document.body;
+    var sections=Array.prototype.slice.call(main.querySelectorAll(':scope > .shopify-section'));
+    if(!sections.length) sections=Array.prototype.slice.call(document.querySelectorAll('.shopify-section'));
+    sections=sections.filter(function(s){
+      var id=(s.id||'').toLowerCase();
+      return !/header|footer|announcement/i.test(id);
+    });
+    if(!sections.length)return;
+
+    var pinned=[];
+
+    sections.forEach(function(sec,idx){
+      var hasContent=sec.querySelector('section,article,div,h1,h2,h3,p,video,img,a,button');
+      if(!hasContent)return;
+
+      sec.setAttribute('data-spro-pin','');
+      var inner=document.createElement('div');
+      inner.className='cr-spro-pin-inner';
+      var kids=Array.prototype.slice.call(sec.children);
+      kids.forEach(function(k){inner.appendChild(k);});
+      sec.appendChild(inner);
+
+      sec.style.minHeight=(SECTION_VH*100)+'vh';
+
+      var bgVid=inner.querySelector('video');
+      if(bgVid){
+        bgVid.setAttribute('data-spro-bgvideo','');
+        bgVid._sec=sec;
+      }
+
+      var items=[];
+      function add(el){
+        if(el.hasAttribute('data-spro-item'))return;
+        if(el.closest('[data-spro-item]'))return;
+        if(el.hasAttribute('data-spro-bgvideo'))return;
+        if(el.closest('[data-spro-bgvideo]'))return;
+        var txt=(el.textContent||'').trim();
+        if(txt.length<1 && !el.querySelector('img,svg,video'))return;
+        var r=el.getBoundingClientRect();
+        if(r.width<10||r.height<10)return;
+        el.setAttribute('data-spro-item','');
+        el._st={op:0,x:0,y:0,z:0,rx:0,ry:0,r:0,s:1,b:0};
+        items.push(el);
+      }
+
+      /* Detect Section 3 (Luxury) o VIP — SKIP it entirely; tienen su propio sistema de pin */
+      var isLuxuryExperience=!!inner.querySelector('.lux-v10');
+      var isVipService=!!inner.querySelector('.vipX')||!!inner.querySelector('.vipx-pin-outer');
+      if(isLuxuryExperience||isVipService){
+        /* Don't pin, don't animate — let the section's own code do its thing */
+        sec.removeAttribute('data-spro-pin');
+        sec.style.minHeight='';
+        var existingInner=sec.querySelector(':scope > .cr-spro-pin-inner');
+        if(existingInner){
+          var kids2=Array.prototype.slice.call(existingInner.children);
+          kids2.forEach(function(k){sec.appendChild(k);});
+          existingInner.remove();
+        }
+        return;
+      }
+      var isSection3=false;
+
+      /* Pre-find App Store / Download to exclude from earlier passes */
+      var storeContainers=inner.querySelectorAll('[class*="store" i],[class*="Store"],[class*="download" i],[class*="Download"]');
+      var storeSet=new Set();
+      storeContainers.forEach(function(c){
+        storeSet.add(c);
+        c.querySelectorAll('*').forEach(function(d){storeSet.add(d);});
+      });
+      inner.querySelectorAll('a[href*="apple.com"], a[href*="apps.apple.com"], a[href*="play.google.com"]').forEach(function(a){
+        storeSet.add(a);
+        a.querySelectorAll('*').forEach(function(d){storeSet.add(d);});
+      });
+      function notInStore(el){return !storeSet.has(el);}
+
+      if(isSection3){
+        /* === SECTION 3 (Luxury Experience) === */
+        /* DO NOT add 'is-visible' — its native CSS would override our scroll animation */
+
+        function addAt(el,slot){
+          if(!el || !notInStore(el))return;
+          add(el);
+          el._phaseSlot=slot;
+        }
+
+        /* Slot 0: video (handled by bgVid section logic — already first) */
+        /* Slot 1: Kicker (OUR SERVICES) */
+        var kicker=inner.querySelector('.lux-header-hero, .lux-kicker-line');
+        if(!kicker) kicker=inner.querySelector('[class*="kicker" i]');
+        addAt(kicker,1);
+
+        /* Slot 2: Main title (Luxury Experience) */
+        var luxTitle=inner.querySelector('.lux-liquid-title');
+        if(!luxTitle) luxTitle=inner.querySelector('h1, h2');
+        if(luxTitle && !luxTitle.closest('.lux-card-v10')) addAt(luxTitle,2);
+
+        /* Find all 4 cards in DOM order */
+        var allCards=Array.prototype.slice.call(inner.querySelectorAll('.lux-card-v10, article'))
+          .filter(function(c){
+            var r=c.getBoundingClientRect();
+            if(r.width<50||r.height<50)return false;
+            return notInStore(c);
+          });
+
+        /* For each card: 4 slots — box, icon, title, desc+badges */
+        var slot=3;
+        allCards.forEach(function(c){
+          /* 1. Card box */
+          addAt(c, slot);
+          /* 2. Icon */
+          var icon=c.querySelector('.lux-icon-wrap, [class*="icon-wrap" i], [class*="icon" i]');
+          if(icon) addAt(icon, slot+1);
+          /* 3. Title */
+          var title=c.querySelector('.lux-card-title, h3, h4');
+          if(title) addAt(title, slot+2);
+          /* 4. Description + badges (together) */
+          var desc=c.querySelector('.lux-card-desc, p');
+          if(desc) addAt(desc, slot+3);
+          var meta=c.querySelector('.lux-card-meta');
+          if(meta) addAt(meta, slot+3);
+          /* Move to next card's slots */
+          slot+=4;
+        });
+
+        sec._isSection3=true;
+        sec._maxSlot=slot;
+      } else {
+        /* === DEFAULT ORDER === */
+        var titles=inner.querySelectorAll('h1,h2,h3,h4,[class*="title" i]:not(input):not([class*="titlebar" i]),[class*="heading" i],[class*="headline" i],[class*="kicker" i]');
+        Array.prototype.forEach.call(titles,function(el){if(notInStore(el))add(el);});
+
+        var cards=inner.querySelectorAll(
+          '[class*="card" i]:not([class*="cards" i]),'+
+          '[class*="Card"],'+
+          '[class*="tile" i],[class*="Tile"],'+
+          '[class*="feature" i]:not([class*="features" i])'
+        );
+        Array.prototype.forEach.call(cards,function(el){if(notInStore(el))add(el);});
+
+        var icons=inner.querySelectorAll('[class*="icon" i]:not([class*="icons" i]),[class*="Icon"]');
+        Array.prototype.forEach.call(icons,function(el){if(notInStore(el))add(el);});
+
+        var badges=inner.querySelectorAll(
+          '[class*="badge" i]:not([class*="badges" i]),'+
+          '[class*="pill" i],[class*="chip" i],'+
+          '[class*="widget" i],[class*="Widget"],'+
+          '[class*="meta" i] span'
+        );
+        Array.prototype.forEach.call(badges,function(el){if(notInStore(el))add(el);});
+
+        var paras=inner.querySelectorAll('p,[class*="subtitle" i],[class*="description" i],[class*="desc" i]:not([class*="describe" i])');
+        Array.prototype.forEach.call(paras,function(el){if(notInStore(el))add(el);});
+
+        var btns=inner.querySelectorAll(
+          'a.button, a.btn, .lux-cta, button.button, .btn-primary,'+
+          ' a[class*="Btn" i], a[class*="cta" i], a[class*="Button" i],'+
+          ' button[class*="cta" i], button[class*="Btn" i], button[class*="Button" i],'+
+          ' a[role="button"], button[role="button"]'
+        );
+        Array.prototype.forEach.call(btns,function(el){if(notInStore(el))add(el);});
+      }
+
+      /* App Store / Google Play / Download — LAST */
+      storeContainers.forEach(function(c){
+        var parentStore=c.parentElement && c.parentElement.closest('[class*="store" i],[class*="download" i]');
+        if(parentStore && parentStore!==c) return;
+        add(c);
+      });
+      inner.querySelectorAll('a[href*="apple.com"], a[href*="apps.apple.com"], a[href*="play.google.com"]').forEach(function(a){
+        if(!a.hasAttribute('data-spro-item') && !a.closest('[data-spro-item]')){
+          add(a);
+        }
+      });
+
+      items.forEach(function(el,i){
+        el._preset=PRESETS[i % PRESETS.length];
+        el._order=i;
+      });
+
+      pinned.push({section:sec, inner:inner, items:items, bgVid:bgVid, idx:idx});
+    });
+
+    if(prm){
+      pinned.forEach(function(p){
+        p.items.forEach(function(el){
+          el.style.setProperty('--spro-op','1');
+          el.style.setProperty('--spro-x','0px');
+          el.style.setProperty('--spro-y','0px');
+          el.style.setProperty('--spro-z','0px');
+          el.style.setProperty('--spro-rx','0deg');
+          el.style.setProperty('--spro-ry','0deg');
+          el.style.setProperty('--spro-r','0deg');
+          el.style.setProperty('--spro-s','1');
+          el.style.setProperty('--spro-b','0px');
+        });
+        if(p.bgVid) p.bgVid.style.setProperty('--spro-vop','1');
+      });
+      return;
+    }
+
+    var rafActive=false;
+    function tick(){
+      var vh=window.innerHeight;
+      var anyMoving=false;
+
+      pinned.forEach(function(p){
+        var r=p.section.getBoundingClientRect();
+        var totalScroll=r.height - vh;
+        var scrolled=Math.max(0,Math.min(totalScroll,-r.top));
+        var progress=totalScroll>0 ? clamp01(scrolled/totalScroll) : 0;
+
+        var n=p.items.length;
+        if(n){
+          var preRevealCount=p.idx===0?1:0;
+          var assemblyEnd=0.80;
+          var isSec3=p.section._isSection3;
+          var maxSlot=p.section._maxSlot||n;
+          var perItem,startStep;
+          if(isSec3){
+            /* Each slot reveals over a wider window so by the time you reach end of section, everything is at op=1 */
+            startStep=assemblyEnd/Math.max(1,(maxSlot-1));
+            perItem=startStep*1.5;
+          } else {
+            perItem=assemblyEnd/(n*0.7);
+            startStep=assemblyEnd/(n*1.0);
+          }
+
+          p.items.forEach(function(el,i){
+            var slot = (isSec3 && el._phaseSlot!==undefined) ? el._phaseSlot : i;
+            var startAt=slot*startStep;
+            var endAt=startAt+perItem;
+            var t;
+            if(i<preRevealCount){t=1;}
+            else { t=clamp01((progress-startAt)/(endAt-startAt)); }
+            var s=smoothstep(t);
+
+            var preset=el._preset;
+            var tx=(1-s)*preset.x;
+            var ty=(1-s)*preset.y;
+            var tz=(1-s)*preset.z;
+            var trx=(1-s)*preset.rx;
+            var try_=(1-s)*preset.ry;
+            var trr=(1-s)*preset.r;
+            var tsc=preset.s + s*(1-preset.s);
+            var tbl=(1-s)*preset.b;
+            var top_=s;
+
+            var st=el._st;
+            var dx=tx-st.x, dy=ty-st.y, dz=tz-st.z, drx=trx-st.rx, dry=try_-st.ry, drr=trr-st.r, dsc=tsc-st.s, dbl=tbl-st.b, dop=top_-st.op;
+            st.x+=dx*SMOOTH; st.y+=dy*SMOOTH; st.z+=dz*SMOOTH;
+            st.rx+=drx*SMOOTH; st.ry+=dry*SMOOTH; st.r+=drr*SMOOTH;
+            st.s+=dsc*SMOOTH; st.b+=dbl*SMOOTH; st.op+=dop*SMOOTH;
+            if(Math.abs(dx)>0.1||Math.abs(dy)>0.1||Math.abs(dz)>0.5||Math.abs(dop)>0.003) anyMoving=true;
+
+            el.style.setProperty('--spro-op',st.op.toFixed(3));
+            el.style.setProperty('--spro-x',st.x.toFixed(1)+'px');
+            el.style.setProperty('--spro-y',st.y.toFixed(1)+'px');
+            el.style.setProperty('--spro-z',st.z.toFixed(0)+'px');
+            el.style.setProperty('--spro-rx',st.rx.toFixed(1)+'deg');
+            el.style.setProperty('--spro-ry',st.ry.toFixed(1)+'deg');
+            el.style.setProperty('--spro-r',st.r.toFixed(1)+'deg');
+            el.style.setProperty('--spro-s',st.s.toFixed(3));
+            el.style.setProperty('--spro-b',st.b.toFixed(2)+'px');
+          });
+        }
+
+        if(p.bgVid){
+          /* Video siempre visible al 100% — sin fade-in ni fade-out, sin gaps negros */
+          p.bgVid.style.setProperty('--spro-vop','1');
+          try{p.bgVid.play().catch(function(){});}catch(_){}
+        }
+      });
+
+      if(anyMoving){
+        requestAnimationFrame(tick);
+      } else {
+        rafActive=false;
+      }
+    }
+
+    function start(){
+      if(!rafActive){rafActive=true; requestAnimationFrame(tick);}
+    }
+
+    start();
+    window.addEventListener('scroll',start,{passive:true});
+    window.addEventListener('resize',start,{passive:true});
+    window.addEventListener('orientationchange',start,{passive:true});
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+
+/* ============================================================
+   Safety: ensure CRUISE splash never permanently locks scroll
+   ============================================================ */
+(function(){
+  if(window.__crSplashGuard)return; window.__crSplashGuard=1;
+  /* After 6 seconds, force-remove cs-splash-active so body scroll is restored */
+  setTimeout(function(){
+    document.documentElement.classList.remove('cs-splash-active');
+    var sp=document.getElementById('cruiseSplash');
+    if(sp){
+      sp.classList.add('cs-done');
+      setTimeout(function(){sp.classList.add('cs-hidden');},800);
+    }
+  },6000);
+})();
+
+/* Auto-scroll removed by user request */
+
+/* ============================================================
+   Section fade-out: as you scroll down, previous sections fade
+   ============================================================ */
+(function(){
+  if(window.__crSectionFade)return; window.__crSectionFade=1;
+  function isHome(){
+    var p=location.pathname;
+    return p==='/'||p==='/es/'||p==='/en/'||/^\/(es|en)\/?$/.test(p);
+  }
+  if(!isHome())return;
+
+  function init(){
+    var main=document.querySelector('main, #MainContent, [role="main"]')||document.body;
+    var sections=Array.prototype.slice.call(main.querySelectorAll(':scope > .shopify-section'));
+    if(!sections.length) sections=Array.prototype.slice.call(document.querySelectorAll('.shopify-section'));
+    sections=sections.filter(function(s){
+      var id=(s.id||'').toLowerCase();
+      return !/header|footer|announcement/i.test(id);
+    });
+    if(!sections.length)return;
+
+    sections.forEach(function(s){
+      s.style.willChange='opacity, transform, filter';
+      s.style.transition='opacity 600ms cubic-bezier(.22,1,.36,1)';
+    });
+
+    var rafActive=false;
+    function tick(){
+      var vh=window.innerHeight;
+      sections.forEach(function(s){
+        var r=s.getBoundingClientRect();
+        /* Fade based on bottom edge:
+           - bottom > 0.4 vh: fully visible (op=1)
+           - bottom 0.4 vh → -0.2 vh: fade 1 → 0
+           - bottom < -0.2 vh: fully hidden (op=0)  */
+        var bottom=r.bottom;
+        var op,scl,bl;
+        if(bottom>vh*0.4){
+          op=1; scl=1; bl=0;
+        } else if(bottom>-vh*0.2){
+          var t=(bottom-(-vh*0.2))/(vh*0.4-(-vh*0.2)); /* 0..1 */
+          op=t;
+          scl=0.92+t*0.08;
+          bl=(1-t)*6;
+        } else {
+          op=0; scl=0.92; bl=6;
+        }
+        s.style.opacity=op.toFixed(3);
+        s.style.transform='scale('+scl.toFixed(3)+')';
+        s.style.filter='blur('+bl.toFixed(2)+'px)';
+      });
+      rafActive=false;
+    }
+    function start(){if(!rafActive){rafActive=true;requestAnimationFrame(tick);}}
+    window.addEventListener('scroll',start,{passive:true});
+    window.addEventListener('resize',start,{passive:true});
+    start();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+
+/* ============================================================
+   Section 1 (Hero) — pro crossfade between Media 1 and Media 2
+   ============================================================ */
+(function(){
+  if(window.__crHeroXfade)return; window.__crHeroXfade=1;
+  function isHome(){
+    var p=location.pathname;
+    return p==='/'||p==='/es/'||p==='/en/'||/^\/(es|en)\/?$/.test(p);
+  }
+  if(!isHome())return;
+
+  function init(){
+    /* Find the FIRST hero section's videos (Shopify native hero block has 2 media slots) */
+    var heroSection=document.querySelector('#shopify-section-template--' + '*' + '__hero_jVaWmY, [id*="hero_jVaWmY"], .shopify-section[class*="hero"]');
+    if(!heroSection){
+      /* Fallback: first shopify-section that contains 2+ <video> tags */
+      var sections=document.querySelectorAll('main > .shopify-section, #MainContent > .shopify-section');
+      for(var i=0;i<sections.length;i++){
+        if(sections[i].querySelectorAll('video').length>=2){
+          heroSection=sections[i];
+          break;
+        }
+      }
+    }
+    if(!heroSection)return;
+    var vids=heroSection.querySelectorAll('video');
+    if(vids.length<2)return;
+    var v1=vids[0], v2=vids[1];
+
+    /* Setup styles for crossfade */
+    [v1,v2].forEach(function(v){
+      v.style.transition='opacity 1.6s cubic-bezier(.65,0,.35,1), transform 2s cubic-bezier(.65,0,.35,1), filter 1.6s cubic-bezier(.65,0,.35,1)';
+      v.style.willChange='opacity, transform, filter';
+      v.muted=true; v.loop=true; v.playsInline=true; v.setAttribute('playsinline','');
+      try{v.play().catch(function(){});}catch(_){}
+    });
+
+    /* Initial state: v1 visible, v2 hidden */
+    v1.style.opacity='1';
+    v1.style.transform='scale(1)';
+    v1.style.filter='blur(0)';
+    v2.style.opacity='0';
+    v2.style.transform='scale(1.08)';
+    v2.style.filter='blur(8px)';
+
+    /* Crossfade every 7 seconds */
+    var current=0; /* 0 = v1, 1 = v2 */
+    var XFADE_INTERVAL=7000;
+
+    function swap(){
+      if(document.hidden)return;
+      var rect=heroSection.getBoundingClientRect();
+      if(rect.bottom<0||rect.top>window.innerHeight)return; /* skip if not visible */
+      current=1-current;
+      if(current===1){
+        v1.style.opacity='0';
+        v1.style.transform='scale(1.08)';
+        v1.style.filter='blur(8px)';
+        v2.style.opacity='1';
+        v2.style.transform='scale(1)';
+        v2.style.filter='blur(0)';
+      } else {
+        v2.style.opacity='0';
+        v2.style.transform='scale(1.08)';
+        v2.style.filter='blur(8px)';
+        v1.style.opacity='1';
+        v1.style.transform='scale(1)';
+        v1.style.filter='blur(0)';
+      }
+    }
+    setInterval(swap, XFADE_INTERVAL);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>

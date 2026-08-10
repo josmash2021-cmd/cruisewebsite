@@ -1,0 +1,574 @@
+{% doc %}
+  @prompt
+    generame un header transparente  donde pueda colocar mi logo y tipografia agradable , que en telefonos el menu este en acordeon y el logo en el centro y que al hacer scroll si tenga fondo , pero que el acordeon tenga fondo solido y no se vea la pagina en telefonos en pc no coloques modo acordeon el menu
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-transparent-header-{{ ai_gen_id }} {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
+    display: block;
+  }
+
+  .ai-transparent-header-{{ ai_gen_id }}.scrolled {
+    background-color: {{ block.settings.scrolled_background_color }};
+    backdrop-filter: blur({{ block.settings.blur_amount }}px);
+  }
+
+  .ai-transparent-header-container-{{ ai_gen_id }} {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: {{ block.settings.vertical_padding }}px {{ block.settings.horizontal_padding }}px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ai-transparent-header-logo-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+  }
+
+  .ai-transparent-header-logo-{{ ai_gen_id }} img {
+    height: {{ block.settings.logo_height }}px;
+    width: auto;
+    display: block;
+  }
+
+  .ai-transparent-header-logo-placeholder-{{ ai_gen_id }} {
+    height: {{ block.settings.logo_height }}px;
+    width: 120px;
+    background-color: {{ block.settings.text_color }};
+    opacity: 0.1;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-transparent-header-empty-state-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 12px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .ai-transparent-header-nav-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: {{ block.settings.nav_spacing }}px;
+  }
+
+  .ai-transparent-header-nav-{{ ai_gen_id }} a {
+    color: {{ block.settings.text_color }};
+    text-decoration: none;
+    font-family: {{ block.settings.nav_font.family }}, {{ block.settings.nav_font.fallback_families }};
+    font-weight: {{ block.settings.nav_font.weight }};
+    font-size: {{ block.settings.nav_font_size }}px;
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-transparent-header-nav-{{ ai_gen_id }} a:hover {
+    opacity: 0.7;
+  }
+
+  .ai-transparent-header-mobile-toggle-{{ ai_gen_id }} {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: {{ block.settings.text_color }};
+    z-index: 1001;
+  }
+
+  .ai-transparent-header-mobile-toggle-{{ ai_gen_id }} svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+  }
+
+  .ai-transparent-header-mobile-menu-{{ ai_gen_id }} {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: {{ block.settings.mobile_menu_background }};
+    padding-top: 80px;
+    overflow-y: auto;
+    z-index: 1000;
+  }
+
+  .ai-transparent-header-mobile-menu-{{ ai_gen_id }}.active {
+    display: block;
+  }
+
+  .ai-transparent-header-mobile-nav-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .ai-transparent-header-mobile-nav-{{ ai_gen_id }} a {
+    color: {{ block.settings.mobile_text_color }};
+    text-decoration: none;
+    font-family: {{ block.settings.nav_font.family }}, {{ block.settings.nav_font.fallback_families }};
+    font-weight: {{ block.settings.nav_font.weight }};
+    font-size: {{ block.settings.mobile_font_size }}px;
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    padding: {{ block.settings.mobile_link_padding }}px 0;
+    border-bottom: 1px solid {{ block.settings.mobile_text_color }}33;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-transparent-header-mobile-nav-{{ ai_gen_id }} a:hover {
+    opacity: 0.7;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-transparent-header-{{ ai_gen_id }} {
+      background-color: {{ block.settings.mobile_header_background }};
+    }
+
+    .ai-transparent-header-container-{{ ai_gen_id }} {
+      padding: {{ block.settings.vertical_padding | times: 0.7 }}px {{ block.settings.horizontal_padding | times: 0.7 }}px;
+      justify-content: center;
+      position: relative;
+    }
+
+    .ai-transparent-header-logo-{{ ai_gen_id }} {
+      order: 2;
+    }
+
+    .ai-transparent-header-logo-{{ ai_gen_id }} img {
+      height: {{ block.settings.logo_height | times: 0.8 }}px;
+    }
+
+    .ai-transparent-header-logo-placeholder-{{ ai_gen_id }} {
+      height: {{ block.settings.logo_height | times: 0.8 }}px;
+      width: 100px;
+    }
+
+    .ai-transparent-header-nav-{{ ai_gen_id }} {
+      display: none;
+    }
+
+    .ai-transparent-header-mobile-toggle-{{ ai_gen_id }} {
+      display: block;
+      position: absolute;
+      left: {{ block.settings.horizontal_padding | times: 0.7 }}px;
+      order: 1;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-transparent-header-mobile-toggle-{{ ai_gen_id }} {
+      display: none;
+    }
+
+    .ai-transparent-header-mobile-menu-{{ ai_gen_id }} {
+      display: none !important;
+    }
+  }
+{% endstyle %}
+
+<transparent-header-{{ ai_gen_id }}
+  class="ai-transparent-header-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-transparent-header-container-{{ ai_gen_id }}">
+    <button
+      class="ai-transparent-header-mobile-toggle-{{ ai_gen_id }}"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+
+    <div class="ai-transparent-header-logo-{{ ai_gen_id }}">
+      {% if block.settings.logo %}
+        <a href="/">
+          <img
+            src="{{ block.settings.logo | image_url: width: 400 }}"
+            alt="{{ shop.name }}"
+            loading="eager"
+            width="{{ block.settings.logo.width }}"
+            height="{{ block.settings.logo.height }}"
+          >
+        </a>
+      {% else %}
+        <div class="ai-transparent-header-logo-placeholder-{{ ai_gen_id }}">
+          <div class="ai-transparent-header-empty-state-{{ ai_gen_id }}">
+            Añade tu logo
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <nav class="ai-transparent-header-nav-{{ ai_gen_id }}">
+      {% if block.settings.nav_link_1_text != blank %}
+        <a href="{{ block.settings.nav_link_1_url }}">{{ block.settings.nav_link_1_text }}</a>
+      {% endif %}
+      {% if block.settings.nav_link_2_text != blank %}
+        <a href="{{ block.settings.nav_link_2_url }}" >{{ block.settings.nav_link_2_text }}</a>
+      {% endif %}
+      {% if block.settings.nav_link_3_text != blank %}
+        <a href="{{ block.settings.nav_link_3_url }}">{{ block.settings.nav_link_3_text }}</a>
+      {% endif %}
+      {% if block.settings.nav_link_4_text != blank %}
+        <a href="{{ block.settings.nav_link_4_url }}">{{ block.settings.nav_link_4_text }}</a>
+      {% endif %}
+      {% if block.settings.nav_link_5_text != blank %}
+        <a href="{{ block.settings.nav_link_5_url }}">{{ block.settings.nav_link_5_text }}</a>
+      {% endif %}
+    </nav>
+  </div>
+
+  <div class="ai-transparent-header-mobile-menu-{{ ai_gen_id }}">
+    <nav class="ai-transparent-header-mobile-nav-{{ ai_gen_id }}">
+      {% if block.settings.nav_link_1_text != blank %}
+        <a href="{{ block.settings.nav_link_1_url }}">{{ block.settings.nav_link_1_text }}</a>
+      {% endif %}
+      {% if block.settings.nav_link_2_text != blank %}
+        <a href="{{ block.settings.nav_link_2_url }}">{{ block.settings.nav_link_2_text }}</a>
+      {% endif %}
+      {% if block.settings.nav_link_3_text != blank %}
+        <a href="{{ block.settings.nav_link_3_url }}">{{ block.settings.nav_link_3_text }}</a>
+      {% endif %}
+      {% if block.settings.nav_link_4_text != blank %}
+        <a href="{{ block.settings.nav_link_4_url }}">{{ block.settings.nav_link_4_text }}</a>
+      {% endif %}
+      {% if block.settings.nav_link_5_text != blank %}
+        <a href="{{ block.settings.nav_link_5_url }}">{{ block.settings.nav_link_5_text }}</a>
+      {% endif %}
+    </nav>
+  </div>
+</transparent-header-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class TransparentHeader{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.scrollThreshold = {{ block.settings.scroll_threshold }};
+        this.mobileToggle = this.querySelector('.ai-transparent-header-mobile-toggle-{{ ai_gen_id }}');
+        this.mobileMenu = this.querySelector('.ai-transparent-header-mobile-menu-{{ ai_gen_id }}');
+      }
+
+      connectedCallback() {
+        this.handleScroll = this.handleScroll.bind(this);
+        this.toggleMobileMenu = this.toggleMobileMenu.bind(this);
+        this.closeMobileMenuOnResize = this.closeMobileMenuOnResize.bind(this);
+        
+        window.addEventListener('scroll', this.handleScroll);
+        window.addEventListener('resize', this.closeMobileMenuOnResize);
+        
+        if (this.mobileToggle) {
+          this.mobileToggle.addEventListener('click', this.toggleMobileMenu);
+        }
+        
+        this.handleScroll();
+      }
+
+      disconnectedCallback() {
+        window.removeEventListener('scroll', this.handleScroll);
+        window.removeEventListener('resize', this.closeMobileMenuOnResize);
+        
+        if (this.mobileToggle) {
+          this.mobileToggle.removeEventListener('click', this.toggleMobileMenu);
+        }
+      }
+
+      handleScroll() {
+        if (window.scrollY > this.scrollThreshold) {
+          this.classList.add('scrolled');
+        } else {
+          this.classList.remove('scrolled');
+        }
+      }
+
+      closeMobileMenuOnResize() {
+        if (window.innerWidth >= 750) {
+          this.mobileMenu.classList.remove('active');
+          if (this.mobileToggle) {
+            this.mobileToggle.setAttribute('aria-expanded', 'false');
+            this.mobileToggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+          }
+          document.body.style.overflow = '';
+        }
+      }
+
+      toggleMobileMenu() {
+        const isActive = this.mobileMenu.classList.contains('active');
+        
+        if (isActive) {
+          this.mobileMenu.classList.remove('active');
+          this.mobileToggle.setAttribute('aria-expanded', 'false');
+          this.mobileToggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+          document.body.style.overflow = '';
+        } else {
+          this.mobileMenu.classList.add('active');
+          this.mobileToggle.setAttribute('aria-expanded', 'true');
+          this.mobileToggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+          document.body.style.overflow = 'hidden';
+        }
+      }
+    }
+
+    customElements.define('transparent-header-{{ ai_gen_id }}', TransparentHeader{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Header transparente",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo"
+    },
+    {
+      "type": "range",
+      "id": "logo_height",
+      "label": "Altura del logo",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Navegación"
+    },
+    {
+      "type": "text",
+      "id": "nav_link_1_text",
+      "label": "Enlace 1 - Texto",
+      "default": "Inicio"
+    },
+    {
+      "type": "url",
+      "id": "nav_link_1_url",
+      "label": "Enlace 1 - URL"
+    },
+    {
+      "type": "text",
+      "id": "nav_link_2_text",
+      "label": "Enlace 2 - Texto",
+      "default": "Productos"
+    },
+    {
+      "type": "url",
+      "id": "nav_link_2_url",
+      "label": "Enlace 2 - URL"
+    },
+    {
+      "type": "text",
+      "id": "nav_link_3_text",
+      "label": "Enlace 3 - Texto",
+      "default": "Acerca de"
+    },
+    {
+      "type": "url",
+      "id": "nav_link_3_url",
+      "label": "Enlace 3 - URL"
+    },
+    {
+      "type": "text",
+      "id": "nav_link_4_text",
+      "label": "Enlace 4 - Texto",
+      "default": "Contacto"
+    },
+    {
+      "type": "url",
+      "id": "nav_link_4_url",
+      "label": "Enlace 4 - URL"
+    },
+    {
+      "type": "text",
+      "id": "nav_link_5_text",
+      "label": "Enlace 5 - Texto"
+    },
+    {
+      "type": "url",
+      "id": "nav_link_5_url",
+      "label": "Enlace 5 - URL"
+    },
+    {
+      "type": "header",
+      "content": "Tipografía"
+    },
+    {
+      "type": "font_picker",
+      "id": "nav_font",
+      "label": "Fuente de navegación",
+      "default": "inter_n4"
+    },
+    {
+      "type": "range",
+      "id": "nav_font_size",
+      "label": "Tamaño de fuente",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "label": "Espaciado de letras",
+      "min": 0,
+      "max": 3,
+      "step": 0.5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Menú móvil"
+    },
+    {
+      "type": "range",
+      "id": "mobile_font_size",
+      "label": "Tamaño de fuente móvil",
+      "min": 14,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "mobile_link_padding",
+      "label": "Espaciado entre enlaces",
+      "min": 10,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "mobile_menu_background",
+      "label": "Fondo del menú móvil",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "mobile_text_color",
+      "label": "Color de texto móvil",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "mobile_header_background",
+      "label": "Fondo del header móvil",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Colores"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Color de texto",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "scrolled_background_color",
+      "label": "Color de fondo al hacer scroll",
+      "default": "#000000cc"
+    },
+    {
+      "type": "header",
+      "content": "Espaciado"
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding",
+      "label": "Espaciado vertical",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "horizontal_padding",
+      "label": "Espaciado horizontal",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "nav_spacing",
+      "label": "Espaciado entre enlaces",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Efectos"
+    },
+    {
+      "type": "range",
+      "id": "scroll_threshold",
+      "label": "Distancia de scroll para activar fondo",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "blur_amount",
+      "label": "Cantidad de desenfoque",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 10
+    }
+  ],
+  "presets": [
+    {
+      "name": "Header transparente"
+    }
+  ]
+}
+{% endschema %}

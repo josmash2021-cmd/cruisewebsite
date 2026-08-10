@@ -1,0 +1,287 @@
+{% comment %}
+  Luxury Polish — premium typography + microinteractions + elegant cursor.
+  Auto-applied on home (/, /es/, /en/). Respects existing custom sections.
+{% endcomment %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap">
+
+<style>
+  :root{
+    --lux-gold-1:#f5d77a;
+    --lux-gold-2:#d4af37;
+    --lux-gold-3:#b98d1c;
+    --lux-ink:#0a0a0f;
+    --lux-paper:#f8f5ef;
+    --lux-serif:'Cormorant Garamond',Georgia,serif;
+    --lux-sans:'Inter',system-ui,sans-serif;
+  }
+
+  /* ── Luxury typography applied only on home-marked sections ─────────── */
+  .lux-home h1,.lux-home .lux-display,
+  .lux-home h2:not(.lux-no-serif),
+  .lux-home [data-lux-display]{
+    font-family:var(--lux-serif);
+    font-weight:400;
+    letter-spacing:-.015em;
+    line-height:1.02;
+  }
+  .lux-home .lux-kicker,.lux-home [data-lux-kicker]{
+    font-family:var(--lux-sans);
+    font-weight:600;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    font-size:.72rem;
+    opacity:.72;
+  }
+  .lux-home .lux-sub,.lux-home [data-lux-sub]{
+    font-family:var(--lux-sans);
+    font-weight:300;
+    line-height:1.55;
+    letter-spacing:.005em;
+  }
+
+  /* ── Elegant link hover (desktop only) ──────────────────────────────── */
+  @media(hover:hover) and (pointer:fine){
+    .lux-home a:not(.lux-no-hover),
+    .lux-home button:not(.lux-no-hover){
+      transition:color 420ms cubic-bezier(.22,1,.36,1),
+                 opacity 420ms cubic-bezier(.22,1,.36,1),
+                 transform 420ms cubic-bezier(.22,1,.36,1);
+    }
+    .lux-home a:not(.lux-no-hover):hover{
+      opacity:.78;
+    }
+  }
+
+  /* ── Section spacing normalize for home (more generous) ─────────────── */
+  body.lux-home-body .shopify-section + .shopify-section{
+    margin-top:0;
+  }
+
+  /* ── Parallax layers (sutil, solo en móvil priority) ────────────────── */
+  [data-lux-parallax]{
+    will-change:transform;
+    transform:translate3d(0,0,0);
+  }
+
+  /* ── Horizon divider: thin gold line between sections ───────────────── */
+  .lux-home [data-lux-section]:not(:first-of-type)::before{
+    content:'';
+    display:block;
+    width:120px;
+    height:1px;
+    margin:0 auto;
+    background:linear-gradient(90deg,transparent,var(--lux-gold-2) 40%,var(--lux-gold-2) 60%,transparent);
+    opacity:0;
+    transform:scaleX(.3);
+    transition:opacity 1200ms cubic-bezier(.22,1,.36,1) 200ms,
+               transform 1200ms cubic-bezier(.22,1,.36,1) 200ms;
+  }
+  .lux-home [data-lux-section].is-revealed::before{
+    opacity:.55;
+    transform:scaleX(1);
+  }
+
+  /* ── Gold accent underline for CTA buttons ──────────────────────────── */
+  .lux-home .lux-cta{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:.6em;
+    padding:1em 2.2em;
+    background:linear-gradient(135deg,var(--lux-gold-1),var(--lux-gold-2),var(--lux-gold-3));
+    color:#0a0a0a;
+    border:none;
+    border-radius:999px;
+    font-family:var(--lux-sans);
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    font-size:.82rem;
+    text-decoration:none;
+    box-shadow:0 4px 24px rgba(212,175,55,.28),0 12px 38px rgba(0,0,0,.35);
+    transition:transform 520ms cubic-bezier(.22,1,.36,1),
+               box-shadow 520ms cubic-bezier(.22,1,.36,1),
+               filter 520ms cubic-bezier(.22,1,.36,1);
+  }
+  @media(hover:hover){
+    .lux-home .lux-cta:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 32px rgba(212,175,55,.42),0 18px 50px rgba(0,0,0,.5);
+      filter:saturate(1.08) brightness(1.04);
+    }
+  }
+  .lux-home .lux-cta:active{transform:translateY(0);}
+  .lux-home .lux-cta .lux-arrow{
+    display:inline-block;
+    transition:transform 420ms cubic-bezier(.22,1,.36,1);
+  }
+  @media(hover:hover){
+    .lux-home .lux-cta:hover .lux-arrow{transform:translateX(4px);}
+  }
+
+  /* ── Letter-spacing reveal (stagger on hero titles) ─────────────────── */
+  [data-lux-stagger]{overflow:hidden;display:inline-block;}
+  [data-lux-stagger] .lux-char{
+    display:inline-block;
+    opacity:0;
+    transform:translateY(.9em) rotate(3deg);
+    transition:opacity 700ms cubic-bezier(.22,1,.36,1),
+               transform 900ms cubic-bezier(.22,1,.36,1);
+    will-change:transform,opacity;
+  }
+  [data-lux-stagger].is-revealed .lux-char{
+    opacity:1;
+    transform:translateY(0) rotate(0);
+  }
+
+  /* ── Elegant cursor (desktop only, completely optional) ─────────────── */
+  @media(hover:hover) and (pointer:fine){
+    .lux-home.lux-cursor-on{cursor:none;}
+    #luxCursor{
+      position:fixed;
+      top:0;left:0;
+      width:14px;height:14px;
+      border-radius:50%;
+      background:rgba(212,175,55,.95);
+      box-shadow:0 0 24px rgba(212,175,55,.55);
+      pointer-events:none;
+      z-index:99999;
+      transform:translate3d(-50%,-50%,0);
+      transition:width 320ms cubic-bezier(.22,1,.36,1),
+                 height 320ms cubic-bezier(.22,1,.36,1),
+                 background 320ms cubic-bezier(.22,1,.36,1),
+                 opacity 320ms cubic-bezier(.22,1,.36,1);
+      mix-blend-mode:difference;
+    }
+    #luxCursor.is-hover{
+      width:44px;height:44px;
+      background:rgba(245,215,122,.28);
+      border:1px solid rgba(212,175,55,.6);
+    }
+  }
+
+  /* ── Reduced-motion opt-out ─────────────────────────────────────────── */
+  @media (prefers-reduced-motion:reduce){
+    [data-lux-stagger] .lux-char,
+    .lux-home [data-lux-section]::before{
+      opacity:1!important;transform:none!important;transition:none!important;
+    }
+    .lux-home .lux-cta{transition:none!important;}
+  }
+</style>
+
+<script>
+(function(){
+  if(window.__luxPolish)return; window.__luxPolish=1;
+
+  function isHome(){
+    var p=location.pathname;
+    return p==='/'||p==='/es/'||p==='/en/'||/^\/(es|en)\/?$/.test(p);
+  }
+  function isHeavyPage(){
+    return /\/products\/vip-service|\/products\/vip-ride-for-events/.test(location.pathname);
+  }
+
+  function applyHomeClass(){
+    if(!isHome())return;
+    document.body.classList.add('lux-home-body');
+    var main=document.querySelector('main, #MainContent, [role="main"]')||document.body;
+    main.classList.add('lux-home');
+    /* Cursor only on pointer:fine */
+    if(matchMedia('(hover:hover) and (pointer:fine)').matches && window.innerWidth>900){
+      main.classList.add('lux-cursor-on');
+      initCursor();
+    }
+    markSections();
+  }
+
+  function markSections(){
+    var secs=document.querySelectorAll('main > .shopify-section, #MainContent > .shopify-section');
+    if(!secs.length) secs=document.querySelectorAll('.shopify-section');
+    secs.forEach(function(s){
+      if(/header|footer|announcement/i.test(s.id||''))return;
+      s.setAttribute('data-lux-section','');
+    });
+  }
+
+  function initCursor(){
+    if(document.getElementById('luxCursor'))return;
+    var c=document.createElement('div');
+    c.id='luxCursor';
+    document.body.appendChild(c);
+    var tx=0,ty=0,cx=0,cy=0;
+    window.addEventListener('mousemove',function(e){tx=e.clientX;ty=e.clientY;},{passive:true});
+    function loop(){
+      cx+=(tx-cx)*.22;
+      cy+=(ty-cy)*.22;
+      c.style.transform='translate3d('+(cx)+'px,'+(cy)+'px,0) translate(-50%,-50%)';
+      requestAnimationFrame(loop);
+    }
+    loop();
+    document.addEventListener('mouseover',function(e){
+      if(e.target.closest('a,button,input,textarea,[role="button"]'))c.classList.add('is-hover');
+      else c.classList.remove('is-hover');
+    },{passive:true});
+  }
+
+  /* ── Stagger on [data-lux-stagger] titles ─────────────────────────── */
+  function splitChars(){
+    if(!isHome())return;
+    document.querySelectorAll('[data-lux-stagger]:not(.lux-split-done)').forEach(function(el){
+      el.classList.add('lux-split-done');
+      var txt=el.textContent;
+      el.textContent='';
+      var frag=document.createDocumentFragment();
+      for(var i=0;i<txt.length;i++){
+        var ch=txt[i];
+        if(ch===' '){frag.appendChild(document.createTextNode(' '));continue;}
+        var s=document.createElement('span');
+        s.className='lux-char';
+        s.textContent=ch;
+        s.style.transitionDelay=(i*24)+'ms';
+        frag.appendChild(s);
+      }
+      el.appendChild(frag);
+    });
+  }
+
+  /* ── Sutil parallax on [data-lux-parallax] (bg layers) ────────────── */
+  function initParallax(){
+    if(!isHome())return;
+    /* prefers-reduced-motion ignored — always animate */
+    var nodes=Array.prototype.slice.call(document.querySelectorAll('[data-lux-parallax]'));
+    if(!nodes.length)return;
+    var ticking=false;
+    function update(){
+      ticking=false;
+      var vy=window.innerHeight;
+      nodes.forEach(function(n){
+        var r=n.getBoundingClientRect();
+        if(r.bottom<0||r.top>vy)return;
+        var speed=parseFloat(n.getAttribute('data-lux-parallax'))||0.2;
+        var mid=r.top+r.height/2-vy/2;
+        n.style.transform='translate3d(0,'+(-mid*speed)+'px,0)';
+      });
+    }
+    window.addEventListener('scroll',function(){
+      if(!ticking){requestAnimationFrame(update);ticking=true;}
+    },{passive:true});
+    update();
+  }
+
+  function init(){
+    if(isHeavyPage())return;
+    applyHomeClass();
+    splitChars();
+    initParallax();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+  if(!isHeavyPage()){
+    var mo=new MutationObserver(function(){splitChars();});
+    mo.observe(document.body,{childList:true,subtree:true});
+  }
+})();
+</script>

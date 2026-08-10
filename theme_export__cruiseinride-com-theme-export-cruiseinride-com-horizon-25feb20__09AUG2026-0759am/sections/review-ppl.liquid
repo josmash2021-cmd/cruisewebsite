@@ -1,0 +1,1409 @@
+{% comment %}
+  ============================================
+  REVIEWS MARQUEE - 50 Reviews
+  Partial stars (4.5, 4.7, 4.8, 4.9)
+  Full width breakout, product photo, product link
+  ============================================
+{% endcomment %}
+
+<style>
+  .reviews-marquee-section {
+    --rm-bg: {{ section.settings.bg_color }};
+    --rm-text: {{ section.settings.text_color }};
+    --rm-accent: {{ section.settings.accent_color }};
+    --rm-card-bg: {{ section.settings.card_bg }};
+    --rm-star-color: {{ section.settings.star_color }};
+    --rm-border: {{ section.settings.border_color }};
+    --rm-glow: {{ section.settings.accent_color | append: '20' }};
+    --rm-glow-strong: {{ section.settings.accent_color | append: '35' }};
+    --rm-speed: {{ section.settings.marquee_speed }}s;
+    --rm-padding-top: {{ section.settings.padding_top }}px;
+    --rm-padding-bottom: {{ section.settings.padding_bottom }}px;
+
+    background: var(--rm-bg);
+    padding: var(--rm-padding-top) 0 var(--rm-padding-bottom);
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+    font-family: inherit;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+  }
+
+  .reviews-marquee-section::before,
+  .reviews-marquee-section::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 80px;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .reviews-marquee-section::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--rm-bg) 0%, transparent 100%);
+  }
+
+  .reviews-marquee-section::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--rm-bg) 0%, transparent 100%);
+  }
+
+  .rm-header-inner { text-align: center; padding: 0 20px; }
+  .rm-stats-inner { text-align: center; padding: 0 20px; }
+
+  .rm-header {
+    text-align: center;
+    margin: 0 auto 32px;
+    position: relative;
+    z-index: 5;
+    flex-shrink: 0;
+  }
+
+  .rm-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--rm-glow);
+    border: 1px solid var(--rm-border);
+    border-radius: 100px;
+    padding: 7px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--rm-accent);
+    margin-bottom: 16px;
+  }
+
+  .rm-badge svg { width: 14px; height: 14px; }
+
+  .rm-title {
+    font-size: {{ section.settings.title_size }}px;
+    font-weight: 800;
+    color: var(--rm-text);
+    margin: 0 0 12px 0;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+  }
+
+  .rm-subtitle {
+    font-size: {{ section.settings.subtitle_size }}px;
+    color: var(--rm-text);
+    opacity: 0.55;
+    margin: 0 auto;
+    max-width: 480px;
+    line-height: 1.55;
+  }
+
+  .rm-marquee-wrapper {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+    mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+  }
+
+  .rm-row {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+    flex-shrink: 0;
+    margin: 0 auto;
+  }
+
+  .rm-row--left { animation: rm-scroll-left var(--rm-speed) linear infinite; }
+  .rm-row--right { animation: rm-scroll-right var(--rm-speed) linear infinite; }
+
+  .rm-card {
+    flex-shrink: 0;
+    width: 300px;
+    margin: 0 10px;
+    background: var(--rm-card-bg);
+    border: 1px solid var(--rm-border);
+    border-radius: 22px;
+    padding: 20px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    pointer-events: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rm-card::before {
+    content: '';
+    position: absolute;
+    top: -60%;
+    right: -60%;
+    width: 220%;
+    height: 220%;
+    background: radial-gradient(circle at 70% 20%, var(--rm-glow-strong) 0%, transparent 55%);
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .rm-reviewer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .rm-avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid var(--rm-border);
+    flex-shrink: 0;
+  }
+
+  .rm-avatar-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--rm-glow);
+    border: 1.5px solid var(--rm-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--rm-accent);
+    flex-shrink: 0;
+  }
+
+  .rm-reviewer-info { min-width: 0; }
+
+  .rm-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--rm-text);
+    margin: 0 0 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  .rm-verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--rm-accent);
+    font-weight: 600;
+    opacity: 0.9;
+  }
+
+  .rm-verified svg { width: 12px; height: 12px; }
+
+  .rm-stars {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .rm-rating-num {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--rm-star-color);
+    margin-left: 6px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .rm-star {
+    width: 16px;
+    height: 16px;
+    color: var(--rm-star-color);
+    fill: var(--rm-star-color);
+    flex-shrink: 0;
+  }
+
+  .rm-star--empty {
+    color: var(--rm-border);
+    fill: none;
+    stroke: var(--rm-border);
+    stroke-width: 1.5;
+  }
+
+  .rm-star--partial-wrap {
+    position: relative;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .rm-star--partial-wrap .rm-star-bg {
+    position: absolute;
+    inset: 0;
+    color: var(--rm-border);
+    fill: none;
+    stroke: var(--rm-border);
+    stroke-width: 1.5;
+  }
+
+  .rm-star--partial-wrap .rm-star-fill {
+    position: absolute;
+    inset: 0;
+    color: var(--rm-star-color);
+    fill: var(--rm-star-color);
+    overflow: hidden;
+  }
+
+  .rm-star--partial-wrap .rm-star-fill svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .rm-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--rm-text);
+    opacity: 0.7;
+    margin: 0 0 14px 0;
+    position: relative;
+    z-index: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .rm-product-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--rm-glow);
+    border: 1px solid var(--rm-border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--rm-accent);
+    position: relative;
+    z-index: 1;
+  }
+
+  .rm-product-tag svg { width: 12px; height: 12px; }
+
+  /* ===== PRODUCT LINK (clickable) ===== */
+  a.rm-product-link {
+    pointer-events: auto !important;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  a.rm-product-link:hover {
+    background: var(--rm-glow-strong);
+    border-color: var(--rm-accent);
+    transform: translateY(-1px);
+  }
+
+  .rm-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 32px;
+    position: relative;
+    z-index: 5;
+    flex-shrink: 0;
+  }
+
+  .rm-stat { text-align: center; }
+
+  .rm-stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--rm-text);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .rm-stat-label {
+    font-size: 12px;
+    color: var(--rm-text);
+    opacity: 0.45;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+
+  @keyframes rm-scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @media (max-width: 1024px) {
+    .rm-card { width: 280px; margin: 0 8px; padding: 18px; }
+
+  }
+
+  @media (max-width: 768px) {
+    .reviews-marquee-section {
+      --rm-padding-top: {{ section.settings.padding_top | times: 0.6 | round }}px;
+      --rm-padding-bottom: {{ section.settings.padding_bottom | times: 0.6 | round }}px;
+      padding: var(--rm-padding-top) 0 var(--rm-padding-bottom);
+      min-height: 100dvh;
+    }
+    .rm-header-inner, .rm-stats-inner { padding: 0 16px; }
+    .rm-header { margin: 0 auto 20px; }
+    .rm-badge { font-size: 10px; padding: 6px 14px; letter-spacing: 1px; }
+    .rm-title { font-size: {{ section.settings.title_size | times: 0.55 | round }}px !important; letter-spacing: -0.3px; }
+    .rm-subtitle { font-size: {{ section.settings.subtitle_size | times: 0.78 | round }}px !important; max-width: 90%; line-height: 1.5; }
+    .rm-card { width: 260px; margin: 0 8px; padding: 16px; border-radius: 18px; }
+
+    .rm-reviewer { gap: 8px; margin-bottom: 8px; }
+    .rm-avatar-small, .rm-avatar-placeholder { width: 28px; height: 28px; font-size: 10px; }
+    .rm-name { font-size: 14px; }
+    .rm-verified { font-size: 10px; }
+    .rm-verified svg { width: 10px; height: 10px; }
+    .rm-stars { gap: 2px; margin-bottom: 10px; }
+    .rm-star, .rm-star--partial-wrap { width: 14px; height: 14px; }
+    .rm-star--partial-wrap .rm-star-fill svg { width: 14px; height: 14px; }
+    .rm-rating-num { font-size: 12px; margin-left: 5px; }
+    .rm-text { font-size: 13px; line-height: 1.55; margin-bottom: 12px; -webkit-line-clamp: 3; }
+    .rm-product-tag { font-size: 11px; padding: 4px 10px; border-radius: 6px; }
+    a.rm-product-link:hover { transform: none; }
+    .rm-stats { gap: 28px; margin-top: 20px; }
+    .rm-stat-value { font-size: 24px; }
+    .rm-stat-label { font-size: 10px; letter-spacing: 0.8px; }
+    .reviews-marquee-section::before, .reviews-marquee-section::after { height: 50px; }
+  }
+
+  @media (max-width: 380px) {
+    .rm-card { width: 240px; padding: 14px; }
+
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rm-row--left { animation-play-state: paused; }
+  }
+</style>
+
+<section class="reviews-marquee-section" id="rm-section-{{ section.id }}">
+  <div class="rm-header-inner">
+    <div class="rm-header">
+      {% if section.settings.show_badge %}
+        <div class="rm-badge">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          {{ section.settings.badge_text }}
+        </div>
+      {% endif %}
+      <h2 class="rm-title">{{ section.settings.title }}</h2>
+      {% if section.settings.subtitle != blank %}
+        <p class="rm-subtitle">{{ section.settings.subtitle }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="rm-marquee-wrapper">
+    {% for row in (1..1) %}
+      <div class="rm-row rm-row--left">
+        {% for block in section.blocks %}
+          {% assign rating = block.settings.rating %}
+          {% assign rating_int = rating | times: 10 %}
+          {% assign first_name = block.settings.first_name %}
+          {% assign last_name = block.settings.last_name %}
+          {% assign last_initial = last_name | slice: 0 %}
+          {% assign display_name = first_name | append: ' ' | append: last_initial | append: '.' %}
+          {% assign initials = first_name | slice: 0 | append: last_initial %}
+          <div class="rm-card" {{ block.shopify_attributes }}>
+
+            <div class="rm-reviewer">
+              {% if block.settings.avatar != blank %}
+                <img
+                  src="{{ block.settings.avatar | image_url: width: 64, height: 64, crop: 'center' }}"
+                  alt="{{ display_name }}"
+                  class="rm-avatar-small"
+                  loading="lazy"
+                  width="32"
+                  height="32"
+                >
+              {% else %}
+                <span class="rm-avatar-placeholder">{{ initials }}</span>
+              {% endif %}
+
+              <div class="rm-reviewer-info">
+                <h4 class="rm-name">{{ display_name }}</h4>
+                {% if block.settings.show_verified %}
+                  <span class="rm-verified">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    {{ section.settings.verified_text }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="rm-stars">
+              {% assign rd = rating_int %}
+              {% for si in (1..5) %}
+                {% assign s_full = si | times: 10 %}
+                {% assign s_prev = si | minus: 1 | times: 10 %}
+                {% if rd >= s_full %}
+                  <svg class="rm-star" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                {% elsif rd > s_prev %}
+                  {% assign s_pct = rd | minus: s_prev | times: 10 %}
+                  <span class="rm-star--partial-wrap">
+                    <svg class="rm-star-bg" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    <span class="rm-star-fill" style="width: {{ s_pct }}%;">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    </span>
+                  </span>
+                {% else %}
+                  <svg class="rm-star rm-star--empty" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                {% endif %}
+              {% endfor %}
+              <span class="rm-rating-num">{{ block.settings.rating }}</span>
+            </div>
+
+            <p class="rm-text">{{ block.settings.review }}</p>
+
+            {% assign product_obj = block.settings.product %}
+            {% assign tag_label = product_obj.title | default: block.settings.product_name %}
+            {% if tag_label != blank %}
+              {% if product_obj != blank and product_obj.url != blank %}
+                <a href="{{ product_obj.url }}" class="rm-product-tag rm-product-link">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M16 10a4 4 0 01-8 0"/>
+                  </svg>
+                  {{ tag_label }}
+                </a>
+              {% else %}
+                <span class="rm-product-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M16 10a4 4 0 01-8 0"/>
+                  </svg>
+                  {{ tag_label }}
+                </span>
+              {% endif %}
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        {% for block in section.blocks %}
+          {% assign rating = block.settings.rating %}
+          {% assign rating_int = rating | times: 10 %}
+          {% assign first_name = block.settings.first_name %}
+          {% assign last_name = block.settings.last_name %}
+          {% assign last_initial = last_name | slice: 0 %}
+          {% assign display_name = first_name | append: ' ' | append: last_initial | append: '.' %}
+          {% assign initials = first_name | slice: 0 | append: last_initial %}
+          <div class="rm-card" aria-hidden="true">
+
+            <div class="rm-reviewer">
+              {% if block.settings.avatar != blank %}
+                <img
+                  src="{{ block.settings.avatar | image_url: width: 64, height: 64, crop: 'center' }}"
+                  alt="{{ display_name }}"
+                  class="rm-avatar-small"
+                  loading="lazy"
+                  width="32"
+                  height="32"
+                >
+              {% else %}
+                <span class="rm-avatar-placeholder">{{ initials }}</span>
+              {% endif %}
+
+              <div class="rm-reviewer-info">
+                <h4 class="rm-name">{{ display_name }}</h4>
+                {% if block.settings.show_verified %}
+                  <span class="rm-verified">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    {{ section.settings.verified_text }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="rm-stars">
+              {% assign rd = rating_int %}
+              {% for si in (1..5) %}
+                {% assign s_full = si | times: 10 %}
+                {% assign s_prev = si | minus: 1 | times: 10 %}
+                {% if rd >= s_full %}
+                  <svg class="rm-star" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                {% elsif rd > s_prev %}
+                  {% assign s_pct = rd | minus: s_prev | times: 10 %}
+                  <span class="rm-star--partial-wrap">
+                    <svg class="rm-star-bg" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    <span class="rm-star-fill" style="width: {{ s_pct }}%;">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    </span>
+                  </span>
+                {% else %}
+                  <svg class="rm-star rm-star--empty" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                {% endif %}
+              {% endfor %}
+              <span class="rm-rating-num">{{ block.settings.rating }}</span>
+            </div>
+
+            <p class="rm-text">{{ block.settings.review }}</p>
+
+            {% assign product_obj = block.settings.product %}
+            {% assign tag_label = product_obj.title | default: block.settings.product_name %}
+            {% if tag_label != blank %}
+              {% if product_obj != blank and product_obj.url != blank %}
+                <a href="{{ product_obj.url }}" class="rm-product-tag rm-product-link">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M16 10a4 4 0 01-8 0"/>
+                  </svg>
+                  {{ tag_label }}
+                </a>
+              {% else %}
+                <span class="rm-product-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M16 10a4 4 0 01-8 0"/>
+                  </svg>
+                  {{ tag_label }}
+                </span>
+              {% endif %}
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if section.settings.show_stats %}
+    <div class="rm-stats-inner">
+      <div class="rm-stats">
+        <div class="rm-stat">
+          <div class="rm-stat-value">{{ section.settings.stat_reviews_number }}{% if section.settings.show_plus_sign %}+{% endif %}</div>
+          <div class="rm-stat-label">{{ section.settings.stat_reviews_label }}</div>
+        </div>
+        <div class="rm-stat">
+          <div class="rm-stat-value">{{ section.settings.stat_rating }}</div>
+          <div class="rm-stat-label">{{ section.settings.stat_rating_label }}</div>
+        </div>
+        <div class="rm-stat">
+          <div class="rm-stat-value">{{ section.settings.stat_customers }}</div>
+          <div class="rm-stat-label">{{ section.settings.stat_customers_label }}</div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "Reviews Marquee",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 20,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "What our customers say"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Thousands of people trust us every day"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge text",
+      "default": "Verified Reviews"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badge",
+      "label": "Show badge",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_stats",
+      "label": "Show statistics",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "verified_text",
+      "label": "Verified text",
+      "default": "Verified Purchase"
+    },
+    {
+      "type": "header",
+      "content": "Statistics"
+    },
+    {
+      "type": "text",
+      "id": "stat_reviews_number",
+      "label": "Reviews number",
+      "default": "50",
+      "info": "Number shown before the '+' in the first stat"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_plus_sign",
+      "label": "Show '+' sign after the number",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "stat_reviews_label",
+      "label": "Reviews label",
+      "default": "Reviews"
+    },
+    {
+      "type": "text",
+      "id": "stat_rating",
+      "label": "Average rating",
+      "default": "4.9"
+    },
+    {
+      "type": "text",
+      "id": "stat_rating_label",
+      "label": "Rating label",
+      "default": "Average"
+    },
+    {
+      "type": "text",
+      "id": "stat_customers",
+      "label": "Customers number",
+      "default": "10k+"
+    },
+    {
+      "type": "text",
+      "id": "stat_customers_label",
+      "label": "Customers label",
+      "default": "Customers"
+    },
+    {
+      "type": "header",
+      "content": "Appearance"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#0a0a0a"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#6366f1"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card background",
+      "default": "#161616"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star color",
+      "default": "#fbbf24"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#2a2a2a"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 20,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Title size",
+      "default": 46
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle size",
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Animation"
+    },
+    {
+      "type": "range",
+      "id": "marquee_speed",
+      "min": 15,
+      "max": 100,
+      "step": 5,
+      "unit": "s",
+      "label": "Marquee speed",
+      "info": "Lower values = faster",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "avatar",
+          "label": "Customer photo (optional)",
+          "info": "Small avatar next to the name. If empty, shows initials."
+        },
+        {
+          "type": "text",
+          "id": "first_name",
+          "label": "First name",
+          "default": "Mary",
+          "info": "Customer first name"
+        },
+        {
+          "type": "text",
+          "id": "last_name",
+          "label": "Last name",
+          "default": "Smith",
+          "info": "Last name shows as initial (e.g. S.)"
+        },
+        {
+          "type": "textarea",
+          "id": "review",
+          "label": "Review text",
+          "default": "Amazing product, exceeded all my expectations. The quality is incredible!"
+        },
+        {
+          "type": "select",
+          "id": "rating",
+          "label": "Stars",
+          "options": [
+            { "value": "4.5", "label": "4.5 stars" },
+            { "value": "4.6", "label": "4.6 stars" },
+            { "value": "4.7", "label": "4.7 stars" },
+            { "value": "4.8", "label": "4.8 stars" },
+            { "value": "4.9", "label": "4.9 stars" },
+            { "value": "5.0", "label": "5.0 stars" }
+          ],
+          "default": "4.9"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product (from store)",
+          "info": "Select a product from your store. The review will link to this product's page."
+        },
+        {
+          "type": "text",
+          "id": "product_name",
+          "label": "Product name (fallback)",
+          "default": "Premium Set",
+          "info": "Used when no store product is selected above."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_verified",
+          "label": "Show verified purchase",
+          "default": true
+        }
+      ]
+    }
+  ],
+    "presets": [
+    {
+      "name": "Reviews Marquee",
+      "blocks": [
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Carl",
+            "last_name": "Reyes",
+            "review": "As a frequent business traveler, I need reliability. CruiseInRide has never let me down in over 50 rides. Truly exceptional.",
+            "rating": "4.9",
+            "product_name": "Executive Transport"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Gregory",
+            "last_name": "Carter",
+            "review": "Professional from start to finish. The email confirmation system gives confidence, and the drivers always know the best routes.",
+            "rating": "4.8",
+            "product_name": "Executive Transport"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Nathan",
+            "last_name": "Gray",
+            "review": "From the moment I opened the door, the leather interior and ambient lighting created the perfect atmosphere. Pure class.",
+            "rating": "4.9",
+            "product_name": "Premium Suburban Ride"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Julia",
+            "last_name": "Ruiz",
+            "review": "My wife and I use CruiseInRide for date nights now. It's become part of the experience. Luxury, comfort, and zero stress.",
+            "rating": "4.9",
+            "product_name": "VIP Protocol"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Kelly",
+            "last_name": "Chavez",
+            "review": "Our family's preferred transportation service. Safe, comfortable, and reliable. The kids love riding in the big Suburban!",
+            "rating": "4.8",
+            "product_name": "Corporate Travel"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Nicole",
+            "last_name": "Patel",
+            "review": "The driver knew all the best routes and avoided traffic like a pro. Saved us 20 minutes getting to an important meeting.",
+            "rating": "4.9",
+            "product_name": "Special Events Ride"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Gregory",
+            "last_name": "Stewart",
+            "review": "Luxury experience at a fair price. The Suburban is spacious and comfortable. Booking via WhatsApp was quick and convenient.",
+            "rating": "4.8",
+            "product_name": "VIP Experience"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Sean",
+            "last_name": "Chavez",
+            "review": "Traveled with my elderly parents and the driver was so patient and caring. He made sure they were comfortable throughout.",
+            "rating": "4.9",
+            "product_name": "Special Events Ride"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Alice",
+            "last_name": "Nelson",
+            "review": "Our event planner recommended CruiseInRide for our product launch. VIP guests were impressed and so were we. Top notch!",
+            "rating": "4.9",
+            "product_name": "Airport Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Kyle",
+            "last_name": "Jones",
+            "review": "Took the Suburban to a gala event and turned heads arriving. The interior is pure luxury. Worth every single penny!",
+            "rating": "4.9",
+            "product_name": "Executive Transport"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Patricia",
+            "last_name": "Scott",
+            "review": "Happy with the VIP experience. Clean vehicle, polite driver, smooth ride. Looking forward to trying their app when it comes out.",
+            "rating": "4.7",
+            "product_name": "VIP Protocol"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Henry",
+            "last_name": "Kelly",
+            "review": "I've tried many car services before but nothing compares. The attention to detail, the bottled water, the phone charger - they think of everything.",
+            "rating": "4.9",
+            "product_name": "Executive Transport"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Henry",
+            "last_name": "James",
+            "review": "Consistently good service over 6 months of use. Occasionally hard to reach during peak hours but they always call back promptly.",
+            "rating": "4.8",
+            "product_name": "Luxury Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Linda",
+            "last_name": "Wood",
+            "review": "Great for group airport transfers. Fit all our luggage and the ride was comfortable after a long flight. Minor wait at pickup though.",
+            "rating": "4.8",
+            "product_name": "Luxury Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Justin",
+            "last_name": "Wright",
+            "review": "Used for airport transfer and it was good. Flight tracking is a nice feature. The driver was waiting as promised with a name sign.",
+            "rating": "4.7",
+            "product_name": "Corporate Travel"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Christian",
+            "last_name": "Long",
+            "review": "Used for a birthday celebration and felt incredibly special. Minor suggestion: add a partition for even more privacy in the VIP package.",
+            "rating": "4.8",
+            "product_name": "Premium Suburban Ride"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Brittany",
+            "last_name": "Ramos",
+            "review": "Fantastic service overall. The Suburban was immaculate and the driver was courteous. Slight delay due to traffic but they communicated well.",
+            "rating": "4.8",
+            "product_name": "VIP Experience"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Diane",
+            "last_name": "Evans",
+            "review": "The special events package is worth every dollar. Made our anniversary truly memorable. Just wish they had more vehicle options available.",
+            "rating": "4.8",
+            "product_name": "Executive Transport"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Zachary",
+            "last_name": "Jackson",
+            "review": "Used for airport pickup after a long international flight. Having that comfortable Suburban waiting was the best feeling ever.",
+            "rating": "4.9",
+            "product_name": "Luxury Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Timothy",
+            "last_name": "Ross",
+            "review": "The car smelled amazing, the temperature was perfect, and the ride was smoother than silk. Attention to detail at its finest.",
+            "rating": "4.9",
+            "product_name": "Airport Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Ryan",
+            "last_name": "Lee",
+            "review": "Solid transportation service. Punctual and professional. The price is a bit steep compared to alternatives but the quality justifies it.",
+            "rating": "4.7",
+            "product_name": "Corporate Travel"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Jean",
+            "last_name": "Parker",
+            "review": "Our company's executives only use CruiseInRide now. The level of professionalism and comfort is unmatched in the industry.",
+            "rating": "4.9",
+            "product_name": "VIP Protocol"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Louis",
+            "last_name": "Roberts",
+            "review": "The service was great and the car was comfortable. Had a small mix-up with the pickup time but they resolved it quickly and professionally.",
+            "rating": "4.7",
+            "product_name": "Luxury Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Pamela",
+            "last_name": "King",
+            "review": "Nice ride overall. The driver took a slightly longer route but kept us informed. The interior amenities were a pleasant surprise.",
+            "rating": "4.7",
+            "product_name": "Airport Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Jean",
+            "last_name": "Sanders",
+            "review": "Decent service overall. The Suburban was spacious for our group. Driver was professional. Just wish they offered hourly bookings.",
+            "rating": "4.7",
+            "product_name": "VIP Protocol"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Jean",
+            "last_name": "Cooper",
+            "review": "Comfortable and reliable ride. The water bottles and charging ports were appreciated. Minor delay but overall satisfied with the service.",
+            "rating": "4.7",
+            "product_name": "Premium Suburban Ride"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Hannah",
+            "last_name": "Hall",
+            "review": "The chauffeur opened the door, handled my luggage, and offered refreshments. This is what true VIP service feels like.",
+            "rating": "4.9",
+            "product_name": "VIP Protocol"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Jesse",
+            "last_name": "Cruz",
+            "review": "Excellent for business meetings. Quiet ride, comfortable seats, and I could take calls without any disturbance. Highly professional!",
+            "rating": "4.8",
+            "product_name": "Corporate Travel"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Donna",
+            "last_name": "Smith",
+            "review": "Used for prom night and felt like royalty. Parents felt safe knowing the driver was licensed and insured. Perfect choice!",
+            "rating": "4.9",
+            "product_name": "Premium Suburban Ride"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Kathleen",
+            "last_name": "Foster",
+            "review": "Booked CruiseInRide for my wedding day and everything was perfect. The car looked stunning and the driver was incredibly professional.",
+            "rating": "4.9",
+            "product_name": "Corporate Travel"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Amy",
+            "last_name": "Anderson",
+            "review": "Absolutely flawless airport transfer. The Suburban was spotless and the chauffeur arrived 10 minutes early. Best ride service I've ever used.",
+            "rating": "4.9",
+            "product_name": "Premium Suburban Ride"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Andrea",
+            "last_name": "Rogers",
+            "review": "Good service but room for improvement. The ride was comfortable and the driver was nice. Had to wait 15 minutes past the scheduled pickup time.",
+            "rating": "4.5",
+            "product_name": "Special Events Ride"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Benjamin",
+            "last_name": "Carter",
+            "review": "The chauffeur was well-dressed, polite, and drove smoothly. The water and phone charger were nice touches. Overall very satisfied!",
+            "rating": "4.8",
+            "product_name": "Corporate Travel"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Samantha",
+            "last_name": "Powell",
+            "review": "Flight got delayed by 3 hours and the driver was still there waiting, tracking my flight in real-time. Outstanding dedication!",
+            "rating": "4.9",
+            "product_name": "Airport Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Victoria",
+            "last_name": "Nelson",
+            "review": "Needed a last-minute ride and they accommodated within 20 minutes. The flexibility and responsiveness is remarkable.",
+            "rating": "4.9",
+            "product_name": "Luxury Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "William",
+            "last_name": "Thomas",
+            "review": "Used them for corporate travel weekly. Always punctual, always discreet. My go-to luxury transportation service in the city.",
+            "rating": "4.9",
+            "product_name": "Executive Transport"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Billy",
+            "last_name": "Young",
+            "review": "The booking process through WhatsApp was incredibly smooth. Had my confirmation in under 2 minutes. Brilliant service!",
+            "rating": "4.9",
+            "product_name": "Airport Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Noah",
+            "last_name": "Kelly",
+            "review": "Great experience for our corporate event. Professional drivers and beautiful vehicles. Will definitely book again for future events.",
+            "rating": "4.8",
+            "product_name": "VIP Protocol"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Brian",
+            "last_name": "Patel",
+            "review": "Used for a bachelor party transfer between venues. The driver was fun yet professional and kept everything on schedule.",
+            "rating": "4.9",
+            "product_name": "Luxury Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Paul",
+            "last_name": "Foster",
+            "review": "My CEO specifically requests CruiseInRide for all his travels. That says everything about the quality of this service.",
+            "rating": "4.9",
+            "product_name": "Corporate Travel"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Eric",
+            "last_name": "Bennett",
+            "review": "I was skeptical about the price at first, but after experiencing the service, I understand why it's premium. You get what you pay for!",
+            "rating": "4.9",
+            "product_name": "Luxury Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Christine",
+            "last_name": "Thompson",
+            "review": "Booked a 4 AM airport pickup and the driver was there right on time, smiling and ready. Now that's 24/7 service done right!",
+            "rating": "4.9",
+            "product_name": "Premium Suburban Ride"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Pamela",
+            "last_name": "Ward",
+            "review": "Reliable airport transfers every time. They track flights and adjust accordingly. The app would make it even better once it launches.",
+            "rating": "4.8",
+            "product_name": "VIP Experience"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Henry",
+            "last_name": "Peterson",
+            "review": "The VIP service was impressive. Clean car, professional chauffeur, and smooth ride. The only tiny issue was finding the pickup spot at the airport.",
+            "rating": "4.8",
+            "product_name": "Special Events Ride"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Denise",
+            "last_name": "Green",
+            "review": "The discreet service is exactly what I need for high-profile client meetings. No logos, no attention, just pure professionalism.",
+            "rating": "4.9",
+            "product_name": "VIP Experience"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Kathryn",
+            "last_name": "James",
+            "review": "The Suburban was clean and the driver professional. Pricing was higher than expected due to surge. Would use again during off-peak hours.",
+            "rating": "4.5",
+            "product_name": "Executive Transport"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Sandra",
+            "last_name": "Ortiz",
+            "review": "Very good service. The Suburban was clean and the driver was friendly. One small issue with the AC but otherwise a pleasant experience.",
+            "rating": "4.7",
+            "product_name": "Luxury Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Gary",
+            "last_name": "Allen",
+            "review": "The VIP protocol service exceeded every expectation. Felt like a celebrity from pickup to drop-off. Highly recommend!",
+            "rating": "4.9",
+            "product_name": "Special Events Ride"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Andrew",
+            "last_name": "Hall",
+            "review": "The Suburban comfortably fit my entire family of 7 plus luggage for our vacation airport transfer. Spacious and luxurious!",
+            "rating": "4.9",
+            "product_name": "Airport Transfer"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "first_name": "Virginia",
+            "last_name": "Bailey",
+            "review": "Good experience for our office team building. Booking process was smooth via WhatsApp. Would appreciate a loyalty program though.",
+            "rating": "4.7",
+            "product_name": "Special Events Ride"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

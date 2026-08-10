@@ -1,0 +1,812 @@
+{% assign current_lang = localization.language.iso_code | default: shop.locale | slice: 0,2 | downcase %}
+{% if current_lang != 'es' %}{% assign current_lang = 'en' %}{% endif %}
+
+<!-- CONTACT SECTION -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+
+<section class="contactX" id="contact-{{ section.id }}" aria-label="{% if current_lang == 'es' %}Contacto{% else %}Contact{% endif %}" data-lang="{{ current_lang }}">
+
+  <div class="contactX__bg" aria-hidden="true">
+    <video class="contactX__video" autoplay muted loop playsinline preload="auto">
+      <source src="https://cdn.shopify.com/videos/c/o/v/f3a11ffc3ca7407e9f7d62511e7da1cc.mp4" type="video/mp4">
+    </video>
+    <div class="contactX__overlay"></div>
+    <div class="contactX__sharpen"></div>
+    <div class="contactX__vignette"></div>
+  </div>
+
+  <div class="contactX__wrap">
+
+    <header class="contactX__head">
+      <div class="contactX__kicker" data-text-en="CONTACT" data-text-es="CONTACTO">
+        {% if current_lang == 'es' %}CONTACTO{% else %}CONTACT{% endif %}
+      </div>
+      <h2 class="contactX__title">
+        {% if current_lang == 'es' %}
+          Estamos aquí para <span class="contactX__accent">servirte</span>
+        {% else %}
+          We are here to <span class="contactX__accent">serve you</span>
+        {% endif %}
+      </h2>
+      <div class="contactX__divider" aria-hidden="true">
+        <span></span>
+        <span>◆</span>
+        <span></span>
+      </div>
+    </header>
+
+    <div class="contactX__grid">
+
+      <div class="contactX__cards">
+
+        <!-- PHONE -->
+        <div class="contactX__card" data-animate="card-up" data-delay="0">
+          <div class="contactX__card-glow"></div>
+          <div class="contactX__icon contactX__icon--outline">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.86 19.86 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.89.33 1.76.63 2.6a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.48-1.48a2 2 0 0 1 2.11-.45c.84.3 1.71.51 2.6.63A2 2 0 0 1 22 16.92z"/>
+            </svg>
+          </div>
+          <div class="contactX__cardTitle" data-text-en="Phone" data-text-es="Teléfono">
+            {% if current_lang == 'es' %}Teléfono{% else %}Phone{% endif %}
+          </div>
+          <div class="contactX__cardText">
+            <a href="tel:+16593052974">+1 (659) 305-2974</a>
+          </div>
+          <div class="contactX__card-action">
+            <a href="https://wa.me/16593052974" target="_blank" class="contactX__whatsapp">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              {% if current_lang == 'es' %}WhatsApp{% else %}WhatsApp{% endif %}
+            </a>
+          </div>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="contactX__card" data-animate="card-up" data-delay="150">
+          <div class="contactX__card-glow"></div>
+          <div class="contactX__icon contactX__icon--outline">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <rect x="3" y="5" width="18" height="14" rx="2"/>
+              <path d="M3 7l9 6 9-6"/>
+            </svg>
+          </div>
+          <div class="contactX__cardTitle" data-text-en="Email" data-text-es="Correo">
+            {% if current_lang == 'es' %}Correo{% else %}Email{% endif %}
+          </div>
+          <div class="contactX__cardText">
+            <a href="mailto:SUPPORT@CRUISEINRIDE.COM">SUPPORT@CRUISEINRIDE.COM</a>
+          </div>
+          <div class="contactX__card-action">
+            <button class="contactX__copy" onclick="navigator.clipboard.writeText('SUPPORT@CRUISEINRIDE.COM'); this.textContent='{% if current_lang == 'es' %}¡Copiado!{% else %}Copied!{% endif %}'; setTimeout(() => this.textContent='{% if current_lang == 'es' %}Copiar{% else %}Copy{% endif %}', 2000)">
+              {% if current_lang == 'es' %}Copiar{% else %}Copy{% endif %}
+            </button>
+          </div>
+        </div>
+
+        <!-- HOURS -->
+        <div class="contactX__card contactX__card--wide" data-animate="card-up" data-delay="300">
+          <div class="contactX__card-glow"></div>
+          <div class="contactX__icon contactX__icon--circle">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 7v5l3 2"/>
+            </svg>
+          </div>
+          <div class="contactX__cardTitle" data-text-en="Hours" data-text-es="Horario">
+            {% if current_lang == 'es' %}Horario{% else %}Hours{% endif %}
+          </div>
+          <div class="contactX__cardText contactX__cardText--highlight">24/7</div>
+          <div class="contactX__card-subtext" data-text-en="Always available for you" data-text-es="Siempre disponibles para ti">
+            {% if current_lang == 'es' %}Siempre disponibles para ti{% else %}Always available for you{% endif %}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FORM -->
+      <aside class="contactX__panel" data-animate="fade-up" data-delay="450">
+        <div class="contactX__panel-glow"></div>
+        <div class="contactX__panelTitle" data-text-en="Send us a message" data-text-es="Envíanos un mensaje">
+          {% if current_lang == 'es' %}Envíanos un mensaje{% else %}Send us a message{% endif %}
+        </div>
+
+        <form class="contactX__form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+          <div class="contactX__row">
+            <div class="contactX__field">
+              <input class="contactX__input" name="name" placeholder="{% if current_lang == 'es' %}Tu nombre{% else %}Your name{% endif %}" required>
+              <label class="contactX__label">{% if current_lang == 'es' %}Nombre{% else %}Name{% endif %}</label>
+            </div>
+            <div class="contactX__field">
+              <input class="contactX__input" name="email" type="email" placeholder="{% if current_lang == 'es' %}tu@email.com{% else %}your@email.com{% endif %}" required>
+              <label class="contactX__label">Email</label>
+            </div>
+          </div>
+
+          <div class="contactX__field">
+            <input class="contactX__input" name="subject" placeholder="{% if current_lang == 'es' %}Asunto del mensaje{% else %}Message subject{% endif %}">
+            <label class="contactX__label" data-text-en="Subject" data-text-es="Asunto">{% if current_lang == 'es' %}Asunto{% else %}Subject{% endif %}</label>
+          </div>
+
+          <div class="contactX__field">
+            <textarea class="contactX__textarea" name="message" placeholder="{% if current_lang == 'es' %}Escribe tu mensaje...{% else %}Write your message...{% endif %}" required></textarea>
+            <label class="contactX__label" data-text-en="Message" data-text-es="Mensaje">{% if current_lang == 'es' %}Mensaje{% else %}Message{% endif %}</label>
+          </div>
+
+          <button class="contactX__btn" type="submit">
+            <span class="contactX__btn-text" data-text-en="SEND MESSAGE" data-text-es="ENVIAR MENSAJE">
+              {% if current_lang == 'es' %}ENVIAR MENSAJE{% else %}SEND MESSAGE{% endif %}
+            </span>
+            <span class="contactX__btn-icon">✈</span>
+            <span class="contactX__btn-shine"></span>
+          </button>
+        </form>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<style>
+:root{
+  --gold:#c9a23a;
+  --gold-light:#f5d77a;
+  --gold-dark:#b98d1c;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-back:cubic-bezier(.34,1.56,.64,1);
+  --tSlow:2400ms;
+  --tMed:1700ms;
+}
+
+/* Fondo negro en el wrapper de Shopify */
+#shopify-section-{{ section.id }}{
+  background:#000 !important;
+}
+
+.contactX{
+  position:relative;
+  isolation:isolate;
+  z-index:1;
+  min-height:95vh;
+  padding:120px 16px;
+  margin-top:0;
+  margin-bottom:0;
+  color:white;
+  overflow:visible;
+  box-shadow:
+    0 -60px 40px -10px #000;
+  font-family:"Inter",sans-serif;
+}
+
+/* GRADIENT BLEND — 300px de alto, negro solido largo */
+.contactX::before,
+.contactX::after{
+  content:'';
+  position:absolute;
+  left:0;
+  right:0;
+  height:150px;
+  z-index:3;
+  pointer-events:none;
+}
+.contactX::before{
+  top:-80px;
+  background:linear-gradient(to bottom,
+    #000 0%,
+    #000 40%,
+    rgba(0,0,0,.6) 70%,
+    transparent 100%
+  );
+}
+.contactX::after{
+  bottom:0;
+  background:linear-gradient(to top,
+    #000 0%,
+    rgba(0,0,0,.6) 40%,
+    rgba(0,0,0,.3) 70%,
+    transparent 100%
+  );
+}
+
+.contactX__bg{
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:#000;
+  overflow:hidden;
+}
+
+.contactX__video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transform:scale(1.02);
+  filter:contrast(1.2) saturate(1.15) brightness(1.08);
+  image-rendering:-webkit-optimize-contrast;
+  image-rendering:crisp-edges;
+  -webkit-transform:translateZ(0);
+  transform:translateZ(0);
+  backface-visibility:hidden;
+  will-change:transform;
+}
+
+.contactX__overlay{
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(to bottom,rgba(0,0,0,.85) 0%,rgba(0,0,0,.4) 20%,transparent 45%),
+    linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.5) 20%,transparent 50%),
+    radial-gradient(circle at 50% 18%,rgba(201,162,58,.14),transparent 62%);
+}
+
+.contactX__sharpen{
+  position:absolute;
+  inset:0;
+  backdrop-filter:contrast(1.1) saturate(1.05);
+  pointer-events:none;
+  opacity:0.3;
+}
+
+.contactX__vignette{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.4) 100%);
+  pointer-events:none;
+}
+
+.contactX__wrap{
+  max-width:1100px;
+  margin:auto;
+  text-align:center;
+  position:relative;
+  z-index:2;
+}
+
+.contactX__head{
+  margin-bottom:50px;
+}
+.contactX__kicker{
+  letter-spacing:.45em;
+  font-size:12px;
+  color:var(--gold);
+  font-weight:600;
+  margin-bottom:15px;
+  display:inline-block;
+  padding:8px 16px;
+  border:1px solid rgba(201,162,58,.3);
+  border-radius:50px;
+  background:rgba(201,162,58,.1);
+  backdrop-filter:blur(10px);
+}
+.contactX__title{
+  font-family:"Cinzel",serif;
+  font-size:clamp(34px,8vw,70px);
+  margin:0;
+  line-height:1.1;
+}
+.contactX__accent{
+  color:var(--gold);
+  position:relative;
+  display:inline-block;
+}
+.contactX__accent::after{
+  content:'';
+  position:absolute;
+  bottom:-5px;
+  left:0;
+  right:0;
+  height:3px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  border-radius:3px;
+}
+
+.contactX__divider{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:15px;
+  margin-top:25px;
+}
+.contactX__divider span:first-child,
+.contactX__divider span:last-child{
+  width:80px;
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.contactX__divider span:nth-child(2){
+  color:var(--gold);
+  font-size:12px;
+  animation:diamondRotate 4s linear infinite;
+}
+
+@keyframes diamondRotate{
+  0%{ transform:rotate(0deg); }
+  100%{ transform:rotate(360deg); }
+}
+
+.contactX__grid{
+  display:grid;
+  grid-template-columns:1fr 1.3fr;
+  gap:40px;
+  align-items:start;
+}
+@media(max-width:980px){
+  .contactX__grid{grid-template-columns:1fr;}
+}
+
+.contactX__cards{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
+@media(max-width:520px){
+  .contactX__cards{grid-template-columns:1fr;}
+}
+
+.contactX__card{
+  position:relative;
+  background:rgba(20,22,25,.55);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:20px;
+  padding:30px 22px;
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.65);
+  overflow:hidden;
+  transition:
+    transform var(--tMed) var(--ease),
+    border-color var(--tMed) var(--ease),
+    box-shadow var(--tMed) var(--ease);
+  will-change:transform;
+}
+
+.contactX__card-glow{
+  position:absolute;
+  inset:-2px;
+  background:radial-gradient(ellipse at center, rgba(201,162,58,.3) 0%, transparent 70%);
+  opacity:0;
+  filter:blur(20px);
+  z-index:-1;
+  transition:opacity var(--tMed) ease;
+}
+
+.contactX__card:hover{
+  transform:translateY(-8px);
+  border-color:rgba(201,162,58,.4);
+  box-shadow:
+    0 30px 85px rgba(0,0,0,.70),
+    0 0 0 2px rgba(201,162,58,.12),
+    0 0 40px rgba(201,162,58,.15);
+}
+
+.contactX__card:hover .contactX__card-glow{
+  opacity:1;
+}
+
+.contactX__card--wide{ grid-column:1/-1; }
+
+.contactX__icon{
+  width:60px;
+  height:60px;
+  margin:0 auto 16px;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--gold);
+  color:black;
+  font-size:22px;
+  transition:transform var(--tMed) var(--ease-back), box-shadow var(--tMed) ease;
+  box-shadow:0 10px 30px rgba(201,162,58,.2);
+}
+
+.contactX__icon--outline{
+  background:transparent;
+  border:2px solid var(--gold);
+  color:var(--gold);
+}
+
+.contactX__icon--circle{
+  border-radius:999px;
+  border:2px solid var(--gold);
+  background:rgba(0,0,0,.15);
+  color:var(--gold);
+}
+
+.contactX__card:hover .contactX__icon{
+  transform:scale(1.1) rotate(5deg);
+  box-shadow:0 15px 40px rgba(201,162,58,.3);
+}
+
+.contactX__cardTitle{
+  font-family:"Cinzel";
+  font-size:18px;
+  font-weight:600;
+  margin-bottom:8px;
+  color:#fff;
+}
+.contactX__cardText{
+  opacity:.85;
+  font-size:14px;
+  font-weight:500;
+}
+.contactX__cardText a{
+  color:inherit;
+  text-decoration:none;
+  transition:color 0.3s ease;
+}
+.contactX__cardText a:hover{
+  color:var(--gold);
+}
+.contactX__cardText--highlight{
+  font-size:28px;
+  font-weight:700;
+  color:var(--gold);
+  text-shadow:0 0 20px rgba(201,162,58,.3);
+}
+.contactX__card-subtext{
+  font-size:12px;
+  opacity:.6;
+  margin-top:5px;
+}
+
+.contactX__card-action{
+  margin-top:15px;
+}
+.contactX__whatsapp,
+.contactX__copy{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 16px;
+  border-radius:25px;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+  text-decoration:none;
+  transition:all 0.3s ease;
+  cursor:pointer;
+  border:none;
+}
+
+.contactX__whatsapp{
+  background:#25D366;
+  color:white;
+}
+.contactX__whatsapp:hover{
+  background:#128C7E;
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(37,211,102,.3);
+}
+
+.contactX__copy{
+  background:rgba(201,162,58,.2);
+  color:var(--gold);
+  border:1px solid rgba(201,162,58,.4);
+}
+.contactX__copy:hover{
+  background:rgba(201,162,58,.3);
+  border-color:var(--gold);
+}
+
+.contactX__panel{
+  position:relative;
+  background:rgba(20,22,25,.55);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:20px;
+  padding:35px;
+  text-align:left;
+  box-shadow:0 26px 70px rgba(0,0,0,.7);
+  overflow:hidden;
+  transition:
+    transform var(--tMed) var(--ease),
+    border-color var(--tMed) var(--ease),
+    box-shadow var(--tMed) var(--ease);
+}
+
+.contactX__panel:hover{
+  transform:translateY(-4px);
+  border-color:rgba(201,162,58,.3);
+  box-shadow:
+    0 34px 95px rgba(0,0,0,.75),
+    0 0 0 2px rgba(201,162,58,.10),
+    0 0 40px rgba(201,162,58,.10);
+}
+
+.contactX__panel-glow{
+  position:absolute;
+  inset:-2px;
+  background:radial-gradient(ellipse at top, rgba(201,162,58,.2) 0%, transparent 60%);
+  opacity:0.5;
+  filter:blur(30px);
+  z-index:-1;
+}
+
+.contactX__panelTitle{
+  font-family:"Cinzel";
+  margin-bottom:25px;
+  font-size:22px;
+  font-weight:600;
+  color:#fff;
+  text-align:center;
+  position:relative;
+}
+.contactX__panelTitle::after{
+  content:'';
+  position:absolute;
+  bottom:-10px;
+  left:50%;
+  transform:translateX(-50%);
+  width:60px;
+  height:2px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.contactX__form{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+.contactX__row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+@media(max-width:600px){
+  .contactX__row{grid-template-columns:1fr;}
+}
+
+.contactX__field{
+  position:relative;
+}
+
+.contactX__input,
+.contactX__textarea,
+.contactX .contactX__textarea,
+.contactX .contactX__input,
+.contactX input[type="text"],
+.contactX input[type="email"],
+.contactX textarea{
+  width:100%;
+  background:rgba(0,0,0,.4) !important;
+  background-color:rgba(0,0,0,.4) !important;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.2) !important;
+  padding:16px;
+  border-radius:12px;
+  color:var(--gold) !important;
+  font-weight:500;
+  font-size:15px;
+  font-family:"Inter",sans-serif;
+  outline:none !important;
+  transition:all 0.3s ease;
+  -webkit-appearance:none;
+  appearance:none;
+  box-sizing:border-box;
+}
+
+.contactX__input:focus,
+.contactX__textarea:focus,
+.contactX input:focus,
+.contactX textarea:focus{
+  border-color:var(--gold) !important;
+  box-shadow:0 0 0 4px rgba(201,162,58,.15), 0 8px 25px rgba(0,0,0,.2);
+  background:rgba(0,0,0,.5) !important;
+  background-color:rgba(0,0,0,.5) !important;
+}
+
+.contactX__input::placeholder,
+.contactX__textarea::placeholder,
+.contactX input::placeholder,
+.contactX textarea::placeholder{
+  color:rgba(201,162,58,.5) !important;
+}
+
+.contactX__label{
+  position:absolute;
+  top:-10px;
+  left:12px;
+  background:var(--gold);
+  color:#000;
+  font-size:11px;
+  font-weight:700;
+  padding:3px 10px;
+  border-radius:20px;
+  opacity:0;
+  transform:translateY(5px);
+  transition:all 0.3s ease;
+  pointer-events:none;
+  text-transform:uppercase;
+  letter-spacing:0.05em;
+}
+
+.contactX__input:focus + .contactX__label,
+.contactX__textarea:focus + .contactX__label,
+.contactX__input:not(:placeholder-shown) + .contactX__label,
+.contactX__textarea:not(:placeholder-shown) + .contactX__label{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.contactX__textarea{
+  min-height:120px;
+  resize:vertical;
+}
+
+.contactX__btn{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dark) 100%);
+  color:black;
+  height:56px;
+  border-radius:14px;
+  font-weight:800;
+  letter-spacing:.15em;
+  cursor:pointer;
+  border:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin-top:10px;
+  transition:
+    transform var(--tSlow) var(--ease),
+    box-shadow var(--tSlow) var(--ease);
+  box-shadow:0 16px 40px rgba(201,162,58,.3);
+}
+
+.contactX__btn-text{
+  position:relative;
+  z-index:2;
+}
+
+.contactX__btn-icon{
+  position:relative;
+  z-index:2;
+  font-size:18px;
+  transition:transform 0.3s ease;
+}
+
+.contactX__btn-shine{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg, transparent 0%, rgba(255,255,255,.4) 50%, transparent 100%);
+  transform:translateX(-100%);
+  transition:transform 0.8s ease;
+}
+
+.contactX__btn:hover{
+  transform:translateY(-4px);
+  box-shadow:
+    0 25px 60px rgba(201,162,58,.4),
+    0 0 0 2px rgba(201,162,58,.2);
+}
+
+.contactX__btn:hover .contactX__btn-shine{
+  transform:translateX(100%);
+}
+
+.contactX__btn:hover .contactX__btn-icon{
+  transform:translateX(5px);
+}
+
+.contactX__btn:active{
+  transform:translateY(-1px) scale(.985);
+}
+
+/* ANIMACIONES */
+.contactX__head,
+.contactX__cards,
+.contactX__panel{
+  opacity:0;
+  transform:translateY(18px) scale(.985);
+  filter:blur(10px);
+  transition:
+    opacity var(--tSlow) var(--ease),
+    transform var(--tSlow) var(--ease),
+    filter var(--tSlow) var(--ease);
+  will-change:opacity, transform, filter;
+}
+
+.contactX__head{ transition-delay:120ms; }
+.contactX__cards{ transition-delay:320ms; }
+.contactX__panel{ transition-delay:520ms; }
+
+.contactX.is-visible .contactX__head,
+.contactX.is-visible .contactX__cards,
+.contactX.is-visible .contactX__panel{
+  opacity:1;
+  transform:translateY(0) scale(1);
+  filter:blur(0);
+}
+
+.contactX__card[data-animate="card-up"]{
+  opacity:0;
+  transform:translateY(40px);
+  transition:
+    opacity var(--tMed) var(--ease),
+    transform var(--tMed) var(--ease),
+    border-color var(--tMed) var(--ease),
+    box-shadow var(--tMed) var(--ease);
+}
+
+.contactX.is-visible .contactX__card[data-animate="card-up"]{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.contactX__card[data-delay="0"]{ transition-delay:0ms; }
+.contactX__card[data-delay="150"]{ transition-delay:150ms; }
+.contactX__card[data-delay="300"]{ transition-delay:300ms; }
+
+.contactX__panel[data-animate="fade-up"]{
+  opacity:0;
+  transform:translateY(30px);
+  transition:
+    opacity var(--tSlow) var(--ease),
+    transform var(--tSlow) var(--ease),
+    border-color var(--tMed) var(--ease),
+    box-shadow var(--tMed) var(--ease);
+  transition-delay:450ms;
+}
+
+.contactX.is-visible .contactX__panel[data-animate="fade-up"]{
+  opacity:1;
+  transform:translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .contactX__head,
+  .contactX__cards,
+  .contactX__panel,
+  .contactX__card{
+    transition:none !important;
+    opacity:1 !important;
+    transform:none !important;
+    filter:none !important;
+  }
+}
+
+@media (max-width:768px){
+  .contactX{
+    padding:80px 16px;
+    margin-top:0;
+    margin-bottom:0;
+  }
+  .contactX::before,
+  .contactX::after{
+    height:120px;
+  }
+  .contactX__title{
+    font-size:clamp(28px,10vw,50px);
+  }
+  .contactX__panel{
+    padding:25px;
+  }
+}
+</style>
+
+<script>
+(function(){
+  const section = document.getElementById('contact-{{ section.id }}');
+  if(!section) return;
+
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        section.classList.add('is-visible');
+      } else {
+        section.classList.remove('is-visible');
+      }
+    });
+  }, { threshold: 0.25 });
+
+  io.observe(section);
+})();
+</script>

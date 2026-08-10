@@ -1,0 +1,269 @@
+{% comment %}
+  Swipe Up Hint — overlay con mano dorada animada que aparece después del splash.
+  Solo se muestra en home, una vez por sesión. Se cierra a los 5s o al tocar/scrollear.
+{% endcomment %}
+
+{% assign cruise_lang = localization.language.iso_code | default: shop.locale | slice: 0,2 | downcase %}
+{% if cruise_lang != 'es' %}{% assign cruise_lang = 'en' %}{% endif %}
+
+<div id="cruiseSwipeHint" class="cs-swipe-hint" role="dialog" aria-label="Swipe up to scroll">
+  <div class="cs-swipe-hint__content">
+
+    <div class="cs-swipe-hint__stage" aria-hidden="true">
+      <div class="cs-swipe-hint__trail">
+        <span class="cs-swipe-hint__trail-line"></span>
+        <span class="cs-swipe-hint__trail-dot cs-swipe-hint__trail-dot--1"></span>
+        <span class="cs-swipe-hint__trail-dot cs-swipe-hint__trail-dot--2"></span>
+        <span class="cs-swipe-hint__trail-dot cs-swipe-hint__trail-dot--3"></span>
+      </div>
+
+      <div class="cs-swipe-hint__hand">
+        <svg viewBox="0 0 24 24" width="100" height="100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="url(#csHandGrad)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <defs>
+            <linearGradient id="csHandGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fff4c4"/>
+              <stop offset="50%" stop-color="#f5d77a"/>
+              <stop offset="100%" stop-color="#d4af37"/>
+            </linearGradient>
+          </defs>
+          <!-- Icono mano (Lucide / Heroicons style: Hand pointing up) -->
+          <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+          <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/>
+          <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
+          <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="cs-swipe-hint__text">
+      {% if cruise_lang == 'es' %}DESLIZA HACIA ARRIBA{% else %}SWIPE UP{% endif %}
+    </div>
+  </div>
+
+  <div class="cs-swipe-hint__close" aria-hidden="true">
+    {% if cruise_lang == 'es' %}TOCA PARA CONTINUAR{% else %}TAP TO CONTINUE{% endif %}
+  </div>
+</div>
+
+<style>
+#cruiseSwipeHint{
+  position:fixed !important;
+  top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;
+  width:100vw !important;height:100vh !important;height:100dvh !important;
+  z-index:2147483646 !important;
+  background:rgba(0,0,0,.75) !important;
+  -webkit-backdrop-filter:blur(10px) !important;
+  backdrop-filter:blur(10px) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex-direction:column !important;
+  opacity:0;
+  pointer-events:none;
+  visibility:hidden;
+  transition:opacity 600ms cubic-bezier(.4,0,.2,1), visibility 0s linear 600ms;
+  font-family:"Inter",sans-serif;
+}
+#cruiseSwipeHint.cs-show{
+  opacity:1 !important;
+  pointer-events:auto !important;
+  visibility:visible !important;
+  transition:opacity 600ms cubic-bezier(.4,0,.2,1), visibility 0s linear 0s;
+}
+#cruiseSwipeHint.cs-hide{
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+
+#cruiseSwipeHint .cs-swipe-hint__content{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  gap:14px;text-align:center;padding:30px;
+}
+#cruiseSwipeHint .cs-swipe-hint__stage{
+  position:relative;width:160px;height:240px;
+  display:flex;align-items:center;justify-content:center;
+}
+#cruiseSwipeHint .cs-swipe-hint__trail{
+  position:absolute;top:0;bottom:0;
+  left:50%;transform:translateX(-50%);
+  width:4px;pointer-events:none;
+}
+#cruiseSwipeHint .cs-swipe-hint__trail-line{
+  position:absolute;left:50%;transform:translateX(-50%);
+  top:10%;height:80%;width:2px;
+  background:linear-gradient(to top,
+    transparent 0%,rgba(245,215,122,.15) 30%,
+    rgba(245,215,122,.55) 60%,rgba(245,215,122,.15) 95%,transparent 100%);
+  border-radius:2px;filter:blur(.5px);
+  animation:csTrailPulse 2.4s ease-in-out infinite;
+}
+#cruiseSwipeHint .cs-swipe-hint__trail-dot{
+  position:absolute;left:50%;
+  width:6px;height:6px;border-radius:50%;
+  background:#f5d77a;
+  box-shadow:0 0 12px rgba(245,215,122,.9),0 0 24px rgba(245,215,122,.5);
+  transform:translate(-50%,0);opacity:0;
+  animation:csTrailDot 2.4s cubic-bezier(.4,0,.2,1) infinite;
+}
+#cruiseSwipeHint .cs-swipe-hint__trail-dot--1{ animation-delay:0s; }
+#cruiseSwipeHint .cs-swipe-hint__trail-dot--2{ animation-delay:.4s; }
+#cruiseSwipeHint .cs-swipe-hint__trail-dot--3{ animation-delay:.8s; }
+
+@keyframes csTrailDot{
+  0%{ opacity:0; top:80%; transform:translate(-50%,0) scale(.4); }
+  15%{ opacity:1; transform:translate(-50%,0) scale(1); }
+  100%{ opacity:0; top:10%; transform:translate(-50%,0) scale(.6); }
+}
+@keyframes csTrailPulse{
+  0%,100%{ opacity:.4; }
+  50%{ opacity:1; }
+}
+
+#cruiseSwipeHint .cs-swipe-hint__hand{
+  position:relative;z-index:2;
+  filter:drop-shadow(0 6px 16px rgba(245,215,122,.45)) drop-shadow(0 0 24px rgba(245,215,122,.3));
+  animation:csSwipeHand 2.4s cubic-bezier(.45,.05,.25,1) infinite;
+  will-change:transform;
+  transform-origin:center 80%;
+}
+@keyframes csSwipeHand{
+  0%{ transform:translateY(45px) rotate(-3deg) scale(.95); opacity:.65; }
+  15%{ transform:translateY(40px) rotate(0deg) scale(1); opacity:1; }
+  50%{ transform:translateY(-50px) rotate(2deg) scale(1.02); opacity:1; }
+  65%{ transform:translateY(-55px) rotate(0deg) scale(1); opacity:.85; }
+  80%{ transform:translateY(-65px) rotate(-2deg) scale(.92); opacity:0; }
+  81%{ transform:translateY(45px) rotate(-3deg) scale(.9); opacity:0; }
+  100%{ transform:translateY(45px) rotate(-3deg) scale(.95); opacity:.65; }
+}
+
+#cruiseSwipeHint .cs-swipe-hint__text{
+  letter-spacing:.45em;font-size:14px;font-weight:700;color:#fff;
+  text-shadow:0 0 14px rgba(245,215,122,.5);
+  animation:csSwipeText 2.4s ease-in-out infinite;
+}
+@keyframes csSwipeText{
+  0%,100%{ opacity:.65; letter-spacing:.45em; }
+  50%{ opacity:1; letter-spacing:.5em; }
+}
+
+#cruiseSwipeHint .cs-swipe-hint__close{
+  position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
+  font-size:10px;letter-spacing:.3em;
+  color:rgba(255,255,255,.5);font-weight:500;text-transform:uppercase;
+  animation:csClosePulse 2s ease-in-out infinite;white-space:nowrap;
+}
+@keyframes csClosePulse{
+  0%,100%{ opacity:.5; }
+  50%{ opacity:.95; }
+}
+
+@media(max-width:600px){
+  #cruiseSwipeHint .cs-swipe-hint__content{gap:12px;padding:24px;}
+  #cruiseSwipeHint .cs-swipe-hint__stage{width:140px;height:220px;}
+  #cruiseSwipeHint .cs-swipe-hint__hand svg{width:78px;height:98px;}
+  #cruiseSwipeHint .cs-swipe-hint__text{font-size:12px;letter-spacing:.4em;}
+  #cruiseSwipeHint .cs-swipe-hint__close{font-size:9px;bottom:28px;}
+}
+</style>
+
+<script>
+(function(){
+  var hint = document.getElementById('cruiseSwipeHint');
+  if(!hint) return;
+
+  // Solo en home
+  var path = window.location.pathname.replace(/\/+$/,'');
+  var isHome = path==='' || path==='/' || /^\/(es|en|fr|de|it|pt)(-[a-z]{2})?$/i.test(path);
+  if(!isHome){
+    if(hint.parentNode) hint.parentNode.removeChild(hint);
+    return;
+  }
+
+  // Mover al body para que esté garantizado por encima de todo
+  if(hint.parentNode !== document.body){
+    document.body.appendChild(hint);
+  }
+
+  // No mostrar si ya se vio en esta sesión (skip en debug ?showhint=1)
+  var forceShow = /[?&]showhint=1/.test(window.location.search);
+  try{
+    if(!forceShow && sessionStorage.getItem('cruiseSwipeHintSeen')){
+      hint.style.display = 'none';
+      return;
+    }
+  }catch(e){}
+
+  var dismissed = false;
+  var hideTimeout;
+
+  function dismiss(){
+    if(dismissed) return;
+    dismissed = true;
+    hint.classList.remove('cs-show');
+    hint.classList.add('cs-hide');
+    try{ sessionStorage.setItem('cruiseSwipeHintSeen', '1'); }catch(e){}
+    clearTimeout(hideTimeout);
+    setTimeout(function(){
+      if(hint && hint.parentNode) hint.parentNode.removeChild(hint);
+    }, 700);
+  }
+
+  function showHint(){
+    hint.classList.add('cs-show');
+    hideTimeout = setTimeout(dismiss, 5000);
+  }
+
+  function decide(){
+    var splash = document.getElementById('cruiseSplash');
+    var splashActive = splash && !splash.classList.contains('cs-hidden') && !splash.classList.contains('cs-done');
+
+    if(window.cruiseSplashDone === true){
+      setTimeout(showHint, 600);
+    } else if(splashActive){
+      document.addEventListener('splashDone', function(){
+        setTimeout(showHint, 600);
+      });
+      // Failsafe rápido — si el splash no termina en 4s, mostrar igual
+      setTimeout(function(){
+        if(!dismissed && !hint.classList.contains('cs-show')) showHint();
+      }, 4000);
+    } else {
+      setTimeout(showHint, 1000);
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', decide);
+  } else {
+    decide();
+  }
+
+  hint.addEventListener('click', dismiss);
+  hint.addEventListener('touchstart', dismiss, {passive:true});
+
+  document.addEventListener('touchstart', function(){
+    if(!dismissed && hint.classList.contains('cs-show')) dismiss();
+  }, {passive:true, capture:true});
+
+  document.addEventListener('click', function(){
+    if(!dismissed && hint.classList.contains('cs-show')) dismiss();
+  }, {capture:true});
+
+  var lastY = window.pageYOffset || 0;
+  window.addEventListener('scroll', function(){
+    if(!dismissed && hint.classList.contains('cs-show')){
+      var newY = window.pageYOffset || 0;
+      if(Math.abs(newY - lastY) > 10) dismiss();
+      lastY = newY;
+    }
+  }, {passive:true});
+
+  document.addEventListener('keydown', function(e){
+    if(!dismissed && (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter')){
+      dismiss();
+    }
+  });
+})();
+</script>

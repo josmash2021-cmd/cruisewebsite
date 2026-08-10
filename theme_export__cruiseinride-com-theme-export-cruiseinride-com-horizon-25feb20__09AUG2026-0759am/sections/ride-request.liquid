@@ -1,0 +1,1375 @@
+{%- comment -%} v-revert-paypal-{{ 'now' | date: '%s%N' }} {%- endcomment -%}
+{%- assign _ab = 'vipRide__authBtn vipRide__authBtn--outline vipRide__authBtn--icon' -%}
+{% assign bp = section.settings.booking_product %}
+{% if bp %}
+  {% assign booked_raw = bp.metafields.vip.booked_slots.value | default: '[]' %}
+{% else %}
+  {% assign booked_raw = '[]' %}
+{% endif %}
+<script>
+  try{window.__VIP_BOOKED_SLOTS__={{ booked_raw | json }};}catch(_){window.__VIP_BOOKED_SLOTS__=[];}
+  window.__VIP_SVC_STATES__=('{% if section.settings.svc_al %}AL,{% endif %}{% if section.settings.svc_fl %}FL,{% endif %}{% if section.settings.svc_ga %}GA,{% endif %}{% if section.settings.svc_ms %}MS,{% endif %}{% if section.settings.svc_tn %}TN,{% endif %}{% if section.settings.svc_la %}LA,{% endif %}{% if section.settings.svc_sc %}SC,{% endif %}{% if section.settings.svc_nc %}NC,{% endif %}{% if section.settings.svc_tx %}TX,{% endif %}{% if section.settings.svc_ca %}CA,{% endif %}{% if section.settings.svc_ny %}NY,{% endif %}{% if section.settings.svc_nv %}NV,{% endif %}{{ section.settings.svc_extra_states | escape }}').toUpperCase().split(',').map(function(s){return s.trim()}).filter(function(s,i,a){return s&&a.indexOf(s)===i});
+  window.__VIP_SVC_BLOCK__={titleEn:{{ section.settings.svc_block_title_en | default: 'Not available here' | json }},titleEs:{{ section.settings.svc_block_title_es | default: 'No disponible aquí' | json }},msgEn:{{ section.settings.svc_block_msg_en | default: '' | json }},msgEs:{{ section.settings.svc_block_msg_es | default: '' | json }}};
+  window.__VIP_CENT_VARIANT_ID__=48209875435775
+  window.__VIP_VEHICLE_VARIANTS__ = {
+    {% assign printed_vehicle_variant = false %}
+    {% for block in section.blocks %}
+      {% assign p = block.settings.product %}
+      {% if p and p.variants.size > 0 %}
+        {% if printed_vehicle_variant %},{% endif %}
+        "{{ block.id }}": [
+          {% for v in p.variants %}
+            { "id": {{ v.id }}, "price": {{ v.price }} }{% unless forloop.last %},{% endunless %}
+          {% endfor %}
+        ]
+        {% assign printed_vehicle_variant = true %}
+      {% endif %}
+    {% endfor %}
+  };
+</script>
+<section id="vipRide-{{ section.id }}" class="vipRide">
+  <div class="vipRide__bg" aria-hidden="true"></div>
+  <div class="vipRide__wrap">
+    <div class="vipRide__map">
+      <div class="vipRide__mapInner" id="vipRideMap-{{ section.id }}"></div>
+      <div class="vipRide__mapSkeleton" data-vr-mapsk><div class="vrMapGrid"></div><div class="vrMapPin"></div></div>
+    </div>
+    <button type="button" class="vipRide__mapBackBtn" data-vipride-map-back hidden aria-label="Back">
+      <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+    </button>
+    <div class="vipRide__sheet" data-vipride-sheet data-vipride-step="1">
+      <div class="vipRide__handle" aria-hidden="true"></div>
+      <div class="vipRide__stepDots" aria-hidden="true">
+        <div class="vipRide__stepDot is-active"></div>
+        <div class="vipRide__stepDot"></div>
+        <div class="vipRide__stepDot"></div>
+      </div>
+      <!-- STEP 1 -->
+      <div class="vipRide__step" data-vipride-step-panel="1">
+        <div class="vipRide__compactCard" data-vipride-compact-card>
+          <div class="vipRide__compactCard__body" data-vipride-open-locpicker>
+            <h2 class="vipRide__compactCard__title" data-vipride-compact-heading>Where to?</h2>
+            <div class="vipRide__seg" data-vipride-seg role="group" aria-label="Ride timing">
+              <div class="vipRide__seg__rail" aria-hidden="true"></div>
+              <button type="button" class="vipRide__seg__btn is-active" data-compact-mode="now" data-vipride-compact-mode-btn>
+                <svg class="vipRide__pillIcon" width="9" height="13" viewBox="0 0 9 13" fill="currentColor" aria-hidden="true"><path d="M5.2 0L0 7.5h3.6L2.2 13 9 5H5.4L5.2 0z"/></svg><span data-vipride-mode-now>Now</span>
+              </button>
+              <button type="button" class="vipRide__seg__btn" data-compact-mode="later" data-vipride-compact-mode-btn>
+                <svg class="vipRide__pillIcon" width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="6.5" cy="6.5" r="5.5"/><path d="M6.5 3.5V6.5L8.5 8.5"/></svg><span data-vipride-mode-schedule>Schedule</span>
+              </button>
+            </div>
+          </div>
+          <button type="button" class="vipRide__compactArrow" data-vipride-compact-next aria-label="Continue">
+            <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1l6 6-6 6"/></svg>
+          </button>
+        </div>
+        <div class="vipRide__step1Full">
+          <div class="vipRide__titleRow">
+            <h2 class="vipRide__title" data-vipride-step1-heading>Where to?</h2>
+          </div>
+          <div class="vipRide__modeToggle" data-vipride-mode-toggle style="display:none!important">
+            <button type="button" class="vipRide__modeBtn is-active" data-mode="ride" data-vipride-mode-btn>{{ section.settings.ride_mode_text | default: 'Point to Point' }}</button>
+          </div>
+          <div class="vipRide__form" data-vipride-mode="ride">
+            <div class="vipRide__field">
+              <label class="vipRide__label" data-vipride-pickup-label>{{ section.settings.pickup_label }}</label>
+              <div class="vipRide__inputWrap">
+                <span class="vipRide__inputIcon">&#9679;</span>
+                <input type="text" class="vipRide__input" placeholder="{{ section.settings.pickup_placeholder }}" data-vipride-pickup autocomplete="off">
+                <button type="button" class="vipRide__clear" aria-label="Clear" data-vipride-clear="pickup">&times;</button>
+              </div>
+            </div>
+            <div class="vipRide__field" data-vipride-dropoff-field>
+              <label class="vipRide__label">{{ section.settings.dropoff_label }}</label>
+              <div class="vipRide__inputWrap">
+                <span class="vipRide__inputIcon">&#9632;</span>
+                <input type="text" class="vipRide__input" placeholder="{{ section.settings.dropoff_placeholder }}" data-vipride-dropoff autocomplete="off">
+                <button type="button" class="vipRide__clear" aria-label="Clear" data-vipride-clear="dropoff">&times;</button>
+              </div>
+            </div>
+            <div class="vipRide__field vipRide__field--hours" data-vipride-hours-field hidden>
+              <label class="vipRide__label">{{ section.settings.hours_label | default: 'Duration' }}</label>
+              <div class="vipRide__hoursWrap">
+                <button type="button" class="vipRide__hoursBtn" data-vipride-hours-minus>&#8722;</button>
+                <div class="vipRide__hoursDisplay">
+                  <span class="vipRide__hoursValue" data-vipride-hours-value>4</span>
+                  <span class="vipRide__hoursUnit" data-vipride-hours-unit>{{ section.settings.hours_unit | default: 'hours' }}</span>
+                </div>
+                <button type="button" class="vipRide__hoursBtn" data-vipride-hours-plus>&#43;</button>
+              </div>
+              <input type="hidden" data-vipride-hours-input value="4">
+              <div class="vipRide__hoursHint" data-vipride-hours-hint>{{ section.settings.hours_hint | default: 'Minimum 3 hours, maximum 12 hours' }}</div>
+            </div>
+            <button type="button" class="vipRide__stepNext" data-vipride-step1-next disabled>{{ section.settings.see_prices_text | default: 'Continue' }} &#8250;</button>
+          </div>
+        </div>
+      </div>
+      <input type="date" id="vipDate-{{ section.id }}" data-vipride-date style="display:none">
+      <input type="time" data-vipride-time style="display:none">
+      <div class="vipRide__step" data-vipride-step-panel="3" hidden>
+        <div class="vipRide__prices" data-vipride-prices>
+          <div class="vipRide__pricesHeader">
+            <span class="vipRide__pricesTitle" data-vipride-prices-title>{{ section.settings.choose_ride_text }}</span>
+          </div>
+          <div class="vipRide__rideList" role="list">
+            {% for block in section.blocks %}
+              {% assign p = block.settings.product %}
+              {% assign v = nil %}
+              {% if p and p.variants.size > 0 %}{% assign v = p.selected_or_first_available_variant %}{% endif %}
+              {% if forloop.index0 == 0 %}{% assign card_tier = 'vip' %}{% elsif forloop.index0 == 1 %}{% assign card_tier = 'premium' %}{% else %}{% assign card_tier = 'comfort' %}{% endif %}
+              {% assign card_desc = block.settings.desc %}{% if card_desc == blank %}{% if card_tier == 'vip' %}{% assign card_desc = 'Spacious • Leather • Snacks & Drinks' %}{% elsif card_tier == 'premium' %}{% assign card_desc = 'Comfort • Climate • Charger' %}{% else %}{% assign card_desc = 'Clean • Safe • Efficient' %}{% endif %}{% endif %}
+              <button type="button"
+                class="vipRide__rideCard{% if block.settings.disabled %} vipRide__rideCard--disabled{% endif %}"
+                role="listitem" data-vipride-card
+                data-title="{{ block.settings.title | escape }}"
+                data-seats="{{ block.settings.seats }}"
+                data-desc="{{ block.settings.desc | default: card_desc | escape }}"
+                data-price="{% if v %}{{ v.price | money }}{% else %}{{ block.settings.manual_price | escape }}{% endif %}"
+                data-rate="{{ block.settings.vehicle_rate }}"
+                data-variant-id="{% if v %}{{ v.id }}{% endif %}"
+                data-block-id="{{ block.id }}"
+                data-hourly-price="{{ block.settings.hourly_rate | default: block.settings.vehicle_rate }}"
+                data-tier="{{ card_tier }}"
+                data-badge="{{ card_tier | upcase }}"
+                {% if block.settings.disabled %}disabled data-disabled="true"{% endif %}>
+                <div class="vipRide__rideImg">
+                  {% if block.settings.image %}
+                    {{ block.settings.image | image_url: width: 320 | image_tag: loading: 'lazy', class: 'vipRide__rideImgTag', alt: block.settings.title }}
+                  {% else %}
+                    <div class="vipRide__rideImgPh">&#128664;</div>
+                  {% endif %}
+                </div>
+                <div class="vipRide__rideMeta">
+                  <div class="vipRide__rideNameRow"><div class="vipRide__rideName">{{ block.settings.title }}</div><span class="vipRide__seats"><span class="vipRide__personIcon">&#128100;</span>{{ block.settings.seats }}</span></div>
+                  <div class="vipRide__rideInfo">
+                    <div class="vipRide__rideEtaWrap">
+                      <span class="vipRide__ridePickupEta" data-vipride-pickup-eta>--</span>
+                      <span class="vipRide__ridePickupEtaLabel">min away</span>
+                    </div>
+                    <div class="vipRide__rideArrival" data-vipride-arrival>
+                      <span class="vipRide__clockIcon">&#128339;</span>
+                      <span class="vipRide__arrivalTime" data-vipride-arrival-time>--:--</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="vipRide__rideBadgeCol">
+                  <span class="vipRide__fasterBadge" data-vipride-faster hidden>
+                    <svg class="vipRide__fasterIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 1.9"/></svg>
+                    <span>Faster</span>
+                  </span>
+                </div>
+              </button>
+            {% endfor %}
+          </div>
+          <div class="vipRide__rideDetail" data-vipride-detail hidden>
+            <div class="vipRide__rideDetail__bar">
+              <div class="vipRide__detailPill">
+                <span class="vipRide__detailPill__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 1.9"/></svg>
+                </span>
+                <span data-vipride-detail-eta>--</span>
+              </div>
+              <div class="vipRide__detailPill">
+                <span class="vipRide__detailPill__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                </span>
+                <span data-vipride-detail-dist>--</span>
+              </div>
+              <div class="vipRide__detailPill">
+                <span class="vipRide__detailPill__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+                </span>
+                <span data-vipride-detail-seats>--</span>
+              </div>
+              <div class="vipRide__rideDetail__price" data-vipride-detail-price>--</div>
+            </div>
+          </div>
+          <div class="vipRide__actionBtns" data-vipride-action-btns hidden role="group" aria-label="Ride actions">
+            <button type="button" class="vipRide__paymentBtn" data-vipride-payment-btn aria-label="Select payment method">
+              <span class="vipRide__payBtnIcon" aria-hidden="true" style="width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,255,255,.1)">
+                <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="1" y="1" width="16" height="10" rx="2" stroke="#fff" stroke-width="1.2"/><path d="M1 4.5h16" stroke="#fff" stroke-width="1.2"/></svg>
+              </span>
+              <span class="vipRide__payBtnLabel" data-vipride-rc-heading>Payment Method</span>
+              <svg aria-hidden="true" width="7" height="12" viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.4"><path d="M1 1l5 5-5 5"/></svg>
+            </button>
+            <button type="button" class="vipRide__requestBtn" data-vipride-request-btn disabled aria-label="Request ride"><span data-vipride-request-text>Request Ride</span></button>
+          </div>
+          <form class="vipRide__ctaForm" data-vipride-form style="display:none">
+            <input type="hidden" name="id" value="" data-vipride-booking-variant>
+            <input type="hidden" name="quantity" value="1">
+            <input type="hidden" name="properties[Booking Type]" value="ride" data-vipride-prop="bookingType">
+            <input type="hidden" name="properties[Pickup]" value="" data-vipride-prop="pickup">
+            <input type="hidden" name="properties[Dropoff]" value="" data-vipride-prop="dropoff">
+            <input type="hidden" name="properties[Hours]" value="" data-vipride-prop="hours">
+            <input type="hidden" name="properties[Date]" value="" data-vipride-prop="date">
+            <input type="hidden" name="properties[Time]" value="" data-vipride-prop="time">
+            <input type="hidden" name="properties[Vehicle]" value="" data-vipride-prop="vehicle">
+            <input type="hidden" name="properties[Estimated Price]" value="" data-vipride-prop="price">
+          </form>
+        </div>
+      </div>
+      <div class="vipRide__payOverlay" data-vipride-pay-overlay hidden>
+        <div class="vipRide__payOverlay__header">
+          <button type="button" class="vipRide__payOverlay__back" data-vipride-pay-close aria-label="Back">
+            <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+          </button>
+          <h3 class="vipRide__payOverlay__title" data-vipride-pay-heading>Payment Method</h3>
+        </div>
+        <div class="vipRide__payOverlay__list">
+          <button type="button" class="vipRide__payOption" data-vipride-pay-option="apple_pay">
+            <span class="vipRide__payIcon" style="background:#000;display:flex;align-items:center;justify-content:center">
+              <svg viewBox="0 0 20 20" fill="#fff" preserveAspectRatio="xMidYMid meet"><path d="M14.54 10.94c-.02-1.7 1.39-2.52 1.45-2.56-.79-1.16-2.02-1.32-2.46-1.34-1.04-.1-2.04.62-2.57.62-.54 0-1.36-.6-2.23-.59-1.15.02-2.2.67-2.79 1.7-1.2 2.07-.31 5.13.85 6.81.57.82 1.24 1.74 2.13 1.71.86-.04 1.18-.55 2.21-.55s1.33.55 2.23.53c.92-.01 1.51-.84 2.07-1.67.65-.96.92-1.88.94-1.93-.02-.01-1.81-.69-1.83-2.73zM12.79 5.82c.47-.57.79-1.37.7-2.16-.68.03-1.5.45-1.99 1.03-.43.5-.82 1.31-.72 2.08.76.06 1.54-.39 2.01-.95z"/></svg>
+            </span>
+            <span class="vipRide__payLabel" data-vipride-pay-apple>Apple Pay</span>
+            <span class="vipRide__payCheck" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="vipRide__payOption" data-vipride-pay-option="google_pay">
+            <span class="vipRide__payIcon" style="background:#fff">
+              <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09A6.97 6.97 0 015.5 12c0-.72.12-1.42.34-2.09V7.07H2.18A11.96 11.96 0 001 12c0 1.94.46 3.77 1.18 5.42l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            </span>
+            <span class="vipRide__payLabel" data-vipride-pay-google>Google Pay</span>
+            <span class="vipRide__payCheck" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="vipRide__payOption" data-vipride-pay-option="card">
+            <span class="vipRide__payIcon" style="background:rgba(255,255,255,.1)">
+              <svg width="22" height="16" viewBox="0 0 22 16" fill="none"><rect x="1" y="1" width="20" height="14" rx="2.5" stroke="#fff" stroke-width="1.3"/><path d="M1 5.5h20" stroke="#fff" stroke-width="1.3"/><rect x="3" y="9" width="5" height="2" rx="1" fill="rgba(255,255,255,.3)"/></svg>
+            </span>
+            <span class="vipRide__payLabel" data-vipride-pay-card>Debit / Credit Card</span>
+            <span class="vipRide__payCheck" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+      <div class="vipRide__scheduleOverlay" data-vipride-schedule-overlay hidden>
+        <div class="vipRide__schedPage" data-vipride-sched-page="date">
+          <div class="vipRide__schedHeader">
+            <button type="button" class="vipRide__schedBackBtn" data-vipride-sched-back-cal>
+              <svg width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2L2 8l6 6"/></svg>
+            </button>
+            <div>
+              <h3 class="vipRide__schedTitle" data-vipride-sch-heading>Schedule a Ride</h3>
+              <p class="vipRide__schedSub" data-vipride-sch-sub>Choose a date for your ride</p>
+            </div>
+            <span class="vipRide__schedHeaderIcon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="#E8C547"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#E8C547" stroke-width="1.5" fill="none"/><path d="M3 9h18" stroke="#E8C547" stroke-width="1.5"/><path d="M8 2v4M16 2v4" stroke="#E8C547" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </span>
+          </div>
+          <div class="vipRide__schedQuickChips"><button class="vipRide__schedChip" data-quick-date="today" data-vipride-sch-today>Today</button><button class="vipRide__schedChip" data-quick-date="tomorrow" data-vipride-sch-tomorrow>Tomorrow</button><button class="vipRide__schedChip" data-quick-date="weekend" data-vipride-sch-weekend>Weekend</button></div>
+          <div class="vipRide__schedCalendar" data-vipride-sched-calendar></div>
+          <div class="vipRide__schedFooter">
+            <label class="vipRide__schedToggle">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#E8C547"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+              <span data-vipride-sch-airport-label>Airport trip</span>
+              <input type="checkbox" data-vipride-sched-airport>
+              <span class="vipRide__schedToggleTrack"><span class="vipRide__schedToggleThumb"></span></span>
+            </label>
+            <button type="button" class="vipRide__schedNextBtn" data-vipride-sched-next disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              <span data-vipride-sch-seltime>Select Time</span>
+            </button>
+          </div>
+        </div>
+        <div class="vipRide__schedPage" data-vipride-sched-page="time" hidden>
+          <div class="vipRide__schedHeader">
+            <button type="button" class="vipRide__schedBackBtn" data-vipride-sched-back>
+              <svg width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2L2 8l6 6"/></svg>
+            </button>
+            <div>
+              <h3 class="vipRide__schedTitle" data-vipride-tp-heading>Select Time</h3>
+              <p class="vipRide__schedSub" data-vipride-tp-sub>Pick your preferred time</p>
+            </div>
+            <span class="vipRide__schedHeaderIcon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E8C547" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </span>
+          </div>
+          <div class="vipRide__schedQuickChips"><button type="button" class="vipRide__schedChip" data-quick-time="30" data-vipride-qt-30>+30 min</button><button type="button" class="vipRide__schedChip" data-quick-time="60" data-vipride-qt-60>+1 hr</button><button type="button" class="vipRide__schedChip" data-quick-time="120" data-vipride-qt-120>+2 hr</button></div>
+          <div class="vipRide__schedTimePicker">
+            <button type="button" class="vipRide__schedArrow vipRide__schedArrow--big" data-vipride-sched-step-up aria-label="Later">&#9650;</button>
+            <div class="vipRide__schedTimeDisplay">
+              <div class="vipRide__schedTimeRow">
+                <span class="vipRide__schedTimeVal" data-vipride-sched-hr>10</span>
+                <span class="vipRide__schedTimeSep">:</span>
+                <span class="vipRide__schedTimeVal" data-vipride-sched-min>00</span>
+                <span class="vipRide__schedAmPmLabel" data-vipride-sched-ampm-label>AM</span>
+              </div>
+              <div class="vipRide__schedTimeHint">30-min slots from now</div>
+            </div>
+            <button type="button" class="vipRide__schedArrow vipRide__schedArrow--big" data-vipride-sched-step-down aria-label="Earlier">&#9660;</button>
+            <div class="vipRide__schedTimeSummary" data-vipride-sched-summary></div>
+          </div>
+          <div class="vipRide__schedFooter">
+            <button type="button" class="vipRide__schedConfirmBtn" data-vipride-sched-confirm>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              <span data-vipride-tp-confirm>Confirm & Book</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="vipRide__laterOverlay" data-vipride-later-overlay hidden>
+      <div class="vipRide__laterOverlay__header">
+        <button type="button" class="vipRide__locPicker__back" data-vipride-close-later aria-label="Back">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+        </button>
+        <h3 class="vipRide__laterOverlay__title" data-vipride-later-heading>Choose ride type</h3>
+      </div>
+      <div class="vipRide__laterCards vipRide__laterCards--grid">
+        <!-- Airport -->
+        <button type="button" class="vipRide__laterCard vipRide__laterCard--v" data-later-type="airport">
+          <span class="vipRide__laterCard__icon" aria-hidden="true">
+            {% if section.settings.later_airport_icon != blank %}
+              {{ section.settings.later_airport_icon | image_url: width: 512 | image_tag: loading: 'eager', class: 'vipRide__laterCard__iconImg', alt: 'Airport' }}
+            {% else %}
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+            {% endif %}
+          </span>
+          <span class="vipRide__laterCard__title" data-vipride-later-airport-title>Airport</span>
+          <span class="vipRide__laterCard__sub" data-vipride-later-airport-sub>Book a ride to or from the airport</span>
+        </button>
+        <!-- Schedule -->
+        <button type="button" class="vipRide__laterCard vipRide__laterCard--v" data-later-type="schedule">
+          <span class="vipRide__laterCard__icon" aria-hidden="true">
+            {% if section.settings.later_schedule_icon != blank %}
+              {{ section.settings.later_schedule_icon | image_url: width: 512 | image_tag: loading: 'eager', class: 'vipRide__laterCard__iconImg', alt: 'Schedule' }}
+            {% else %}
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5.3l3.2 3.2"/></svg>
+            {% endif %}
+          </span>
+          <span class="vipRide__laterCard__title" data-vipride-later-schedule-title>Schedule</span>
+          <span class="vipRide__laterCard__sub" data-vipride-later-schedule-sub>Schedule a ride for later</span>
+        </button>
+      </div>
+    </div>
+    <div class="vipRide__locPicker" data-vipride-locpicker hidden>
+      <div class="vipRide__locPicker__topRow">
+        <button type="button" class="vipRide__locPicker__back" data-vipride-close-locpicker aria-label="Back">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+        </button>
+        <div class="vipRide__locPicker__fieldsWrap">
+          <!-- Connector line between pickup dot and dropoff dot -->
+          <span class="vipRide__locPicker__connector" aria-hidden="true"></span>
+          <!-- Pickup -->
+          <div class="vipRide__locPicker__field vipRide__locPicker__field--pickup" data-vipride-lp-field="pickup">
+            <span class="vipRide__locPicker__dot vipRide__locPicker__dot--pickup" aria-hidden="true"></span>
+            <input type="text" class="vipRide__locPicker__input vipRide__locPicker__input--pickup" data-vipride-lp-pickup
+              placeholder="Current location" autocomplete="off">
+            <!-- Masked "Current location" label shown while unfocused + has a real value -->
+            <span class="vipRide__locPicker__mask" data-vipride-lp-mask data-vipride-lp-current aria-hidden="true">Current location</span>
+            <button type="button" class="vipRide__locPicker__clearBtn" data-vipride-lp-clear="pickup" aria-label="Clear pickup" hidden>
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M1 1l8 8M9 1L1 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+            </button>
+          </div>
+          <!-- Dropoff -->
+          <div class="vipRide__locPicker__field vipRide__locPicker__field--dropoff" data-vipride-lp-field="dropoff">
+            <span class="vipRide__locPicker__dot vipRide__locPicker__dot--dropoff" aria-hidden="true"></span>
+            <input type="text" class="vipRide__locPicker__input" data-vipride-lp-dropoff
+              placeholder="Where to?" autocomplete="off">
+            <button type="button" class="vipRide__locPicker__clearBtn" data-vipride-lp-clear="dropoff" aria-label="Clear dropoff" hidden>
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M1 1l8 8M9 1L1 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+            </button>
+          </div>
+          <div class="vipRide__locPicker__suggestions" data-vipride-lp-suggestions hidden></div>
+        </div>
+        <button type="button" class="vipRide__lpReverse" data-vipride-lp-reverse aria-label="Swap pickup and dropoff" title="Swap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M7 4l-3 3M7 4l3 3M17 20V4M17 20l3-3M17 20l-3-3"/></svg>
+        </button>
+      </div>
+      <div class="vipRide__locPicker__shortcuts">
+        <button type="button" class="vipRide__locPicker__shortcut vipRide__locPicker__shortcut--premium" data-vipride-shortcut="map">
+          <span class="vipRide__locPicker__shortcutIcon vipRide__locPicker__shortcutIcon--map" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M9 3l-6 2v16l6-2 6 2 6-2V3l-6 2-6-2zM9 3v16M15 5v16"/></svg></span>
+          <div class="vipRide__locPicker__shortcutText">
+            <span class="vipRide__locPicker__shortcutTitle" data-vipride-lp-choosemap-title>Choose on map</span>
+            <span class="vipRide__locPicker__shortcutSub" data-vipride-lp-choosemap-sub>Drop a pin at your exact spot</span>
+          </div>
+          <span class="vipRide__locPicker__shortcutChevron" aria-hidden="true">
+            <svg width="7" height="12" viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l5 5-5 5"/></svg>
+          </span>
+        </button>
+      </div>
+      <div class="vipRide__lpSaved"><div class="vipRide__lpSectLabel" data-vipride-lp-saved-label>Saved places</div><div class="vipRide__lpSavedRow" data-vipride-lp-saved></div></div>
+      <div class="vipRide__lpRecent" data-vipride-lp-recent hidden><div class="vipRide__lpSectLabel" data-vipride-lp-recent-label>Recent</div><div class="vipRide__lpRecentList" data-vipride-lp-recent-list></div></div>
+    </div>
+    <div class="vipRide__mapPicker" data-vipride-mappicker hidden>
+      <div class="vipRide__mapPicker__header">
+        <button type="button" class="vipRide__mapPicker__back" data-vipride-mappicker-back aria-label="Back">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+        </button>
+        <span class="vipRide__mapPicker__chip" data-vipride-mp-chip>Move map to set dropoff location</span>
+      </div>
+      <div class="vipRide__mapPicker__canvas">
+        <div class="vipRide__mapPicker__pin" data-vipride-mappicker-pin>
+          <svg class="vipRide__mapPicker__pinSvg" viewBox="0 0 48 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="vipPinGold" x1="24" y1="2" x2="24" y2="43.7" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#F5DC7A"/>
+                <stop offset=".45" stop-color="#D4A800"/>
+                <stop offset="1" stop-color="#B08800"/>
+              </linearGradient>
+              <radialGradient id="vipPinHalo" cx="24" cy="16.3" r="17.3" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#E8C547" stop-opacity=".22"/>
+                <stop offset=".5" stop-color="#E8C547" stop-opacity=".06"/>
+                <stop offset="1" stop-color="#E8C547" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="vipPinGlow" cx="24" cy="16.3" r="11.5" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#fff" stop-opacity=".6"/>
+                <stop offset=".3" stop-color="#fff" stop-opacity=".18"/>
+                <stop offset=".65" stop-color="#fff" stop-opacity=".04"/>
+                <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="vipPinShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2.5"/>
+              </filter>
+            </defs>
+            <circle cx="24" cy="16.3" r="17.3" fill="url(#vipPinHalo)"/>
+            <circle cx="24" cy="16.3" r="11.5" fill="url(#vipPinGlow)"/>
+            <path d="M36.2 24 A14.4 14.4 0 0 1 11.8 24 Q13 36.2 24 43.7 Q35 36.2 36.2 24Z"
+                  fill="#D4A800" opacity=".45" filter="url(#vipPinShadow)"/>
+            <path d="M36.2 24 A14.4 14.4 0 0 1 11.8 24 Q13 36.2 24 43.7 Q35 36.2 36.2 24Z"
+                  fill="url(#vipPinGold)"/>
+            <path d="M32.3 22.6 A10.4 10.4 0 0 1 15.7 22.6 Q24 26.2 32.3 22.6Z"
+                  fill="#0a1128"/>
+            <path d="M35.5 23.5 A13.8 13.8 0 0 0 30.5 13"
+                  stroke="white" stroke-opacity=".28" stroke-width=".8" fill="none" stroke-linecap="round"/>
+            <path d="M24 10.5c-3.9 0-7 3.1-7 7 0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z"
+                  fill="white" fill-opacity=".95"/>
+            <circle cx="24" cy="17.5" r="2.5" fill="#0a1128"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="vipRide__testConfirm" data-vipride-test-confirm hidden>
+    <div class="vipRide__testConfirm__phase1" data-vipride-test-p1>
+      <div class="vipRide__testStars" data-vipride-test-stars aria-hidden="true"></div>
+      <div class="vipRide__testPulse" aria-hidden="true">
+        <div class="vipRide__testPulse__ring vipRide__testPulse__ring--outer"></div>
+        <div class="vipRide__testPulse__ring vipRide__testPulse__ring--mid"></div>
+        <div class="vipRide__testPulse__circle">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="#E8C547"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+        </div>
+      </div>
+      <p class="vipRide__testConfirm__label"><span data-vipride-confirm-msg>Confirming your ride</span><span class="vipRide__testDots" aria-hidden="true">...</span></p>
+      <div class="vipRide__testBar"><div class="vipRide__testBar__fill" data-vipride-test-bar></div></div>
+      <button type="button" class="vipRide__testCancelBtn" data-vipride-test-cancel data-vipride-confirm-cancel>Cancel</button>
+    </div>
+    <div class="vipRide__driverFound" data-vipride-test-driver>
+      <div class="vipRide__driverCenter">
+        <div class="vipRide__driverCheck" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h2 class="vipRide__driverFoundTitle" data-vipride-driver-heading>Driver found!</h2>
+        <p class="vipRide__driverFoundSub" data-vipride-driver-onway>Your driver is on the way</p>
+      </div>
+      <div class="vipRide__driverCard">
+        <div class="vipRide__driverCard__row">
+          <div class="vipRide__driverCard__photo" data-vipride-driver-photo>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="rgba(255,255,255,.6)"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+          </div>
+          <div class="vipRide__driverCard__info">
+            <div class="vipRide__driverCard__name" data-vipride-driver-name data-vipride-driver-label>Your Driver</div>
+            <div class="vipRide__driverCard__rating" data-vipride-driver-rating-wrap hidden>
+              <svg viewBox="0 0 24 24" fill="#E8C547"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <span data-vipride-driver-rating></span>
+            </div>
+            <div class="vipRide__driverCard__vehicle" data-vipride-driver-vehicle></div>
+            <span class="vipRide__driverCard__plate" data-vipride-driver-plate hidden></span>
+          </div>
+        </div>
+        <div class="vipRide__testBar vipRide__testBar--phase2" style="margin-top:4px"><div class="vipRide__testBar__fill" data-vipride-test-bar-driver></div></div>
+      </div>
+    </div>
+    <div class="vipRide__driverFound vipRide__reserveOk" data-vipride-reserve-ok></div>
+    <div class="vipRide__testConfirm__phase1 vipRide__appPromo" data-vipride-test-apppromo>
+      <button type="button" class="vipRide__appPromoBack" data-vipride-apppromo-back aria-label="Back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="vRSymA" viewBox="0 0 24 24"><path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></symbol><symbol id="vRSymG" viewBox="0 0 512 512"><path d="M67 39C59 48 55 61 55 78v356c0 17 4 30 12 39l1 1 199-199v-5L68 71l-1-32z" fill="#00A0FF"/><path d="M333 323l-66-66v-5l66-66 2 1 79 45c22 13 22 33 0 46l-79 45-2 0z" fill="#FFBD00"/><path d="M335 322l-68-68L67 454c7 8 19 9 32 1l236-133" fill="#EA4335"/><path d="M335 186L99 53C86 45 74 46 67 54l200 200 68-68z" fill="#34A853"/></symbol></defs></svg>
+      <div class="vipRide__testStars" data-vipride-test-stars3 aria-hidden="true"></div>
+      <div class="vR-app">
+        <div class="vR-app__phoneWrap">
+          <div class="vR-app__glow"></div>
+          <div class="vR-app__shadow"></div>
+          <div class="vR-app__phone">
+           <div class="vR-app__rotor">
+            <div class="vR-app__frame">
+              <div class="vR-app__screen">
+                {% if section.settings.app_promo_video != blank %}
+                  {{ section.settings.app_promo_video | video_tag: autoplay: false, loop: false, muted: true, controls: false, playsinline: true, preload: 'auto', class: 'vR-app__media', data-vR-video: '' }}
+                {% elsif section.settings.app_promo_video_url != blank %}
+                  <video src="{{ section.settings.app_promo_video_url }}" muted playsinline preload="auto" class="vR-app__media" data-vr-video></video>
+                {% else %}
+                  <video src="https://cdn.shopify.com/videos/c/o/v/6888990149fe4087aeafa15c68bf1808.mp4" muted playsinline preload="auto" class="vR-app__media" data-vr-video></video>
+                {% endif %}
+                <div class="vR-app__endCTA" data-vr-endcta aria-hidden="true"><div class="vR-app__endCTA__bg"></div><div class="vR-app__endCTA__inner"><div class="vR-app__endCTA__icon"><svg class="vR-logoA" viewBox="0 0 24 24" style="color:#0a0a0a"><use href="#vRSymA"/></svg><svg class="vR-logoG" viewBox="0 0 512 512"><use href="#vRSymG"/></svg></div><div class="vR-app__endCTA__label">DOWNLOAD<br><span>NOW</span></div><div class="vR-app__endCTA__pulse"></div></div></div>
+                <div class="vR-app__island"></div>
+                <div class="vR-app__reflect"></div>
+                <div class="vR-app__homebar"></div>
+              </div>
+            </div>
+           </div>
+          </div>
+        </div>
+        <div class="vR-app__content">
+          <h2 class="vR-app__title"><span class="vR-app__title-w" data-vrp-title1>Track your ride</span><span class="vR-app__title-g" data-vrp-title2>in&nbsp;the&nbsp;app<span class="vR-app__dot">.</span></span></h2>
+          <p class="vR-app__sub" data-vrp-sub>Follow your driver live, message in-trip &amp; get real-time ETA updates.</p>
+          <div class="vR-app__stores">
+            <a href="#" class="vR-app__store vR-app__store--apple vR-app__store--cs" onclick="event.preventDefault()">
+              <span class="vR-app__ribbon" data-vrp-cs>Coming soon</span>
+              <div class="vR-app__slogo"><svg viewBox="0 0 24 24" width="24" height="24" style="color:#fff"><use href="#vRSymA"/></svg></div>
+              <div class="vR-app__stxt">
+                <span class="vR-app__ssub">Download on the</span>
+                <span class="vR-app__sname">App Store</span>
+              </div>
+            </a>
+            <a href="#" class="vR-app__store vR-app__store--google vR-app__store--cs" onclick="event.preventDefault()">
+              <span class="vR-app__ribbon" data-vrp-cs>Coming soon</span>
+              <div class="vR-app__slogo vR-app__slogo--g"><svg viewBox="0 0 512 512" width="24" height="24"><use href="#vRSymG"/></svg></div>
+              <div class="vR-app__stxt">
+                <span class="vR-app__ssub">Get it on</span>
+                <span class="vR-app__sname">Google Play</span>
+              </div>
+            </a>
+          </div>
+          <div class="vR-app__steps">
+            <div class="vR-app__step">
+              <span class="vR-app__stepNum">01</span>
+              <div class="vR-app__stepTxt">
+                <span class="vR-app__stepTitle" data-vrp-s1-t>Download</span>
+                <span class="vR-app__stepSub" data-vrp-s1-s>Get the Cruise app on the App Store or Google Play.</span>
+              </div>
+            </div>
+            <div class="vR-app__step">
+              <span class="vR-app__stepNum">02</span>
+              <div class="vR-app__stepTxt">
+                <span class="vR-app__stepTitle" data-vrp-s2-t>Sign in</span>
+                <span class="vR-app__stepSub" data-vrp-s2-s>Use the same email you booked with and your ride appears instantly.</span>
+              </div>
+            </div>
+            <div class="vR-app__step">
+              <span class="vR-app__stepNum">03</span>
+              <div class="vR-app__stepTxt">
+                <span class="vR-app__stepTitle" data-vrp-s3-t>Follow live</span>
+                <span class="vR-app__stepSub" data-vrp-s3-s>Track your driver in real-time, chat, and get ETA updates.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="vipRide__testConfirm__phase1 vipRide__testConfirm__cancel" data-vipride-test-p3>
+      <div class="vipRide__testStars" data-vipride-test-stars2 aria-hidden="true"></div>
+      <div class="vipRide__testPulse" aria-hidden="true">
+        <div class="vipRide__testPulse__ring vipRide__testPulse__ring--outer" style="border-color:rgba(255,80,80,.22)"></div>
+        <div class="vipRide__testPulse__ring vipRide__testPulse__ring--mid" style="border-color:rgba(255,80,80,.18)"></div>
+        <div class="vipRide__testPulse__circle" style="border-color:rgba(255,100,100,.42);background:radial-gradient(circle at 38% 32%,rgba(255,255,255,.07),rgba(255,80,80,.05));box-shadow:0 0 28px rgba(255,80,80,.15)">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="rgba(255,130,130,.9)" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </div>
+      </div>
+      <p class="vipRide__testConfirm__label" style="color:rgba(255,255,255,.8)"><span data-vrp-cancel-msg>Cancelling ride</span><span class="vipRide__testDots" aria-hidden="true">...</span></p>
+      <div class="vipRide__testBar"><div class="vipRide__testBar__fill" style="background:linear-gradient(90deg,#c0392b,#e74c3c,#ff6b6b)" data-vipride-test-bar3></div></div>
+    </div>
+    <div class="vipRide__testConfirm__phase2" data-vipride-test-p2>
+      <div class="vipRide__testSheet">
+        <div class="vipRide__testSheet__handle" aria-hidden="true"></div>
+        <div class="vipRide__testSheet__row">
+          <div class="vipRide__testSheet__icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#E8C547"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+          </div>
+          <div class="vipRide__testSheet__info">
+            <div class="vipRide__testSheet__status" data-vipride-test-msg data-vrp-almost style="transition:opacity 380ms ease">Almost there...</div>
+            <div class="vipRide__testSheet__route" data-vipride-test-route></div>
+          </div>
+        </div>
+        <div class="vipRide__testBar vipRide__testBar--phase2"><div class="vipRide__testBar__fill" data-vipride-test-bar2></div></div>
+        <button type="button" class="vipRide__testCancelBtn" data-vipride-test-cancel2 data-vrp-cancel-btn>Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div class="vipRide__authGate" data-vipride-auth-gate hidden>
+    <div class="vipRide__authGate__card">
+      <div class="vipRide__authGate__logo">{% if section.settings.auth_gate_logo %}{{ section.settings.auth_gate_logo | image_url: width: 120 | image_tag: class: 'vipRide__authGate__logoImg', alt: 'Logo' }}{% endif %}</div>
+      <h2 class="vipRide__authGate__title" data-vipride-gate-title>To continue, sign up</h2>
+      <p class="vipRide__authGate__sub vipRide__authGate__sub--gold" data-vipride-gate-sub>Create an account to book your ride</p>
+      <button type="button" class="vipRide__authBtn vipRide__authBtn--primary vipRide__authBtn--xl" data-vipride-auth-goto-create data-vipride-gate-signup>Sign Up · Save 20%</button>
+      <p class="vipRide__authGate__sub" data-vipride-gate-signinlbl style="margin:20px 0 0;font-size:13px">Already have an account?</p>
+      <button type="button" class="vipRide__authBtn vipRide__authBtn--gold" style="margin-top:10px" data-vipride-auth-goto-signin data-vipride-gate-signin>Sign In</button>
+      <div class="vipRide__authGate__divider"><span data-vipride-or-label>or</span></div>
+      <button type="button" class="vipRide__authBtn vipRide__authBtn--ghost" data-vipride-auth-guest data-vipride-gate-guest>Continue as Guest</button>
+    </div>
+  </div>
+  <div class="vipRide__searchAuthModal" data-vipride-search-auth-modal hidden>
+    <div class="vipRide__searchAuthModal__overlay"></div>
+    <div class="vipRide__searchAuthModal__card">
+      <h2 class="vipRide__searchAuthModal__title" data-vipride-search-auth-title>Log in to see ride options</h2>
+      <p class="vipRide__searchAuthModal__sub" data-vipride-search-auth-sub>Please take a moment to quickly log in or sign up so we can show you your ride options</p>
+      <button type="button" class="vipRide__searchAuthModal__btn" data-vipride-search-auth-continue>Continue</button>
+    </div>
+  </div>
+  <div class="vipRide__authPage" data-vipride-auth-create hidden>
+    <button type="button" class="vipRide__authPage__back" data-vipride-auth-back-create aria-label="Back"><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 1L1 9l8 8"/></svg></button>
+    <div class="vipRide__authPage__content">
+      <h1 class="vipRide__authPage__heading" data-vipride-su-title>Create account</h1>
+      <p class="vipRide__authPage__sub" data-vipride-su-sub>Enter your email to sign up.</p>
+      <div class="vipRide__authInput"><svg class="vipRide__authInput__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M22 7l-10 7L2 7"/></svg><input type="email" class="vipRide__authInput__field" data-vipride-reg-email data-vipride-su-email-input placeholder="Email address" autocomplete="email" inputmode="email"></div>
+      <button type="button" class="vipRide__authBtn vipRide__authBtn--dark" data-vipride-reg-email-btn data-vipride-su-email>Continue with Email</button>
+      <div class="vipRide__authDivider"><span data-vipride-or-label>OR</span></div>
+      <button type="button" class="{{ _ab }}" data-vipride-reg-phone-btn data-vipride-su-phone><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Continue with Phone</button>
+      <button type="button" class="{{ _ab }}" data-vipride-reg-google-btn data-vipride-su-google>Continue with Google</button>
+      <button type="button" class="{{ _ab }}" data-vipride-reg-apple-btn data-vipride-su-apple>Continue with Apple</button>
+      <div class="vipRide__authDivider"><span data-vipride-or-label>OR</span></div>
+      <button type="button" class="vipRide__authBtn vipRide__authBtn--gold" data-vipride-auth-goto-signin2 data-vipride-su-signin>Sign in</button>
+      <p class="vipRide__authTerms" data-vipride-terms>By continuing, you agree to our <a href="/policies/terms-of-service" target="_blank">Terms</a> and <a href="/policies/privacy-policy" target="_blank">Privacy Policy</a></p>
+    </div>
+  </div>
+  <div class="vipRide__authPage vipRide__wizard" data-vipride-wizard hidden>
+    <button type="button" class="vipRide__authPage__back" data-vipride-wizard-back aria-label="Back"><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 1L1 9l8 8"/></svg></button>
+    <div class="vipRide__authPage__content vipRide__wizard__content" data-vipride-wizard-content>
+    </div>
+  </div>
+  <div class="vipRide__authPage" data-vipride-auth-signin hidden>
+    <button type="button" class="vipRide__authPage__back" data-vipride-auth-back-signin aria-label="Back"><svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 1L1 9l8 8"/></svg></button>
+    <div class="vipRide__authPage__content">
+      <h1 class="vipRide__authPage__heading" data-vipride-si-title>Sign in</h1>
+      <p class="vipRide__authPage__sub" data-vipride-si-sub>Welcome back! Enter your credentials.</p>
+      <div class="vipRide__authInput"><svg class="vipRide__authInput__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M22 7l-10 7L2 7"/></svg><input type="text" class="vipRide__authInput__field" data-vipride-login-id data-vipride-si-user placeholder="Email or phone number" autocomplete="email" inputmode="email"></div>
+      <div class="vipRide__authInput"><svg class="vipRide__authInput__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><input type="password" class="vipRide__authInput__field" data-vipride-login-pass data-vipride-si-pass placeholder="Password" autocomplete="current-password"></div>
+      <button type="button" class="vipRide__authBtn vipRide__authBtn--primary" data-vipride-login-submit data-vipride-si-btn>Sign In</button>
+      <div class="vipRide__authDivider"><span data-vipride-or-label>OR</span></div>
+      <button type="button" class="{{ _ab }}" data-vipride-login-google data-vipride-si-google>Continue with Google</button>
+      <button type="button" class="{{ _ab }}" data-vipride-login-apple data-vipride-si-apple>Continue with Apple</button>
+      <div class="vipRide__authDivider"><span data-vipride-or-label>OR</span></div>
+      <button type="button" class="vipRide__authBtn vipRide__authBtn--gold" data-vipride-auth-goto-create2 data-vipride-si-create>Create Account</button>
+      <div class="vipRide__authError" data-vipride-login-error hidden></div>
+    </div>
+  </div>
+  {% render 'ride-request-airport' %}
+</section>
+<script>
+(function(){var e=document.querySelector('meta[name="theme-color"]');if(e)e.setAttribute('content','#ffffff');else{var m=document.createElement('meta');m.name='theme-color';m.content='#ffffff';document.head.appendChild(m);}var ab=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');if(!ab){var a=document.createElement('meta');a.name='apple-mobile-web-app-status-bar-style';a.content='default';document.head.appendChild(a);}var vp=document.querySelector('meta[name="viewport"]');if(vp){vp.content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover';}else{var v=document.createElement('meta');v.name='viewport';v.content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover';document.head.appendChild(v);}
+/* Block copy/select/context-menu globally EXCEPT map + inputs */
+var s=document.createElement('style');s.textContent='html,body{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}input,textarea,[contenteditable="true"],.mapboxgl-map,.mapboxgl-map *{-webkit-user-select:auto!important;-moz-user-select:auto!important;-ms-user-select:auto!important;user-select:auto!important;-webkit-touch-callout:default!important}';document.head.appendChild(s);
+document.addEventListener('contextmenu',function(ev){var t=ev.target;if(t&&t.closest&&(t.closest('input')||t.closest('textarea')||t.closest('[contenteditable="true"]')||t.closest('.mapboxgl-map')))return;ev.preventDefault();},{passive:false});
+document.addEventListener('copy',function(ev){var sel=document.getSelection&&document.getSelection();var a=document.activeElement;if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'||a.isContentEditable))return;ev.preventDefault();},{passive:false});
+/* Block pinch-zoom + double-tap-zoom on page (map handles its own gestures) */
+document.addEventListener('gesturestart',function(ev){var t=ev.target;if(t&&t.closest&&t.closest('.mapboxgl-map'))return;ev.preventDefault();},{passive:false});
+document.addEventListener('gesturechange',function(ev){var t=ev.target;if(t&&t.closest&&t.closest('.mapboxgl-map'))return;ev.preventDefault();},{passive:false});
+var _lastTouchEnd=0;document.addEventListener('touchend',function(ev){var now=Date.now();if(now-_lastTouchEnd<=350){var t=ev.target;if(!(t&&t.closest&&t.closest('.mapboxgl-map'))){ev.preventDefault();}}_lastTouchEnd=now;},{passive:false});
+document.addEventListener('wheel',function(ev){if(ev.ctrlKey){var t=ev.target;if(t&&t.closest&&t.closest('.mapboxgl-map'))return;ev.preventDefault();}},{passive:false});
+document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(ev.key==='+'||ev.key==='-'||ev.key==='='||ev.key==='0')){ev.preventDefault();}},{passive:false});
+})();
+</script>
+{% render 'ride-request-desktop-bars' %}
+<script src="https://js.stripe.com/v3/"></script>
+<link rel="preconnect" href="https://api.mapbox.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" async></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&family=Playfair+Display:wght@800&display=swap" rel="stylesheet">
+<style>
+body:has(#vipRide-{{ section.id }}),html:has(#vipRide-{{ section.id }}){background:#0a1128!important;margin:0!important;padding:0!important;overflow:hidden!important}
+body:has(#vipRide-{{ section.id }}) footer,body:has(#vipRide-{{ section.id }}) .footer,body:has(#vipRide-{{ section.id }}) #footer,body:has(#vipRide-{{ section.id }}) [class*="footer"],body:has(#vipRide-{{ section.id }}) [id*="footer"]{display:none!important}
+#vipRide-{{ section.id }}{
+  --gold:#D4AF37;--gold2:#FFD700;--silver:#C0C0C0;--silver2:#E8E8E8;--green:#4CAF50;--green2:#66BB6A;--ease:cubic-bezier(.2,.8,.2,1);--fs-xs:clamp(9px,2.2vw,11px);--fs-sm:clamp(11px,2.8vw,13px);--fs-md:clamp(13px,3.4vw,15px);--fs-lg:clamp(15px,4vw,18px);--fs-xl:clamp(17px,4.5vw,22px);--pad:clamp(10px,3vw,16px);--gap:clamp(4px,1.5vw,8px);--radius-sm:10px;--radius-md:14px;--radius-lg:20px;--sheet-margin:10px}
+.vipRide{position:relative;overflow:hidden;background:#0a1128;color:#fff;height:100vh;height:100dvh;min-height:500px;isolation:isolate;opacity:0;animation:vipFadeIn 600ms cubic-bezier(0,0,.2,1) 100ms forwards}
+@keyframes vipFadeIn{to{opacity:1}}
+.vipRide,.vipRide *:not(.mapboxgl-marker):not(.mapboxgl-marker *){box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.vipRide button{-webkit-appearance:none;appearance:none}
+.vipRide__step,.vipRide__step *{filter:none!important}
+.vipRide__bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:#0A1128}
+.vipRide__wrap{position:absolute;inset:0;display:flex;flex-direction:column;z-index:1}
+.vipRide__map{position:absolute;inset:0;z-index:0;pointer-events:auto}
+.vipRide__mapInner{height:100%;width:100%}
+.vipRide__mapBackBtn{position:absolute;top:calc(var(--vip-nav-h,0px) + 12px);left:14px;z-index:11;width:38px;height:38px;border-radius:50%;background:rgba(10,15,35,.75);border:1px solid rgba(255,255,255,.15);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background 140ms}
+.vipRide__mapBackBtn:active{background:rgba(255,255,255,.2)}
+.vipRide__mapBackBtn[hidden]{display:none!important}
+#vipRideMap-{{ section.id }}{height:100%!important;width:100%!important}
+#vipRideMap-{{ section.id }} > .mapboxgl-canvas-container{height:100%!important;width:100%!important}
+#vipRideMap-{{ section.id }} .mapboxgl-ctrl-attrib{font-size:9px;opacity:.3}
+#vipRideMap-{{ section.id }} .mapboxgl-ctrl-logo{opacity:.3}
+#vipRideMap-{{ section.id }} .mapboxgl-marker{overflow:visible!important}
+#vipRideMap-{{ section.id }} .mapboxgl-ctrl-group,#vipRideMap-{{ section.id }} .mapboxgl-ctrl-bottom-right{display:none!important}
+#vipRideMap-{{ section.id }} .mapboxgl-canvas-container,#vipRideMap-{{ section.id }} .mapboxgl-canvas-container canvas{transform:translateZ(0);will-change:transform}
+#vipRideMap-{{ section.id }} .mapboxgl-marker{overflow:visible!important;will-change:transform;transform:translateZ(0)}
+.vipRide__sheet{position:absolute;bottom:var(--sheet-margin);left:var(--sheet-margin);right:var(--sheet-margin);z-index:10;background:linear-gradient(135deg,#1e1e24,#0c0c10);animation:vipSheetIn 500ms cubic-bezier(0,0,.2,1) 250ms both;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transform:translateZ(0);-webkit-transform:translateZ(0);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-lg);box-shadow:0 10px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.1);padding:8px var(--pad) calc(10px + env(safe-area-inset-bottom,0px));max-height:50svh;overflow:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(212,175,55,.3) transparent;transition:opacity 300ms cubic-bezier(0,0,.2,1);opacity:0;isolation:isolate}
+.vipRide__sheet > *{position:relative;z-index:2}
+.vipRide__sheet{overflow-y:auto;overflow-x:hidden}
+@keyframes vrMirrorSweepBg{0%{background-position:-50% 0}100%{background-position:150% 0}}
+@keyframes vrMirrorSweepBg2{0%{background-position:150% 0}100%{background-position:-50% 0}}
+@keyframes vipSheetIn{0%{opacity:0;transform:translateY(20px) translateZ(0)}to{opacity:1;transform:translateY(0) translateZ(0)}}
+.vipRide__sheet::-webkit-scrollbar{width:3px;}
+.vipRide__sheet::-webkit-scrollbar-thumb{background:rgba(212,175,55,.3);border-radius:3px}
+@media(max-width:899px){.vipRide__sheet[data-vipride-step="3"]{left:8px!important;right:8px!important;bottom:10px!important;border-radius:20px!important;max-height:60svh!important;overflow-y:auto!important;padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px))!important;background:#1a1a1f!important;border:1px solid rgba(255,255,255,.06)!important;box-shadow:0 2px 10px rgba(232,197,71,.06),0 8px 40px rgba(0,0,0,.5)!important}}
+@media(min-width:900px){
+.vipRide__sheet *{box-sizing:border-box}
+.vipRide__input,.vipRide__inputWrap,.vipRide__form,.vipRide__modeToggle{width:100%!important;max-width:100%!important;box-sizing:border-box!important}
+.vipRide__mapContainer,.vipRide__map{width:100vw!important;min-height:100vh!important}
+.mapboxgl-ctrl-bottom-left{left:20px!important;bottom:auto!important;top:calc(var(--vip-nav-h,72px) + 12px)!important}
+}
+.vipRide__handle{width:36px;height:4px;border-radius:2px;background:linear-gradient(90deg,rgba(255,255,255,.10),rgba(212,175,55,.25),rgba(255,255,255,.10));margin:0 auto 8px;flex-shrink:0;}
+.vipRide__stepDots{display:flex;gap:5px;justify-content:center;margin-bottom:6px;flex-shrink:0;}
+.vipRide__stepDot{width:5px;height:5px;border-radius:99px;background:rgba(255,255,255,.2);transition:width 350ms cubic-bezier(0,0,.2,1),background 350ms cubic-bezier(0,0,.2,1)}
+.vipRide__stepDot.is-active{width:18px;background:var(--gold)}
+.vipRide__stepDot.is-done{background:rgba(212,175,55,.45)}
+.vipRide__titleRow{display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.vipRide__title{margin:0;font-family:'Poppins',sans-serif;font-size:var(--fs-xl);font-weight:800;letter-spacing:-.03em;color:rgba(255,255,255,.9)!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;width:100%}
+.vipRide__modeToggle{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:3px;margin-bottom:8px;overflow:visible}
+.vipRide__modeBtn{flex:1;padding:clamp(7px,2vw,9px) 6px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.6);font-size:var(--fs-xs);font-weight:700;letter-spacing:.03em;cursor:pointer;transition:all 180ms var(--ease);white-space:nowrap;overflow:visible;min-width:0}
+.vipRide__modeBtn.is-active{background:var(--gold);color:#000!important;font-weight:800;box-shadow:0 3px 10px rgba(212,175,55,.3)}
+.vipRide__form{display:flex;flex-direction:column;gap:var(--gap)}
+.vipRide__field{display:flex;flex-direction:column;gap:3px;position:relative;z-index:1}
+.vipRide__field:focus-within{z-index:9999}
+.vipRide__field--hours[hidden]{display:none!important}
+.vipRide__label{font-size:var(--fs-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(212,175,55,.75)!important;overflow:visible;white-space:nowrap}
+.vipRide__inputWrap{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);border-radius:var(--radius-sm);padding:clamp(8px,2.5vw,11px) 10px;position:relative;transition:border-color 200ms,background 200ms;min-height:44px;overflow:visible}
+.vipRide__inputWrap:focus-within{border-color:rgba(212,175,55,.55)!important;background:rgba(212,175,55,.06)!important}
+.vipRide__inputIcon{color:#fff;opacity:.9;flex-shrink:0;font-size:11px}
+.vipRide__input{flex:1;min-width:0;border:0;outline:none;background:transparent!important;font-size:var(--fs-md);color:#fff!important;-webkit-appearance:none;appearance:none}
+.vipRide__input::placeholder{color:rgba(255,255,255,.45)!important;font-size:var(--fs-sm)}
+.vipRide__input:focus{outline:none!important;font-size:var(--fs-md)!important}
+.vipRide__input--dt{color-scheme:dark}
+.vipRide__input--dt::-webkit-datetime-edit,.vipRide__input--dt::-webkit-datetime-edit-text,.vipRide__input--dt::-webkit-datetime-edit-month-field,.vipRide__input--dt::-webkit-datetime-edit-day-field,.vipRide__input--dt::-webkit-datetime-edit-year-field,.vipRide__input--dt::-webkit-datetime-edit-hour-field,.vipRide__input--dt::-webkit-datetime-edit-minute-field{color:#fff}
+.vipRide__inputWrap--date,.vipRide__input--date{cursor:pointer}
+.vipRide__input--date::-webkit-calendar-picker-indicator{opacity:0;cursor:pointer;position:absolute;inset:0;width:100%;height:100%}
+.vipRide input[type="time"]::-webkit-calendar-picker-indicator{display:none!important}
+.vipRide input[type="time"]{background:transparent!important;color:#fff!important;-webkit-appearance:none!important}
+.vipRide__clear{flex-shrink:0;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.3);width:26px;height:26px;border-radius:999px;cursor:pointer;font-size:16px;line-height:24px;display:none;color:#fff;align-items:center;justify-content:center}
+.vipRide__field{overflow:visible!important}
+.vipRide__suggestions{position:fixed;z-index:99999;background:rgba(10,8,4,.98);border:1px solid rgba(212,175,55,.25);border-radius:var(--radius-md);overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.6);display:none;max-height:210px;overflow-y:auto;-webkit-overflow-scrolling:touch;width:280px}
+.vipRide__suggestion{padding:clamp(10px,2.5vw,13px) 12px;color:#fff;font-size:var(--fs-sm);cursor:pointer;border-top:1px solid rgba(255,255,255,.07);transition:background 160ms;display:flex;align-items:flex-start;gap:8px;min-height:66px;border-left:2px solid transparent}
+.vipRide__suggestion:first-child{border-top:none}
+.vipRide__suggestion:hover,.vipRide__suggestion.is-active{background:rgba(212,175,55,.18);border-left-color:#E8C547}
+.vipRide__suggestionIcon{flex-shrink:0;width:16px;height:16px;margin-top:2px;opacity:.5;color:var(--gold)}
+.vipRide__suggestionText{flex:1;min-width:0}
+.vipRide__suggestionMain{font-weight:700;font-size:var(--fs-sm);color:#fff;white-space:normal;word-wrap:break-word;overflow-wrap:break-word}
+.vipRide__suggestionSub{font-size:var(--fs-xs);color:rgba(255,255,255,.5);margin-top:1px;white-space:normal;word-wrap:break-word;overflow-wrap:break-word}
+.vipRide__hoursWrap{display:flex;align-items:center;justify-content:center;gap:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius-sm);padding:10px 12px}
+.vipRide__hoursBtn{width:clamp(36px,9vw,44px);height:clamp(36px,9vw,44px);border-radius:9px;background:var(--gold);border:none;color:#000;font-size:clamp(16px,4vw,20px);font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 140ms,opacity 180ms;touch-action:manipulation}
+.vipRide__hoursBtn:hover:not(:disabled){transform:scale(1.08)}
+.vipRide__hoursBtn:active:not(:disabled){transform:scale(.94)}
+.vipRide__hoursBtn:disabled{opacity:.3;cursor:not-allowed}
+.vipRide__hoursDisplay{display:flex;align-items:baseline;gap:5px;min-width:70px;justify-content:center}
+.vipRide__hoursValue{font-size:clamp(22px,6vw,28px);font-weight:700;color:var(--gold);text-align:center}
+.vipRide__hoursUnit{font-size:var(--fs-sm);color:rgba(255,255,255,.7)}
+.vipRide__hoursHint{font-size:var(--fs-xs);color:rgba(255,255,255,.45);text-align:center;margin-top:3px}
+.vipRide__stepNext{width:100%;background:var(--gold)!important;color:#000!important;border:none!important;border-radius:var(--radius-sm);padding:clamp(11px,3vw,14px) 16px;font-size:var(--fs-sm);font-weight:800;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;touch-action:manipulation;box-shadow:0 5px 18px rgba(212,175,55,.3);transition:opacity 180ms,transform 180ms;margin-top:4px;overflow:visible}
+.vipRide__stepNext[disabled]{background:rgba(212,175,55,.2)!important;color:rgba(255,255,255,.3)!important;box-shadow:none;cursor:not-allowed;pointer-events:none}
+.vipRide__stepNext:not([disabled]):hover{opacity:.9;transform:translateY(-1px)}
+.vipRide__stepBack{display:inline-flex;align-items:center;gap:4px;background:none;border:none;color:rgba(212,175,55,.8);font-size:var(--fs-sm);font-weight:600;cursor:pointer;padding:0 0 6px;touch-action:manipulation;overflow:visible}
+.vipRide__stepBack:hover{color:var(--gold)}
+.vipRide__prices{margin-top:0}
+.vipRide__pricesHeader{margin-bottom:8px;text-align:center}
+.vipRide__pricesTitle{display:block;font-family:'Poppins',sans-serif;font-size:clamp(28px,7vw,38px);font-weight:800;color:#fff!important;letter-spacing:-.03em;text-align:center;width:100%}
+.vipRide__rideList{display:flex!important;flex-direction:column;gap:14px}
+.vipRide__rideCard{-webkit-appearance:none;appearance:none;display:flex!important;flex-direction:row;align-items:center;justify-content:flex-start;gap:18px;width:100%!important;padding:22px 24px!important;border:1px solid rgba(255,255,255,.08);border-radius:22px;background:rgba(255,255,255,.02)!important;cursor:pointer;text-align:left;color:#fff;transition:transform 200ms cubic-bezier(0,0,.2,1),border-color 200ms,background 200ms;touch-action:manipulation;position:relative;overflow:hidden;backface-visibility:hidden;transform:translateZ(0)}
+.vipRide__rideCard *{color:#fff;text-shadow:none!important}
+@media(hover:hover) and (pointer:fine){.vipRide__rideCard:hover{transform:translateY(-2px) translateZ(0);border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.04)!important}}
+.vipRide__rideCard:active{transform:scale(.98) translateZ(0)}
+.vipRide__rideCard.is-active{border-color:rgba(232,197,71,.7);background:rgba(232,197,71,.08)!important;outline:2px solid rgba(232,197,71,.55);outline-offset:-1px;animation:rideGlow 2.8s ease-in-out infinite}
+@keyframes rideGlow{0%,100%{box-shadow:0 0 0 1px rgba(232,197,71,.3),0 6px 18px rgba(232,197,71,.15)}50%{box-shadow:0 0 0 1px rgba(232,197,71,.5),0 8px 24px rgba(232,197,71,.3)}}
+.vipRide__rideCard .vipRide__rideDesc,.vipRide__rideCard .vipRide__rideEtaRow,.vipRide__rideCard .vipRide__ridePrice{display:none!important}
+.vipRide__rideImg{flex:0 0 140px;width:140px!important;display:flex;align-items:center;justify-content:center;min-height:0}
+.vipRide__rideImgTag,.vipRide__rideCard img{display:block;width:100%!important;height:auto!important;max-height:clamp(72px,18vw,88px)!important;object-fit:contain!important;filter:drop-shadow(0 3px 2px #000) drop-shadow(0 9px 12px #000)!important}
+.vipRide__rideMeta{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.vipRide__rideName{font-size:clamp(20px,5.5vw,24px);font-weight:700;line-height:1.3;color:#fff}
+.vipRide__rideNameRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%}
+.vipRide__rideInfo{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.vipRide__rideEtaWrap{display:flex;align-items:baseline;gap:6px}
+.vipRide__ridePickupEta{font-size:clamp(34px,8vw,42px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.02em}
+.vipRide__ridePickupEtaLabel{font-size:clamp(15px,4vw,18px);font-weight:500;color:rgba(255,255,255,.55)}
+.vipRide__rideArrival{display:flex;align-items:center;gap:6px;font-size:clamp(14px,3.5vw,16px);font-weight:600;color:rgba(255,255,255,.5)}
+.vipRide__clockIcon{font-size:15px;line-height:1}
+.vipRide__rideBadgeCol{flex:0 0 auto;display:flex;align-items:center;justify-content:center;margin-left:auto}
+.vipRide__fasterBadge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#F5DC7A,#E8C547,#B08800);color:#000!important;border-radius:10px;padding:6px 12px;font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:capitalize;box-shadow:0 2px 8px rgba(212,175,55,.4),0 0 14px rgba(232,197,71,.25)}
+.vipRide__fasterBadge[hidden],.vipRide__rideCard .vipRide__fasterBadge[hidden]{display:none!important}
+.vipRide__fasterIcon{width:15px;height:15px;color:#000!important}
+.vipRide__seats{font-size:clamp(13px,3.5vw,15px);font-weight:600;color:rgba(255,255,255,.45)!important;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.vipRide__personIcon{font-size:13px;color:rgba(255,255,255,.45)!important}
+.vipRide__rideDetail{margin-top:14px}
+.vipRide__rideDetail[hidden]{display:none!important}
+.vipRide__rideDetail__bar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:12px 14px}
+.vipRide__detailPill{display:inline-flex;align-items:center;gap:6px;font-size:clamp(13px,3.5vw,15px);font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap}
+.vipRide__detailPill__icon{width:18px;height:18px;color:#E8C547;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vipRide__detailPill__icon svg{width:100%;height:100%}
+.vipRide__rideDetail__price{font-size:clamp(24px,5.5vw,32px);font-weight:800;color:#fff;margin-left:auto;white-space:nowrap}
+.vipRide__actionBtns{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.vipRide__actionBtns>*{opacity:0;animation:vipFB .6s cubic-bezier(.4,0,.2,1) .25s forwards}
+.vipRide__actionBtns>:nth-child(2){animation-delay:.4s}
+@keyframes vipFB{0%{transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.vipRide__actionBtns[hidden]{display:none!important}
+.vipRide__paymentBtn{width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:background 150ms}
+.vipRide__payBtnLabel{flex:1;text-align:left}
+.vipRide__paymentBtn:active{background:rgba(255,255,255,.1)}
+.vipRide__requestBtn{width:100%;padding:16px;background:#E8C547;border:none;border-radius:12px;font-size:16px;font-weight:800;color:#0a0e1a;text-align:center;cursor:pointer;touch-action:manipulation;transition:opacity 150ms,transform 120ms;box-shadow:0 2px 8px rgba(232,197,71,.25),0 6px 20px rgba(0,0,0,.2)}
+.vipRide__requestBtn:active:not(:disabled){transform:scale(.97)}
+.vipRide__requestBtn:disabled{opacity:.35;cursor:not-allowed}
+.vipRide__payOverlay{position:fixed;inset:0;z-index:99999;background:#050505;display:flex!important;flex-direction:column;padding-top:0!important;opacity:1;transform:translateY(0) scale(1);transition:opacity 380ms cubic-bezier(.33,1,.68,1),transform 380ms cubic-bezier(.33,1,.68,1);will-change:opacity,transform;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -1px 0 rgba(255,255,255,.02),inset 0 0 140px rgba(0,0,0,.6);isolation:isolate;overflow:hidden;scrollbar-width:none;-ms-overflow-style:none}
+.vipRide__payOverlay::-webkit-scrollbar{display:none;width:0;height:0}
+.vipRide__payOverlay::before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(115deg,transparent 0%,transparent 30%,rgba(255,255,255,.015) 38%,rgba(255,255,255,.04) 44%,rgba(255,255,255,.08) 48%,rgba(255,255,255,.11) 50%,rgba(255,255,255,.08) 52%,rgba(255,255,255,.04) 56%,rgba(255,255,255,.015) 62%,transparent 70%,transparent 100%);background-size:400% 100%;pointer-events:none;z-index:0;mix-blend-mode:screen;animation:vrMirrorSweepBg 11s cubic-bezier(.45,.05,.55,.95) infinite;will-change:background-position}
+.vipRide__payOverlay::after{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(100deg,transparent 0%,transparent 32%,rgba(210,220,240,.01) 40%,rgba(220,230,245,.03) 45%,rgba(230,238,250,.06) 49%,rgba(240,245,255,.075) 50%,rgba(230,238,250,.06) 51%,rgba(220,230,245,.03) 55%,rgba(210,220,240,.01) 60%,transparent 68%,transparent 100%);background-size:400% 100%;pointer-events:none;z-index:0;mix-blend-mode:screen;animation:vrMirrorSweepBg2 14s cubic-bezier(.6,.04,.4,.96) infinite;animation-delay:-4s;will-change:background-position}
+.vipRide__payOverlay > *{position:relative;z-index:2}
+.vipRide__payOverlay[hidden]{display:none!important}
+.vipRide__payOverlay.is-entering{opacity:0;transform:translateY(14px) scale(.985)}
+.vipRide__payOverlay.is-closing{opacity:0;transform:translateY(10px) scale(.99);pointer-events:none}
+.vipRide__payOverlay__header{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:14px;padding:calc(env(safe-area-inset-top,0px) + 14px) 20px 14px;flex-shrink:0;z-index:3}
+.vipRide__payOverlay__back{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 140ms}
+.vipRide__payOverlay__back:active{background:rgba(255,255,255,.15)}
+.vipRide__payOverlay__title{font-size:18px;font-weight:700;color:#fff;margin:0}
+.vipRide__payOverlay__list{padding:calc(env(safe-area-inset-top,0px) + 80px) 20px 20px;display:grid;grid-template-columns:repeat(2,minmax(0,180px));gap:14px;align-content:start;justify-content:center;max-width:400px;margin:0 auto;overflow:hidden;scrollbar-width:none;-ms-overflow-style:none}
+.vipRide__payOverlay__list::-webkit-scrollbar{display:none;width:0;height:0}
+.vipRide__payOption{width:100%;aspect-ratio:1/1;display:block;padding:0;background:linear-gradient(135deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,.02) 100%);border:1px solid rgba(255,255,255,.1);border-radius:20px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:transform 220ms cubic-bezier(.22,1,.36,1),border-color 220ms,box-shadow 220ms,background 220ms;text-align:center;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08)}
+.vipRide__payOption:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.2);box-shadow:0 10px 28px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12)}
+.vipRide__payOption:active{transform:scale(.97);background:rgba(255,255,255,.08)}
+.vipRide__payOption.is-selected{border-color:rgba(232,197,71,.55);background:linear-gradient(135deg,rgba(232,197,71,.12) 0%,rgba(232,197,71,.04) 100%);box-shadow:0 10px 28px rgba(232,197,71,.18),inset 0 1px 0 rgba(232,197,71,.2),0 0 0 1px rgba(232,197,71,.3)}
+.vipRide__payOption .vipRide__payIcon{position:absolute!important;top:42%!important;left:50%!important;transform:translate(-50%,-50%)!important;width:50%!important;height:50%!important;max-width:72px!important;max-height:72px!important;border-radius:16px!important;display:flex!important;align-items:center!important;justify-content:center!important;z-index:1;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.vipRide__payOption .vipRide__payIcon svg{width:60%;height:60%}
+.vipRide__payOption .vipRide__payIcon img{width:70%;height:70%;object-fit:contain}
+.vipRide__payOption .vipRide__payLabel{position:absolute;left:0;right:0;bottom:0;z-index:2;font-size:12.5px;line-height:1.25;text-align:center;font-weight:700;letter-spacing:.02em;color:#fff;margin:0;padding:10px 8px 12px;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.55) 50%,rgba(0,0,0,.85) 100%)}
+.vipRide__payOption .vipRide__payCheck{position:absolute;top:12px;right:12px;z-index:3}
+.vipRide__payIcon{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;color:#fff}
+.vipRide__payLabel{flex:1;min-width:0}
+.vipRide__payCheck{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(255,255,255,.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 200ms}
+.vipRide__payOption.is-selected .vipRide__payCheck{background:#E8C547;border-color:#E8C547;color:#000}
+.vipRide__payOption.is-selected .vipRide__payCheck::after{content:'\2713';font-weight:800}
+.vipRide__scheduleOverlay{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.15);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);display:flex!important;flex-direction:column;padding-top:var(--vip-nav-h,0);transition:opacity 380ms cubic-bezier(.33,1,.68,1),transform 380ms cubic-bezier(.33,1,.68,1);transform:translateY(0) scale(1);will-change:opacity,transform}
+.vipRide__scheduleOverlay.is-entering{opacity:0;transform:translateY(14px) scale(.985)}
+.vipRide__scheduleOverlay[hidden]{display:none!important}
+.vipRide__scheduleOverlay.is-closing{opacity:0;pointer-events:none}
+.vipRide__schedPage{transition:opacity 300ms ease;opacity:1}
+.vipRide__schedPage[hidden]{display:none!important}
+.vipRide__schedPage.is-entering{opacity:0!important}
+.vipRide__schedCalendar{padding:0 16px;flex:1;overflow-y:auto}
+.vipRide__schedHeader{display:flex;align-items:flex-start;gap:12px;padding:20px 20px 12px}
+.vipRide__schedHeader > div{flex:1}
+.vipRide__schedTitle{margin:0;font-size:20px;font-weight:800;color:#fff}
+.vipRide__schedSub{margin:4px 0 0;font-size:13px;color:rgba(255,255,255,.4)}
+.vipRide__schedHeaderIcon{width:40px;height:40px;border-radius:12px;background:rgba(232,197,71,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vipRide__schedBackBtn{width:32px;height:32px;border-radius:50%;background:none;border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:4px}
+.vipRide__step{display:flex;flex-direction:column;overflow:visible;backface-visibility:hidden}
+.vipRide__step[hidden]{display:none!important}
+.vipRide__step.is-exiting,.vipRide__step.is-exiting-back{opacity:0;transition:opacity 300ms cubic-bezier(.4,0,1,1);pointer-events:none}
+@keyframes vipStepIn{from{opacity:0}to{opacity:1}}
+@keyframes vipStepInBack{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes vipCardIn{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.vipRide__step.is-entering{animation:vipStepIn 400ms cubic-bezier(0,0,.2,1) both}
+.vipRide__step.is-entering-back{animation:vipStepInBack 400ms cubic-bezier(0,0,.2,1) both}
+.vipRide__marker{cursor:pointer;width:0;height:0;overflow:visible;position:relative}
+.vipRide__marker::before{content:'';position:absolute;left:-14px;top:-4px;width:28px;height:9px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(0,0,0,.6) 0%,rgba(0,0,0,.35) 40%,rgba(0,0,0,0) 75%);pointer-events:none;animation:vipPinShadowPulse 2.8s cubic-bezier(.4,0,.6,1) infinite;z-index:0;will-change:transform,opacity}
+.vipRide__markerInner{position:absolute;left:-20px;top:-38px;display:block;width:40px;height:38px;transform-origin:center bottom;animation:vipMarkerPop 700ms cubic-bezier(.175,.885,.32,1.275) forwards,vipMarkerFloat 3.6s cubic-bezier(.4,0,.6,1) 700ms infinite;backface-visibility:hidden;-webkit-backface-visibility:hidden;z-index:1;will-change:transform;transform:translateZ(0)}
+.vipRide__markerInner svg{display:block;width:40px;height:38px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5)) drop-shadow(0 6px 10px rgba(0,0,0,.4)) drop-shadow(0 12px 20px rgba(0,0,0,.25)) drop-shadow(0 0 4px rgba(232,197,71,.3));transform:translateZ(0)}
+.vipRide__markerInner::after{content:'';position:absolute;top:2px;left:50%;transform:translateX(-50%) translateZ(0);width:18px;height:8px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(255,255,255,.35) 0%,rgba(255,255,255,.08) 50%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:2;mix-blend-mode:screen}
+@keyframes vipMarkerFloat{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-3px,0)}}
+@keyframes vipPinShadowPulse{0%,100%{transform:scaleX(1) translateZ(0);opacity:.55}50%{transform:scaleX(.78) translateZ(0);opacity:.8}}
+/* Pause pin animations during flyTo to prevent jitter */
+.vipRide.is-flying .vipRide__markerInner,.vipRide.is-flying .vipRide__marker::before,.vipRide.is-flying .vipRide__youLabel,.vipRide.is-flying .vipRide__mapLabel{animation-play-state:paused!important}
+@keyframes vipMarkerPop{0%{transform:scale(0);opacity:0}50%{transform:scale(1.1);opacity:1}70%{transform:scale(.95)}100%{transform:scale(1)}}
+.vipRide__mapLabel{position:relative;display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(15,17,32,.96),rgba(20,22,38,.94));border:1px solid rgba(232,197,71,.35);border-radius:12px;padding:7px 12px 7px 9px;opacity:0;pointer-events:none;font-family:-apple-system,BlinkMacSystemFont,sans-serif;color:#fff;line-height:1.2;box-shadow:0 4px 16px rgba(0,0,0,.55),0 0 22px rgba(232,197,71,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:opacity 520ms cubic-bezier(.22,1.2,.36,1),transform 620ms cubic-bezier(.34,1.56,.64,1);white-space:nowrap}
+.vipRide__mapLabel--pickup{transform-origin:left center}
+.vipRide__mapLabel--dropoff{transform-origin:right center}
+.vipRide__mapLabel.is-visible{opacity:1;transform:perspective(400px) rotateY(0) scale(1)!important;animation:mapLabelBreathe 3.2s ease-in-out 900ms infinite}
+@keyframes mapLabelBreathe{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.55),0 0 22px rgba(232,197,71,.12)}50%{box-shadow:0 6px 22px rgba(0,0,0,.6),0 0 36px rgba(232,197,71,.22)}}
+.vipRide__mapLabel__tail{position:absolute;bottom:10px;width:9px;height:9px;background:rgba(15,17,32,.96);border:1px solid rgba(232,197,71,.35);transform:rotate(45deg)}
+.vipRide__mapLabel--pickup .vipRide__mapLabel__tail{left:-5px;border-right:0;border-top:0}
+.vipRide__mapLabel--dropoff .vipRide__mapLabel__tail{right:-5px;border-left:0;border-bottom:0}
+.vipRide__mapLabel__ico{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:7px;flex-shrink:0;background:linear-gradient(135deg,#F5DC7A,#D4A800);color:#0a0e1a;box-shadow:0 2px 6px rgba(232,197,71,.4)}
+.vipRide__mapLabel__txt{display:flex;flex-direction:column;gap:1px;min-width:0}
+.vipRide__mapLabel__kind{font-size:8.5px;font-weight:800;letter-spacing:.14em;color:#E8C547;text-transform:uppercase}
+.vipRide__labelText{font-size:clamp(11px,2.3vw,12.5px);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,.96);max-width:clamp(110px,32vw,200px)}
+.vipRide__youLabel{position:absolute;left:50%;top:-64px;transform:translateX(-50%);background:linear-gradient(135deg,#F5DC7A,#E8C547);color:#0a0e1a;font-size:11px;font-weight:800;padding:4px 12px;border-radius:10px;white-space:nowrap;box-shadow:0 4px 14px rgba(232,197,71,.45);pointer-events:none;animation:youLabelIn 480ms cubic-bezier(.34,1.56,.64,1) 600ms both,youLabelPulse 2.8s ease-in-out 1400ms infinite}
+.vipRide__youLabel::after{content:'';position:absolute;left:50%;bottom:-5px;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid #E8C547}
+@keyframes youLabelIn{0%{opacity:0;transform:translateX(-50%) translateY(-8px) scale(.6)}60%{transform:translateX(-50%) translateY(2px) scale(1.08)}100%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+@keyframes youLabelPulse{0%,100%{box-shadow:0 4px 14px rgba(232,197,71,.45)}50%{box-shadow:0 4px 22px rgba(232,197,71,.7)}}
+@media(prefers-reduced-motion:reduce){.vipRide,.vipRide__sheet,.vipRide__rideCard,.vipRide__step,.vipRide__modeToggle,.vipRide__markerInner,.vipRide__mapLabel{animation:none!important;transition:none!important;opacity:1!important;transform:none!important}}
+.template-index #vipRide-{{ section.id }}{margin-top:calc(var(--header-height,60px)*-1);padding-top:var(--header-height,60px)}
+#vipRide-{{ section.id }} .vipRide__form[data-vipride-mode="hourly"] [data-vipride-dropoff-field]{display:none!important}
+@media(max-width:340px){.vipRide__sheet{--sheet-margin:6px;padding:10px 8px calc(8px + env(safe-area-inset-bottom,0px))}.vipRide__modeBtn{font-size:clamp(8px,2vw,10px);padding:6px 4px}.vipRide__rideCard{grid-template-columns:clamp(80px,22vw,100px) 1fr;gap:8px;padding:10px 8px!important}}
+@media(max-width:899px){
+  .vipRide__step1Full{display:none!important}
+  .vipRide__sheet[data-vipride-step="1"]{left:10px;right:10px;bottom:12px;padding:36px 22px calc(40px + env(safe-area-inset-bottom,0px));max-height:none!important;position:absolute;isolation:isolate;overflow:hidden;border-radius:22px;background:#111115!important;border-color:rgba(255,255,255,.05)!important;animation:vipSheetIn 400ms cubic-bezier(0,0,.2,1) 250ms both}
+  .vipRide__sheet[data-vipride-step="1"] .vipRide__handle,.vipRide__sheet[data-vipride-step="1"] .vipRide__stepDots,.vipRide__sheet[data-vipride-step="3"] .vipRide__handle,.vipRide__sheet[data-vipride-step="3"] .vipRide__stepDots{display:none!important}
+}
+@media(min-width:900px){
+  html body .vipRide .vipRide__step1Full{display:none!important}
+  html body .vipRide .vipRide__sheet[data-vipride-step="1"] .vipRide__handle,html body .vipRide .vipRide__sheet[data-vipride-step="1"] .vipRide__stepDots,html body .vipRide .vipRide__sheet[data-vipride-step="3"] .vipRide__handle,html body .vipRide .vipRide__sheet[data-vipride-step="3"] .vipRide__stepDots{display:none!important}
+  html body .vipRide .vipRide__locChip,html body .vipRide .vipRide__locChips{left:0!important;right:0!important;width:min(1400px,calc(100vw - 48px))!important;max-width:1400px!important;margin:0 auto!important}
+  html body .vipRide .vipRide__suggestions{max-width:min(1400px,calc(100vw - 48px))!important;left:0!important;right:0!important;margin:0 auto!important}
+}
+.vipRide__compactCard{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0}
+  .vipRide__compactCard__body{flex:1;min-width:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+  .vipRide__compactCard__title{margin:0 0 13px;font-family:'Poppins',sans-serif;font-size:clamp(24px,6.8vw,28px);font-weight:800;color:#fff;letter-spacing:-.04em;line-height:1.05;white-space:nowrap}
+  .vipRide__compactPills{display:flex;align-items:center;gap:8px}
+  .vipRide__compactPill{display:inline-flex;align-items:center;gap:6px;padding:7px 14px 7px 11px;border-radius:999px;border:1.5px solid rgba(255,255,255,.13);background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);font-size:13px;font-weight:600;letter-spacing:.01em;cursor:pointer;touch-action:manipulation;white-space:nowrap;transition:background 180ms cubic-bezier(0,0,.2,1),border-color 180ms cubic-bezier(0,0,.2,1),color 180ms cubic-bezier(0,0,.2,1),box-shadow 180ms cubic-bezier(0,0,.2,1)}
+  .vipRide__compactPill:active{opacity:.8}
+  .vipRide__compactPill.is-active{background:#E8C547;border-color:#E8C547;color:#0a0a0a;font-weight:800;box-shadow:0 2px 12px rgba(232,197,71,.45)}
+  .vipRide__pillIcon{display:block;flex-shrink:0;transition:color 180ms}
+  .vipRide__compactPill.is-active .vipRide__pillIcon{color:#0a0a0a}
+  .vipRide__compactPill:not(.is-active) .vipRide__pillIcon{color:rgba(255,255,255,.45)}
+  .vipRide__compactArrow{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.06);border:1.5px solid rgba(232,197,71,.25);color:#E8C547;box-shadow:0 2px 8px rgba(232,197,71,.15),0 6px 18px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;flex-shrink:0;padding:0;transition:background 200ms cubic-bezier(0,0,.2,1),border-color 200ms cubic-bezier(0,0,.2,1),color 200ms cubic-bezier(0,0,.2,1),transform 140ms}
+  .vipRide__compactArrow.is-ready{background:rgba(232,197,71,.14);border-color:rgba(232,197,71,.5);color:#E8C547;animation:arrowPulse 2s ease-in-out infinite}
+  @keyframes arrowPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,197,71,0)}50%{box-shadow:0 0 0 6px rgba(232,197,71,.12)}}
+  .vipRide__compactArrow:active{transform:scale(.88)}
+@media(min-width:900px){.vipRide__step1Full{display:none!important}}
+@keyframes lpIn{from{opacity:0}to{opacity:1}}
+@keyframes vrMirrorShift{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:0% 0%}}
+@keyframes vrMirrorSweep{0%{transform:translateX(-35%) rotate(0deg)}100%{transform:translateX(35%) rotate(0deg)}}
+@keyframes vrMirrorSweep2{0%{transform:translateX(40%) rotate(0deg)}100%{transform:translateX(-40%) rotate(0deg)}}
+@keyframes lpOut{from{opacity:1}to{opacity:0}}
+.vipRide__locPicker,html body .vipRide__locPicker,html body [data-vipride-locpicker]{position:fixed!important;top:var(--vip-nav-h,0px)!important;left:0!important;right:0!important;bottom:0!important;z-index:9990!important;background:#050505!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;display:flex!important;flex-direction:column;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -1px 0 rgba(255,255,255,.02),inset 0 0 140px rgba(0,0,0,.6);isolation:isolate}
+.vipRide__locPicker:not([hidden]) > *{position:relative;z-index:2}
+.vipRide__locPicker[hidden]{display:none!important}
+.vipRide__locPicker:not([hidden]){animation:lpIn 300ms ease both}
+.vipRide__locPicker.is-closing{animation:lpOut 250ms ease both}
+.vipRide__locPicker__topRow{display:flex;align-items:flex-start;gap:10px;padding:12px 12px 0;flex-shrink:0}
+.vipRide__locPicker__back{width:38px;height:38px;border-radius:50%;background:rgba(12,12,18,.85);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;transition:background 150ms;flex-shrink:0;margin-top:8px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.vipRide__locPicker__back:active{background:rgba(255,255,255,.14)}
+.vipRide__locPicker__fieldsWrap{flex:1;min-width:0;display:flex;flex-direction:column;gap:0;background:linear-gradient(135deg,rgba(45,45,52,.6) 0%,rgba(8,8,12,.82) 25%,rgba(28,28,34,.65) 50%,rgba(3,3,6,.88) 75%,rgba(38,38,44,.6) 100%);background-size:300% 300%;animation:vrMirrorShift 14s ease-in-out infinite;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:6px;box-shadow:0 10px 46px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.06),inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(255,255,255,.04),inset 1px 0 0 rgba(255,255,255,.06),inset -1px 0 0 rgba(255,255,255,.06);backdrop-filter:blur(24px) brightness(.85) saturate(170%) contrast(112%);-webkit-backdrop-filter:blur(24px) brightness(.85) saturate(170%) contrast(112%);position:relative;isolation:isolate;overflow:hidden}
+.vipRide__locPicker__fieldsWrap::before{content:"";position:absolute;top:-50%;left:-100%;width:300%;height:200%;background:linear-gradient(115deg,transparent 0%,transparent 30%,rgba(255,255,255,.015) 38%,rgba(255,255,255,.04) 44%,rgba(255,255,255,.08) 48%,rgba(255,255,255,.11) 50%,rgba(255,255,255,.08) 52%,rgba(255,255,255,.04) 56%,rgba(255,255,255,.015) 62%,transparent 70%,transparent 100%);pointer-events:none;z-index:0;mix-blend-mode:screen;animation:vrMirrorSweep 11s cubic-bezier(.45,.05,.55,.95) infinite;will-change:transform;filter:blur(14px)}
+.vipRide__locPicker__fieldsWrap::after{content:"";position:absolute;top:-50%;left:-100%;width:300%;height:200%;background:linear-gradient(100deg,transparent 0%,transparent 32%,rgba(210,220,240,.01) 40%,rgba(220,230,245,.03) 45%,rgba(230,238,250,.06) 49%,rgba(240,245,255,.075) 50%,rgba(230,238,250,.06) 51%,rgba(220,230,245,.03) 55%,rgba(210,220,240,.01) 60%,transparent 68%,transparent 100%);pointer-events:none;z-index:0;mix-blend-mode:screen;animation:vrMirrorSweep2 14s cubic-bezier(.6,.04,.4,.96) infinite;animation-delay:-4s;will-change:transform;filter:blur(18px)}
+.vipRide__locPicker__fieldsWrap > *{position:relative;z-index:2}
+.vipRide__locPicker__field{display:flex;align-items:center;gap:12px;padding:13px 12px;position:relative;background:transparent!important;border-radius:10px;border:none}
+.vipRide__locPicker__field--pickup{border-bottom:1px solid rgba(255,255,255,.06)!important;border-radius:10px 10px 0 0}
+.vipRide__locPicker__field--dropoff{border-radius:0 0 10px 10px}
+.vipRide__locPicker__field:focus-within{background:rgba(255,255,255,.04)!important}
+.vipRide__locPicker__dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;position:relative;z-index:2}
+.vipRide__locPicker__dot--pickup{background:#E8C547;box-shadow:0 0 8px rgba(232,197,71,.7)}
+.vipRide__locPicker__dot--dropoff{width:9px;height:9px;background:#fff;border-radius:3px;box-shadow:0 0 8px rgba(255,255,255,.5)}
+.vipRide__locPicker__input{flex:1;min-width:0;background:transparent!important;background-color:transparent!important;border:none!important;outline:none!important;box-shadow:none!important;color:#fff!important;font-size:15px;font-weight:500;-webkit-appearance:none!important;appearance:none!important;caret-color:#E8C547;padding:0!important;height:auto!important;line-height:normal!important;}
+.vipRide__locPicker__input::placeholder{color:rgba(255,255,255,.35)!important;}
+.vipRide__locPicker__input:focus{background:transparent!important;background-color:transparent!important;box-shadow:none!important;border:none!important;outline:none!important;}
+.vipRide__locPicker__clearBtn{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.10);border:none;color:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;transition:background 140ms;}
+.vipRide__locPicker__clearBtn[hidden]{display:none!important;}
+.vipRide__locPicker__clearBtn:active{background:rgba(255,255,255,.2);}
+@keyframes sugSlideIn{
+  from{opacity:0;transform:translateY(-8px);max-height:0;}
+  to{opacity:1;transform:translateY(0);max-height:min(50svh,320px);}
+}
+.vipRide__locPicker__suggestions{margin:4px 0 0;background:rgba(16,16,20,.98);border:1px solid rgba(212,175,55,.16);border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.6);max-height:228px;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:sugSlideIn 200ms cubic-bezier(0,0,.2,1) both}
+.vipRide__locPicker__suggestions[hidden]{display:none!important}
+.vipRide__locPicker__suggestion{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;touch-action:manipulation;transition:background 140ms,border-left-color 140ms;border-left:2px solid transparent;min-height:72px}
+.vipRide__locPicker__suggestion:hover,.vipRide__locPicker__suggestion.is-active{background:rgba(212,175,55,.14);border-left-color:#E8C547;padding-left:14px}
+.vipRide__locPicker__suggestion:last-child{border-bottom:none}
+.vipRide__locPicker__suggestion:active{background:rgba(212,175,55,.09)}
+.vipRide__locPicker__sugDot{width:8px;height:8px;border-radius:50%;background:rgba(212,175,55,.55);flex-shrink:0;margin-top:4px}
+.vipRide__locPicker__sugMain{font-size:14px;font-weight:600;color:#fff;line-height:1.3}
+.vipRide__locPicker__sugSub{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px;line-height:1.3}
+.vipRide__locPicker__shortcuts{flex-shrink:0;padding:8px 14px 0;position:relative;z-index:3}
+.vipRide__locPicker__shortcut{width:100%;display:flex;align-items:center;gap:16px;padding:18px 20px;background:linear-gradient(135deg,rgba(45,45,52,.6) 0%,rgba(8,8,12,.82) 25%,rgba(28,28,34,.65) 50%,rgba(3,3,6,.88) 75%,rgba(38,38,44,.6) 100%);background-size:300% 300%;animation:vrMirrorShift 14s ease-in-out infinite;backdrop-filter:blur(24px) brightness(.85) saturate(170%) contrast(112%);-webkit-backdrop-filter:blur(24px) brightness(.85) saturate(170%) contrast(112%);border:1px solid rgba(255,255,255,.07);border-radius:16px;color:#fff;cursor:pointer;touch-action:manipulation;text-align:left;transition:transform 140ms ease,border-color 180ms;box-shadow:0 8px 28px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.1),inset 0 -1px 0 rgba(255,255,255,.03),inset 1px 0 0 rgba(255,255,255,.05),inset -1px 0 0 rgba(255,255,255,.05);position:relative;isolation:isolate;overflow:hidden}
+.vipRide__locPicker__shortcut::before{content:"";position:absolute;top:-50%;left:-100%;width:300%;height:200%;background:linear-gradient(115deg,transparent 0%,transparent 30%,rgba(255,255,255,.015) 38%,rgba(255,255,255,.04) 44%,rgba(255,255,255,.08) 48%,rgba(255,255,255,.11) 50%,rgba(255,255,255,.08) 52%,rgba(255,255,255,.04) 56%,rgba(255,255,255,.015) 62%,transparent 70%,transparent 100%);pointer-events:none;z-index:0;mix-blend-mode:screen;animation:vrMirrorSweep 11s cubic-bezier(.45,.05,.55,.95) infinite;will-change:transform;filter:blur(14px)}
+.vipRide__locPicker__shortcut::after{content:"";position:absolute;top:-50%;left:-100%;width:300%;height:200%;background:linear-gradient(100deg,transparent 0%,transparent 32%,rgba(210,220,240,.01) 40%,rgba(220,230,245,.03) 45%,rgba(230,238,250,.06) 49%,rgba(240,245,255,.075) 50%,rgba(230,238,250,.06) 51%,rgba(220,230,245,.03) 55%,rgba(210,220,240,.01) 60%,transparent 68%,transparent 100%);pointer-events:none;z-index:0;mix-blend-mode:screen;animation:vrMirrorSweep2 14s cubic-bezier(.6,.04,.4,.96) infinite;animation-delay:-4s;will-change:transform;filter:blur(18px)}
+.vipRide__locPicker__shortcut > *{position:relative;z-index:2}
+.vipRide__locPicker__shortcut:hover{border-color:rgba(232,197,71,.25);transform:translateY(-1px)}
+.vipRide__locPicker__shortcut:active{transform:translateY(0) scale(.99)}
+.vipRide__locPicker__shortcutIcon{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6);flex-shrink:0}
+.vipRide__locPicker__shortcutText{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.vipRide__locPicker__shortcutTitle{font-size:15px;font-weight:600;color:#fff}
+.vipRide__locPicker__shortcutSub{font-size:12px;color:rgba(255,255,255,.38)}
+.vipRide__locPicker__shortcutChevron{color:rgba(255,255,255,.22);flex-shrink:0}
+.vipRide__mapPicker{position:fixed;inset:0;z-index:9995;background:#0a1128;padding-top:var(--vip-nav-h,0px);opacity:1;transition:opacity 300ms ease}
+.vipRide__mapPicker.is-entering{opacity:0}
+.vipRide__mapPicker[hidden]{display:none!important}
+.vipRide__mapPicker.is-closing{opacity:0;pointer-events:none}
+.vipRide__mapPicker__header{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;padding:14px 14px 10px;background:transparent;pointer-events:none}
+.vipRide__mapPicker__header > *{pointer-events:auto}
+.vipRide__mapPicker__back{width:36px;height:36px;border-radius:50%;background:rgba(10,15,35,.75);border:1px solid rgba(255,255,255,.18);color:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background 130ms;-webkit-tap-highlight-color:transparent}
+.vipRide__mapPicker__back:active{background:rgba(255,255,255,.22)}
+.vipRide__mapPicker__chip{font-size:13px;font-weight:700;letter-spacing:.01em;color:#fff;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.9);background:none;border:none;padding:0}
+.vipRide__mapPicker__canvas{position:absolute;inset:0;z-index:1}
+.vipRide__mapPicker__canvas > .vipRide__mapInner{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;z-index:1}
+.vipRide__mapPicker__pin{position:absolute;top:50%;left:50%;transform:translate(-50%,-100%);z-index:5;pointer-events:none;will-change:transform;transition:transform 140ms cubic-bezier(.25,.46,.45,.94),filter 140ms}
+.vipRide__mapPicker__pin.is-dragging{transform:translate(-50%,calc(-100% - 14px));filter:drop-shadow(0 14px 22px rgba(0,0,0,.7))}
+.vipRide__mapPicker__pinSvg{display:block;width:54px;height:52px}
+@keyframes vipPinDrop{0%{transform:translate(-50%,calc(-100% - 24px)) scale(1.2)}40%{transform:translate(-50%,-90%) scale(.86)}65%{transform:translate(-50%,-108%) scale(1.08)}82%{transform:translate(-50%,-97%) scale(.97)}100%{transform:translate(-50%,-100%) scale(1)}}
+.vipRide__mapPicker__pin.is-dropping{animation:vipPinDrop 560ms cubic-bezier(.25,.46,.45,.94) both;filter:drop-shadow(0 6px 16px rgba(232,197,71,.5))}
+.vipRide__gpsPin{width:22px;height:22px;position:relative;pointer-events:none}
+.vipRide__gpsPin__core{position:absolute;width:12px;height:12px;border-radius:50%;background:#E8C547;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);top:50%;left:50%;transform:translate(-50%,-50%);z-index:2}
+.vipRide__gpsPin__ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(232,197,71,.55);animation:gpsPulse 2.2s ease-out infinite;z-index:1}
+.vipRide__gpsPin__ring2{position:absolute;inset:-6px;border-radius:50%;border:1.5px solid rgba(232,197,71,.25);animation:gpsPulse 2.2s ease-out .7s infinite;z-index:1}
+@keyframes gpsPulse{0%{transform:scale(.5);opacity:.9}80%,100%{transform:scale(2.4);opacity:0}}
+@media(prefers-reduced-motion:reduce){.vipRide__gpsPin__ring,.vipRide__gpsPin__ring2{animation:none!important}}
+.vipRide__seg{position:relative;display:inline-flex;align-items:stretch;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:3px;gap:0}
+.vipRide__seg__rail{display:none}
+.vipRide__seg__btn{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:999px;border:none;background:transparent;color:rgba(255,255,255,.6);font-size:13px;font-weight:600;letter-spacing:.01em;cursor:pointer;touch-action:manipulation;white-space:nowrap;transition:color 220ms,background 220ms,box-shadow 220ms;-webkit-tap-highlight-color:transparent}
+.vipRide__seg__btn.is-active{background:#E8C547;box-shadow:0 2px 10px rgba(232,197,71,.45);color:#000;font-weight:800}
+.vipRide__seg__btn .vipRide__pillIcon{transition:color 220ms;flex-shrink:0}
+.vipRide__seg__btn.is-active .vipRide__pillIcon{color:#000}
+.vipRide__seg__btn:not(.is-active) .vipRide__pillIcon{color:rgba(255,255,255,.7)}
+@keyframes laterIn{from{opacity:0}to{opacity:1}}
+@keyframes laterOut{from{opacity:1}to{opacity:0}}
+.vipRide__laterOverlay{position:fixed;inset:var(--vip-nav-h,0) 0 0;z-index:9992;display:flex!important;flex-direction:column;overflow:hidden}
+.vipRide__laterOverlay[hidden]{display:none!important}
+.vipRide__laterOverlay:not([hidden]){animation:laterIn 300ms ease both}
+.vipRide__laterOverlay.is-closing{animation:laterOut 250ms ease both}
+.vipRide__laterOverlay__header{display:flex;align-items:center;gap:14px;padding:16px 16px 14px;flex-shrink:0}
+.vipRide__laterOverlay__title{margin:0;flex:1;font-family:'Poppins',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:-.02em;text-align:center;margin-right:40px}
+.vipRide__laterCards{display:flex;flex-direction:column;gap:28px;padding:22px;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;justify-content:center;align-items:center}
+.vipRide__laterCards--grid{display:flex;flex-direction:column;gap:28px;padding:22px;flex:1;justify-content:center;align-items:center;width:100%}
+.vipRide__laterCard{position:relative;display:flex;align-items:center;gap:16px;padding:18px 16px;border-radius:22px;background:transparent;border:none;color:#fff;cursor:pointer;touch-action:manipulation;text-align:left;transition:transform 130ms,opacity 130ms;-webkit-tap-highlight-color:transparent;width:100%;max-width:360px}
+.vipRide__laterCard:active{transform:scale(.97);opacity:.85}
+.vipRide__laterCard--v{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:10px 16px}
+.vipRide__laterCard__icon{width:112px;height:112px;border-radius:26px;background:transparent;display:flex;align-items:center;justify-content:center;color:#E8C547;flex-shrink:0;overflow:hidden}
+.vipRide__laterCard__iconImg{width:100%;height:100%;object-fit:contain;display:block}
+.vipRide__laterCard__title{font-family:'Poppins',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-.025em;line-height:1.2;margin-top:0;text-shadow:0 0 14px rgba(232,197,71,.55),0 2px 6px rgba(232,197,71,.35)}
+.vipRide__laterCard__sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.45;max-width:240px;font-weight:400;letter-spacing:.005em}
+@media(max-width:360px){.vipRide__laterCard--v{padding:8px 10px}.vipRide__laterCard--v .vipRide__laterCard__icon{width:96px;height:96px;border-radius:22px}.vipRide__laterCard__title{font-size:19px}.vipRide__laterCard__sub{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.vipRide__laterCard::before,.vipRide__sheet[data-vipride-step="1"]::before{animation:none!important}}
+.vipRide__testConfirm{position:absolute;inset:0;z-index:60;pointer-events:none}
+.vipRide__testConfirm:not([hidden]){pointer-events:auto}
+.vipRide__testConfirm__phase1{position:absolute;inset:0;background:#000000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;opacity:0;visibility:hidden;transition:opacity 500ms ease,visibility 0s linear 500ms;pointer-events:none}
+.vipRide__testConfirm__phase1.is-visible{opacity:1;visibility:visible;pointer-events:auto;transition:opacity 500ms ease,visibility 0s linear 0s}
+.vipRide__testConfirm__phase1.is-hiding{opacity:0;visibility:hidden;pointer-events:none}
+.vipRide__testStars{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.vipRide__testStar{position:absolute;border-radius:50%;background:#E8C547;animation:vipTestTwinkle var(--dur,2s) ease-in-out infinite var(--delay,0s)}
+@keyframes vipTestTwinkle{0%,100%{opacity:.08;transform:scale(.7)}50%{opacity:.65;transform:scale(1.3)}}
+.vipRide__testPulse{position:relative;width:130px;height:130px;display:flex;align-items:center;justify-content:center}
+.vipRide__testPulse__ring{position:absolute;border-radius:50%;border:1.5px solid rgba(232,197,71,.25);animation:vipTestPulse 2.2s ease-out infinite}
+.vipRide__testPulse__ring--outer{width:120px;height:120px;animation-delay:.55s}
+.vipRide__testPulse__ring--mid{width:96px;height:96px;animation-delay:.25s}
+@keyframes vipTestPulse{0%{transform:translate(-50%,-50%) scale(.6);opacity:0}15%{opacity:.55}100%{transform:translate(-50%,-50%) scale(1.25);opacity:0}}
+.vipRide__testPulse__circle{width:74px;height:74px;border-radius:50%;background:radial-gradient(circle at 38% 32%,rgba(255,255,255,.1),rgba(232,197,71,.07));border:2px solid rgba(232,197,71,.45);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;box-shadow:0 0 28px rgba(232,197,71,.18),inset 0 1px 0 rgba(255,255,255,.08)}
+.vipRide__testConfirm__label{font-size:clamp(19px,5.2vw,23px);font-weight:600;color:#fff;letter-spacing:-.025em;text-align:center;margin:0}
+.vipRide__testDots{opacity:.7}
+.vipRide__testBar{width:clamp(200px,58vw,260px);height:3px;background:rgba(255,255,255,.09);border-radius:2px;overflow:hidden}
+.vipRide__testBar--phase2{width:100%}
+.vipRide__testBar--phase2 .vipRide__testBar__fill{width:100%!important;background:linear-gradient(90deg,#B08800,#E8C547,#F5DC7A,#E8C547,#B08800);background-size:200% 100%;animation:vipTestBarShimmer 1.8s linear infinite;transition:none!important}
+@keyframes vipTestBarShimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.vipRide__testBar__fill{height:100%;width:0%;background:linear-gradient(90deg,#B08800,#E8C547,#F5DC7A);border-radius:2px;transition:width 120ms linear}
+.vipRide__testCancelBtn{-webkit-appearance:none;appearance:none;background:none;border:none;font-size:clamp(14px,3.8vw,16px);color:rgba(255,255,255,.45);padding:12px 28px;cursor:pointer;letter-spacing:.01em;transition:color 200ms}
+.vipRide__testCancelBtn:active{color:rgba(255,255,255,.8)}
+.vipRide__testConfirm__phase2{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:0 14px clamp(20px,5vw,32px);opacity:0;pointer-events:none;transition:opacity 600ms ease}
+.vipRide__testConfirm__phase2.is-visible{opacity:1;pointer-events:auto}
+.vipRide__testSheet{background:linear-gradient(160deg,rgba(13,20,45,.98) 0%,rgba(8,14,32,.99) 100%);border-radius:20px;padding:16px 18px clamp(18px,5vw,24px);display:flex;flex-direction:column;gap:16px;transform:translateY(40px);transition:transform 650ms cubic-bezier(.2,.8,.2,1);box-shadow:0 8px 48px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.06);overflow:visible}
+.vipRide__testConfirm__phase2.is-visible .vipRide__testSheet{transform:translateY(0)}
+.vipRide__sheet{transition:opacity 620ms cubic-bezier(.22,1,.36,1),transform 620ms cubic-bezier(.22,1,.36,1);will-change:transform,opacity;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:translateZ(0)}
+.vipRide__sheet{transition:opacity .6s cubic-bezier(.2,.9,.25,1.1),transform .6s cubic-bezier(.2,.9,.25,1.1)!important}
+.vipRide__sheet.is-test-hidden{opacity:0!important;pointer-events:none!important;transform:translate3d(0,28px,0) scale(.97)!important;transition:.38s!important}
+.vipRide__testSheet__handle{width:38px;height:4px;background:rgba(255,255,255,.13);border-radius:2px;margin:0 auto 6px}
+.vipRide__testSheet__row{display:flex;align-items:center;gap:14px}
+.vipRide__testSheet__icon{width:48px;height:48px;border-radius:50%;flex-shrink:0;background:rgba(232,197,71,.1);border:1.5px solid rgba(232,197,71,.35);display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(232,197,71,.15);position:relative;overflow:visible}
+.vipRide__testSheet__icon::before,.vipRide__testSheet__icon::after{content:'';position:absolute;top:50%;left:50%;border-radius:50%;border:1.5px solid rgba(232,197,71,.3);transform:translate(-50%,-50%) scale(.6);animation:vipTestPulse 2.8s cubic-bezier(.4,0,.2,1) infinite;will-change:transform,opacity;pointer-events:none}
+.vipRide__testSheet__icon::before{width:58px;height:58px}
+.vipRide__testSheet__icon::after{width:72px;height:72px;animation-delay:.9s}
+.vipRide__testSheet__status{font-size:clamp(17px,4.8vw,20px);font-weight:700;color:#fff;line-height:1.2}
+.vipRide__testSheet__route{font-size:clamp(11px,3vw,13px);color:rgba(255,255,255,.4);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100vw - 100px)}
+.vipRide__driverFound{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:0 14px clamp(24px,6vw,36px);opacity:0;pointer-events:none;transition:opacity 600ms ease}
+.vipRide__driverFound.is-visible{opacity:1;pointer-events:auto}
+.vipRide__driverFound::before{content:'';position:absolute;inset:0;background:rgba(6,10,24,.58);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:0;pointer-events:none}
+.vipRide__driverCenter,.vipRide__driverCard{position:relative;z-index:1}
+.vipRide__testConfirm:not([hidden]) ~ .vipRide__mapBackBtn,.vipRide__driverFound.is-visible ~ [data-vipride-map-back],.vipRide.is-searching .vipRide__mapBackBtn,.vipRide.is-searching [data-vipride-map-back],.vipRide__section--driver-active [data-vipride-map-back]{display:none!important}
+.vipRide__driverCenter{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding-bottom:32px}
+.vipRide__driverCheck{width:clamp(110px,28vw,140px);height:clamp(110px,28vw,140px);border-radius:50%;background:linear-gradient(145deg,rgba(232,197,71,.22),rgba(180,140,40,.12));border:3px solid rgba(232,197,71,.55);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(232,197,71,.28),0 0 90px rgba(232,197,71,.1);animation:vipCheckIn 650ms cubic-bezier(.2,.8,.2,1) both}
+.vipRide__driverCheck svg{width:52%;height:52%}
+@keyframes vipCheckIn{0%{opacity:0;transform:scale(.4)}65%{transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
+.vipRide__driverFoundTitle{font-size:clamp(34px,9vw,44px);font-weight:800;color:#E8C547;letter-spacing:-.02em;margin:0;animation:vipDriverFadeUp 500ms ease 280ms both}
+.vipRide__driverFoundSub{font-size:clamp(17px,4.6vw,20px);color:rgba(255,255,255,.72);margin:0;text-align:center;font-weight:500;animation:vipDriverFadeUp 500ms ease 420ms both}
+@keyframes vipDriverFadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.vipRide__driverCard{background:rgba(13,20,45,.96);border-radius:22px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:14px;box-shadow:0 8px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.06);animation:vipDriverCardIn 650ms cubic-bezier(.2,.8,.2,1) 200ms both}
+@keyframes vipDriverCardIn{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+.vipRide__driverCard__row{display:flex;align-items:center;gap:16px}
+.vipRide__driverCard__photo{width:68px;height:68px;border-radius:50%;flex-shrink:0;background:rgba(255,255,255,.08);border:2px solid rgba(232,197,71,.38);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.vipRide__driverCard__photo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.vipRide__driverCard__info{flex:1;min-width:0}
+.vipRide__driverCard__name{font-size:clamp(19px,5vw,22px);font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.01em}
+.vipRide__driverCard__rating{display:flex;align-items:center;gap:5px;margin-top:4px;font-size:clamp(14px,3.8vw,16px);color:rgba(255,255,255,.78);font-weight:600}
+.vipRide__driverCard__rating svg{width:16px;height:16px}
+.vipRide__driverCard__vehicle{font-size:clamp(13px,3.6vw,15px);color:rgba(255,255,255,.62);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px;font-weight:500}
+.vipRide__driverCard__plate{display:inline-block;margin-top:6px;font-size:clamp(12px,3.2vw,13px);font-weight:700;color:#E8C547;letter-spacing:.08em;background:rgba(232,197,71,.1);border:1px solid rgba(232,197,71,.3);padding:3px 9px;border-radius:6px;text-transform:uppercase}
+.vipRide__appPromo{padding:calc(env(safe-area-inset-top,0px) + var(--vip-nav-h,60px) + 8px) 0 calc(env(safe-area-inset-bottom,0px) + 20px)!important;gap:0!important;justify-content:flex-start!important;align-items:stretch!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch;position:relative;display:flex!important;flex-direction:column!important;height:100%!important;max-height:100%!important}
+.vipRide__appPromoBack{position:absolute!important;top:calc(env(safe-area-inset-top,0px) + var(--vip-nav-h,60px) + 14px)!important;left:18px!important;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;z-index:100;transition:background 140ms,transform 140ms;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.vipRide__appPromoBack:hover{background:rgba(255,255,255,.14)}
+.vipRide__appPromoBack:active{transform:scale(.94);background:rgba(255,255,255,.2)}
+/* 3 horizontal steps: circle → line → circle → line → circle */
+.vR-app__steps{display:flex;justify-content:space-between;align-items:flex-start;gap:0;padding:12px 18px 16px;margin-top:4px;width:100%;max-width:460px;margin-left:auto;margin-right:auto;position:relative}
+.vR-app__steps::before{content:"";position:absolute;top:calc(12px + 18px);left:22%;right:22%;height:2px;background:linear-gradient(90deg,rgba(232,197,71,.5),rgba(232,197,71,.2));z-index:0;border-radius:2px}
+.vR-app__step{display:flex;flex-direction:column;align-items:center;gap:10px;flex:1;padding:0 4px;background:transparent!important;border:none!important;position:relative;z-index:1}
+.vR-app__stepNum{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 14px/1 'Poppins',sans-serif;color:#0a0a0a;background:linear-gradient(135deg,#F5DC7A,#E8C547);border:2px solid rgba(232,197,71,.6);box-shadow:0 4px 14px rgba(232,197,71,.35),inset 0 1px 0 rgba(255,255,255,.5);letter-spacing:0;padding:0;min-width:36px;flex-shrink:0}
+.vR-app__stepTxt{display:flex;flex-direction:column;gap:3px;align-items:center;text-align:center;flex:none;min-width:0;width:100%}
+.vR-app__stepTitle{font:700 12.5px/1.2 'Poppins',sans-serif;color:#fff;letter-spacing:-.01em}
+.vR-app__stepSub{font:400 10.5px/1.35 'Inter',sans-serif;color:rgba(255,255,255,.55);letter-spacing:.005em;max-width:100px}
+@media(min-width:520px){.vR-app__stepTitle{font-size:14px}.vR-app__stepSub{font-size:11.5px;max-width:120px}.vR-app__stepNum{width:40px;height:40px;font-size:15px}.vR-app__steps::before{top:calc(28px + 20px)}}
+.vR-app{position:relative;width:100%;max-width:440px;margin:0 auto;padding:clamp(6px,1.5vw,12px) clamp(18px,5vw,28px) clamp(8px,2vw,14px);display:flex;flex-direction:column;align-items:center;gap:clamp(4px,1vw,8px);min-height:auto}
+.vR-app__phoneWrap{position:relative;z-index:1;width:clamp(115px,29vw,155px);aspect-ratio:9/19.5;perspective:1600px;perspective-origin:50% 40%;animation:vRphIn 1.2s cubic-bezier(.22,1,.36,1) .15s both;will-change:transform,opacity;transform-style:preserve-3d}
+@keyframes vRphIn{0%{opacity:0;transform:translateY(50px) scale(.82) rotateX(15deg) rotateY(-8deg)}60%{opacity:1}100%{opacity:1;transform:translateY(0) scale(1) rotateX(0) rotateY(0)}}
+.vR-app__glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:130%;height:115%;border-radius:50%;background:radial-gradient(circle,rgba(232,197,71,.15),transparent 65%);opacity:.8;pointer-events:none}
+.vR-app__shadow{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);width:72%;height:28px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.6),transparent 70%);filter:blur(18px);animation:vRshadow 15s ease-in-out infinite}
+@keyframes vRshadow{0%,100%{width:72%;opacity:.78}50%{width:60%;opacity:.5}}
+.vR-app__phone{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.vR-app__rotor{position:absolute;inset:0;transform-style:preserve-3d;animation:vRsw 11s cubic-bezier(.445,.05,.55,.95) infinite;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+@keyframes vRsw{
+  0%,100%{transform:rotateY(-14deg) rotateX(4deg) rotateZ(1.5deg);}
+  50%    {transform:rotateY(14deg)  rotateX(4deg) rotateZ(-1.5deg);}
+}
+.vR-app__frame{position:absolute;inset:0;border-radius:28px;background:linear-gradient(155deg,#4a4946 0%,#3a3936 20%,#2a2926 45%,#1a1916 75%,#0c0b0a 100%);box-shadow:
+  /* Titanium natural highlight rim */
+  inset 0 1px 0 rgba(255,248,230,.28),
+  inset 0 -1.5px 0 rgba(0,0,0,.7),
+  inset 1.5px 0 0 rgba(200,185,160,.12),
+  inset -1.5px 0 0 rgba(200,185,160,.12),
+  /* Titanium grade 5 bezel (brushed effect) */
+  inset 0 0 0 1px #a89d85,
+  inset 0 0 0 2.5px #4a4238,
+  inset 0 0 0 3px #1a1712,
+  /* Outer contact line */
+  0 0 0 .5px rgba(0,0,0,.98),
+  /* iPhone Pro Max realistic shadows */
+  0 8px 16px rgba(0,0,0,.4),
+  0 18px 34px rgba(0,0,0,.5),
+  0 36px 70px rgba(0,0,0,.55),
+  0 60px 120px rgba(0,0,0,.45),
+  /* Natural titanium warm reflection */
+  0 0 80px rgba(200,180,140,.08);
+padding:5px;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;position:absolute}
+/* Specular highlight: diagonal glass reflection that slides subtly */
+.vR-app__frame::before{content:"";position:absolute;inset:-1px;border-radius:inherit;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.06) 50%,transparent 58%);pointer-events:none;z-index:0;opacity:.5}
+/* Side rim highlight (titanium edge light) */
+.vR-app__frame::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,rgba(255,255,255,.05) 0%,transparent 12%,transparent 88%,rgba(255,255,255,.05) 100%);pointer-events:none;z-index:0}
+@keyframes vRphShine{0%,100%{background-position:-120% 0}50%{background-position:120% 0}}
+.vR-app__screen{position:relative;z-index:2;width:100%;height:100%;border-radius:22px;overflow:hidden;background:#000;box-shadow:inset 0 0 0 1px rgba(0,0,0,.9),inset 0 2px 10px rgba(0,0,0,.6)}
+.vR-app__media{position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover;object-position:center center;display:block;border-radius:inherit;background:#000;transition:opacity .6s ease,filter .8s ease}
+.vR-app__endCTA{position:absolute;inset:0;z-index:14;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;visibility:hidden}
+.vR-app__endCTA__bg{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(232,197,71,.18),rgba(26,19,6,.9) 45%,#030203 80%,#000);opacity:0;transition:opacity .8s ease}
+.vR-app__endCTA__bg::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(232,197,71,.12),transparent 50%);animation:vRendBgPulse 3s ease-in-out infinite;mix-blend-mode:screen}
+@keyframes vRendBgPulse{0%,100%{opacity:.6;transform:scale(.9)}50%{opacity:1;transform:scale(1.1)}}
+.vR-app__endCTA__inner{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;transform:translateY(18px) scale(.85) rotateX(12deg);opacity:0;transition:transform .9s cubic-bezier(.22,1,.36,1),opacity .7s ease;transform-style:preserve-3d}
+.vR-app__endCTA__icon{position:relative;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff 0%,#f5f5f7 40%,#d8d8dc 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px rgba(232,197,71,.35),0 0 20px rgba(232,197,71,.5),0 0 40px rgba(232,197,71,.25),0 6px 16px rgba(0,0,0,.55),inset 0 1.5px 4px rgba(255,255,255,.5),inset 0 -1.5px 4px rgba(0,0,0,.1);animation:vRendB 1.8s ease-in-out infinite,vRendRot 12s linear infinite;overflow:hidden}
+.vR-app__endCTA__icon svg{position:absolute;width:22px;height:22px;animation:5s ease-in-out infinite}
+.vR-app__endCTA__icon .vR-logoA{animation-name:vRlA}
+.vR-app__endCTA__icon .vR-logoG{animation-name:vRlG}
+@keyframes vRendB{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.05)}}
+@keyframes vRendRot{0%{box-shadow:0 0 0 3px rgba(232,197,71,.35),0 0 30px rgba(232,197,71,.55),0 0 60px rgba(232,197,71,.3),0 8px 24px rgba(0,0,0,.6),inset 0 2px 6px rgba(255,255,255,.5),inset 0 -2px 6px rgba(0,0,0,.1)}50%{box-shadow:0 0 0 4px rgba(232,197,71,.5),0 0 50px rgba(232,197,71,.75),0 0 90px rgba(232,197,71,.4),0 10px 30px rgba(0,0,0,.7),inset 0 2px 6px rgba(255,255,255,.5),inset 0 -2px 6px rgba(0,0,0,.1)}100%{box-shadow:0 0 0 3px rgba(232,197,71,.35),0 0 30px rgba(232,197,71,.55),0 0 60px rgba(232,197,71,.3),0 8px 24px rgba(0,0,0,.6),inset 0 2px 6px rgba(255,255,255,.5),inset 0 -2px 6px rgba(0,0,0,.1)}}
+@keyframes vRlA{0%,42%,100%{opacity:1;transform:scale(1)}50%,92%{opacity:0;transform:scale(.6)}}
+@keyframes vRlG{0%,42%,100%{opacity:0;transform:scale(.6)}50%,92%{opacity:1;transform:scale(1)}}
+.vR-app__endCTA__label{font-family:"Playfair Display",Georgia,serif;font-weight:800;font-size:clamp(11px,3.2vw,14px);color:#fff;text-align:center;line-height:.95;letter-spacing:.02em;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.vR-app__endCTA__label span{display:block;font-size:clamp(15px,4.2vw,20px);background:linear-gradient(120deg,#fff4c6,#E8C547 50%,#d4af37);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.04em;margin-top:1px}
+.vR-app__endCTA__pulse{position:absolute;width:90px;height:90px;border-radius:50%;border:1.5px solid rgba(232,197,71,.3);top:-2px;left:50%;transform:translateX(-50%);animation:vRendP 2.2s ease-out infinite}
+@keyframes vRendP{0%{transform:translateX(-50%) scale(.5);opacity:.8}100%{transform:translateX(-50%) scale(1.4);opacity:0}}
+.vR-app__endCTA.is-shown{opacity:1;visibility:visible}
+.vR-app__endCTA.is-shown .vR-app__endCTA__bg{opacity:1}
+.vR-app__endCTA.is-shown .vR-app__endCTA__inner{transform:translateY(0) scale(1) rotateX(0);opacity:1}
+.vR-app__screen.is-ended .vR-app__media{opacity:.15;filter:blur(6px) saturate(.5)}
+.vR-app__island{position:absolute;top:7px;left:50%;transform:translateX(-50%);width:28%;height:13px;background:#000;border-radius:8px;z-index:20;pointer-events:none;box-shadow:inset 0 0 0 .5px rgba(40,40,40,.8),0 1px 2px rgba(0,0,0,.9)}
+.vR-app__reflect{position:absolute;inset:0;z-index:10;pointer-events:none;background:linear-gradient(125deg,rgba(255,255,255,.06),transparent 25%,transparent 75%,rgba(255,255,255,.02))}
+.vR-app__homebar{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:32%;height:3px;border-radius:3px;background:rgba(255,255,255,.55);z-index:12;pointer-events:none}
+.vR-app__content{position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center;gap:clamp(12px,3vw,18px)}
+.vR-app__title{margin:0;text-align:center;animation:vRfu 1s cubic-bezier(.22,1,.36,1) .55s both;will-change:transform,opacity;font-family:"Playfair Display",Georgia,serif;font-weight:800}
+.vR-app__title-w,.vR-app__title-g{display:block;line-height:1.02}
+.vR-app__title-w{font-size:clamp(30px,8vw,40px);color:#fff;font-weight:700;letter-spacing:-.025em;font-feature-settings:"lnum","kern"}
+.vR-app__title-g{font-size:clamp(34px,9vw,46px);font-style:italic;font-weight:800;letter-spacing:-.035em;background:linear-gradient(120deg,#fff4c6 0%,#E8C547 35%,#d4af37 65%,#9e7c1c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-top:2px;text-shadow:0 0 30px rgba(232,197,71,.08)}
+.vR-app__dot{-webkit-text-fill-color:#d4af37;color:#d4af37}
+.vR-app__sub{max-width:330px;text-align:center;font:400 14px/1.55 "Inter",system-ui,-apple-system,sans-serif;color:rgba(255,255,255,.65);margin:2px 0 0;animation:vRfu 1s cubic-bezier(.22,1,.36,1) .75s both;will-change:transform,opacity;letter-spacing:.005em}
+.vR-app__stores{display:flex;flex-direction:row;gap:9px;width:100%;justify-content:center;margin-top:4px;animation:vRfu 1s cubic-bezier(.22,1,.36,1) .95s both;will-change:transform,opacity}
+.vR-app__store{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:9px;padding:12px 14px;border-radius:15px;background:rgba(255,255,255,.06);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);border:1px solid rgba(255,255,255,.14);text-decoration:none;color:#fff;transition:transform .25s,background .25s,border-color .25s;min-height:56px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.vR-app__store:active{transform:scale(.97)}
+.vR-app__store:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.22)}
+.vR-app__slogo{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vR-app__slogo svg{display:block}
+.vR-app__stxt{display:flex;flex-direction:column;gap:1px;min-width:0}
+.vR-app__ssub{font:500 8.5px/1 "Inter",system-ui,sans-serif;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.vR-app__sname{font:700 14px/1.15 "Inter",system-ui,sans-serif;color:#fff;white-space:nowrap}
+@keyframes vRfu{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@media(max-height:760px){.vR-app{gap:clamp(10px,2.5vw,14px)}.vR-app__phoneWrap{width:clamp(140px,38vw,170px)}.vR-app__sub{display:none}}
+@media(prefers-reduced-motion:reduce){.vR-app__phone,.vR-app__glow,.vR-app__shadow{animation:none!important}.vR-app__badge,.vR-app__title,.vR-app__sub,.vR-app__pills,.vR-app__stores,.vR-app__phoneWrap{animation:none!important;opacity:1!important;transform:none!important}}
+.vipRide__testConfirm__cancel .vipRide__testPulse__ring{border-color:rgba(255,80,80,.22);animation-name:vipTestPulseRed}
+@keyframes vipTestPulseRed{0%{transform:scale(.75);opacity:.45}100%{transform:scale(1.35);opacity:0}}
+.vipRide__testBar__fill--cancel{background:linear-gradient(90deg,#c0392b,#e74c3c,#ff6b6b)!important}
+.vipRide__authGate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(6,10,24,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);opacity:0;transition:opacity .4s cubic-bezier(.4,0,.2,1);pointer-events:none;padding:24px}
+.vipRide__authGate[data-visible]{opacity:1;pointer-events:auto}
+.vipRide__authGate__card{background:#0e1018;border:1px solid rgba(255,255,255,.06);border-radius:24px;padding:clamp(32px,7vw,44px) clamp(24px,6vw,36px);width:100%;max-width:380px;text-align:center;opacity:0;transform:scale(.92) translateY(20px);transition:opacity .4s cubic-bezier(.2,.8,.2,1) .08s,transform .4s cubic-bezier(.2,.8,.2,1) .08s;}
+.vipRide__authGate[data-visible] .vipRide__authGate__card{opacity:1;transform:scale(1) translateY(0);}
+.vipRide__authGate__logo{margin-bottom:20px;display:flex;justify-content:center}
+.vipRide__authGate__logoImg{max-width:120px;max-height:60px;object-fit:contain}
+.vipRide__authGate__title{font-size:clamp(20px,5.5vw,24px);font-weight:800;color:#fff;margin:0 0 8px;letter-spacing:-.3px}
+.vipRide__authGate__sub{font-size:clamp(13px,3.5vw,14px);color:rgba(255,255,255,.5);margin:0 0 28px;line-height:1.5}
+.vipRide__authGate__sub--gold{color:#E8C547!important;font-weight:600}
+.vipRide__searchAuthModal{position:fixed;inset:0;z-index:100001;display:flex;align-items:center;justify-content:center;padding:20px;pointer-events:none;opacity:0;transition:opacity .35s cubic-bezier(.4,0,.2,1)}
+.vipRide__searchAuthModal[data-visible]{pointer-events:auto;opacity:1}
+.vipRide__searchAuthModal__overlay{position:absolute;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.vipRide__searchAuthModal__card{position:relative;width:100%;max-width:420px;background:#000;border:1px solid rgba(232,197,71,.25);border-radius:22px;padding:36px 32px 32px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.06);transform:scale(.96) translateY(14px);opacity:0;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s cubic-bezier(.2,.8,.2,1)}
+.vipRide__searchAuthModal[data-visible] .vipRide__searchAuthModal__card{transform:scale(1) translateY(0);opacity:1}
+.vipRide__searchAuthModal__title{font-size:clamp(22px,5.5vw,26px);font-weight:800;color:#fff;margin:0 0 12px;letter-spacing:-.4px;line-height:1.2}
+.vipRide__searchAuthModal__sub{font-size:clamp(14px,3.6vw,16px);color:rgba(255,255,255,.75);margin:0 0 28px;line-height:1.5}
+.vipRide__searchAuthModal__btn{width:100%;padding:18px;border:none;border-radius:14px;background:linear-gradient(135deg,#F5DC7A,#E8C547 50%,#D4A800);color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 16px rgba(232,197,71,.25)}
+.vipRide__searchAuthModal__btn:active{transform:scale(.98);box-shadow:0 2px 10px rgba(232,197,71,.35)}
+@media(prefers-reduced-motion:reduce){.vipRide__searchAuthModal,.vipRide__searchAuthModal__card{transition:none!important}.vipRide__searchAuthModal__card{transform:none!important;opacity:1!important}}
+.vipRide__authBtn--xl{padding:20px!important;font-size:16px!important;box-shadow:0 6px 20px rgba(232,197,71,.35);animation:vipBtnP 2.6s ease-in-out infinite}
+@keyframes vipBtnP{0%,100%{box-shadow:0 6px 20px rgba(232,197,71,.35),0 0 0 0 rgba(232,197,71,.45)}50%{box-shadow:0 8px 26px rgba(232,197,71,.45),0 0 0 6px rgba(232,197,71,0)}}
+.vipRide__wizard__content{min-height:calc(100vh - 140px);display:flex;flex-direction:column}
+.vipRide__wizard__sub{font-size:14px;color:rgba(255,255,255,.5);margin:0 0 28px;line-height:1.5;text-align:center}
+.vipRide__wizard__title{font-size:clamp(22px,6vw,26px);font-weight:800;color:#fff;margin:0 0 8px;letter-spacing:-.3px;text-align:center}
+.vipRide__wizard__spacer{flex:1}
+.vipRide__wizard__rules{list-style:none;padding:0;margin:0 0 24px}
+.vipRide__wizard__rules li{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,.4);padding:4px 0}
+.vipRide__wizard__rules li.ok{color:#E8C547}
+.vipRide__wizard__rules li::before{content:'';width:14px;height:14px;border-radius:50%;border:1.5px solid currentColor;display:inline-block;flex-shrink:0;background:transparent}
+.vipRide__wizard__rules li.ok::before{background:#E8C547;border-color:#E8C547}
+.vipRide__wizard__bigbtn{width:100%;height:56px;border-radius:28px;border:none;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:auto;background:rgba(255,255,255,.08);color:rgba(255,255,255,.4);-webkit-appearance:none;appearance:none}
+.vipRide__wizard__bigbtn.is-ready{background:linear-gradient(135deg,#E8C547,#d4a017);color:#0a0e1a}
+.vipRide__wizard__linkBtn{background:none;border:none;color:#E8C547;font-size:14px;font-weight:600;cursor:pointer;padding:14px;text-align:center;font-family:inherit;-webkit-appearance:none;appearance:none}
+.vipRide__wizard__photoCircle{width:140px;height:140px;border-radius:50%;background:rgba(232,197,71,.15);border:2px solid rgba(232,197,71,.4);display:flex;align-items:center;justify-content:center;margin:40px auto;overflow:hidden}
+.vipRide__wizard__photoCircle img{width:100%;height:100%;object-fit:cover}
+.vipRide__wizard__safetyList{list-style:none;padding:0;margin:20px 0}
+.vipRide__wizard__safetyList li{display:flex;align-items:flex-start;gap:14px;padding:14px 0;font-size:13.5px;color:rgba(255,255,255,.7);line-height:1.5}
+.vipRide__wizard__safetyIcon{width:36px;height:36px;border-radius:10px;background:rgba(232,197,71,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vipRide__wizard__genderBtn{width:100%;padding:16px;background:rgba(255,255,255,.05);border:1.5px solid rgba(232,197,71,.4);border-radius:14px;color:#fff;font-size:15px;font-family:inherit;text-align:left;margin-bottom:10px;cursor:pointer;-webkit-appearance:none;appearance:none;display:flex;justify-content:space-between;align-items:center}
+.vipRide__wizard__genderMenu{background:#1a1d26;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.vipRide__wizard__genderMenu button{width:100%;padding:16px;background:transparent;border:none;color:#fff;font-size:15px;text-align:left;cursor:pointer;font-family:inherit;-webkit-appearance:none;appearance:none;border-bottom:1px solid rgba(255,255,255,.04)}
+.vipRide__wizard__genderMenu button:last-child{border-bottom:none}
+.vipRide__wizard__genderMenu button.is-selected{background:rgba(232,197,71,.1);color:#E8C547}
+.vipRide__authPage{position:fixed;top:var(--vip-nav-h,0px);left:0;right:0;bottom:0;z-index:10000;background:rgba(10,13,20,.78);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);overflow-y:auto;-webkit-overflow-scrolling:touch;opacity:0;transition:opacity .42s cubic-bezier(.4,0,.2,1);padding-bottom:env(safe-area-inset-bottom,0px)}
+body.vipride-auth-open,html.vipride-auth-open,html.vipride-auth-open body{background:#0a0d14!important}
+html.vipride-auth-open{overflow:hidden!important}
+html.vipride-auth-open .vipRide__map,html.vipride-auth-open .vipRide__mapInner,html.vipride-auth-open .mapboxgl-canvas-container,html.vipride-auth-open .mapboxgl-canvas,html.vipride-auth-open canvas.mapboxgl-canvas{visibility:hidden!important}
+html.vipride-auth-open .vipRide__map{background:#0a0d14!important}
+html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
+.vipRide__authPage[data-visible]{opacity:1}
+.vipRide__authPage__back{position:absolute;top:clamp(10px,3vw,16px);left:clamp(16px,4vw,20px);background:none;border:none;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;z-index:2;-webkit-appearance:none;appearance:none;opacity:0;transition:opacity .3s ease .15s,background .14s}
+.vipRide__authPage[data-visible] .vipRide__authPage__back{opacity:1}
+.vipRide__authPage__back:active{background:rgba(255,255,255,.08)}
+.vipRide__authPage__content{padding:clamp(24px,6vw,40px) clamp(24px,6vw,36px) 40px;max-width:400px;margin:0 auto}
+.vipRide__authPage__content>*{opacity:0;transition:opacity .42s cubic-bezier(.4,0,.2,1)}
+.vipRide__authPage[data-visible] .vipRide__authPage__content>*{opacity:1}
+{% assign _apd = '1:.1,2:.15,3:.2,4:.25,5:.3,6:.35,7:.38,8:.41,9:.44,10:.47' | split: ',' %}{% for p in _apd %}{% assign _pp = p | split: ':' %}.vipRide__authPage[data-visible] .vipRide__authPage__content>:nth-child({{ _pp[0] }}){transition-delay:{{ _pp[1] }}s}{% endfor %}
+.vipRide__authPage__heading{font-size:clamp(26px,7vw,32px);font-weight:800;color:#fff;margin:0 0 8px;letter-spacing:-.5px;text-align:center}
+.vipRide__authPage__sub{font-size:clamp(13px,3.5vw,14px);color:rgba(255,255,255,.45);margin:0 0 32px;line-height:1.5;text-align:center}
+.vipRide__authInput{position:relative;margin-bottom:14px}
+.vipRide__authInput__icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);pointer-events:none;z-index:1}
+.vipRide__authInput__field{width:100%;height:52px;background:#1a1d26!important;border:1.5px solid rgba(255,255,255,.08);border-radius:14px;color:#fff!important;font-size:15px;font-family:inherit;padding:0 16px;transition:border-color .2s,background .2s;-webkit-appearance:none;appearance:none;box-sizing:border-box}
+.vipRide__authInput__field:focus{outline:none;border-color:rgba(232,197,71,.45);background:#1f222d!important}
+.vipRide__authInput__field::placeholder{color:rgba(255,255,255,.3)}
+.vipRide__authInput .vipRide__authInput__icon~.vipRide__authInput__field{padding-left:46px}
+.vipRide__authBtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:52px;border-radius:14px;border:none;cursor:pointer;font-size:15px;font-weight:600;font-family:inherit;transition:opacity .15s,transform .1s;-webkit-appearance:none;appearance:none;box-sizing:border-box;}
+.vipRide__authBtn:active{opacity:.8;transform:scale(.98);}
+.vipRide__authBtn--primary{background:linear-gradient(135deg,#E8C547,#d4a017);color:#0a0e1a;margin-bottom:6px;}
+.vipRide__authBtn--dark{background:rgba(255,255,255,.1);color:#fff;margin-bottom:6px}
+.vipRide__authBtn--outline{background:#1a1d26;color:#fff;border:1.5px solid rgba(255,255,255,.08);margin-bottom:10px}
+.vipRide__authBtn--gold{background:transparent;color:#E8C547;border:1.5px solid rgba(232,197,71,.35)}
+.vipRide__authBtn--ghost{background:rgba(255,255,255,.04);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.1)}
+.vipRide__authGate__divider{display:flex;align-items:center;gap:12px;margin:20px 0 12px;color:rgba(255,255,255,.3);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+.vipRide__authGate__divider::before,.vipRide__authGate__divider::after,.vipRide__authDivider::before,.vipRide__authDivider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
+.vipRide__authBtn--icon svg{flex-shrink:0}
+.vipRide__authDivider{display:flex;align-items:center;gap:14px;margin:16px 0}
+.vipRide__authDivider span{font-size:12px;color:rgba(255,255,255,.3);font-weight:600;letter-spacing:.5px}
+.vipRide__authTerms{text-align:center;font-size:clamp(11px,3vw,12px);color:rgba(255,255,255,.35);margin-top:28px;line-height:1.6}
+.vipRide__authTerms a{color:rgba(232,197,71,.7);text-decoration:underline}
+.vipRide__authError{margin-top:12px;padding:12px 16px;background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.2);border-radius:12px;color:#ff6b6b;font-size:13px;text-align:center}
+.vipRide__authBtn.is-loading{pointer-events:none;opacity:.6;position:relative;color:transparent}
+.vipRide__authBtn.is-loading::after{content:'';position:absolute;width:22px;height:22px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:vipAuthSpin .6s linear infinite}
+@keyframes vipAuthSpin{to{transform:rotate(360deg)}}
+.vR-toastHost{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:100000;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:auto;max-width:min(88vw,420px)}
+.vR-toast{max-width:min(88vw,360px);padding:16px 22px;border-radius:14px;background:rgba(22,24,32,.94);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.1);color:#fff;font:600 14px/1.4 -apple-system,'Inter','Poppins',system-ui,sans-serif;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06);opacity:0;transform:translateY(8px) scale(.94);transition:opacity .32s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1);pointer-events:auto}
+.vR-toast.is-in{opacity:1;transform:translateY(0) scale(1)}
+.vR-toast.is-out{opacity:0;transform:translateY(-6px) scale(.96)}
+.vR-toast--err{border-color:rgba(255,90,90,.35);background:rgba(45,18,18,.92);box-shadow:0 8px 30px rgba(180,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08)}
+.vR-toast--ok{border-color:rgba(232,197,71,.4);background:rgba(30,26,10,.92);color:#E8C547;box-shadow:0 8px 30px rgba(232,197,71,.25),inset 0 1px 0 rgba(255,255,255,.08)}
+</style>
+{% render 'ride-request-core' %}
+<style>
+/* Failsafe: ensure sheet and root are visible even if JS/Mapbox fails to init */
+.vipRide{animation-fill-mode:forwards!important}
+@media(prefers-reduced-motion:no-preference){
+  .vipRide__sheet{animation-fill-mode:forwards!important}
+}
+</style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js" async defer></script>
+<script src="https://cdn.shopify.com/s/files/1/0805/8640/8191/files/vip-ride-auth_52500dbd-dd5d-4d3b-9cef-a0d87b22c818.js?v=1775879249" defer></script>
+{% schema %}
+{
+  "name": "VIP Ride Booker",
+  "settings": [
+    {"type":"text","id":"mapbox_access_token","label":"Mapbox Access Token","default":"YOUR_MAPBOX_ACCESS_TOKEN"},
+    {"type":"text","id":"web_checkout_key","label":"Web Checkout Key (Railway)","default":"5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad"},
+    {"type":"url","id":"n8n_webhook_url","label":"n8n Telemetry Webhook URL"},
+    {"type":"video","id":"airport_bg_video","label":"Airport background video"},
+    {"type":"range","id":"hourly_rate","label":"Hourly rate ($/hr)","min":25,"max":300,"step":5,"default":100},
+    {"type":"text","id":"heading","label":"Heading","default":"Where to?"},
+    {"type":"header","content":"Booking Mode Settings"},
+    {"type":"text","id":"ride_mode_text","label":"Ride mode button text","default":"Point to Point"},
+    {"type":"text","id":"hourly_mode_text","label":"Hourly mode button text","default":"By the Hour"},
+    {"type":"range","id":"min_hours","label":"Minimum hours","min":1,"max":8,"step":1,"default":3},
+    {"type":"range","id":"max_hours","label":"Maximum hours","min":4,"max":24,"step":1,"default":12},
+    {"type":"range","id":"default_hours","label":"Default hours","min":1,"max":12,"step":1,"default":4},
+    {"type":"text","id":"hours_label","label":"Hours field label","default":"Duration"},
+    {"type":"text","id":"hours_unit","label":"Hours unit text","default":"hours"},
+    {"type":"text","id":"hours_hint","label":"Hours hint text","default":"Minimum 3 hours, maximum 12 hours"},
+    {"type":"text","id":"service_location_label","label":"Service location label","default":"Service location"},
+    {"type":"header","content":"Form Labels"},
+    {"type":"text","id":"pickup_label","label":"Pickup label","default":"Pickup"},
+    {"type":"text","id":"pickup_placeholder","label":"Pickup placeholder","default":"Detecting your location..."},
+    {"type":"text","id":"pickup_pill_default","label":"Pickup pill default","default":"Pickup"},
+    {"type":"text","id":"dropoff_label","label":"Dropoff label","default":"Dropoff location"},
+    {"type":"text","id":"dropoff_placeholder","label":"Dropoff placeholder","default":"Enter destination address"},
+    {"type":"text","id":"dropoff_pill_default","label":"Dropoff pill default","default":"Dropoff"},
+    {"type":"text","id":"date_label","label":"Date label","default":"Date"},
+    {"type":"text","id":"time_label","label":"Time label","default":"Time"},
+    {"type":"text","id":"see_prices_text","label":"Continue button","default":"Continue"},
+    {"type":"text","id":"choose_ride_text","label":"Choose ride text","default":"Choose a ride"},
+    {"type":"text","id":"choose_hourly_text","label":"Choose hourly text","default":"Choose your vehicle"},
+    {"type":"text","id":"cta_default_text","label":"CTA default text","default":"REQUEST NOW"},
+    {"type":"text","id":"cta_hint_text","label":"CTA hint text","default":"Fill all fields and choose a vehicle."},
+    {"type":"product","id":"booking_product","label":"Booking product (optional)"},
+    {"type":"text","id":"default_lat","label":"Map default latitude","default":"25.7617"},
+    {"type":"text","id":"default_lng","label":"Map default longitude","default":"-80.1918"},
+    {"type":"range","id":"default_zoom","label":"Map default zoom","min":3,"max":18,"step":1,"default":16},
+    {"type":"video","id":"bg_video","label":"Background video"},
+    {"type":"text","id":"bg_video_url","label":"Background video URL","default":"https://example.com/your-video.mp4"},
+    {"type":"header","content":"Icons"},
+    {"type":"image_picker","id":"later_airport_icon","label":"Airport"},
+    {"type":"image_picker","id":"later_schedule_icon","label":"Schedule"},
+    {"type":"image_picker","id":"apt_to_icon","label":"TO"},
+    {"type":"image_picker","id":"apt_from_icon","label":"FROM"},
+    {"type":"header","content":"App Download Promo"},
+    {"type":"image_picker","id":"app_promo_logo","label":"App logo (promo screen)"},
+    {"type":"text","id":"app_promo_name","label":"App name","default":"Cruise"},
+    {"type":"video","id":"app_promo_video","label":"Phone screen video (upload)"},
+    {"type":"url","id":"app_promo_video_url","label":"Phone screen video URL (alternative)"},
+    {"type":"url","id":"app_store_url","label":"App Store URL"},
+    {"type":"url","id":"google_play_url","label":"Google Play URL"},
+    {"type":"header","content":"Authentication"},
+    {"type":"image_picker","id":"auth_gate_logo","label":"Auth gate logo (centered)"},
+    {"type":"text","id":"google_client_id","label":"Google OAuth Client ID"},
+    {"type":"text","id":"apple_client_id","label":"Apple Service ID"},
+    {"type":"header","content":"Service Area"},
+    {"type":"checkbox","id":"svc_al","label":"Alabama","default":true},
+    {"type":"checkbox","id":"svc_fl","label":"Florida","default":true},
+    {"type":"checkbox","id":"svc_ga","label":"Georgia"},
+    {"type":"checkbox","id":"svc_ms","label":"Mississippi"},
+    {"type":"checkbox","id":"svc_tn","label":"Tennessee"},
+    {"type":"checkbox","id":"svc_la","label":"Louisiana"},
+    {"type":"checkbox","id":"svc_sc","label":"S. Carolina"},
+    {"type":"checkbox","id":"svc_nc","label":"N. Carolina"},
+    {"type":"checkbox","id":"svc_tx","label":"Texas"},
+    {"type":"checkbox","id":"svc_ca","label":"California"},
+    {"type":"checkbox","id":"svc_ny","label":"New York"},
+    {"type":"checkbox","id":"svc_nv","label":"Nevada"},
+    {"type":"text","id":"svc_extra_states","label":"Extra codes"},
+    {"type":"text","id":"svc_block_title_en","label":"Block title EN","default":"Not available here"},
+    {"type":"text","id":"svc_block_title_es","label":"Block title ES","default":"No disponible aquí"},
+    {"type":"textarea","id":"svc_block_msg_en","label":"Message EN","default":"We operate in Alabama and Florida."},
+    {"type":"textarea","id":"svc_block_msg_es","label":"Message ES","default":"Operamos en Alabama y Florida."}
+  ],
+  "blocks": [
+    {
+      "type":"vehicle","name":"Vehicle option",
+      "settings": [
+        {"type":"text","id":"title","label":"Title","default":"VIP Sedan"},
+        {"type":"range","id":"seats","label":"Seats","min":1,"max":8,"step":1,"default":4},
+        {"type":"text","id":"badge","label":"Badge (optional)","default":"Popular"},
+        {"type":"text","id":"desc","label":"Description","default":"Premium service with newer vehicles."},
+        {"type":"text","id":"manual_price","label":"Manual price label","default":"From $50"},
+        {"type":"image_picker","id":"image","label":"Image"},
+        {"type":"product","id":"product","label":"Vehicle product (optional)"},
+        {"type":"number","id":"vehicle_rate","label":"Price per hour ($)","default":100},
+        {"type":"number","id":"hourly_rate","label":"Hourly service rate ($/hr)","default":100},
+        {"type":"checkbox","id":"disabled","label":"Disable this vehicle","default":false}
+      ]
+    }
+  ],
+  "presets": [{"name":"VIP Ride Booker","blocks":[{"type":"vehicle"},{"type":"vehicle"},{"type":"vehicle"}]}]
+}
+{% endschema %}

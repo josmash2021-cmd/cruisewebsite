@@ -1,0 +1,298 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "heading": {
+          "type": "text",
+          "name": "Title",
+          "settings": {
+            "text": "<h1>{{ closest.page.title }}</h1>",
+            "width": "100%",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "h2",
+            "font": "var(--font-primary--family)",
+            "font_size": "",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "page-content": {
+          "type": "page-content",
+          "settings": {},
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "heading",
+        "page-content"
+      ],
+      "disabled": true,
+      "settings": {
+        "content_direction": "column",
+        "gap": 32,
+        "color_scheme": "",
+        "padding-block-start": 40,
+        "padding-block-end": 80
+      }
+    },
+    "ride_request_QYwa4d": {
+      "type": "ride-request",
+      "blocks": {
+        "vehicle_B68iYJ": {
+          "type": "vehicle",
+          "settings": {
+            "title": "VIP Sedan",
+            "seats": 4,
+            "badge": "Popular",
+            "desc": "Premium service with newer vehicles.",
+            "manual_price": "From $50",
+            "product": "",
+            "vehicle_rate": 100,
+            "hourly_rate": 100,
+            "disabled": false
+          }
+        },
+        "vehicle_mFkQ8d": {
+          "type": "vehicle",
+          "settings": {
+            "title": "VIP Sedan",
+            "seats": 4,
+            "badge": "Popular",
+            "desc": "Premium service with newer vehicles.",
+            "manual_price": "From $50",
+            "product": "",
+            "vehicle_rate": 100,
+            "hourly_rate": 100,
+            "disabled": false
+          }
+        },
+        "vehicle_NEBDyq": {
+          "type": "vehicle",
+          "settings": {
+            "title": "VIP Sedan",
+            "seats": 4,
+            "badge": "Popular",
+            "desc": "Premium service with newer vehicles.",
+            "manual_price": "From $50",
+            "product": "",
+            "vehicle_rate": 100,
+            "hourly_rate": 100,
+            "disabled": false
+          }
+        }
+      },
+      "block_order": [
+        "vehicle_B68iYJ",
+        "vehicle_mFkQ8d",
+        "vehicle_NEBDyq"
+      ],
+      "disabled": true,
+      "name": "VIP Ride Booker",
+      "settings": {
+        "mapbox_access_token": "pk.eyJ1Ijoicm95YWxwdXJwbGVjb3JwIiwiYSI6ImNtbHk4cmpsNjExamwzZm9sOGFobXZoZTMifQ.YNkz-m3W7noKKDKbwn9y3w",
+        "web_checkout_key": "5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad",
+        "n8n_webhook_url": "",
+        "hourly_rate": 100,
+        "heading": "Where to?",
+        "ride_mode_text": "Point to Point",
+        "hourly_mode_text": "By the Hour",
+        "min_hours": 3,
+        "max_hours": 12,
+        "default_hours": 4,
+        "hours_label": "Duration",
+        "hours_unit": "hours",
+        "hours_hint": "Minimum 3 hours, maximum 12 hours",
+        "service_location_label": "Service location",
+        "pickup_label": "Pickup",
+        "pickup_placeholder": "Detecting your location...",
+        "pickup_pill_default": "Pickup",
+        "dropoff_label": "Dropoff location",
+        "dropoff_placeholder": "Enter destination address",
+        "dropoff_pill_default": "Dropoff",
+        "date_label": "Date",
+        "time_label": "Time",
+        "see_prices_text": "Continue",
+        "choose_ride_text": "Choose a ride",
+        "choose_hourly_text": "Choose your vehicle",
+        "cta_default_text": "REQUEST NOW",
+        "cta_hint_text": "Fill all fields and choose a vehicle.",
+        "booking_product": "",
+        "default_lat": "25.7617",
+        "default_lng": "-80.1918",
+        "default_zoom": 16,
+        "bg_video_url": "https://example.com/your-video.mp4",
+        "app_promo_name": "Cruise",
+        "app_promo_video_url": "",
+        "app_store_url": "",
+        "google_play_url": "",
+        "google_client_id": "",
+        "apple_client_id": "",
+        "svc_al": true,
+        "svc_fl": true,
+        "svc_ga": false,
+        "svc_ms": false,
+        "svc_tn": false,
+        "svc_la": false,
+        "svc_sc": false,
+        "svc_nc": false,
+        "svc_tx": false,
+        "svc_ca": false,
+        "svc_ny": false,
+        "svc_nv": false,
+        "svc_extra_states": "",
+        "svc_block_title_en": "Not available here",
+        "svc_block_title_es": "No disponible aquí",
+        "svc_block_msg_en": "We operate in Alabama and Florida.",
+        "svc_block_msg_es": "Operamos en Alabama y Florida."
+      }
+    },
+    "ride_request_TjfxNJ": {
+      "type": "ride-request",
+      "blocks": {
+        "vehicle_tEPQJq": {
+          "type": "vehicle",
+          "settings": {
+            "title": "BLACK",
+            "seats": 7,
+            "badge": "Most Popular",
+            "desc": "",
+            "manual_price": "From $50",
+            "image": "shopify://shop_images/Cruise_1_db7fa853-881e-4bb8-bed9-c92e19dff524.png",
+            "product": "",
+            "vehicle_rate": 170,
+            "hourly_rate": 100,
+            "disabled": false
+          }
+        },
+        "vehicle_DwcyVD": {
+          "type": "vehicle",
+          "settings": {
+            "title": "PREMIUM",
+            "seats": 4,
+            "badge": "Premium",
+            "desc": "",
+            "manual_price": "From $50",
+            "image": "shopify://shop_images/Cruise_3.png",
+            "product": "",
+            "vehicle_rate": 120,
+            "hourly_rate": 100,
+            "disabled": false
+          }
+        },
+        "vehicle_nncgCA": {
+          "type": "vehicle",
+          "settings": {
+            "title": "STANDARD",
+            "seats": 4,
+            "badge": "Standard",
+            "desc": "",
+            "manual_price": "From $50",
+            "image": "shopify://shop_images/Cruise_8.png",
+            "product": "",
+            "vehicle_rate": 100,
+            "hourly_rate": 100,
+            "disabled": false
+          }
+        }
+      },
+      "block_order": [
+        "vehicle_tEPQJq",
+        "vehicle_DwcyVD",
+        "vehicle_nncgCA"
+      ],
+      "name": "VIP Ride Booker",
+      "settings": {
+        "mapbox_access_token": "pk.eyJ1Ijoicm95YWxwdXJwbGVjb3JwIiwiYSI6ImNtbHk4cmpsNjExamwzZm9sOGFobXZoZTMifQ.YNkz-m3W7noKKDKbwn9y3w",
+        "web_checkout_key": "5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad",
+        "n8n_webhook_url": "",
+        "airport_bg_video": "shopify://files/videos/WhatsApp Video 2026-04-19 at 2.16.43 AM.mp4",
+        "hourly_rate": 100,
+        "heading": "Where to ?",
+        "ride_mode_text": "Point to Point",
+        "hourly_mode_text": "By the Hour",
+        "min_hours": 1,
+        "max_hours": 5,
+        "default_hours": 4,
+        "hours_label": "Duration",
+        "hours_unit": "hours",
+        "hours_hint": "Minimum 1 hour, maximum 5 hours",
+        "service_location_label": "Service location",
+        "pickup_label": "Pickup location",
+        "pickup_placeholder": "Enter pickup address",
+        "pickup_pill_default": "Pickup",
+        "dropoff_label": "Dropoff location",
+        "dropoff_placeholder": "Enter destination address",
+        "dropoff_pill_default": "Dropoff",
+        "date_label": "Date",
+        "time_label": "Time",
+        "see_prices_text": "See prices",
+        "choose_ride_text": "Choose a ride",
+        "choose_hourly_text": "Choose your vehicle",
+        "cta_default_text": "Reserve",
+        "cta_hint_text": "Enter pickup & dropoff, then choose a vehicle to continue.",
+        "booking_product": "vip-service",
+        "default_lat": "33.5207",
+        "default_lng": "-86.8025",
+        "default_zoom": 11,
+        "bg_video": "shopify://files/videos/WhatsApp Video 2026-04-08 at 8.02.49 AM.mp4",
+        "bg_video_url": "",
+        "later_airport_icon": "shopify://shop_images/Untitled_design_10.png",
+        "later_schedule_icon": "shopify://shop_images/Untitled_design_9.png",
+        "apt_to_icon": "shopify://shop_images/2.png",
+        "apt_from_icon": "shopify://shop_images/3.png",
+        "app_promo_logo": "shopify://shop_images/Untitled_design_5.png",
+        "app_promo_name": "Cruise",
+        "app_promo_video_url": "https://cdn.shopify.com/videos/c/o/v/614747e5b52142888ba67488a836ef00.mp4",
+        "app_store_url": "",
+        "google_play_url": "",
+        "auth_gate_logo": "shopify://shop_images/Untitled_design_069defa2-9e36-4d98-831f-f776d4c6f7a5.png",
+        "google_client_id": "562266680819-4fc4jtt1hu33euq7n0vbjbidojov2o62.apps.googleusercontent.com",
+        "apple_client_id": "com.cruiseinride.web",
+        "svc_al": true,
+        "svc_fl": true,
+        "svc_ga": false,
+        "svc_ms": false,
+        "svc_tn": false,
+        "svc_la": false,
+        "svc_sc": false,
+        "svc_nc": false,
+        "svc_tx": false,
+        "svc_ca": false,
+        "svc_ny": false,
+        "svc_nv": false,
+        "svc_extra_states": "",
+        "svc_block_title_en": "Not available here",
+        "svc_block_title_es": "No disponible aquí",
+        "svc_block_msg_en": "We operate in Alabama and Florida.",
+        "svc_block_msg_es": "Operamos en Alabama y Florida."
+      }
+    }
+  },
+  "order": [
+    "ride_request_TjfxNJ",
+    "main",
+    "ride_request_QYwa4d"
+  ]
+}
