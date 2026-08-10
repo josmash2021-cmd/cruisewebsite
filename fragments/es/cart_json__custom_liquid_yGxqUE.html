@@ -1,0 +1,223 @@
+<!-- VIP SERVICE SECTION (Slow Luxury Text Animations, No Scroll Animation) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+
+<section class="vipX" id="vip-service" aria-label="VIP Service">
+
+  <!-- Background Video -->
+  <div class="vipX__bg" aria-hidden="true">
+    <video class="vipX__video" autoplay muted loop playsinline preload="metadata">
+      <source src="assets/media/f3a11ffc3ca7407e9f7d62511e7da1cc.mp4" type="video/mp4">
+    </video>
+    <div class="vipX__overlay"></div>
+  </div>
+
+  <div class="vipX__wrap">
+    <div class="vipX__content">
+      <div class="vipX__kicker">VIP SERVICE</div>
+
+      <h2 class="vipX__title">
+        Premium Private <span>Transportation</span>
+      </h2>
+
+      <p class="vipX__desc">
+        Enjoy a first-class experience with our exclusive VIP transportation service.
+        Designed for airport transfers, executive travel, special events, and luxury comfort.
+        Professional drivers. Absolute privacy. Maximum elegance.
+      </p>
+
+      <a href="book.html" class="vipX__btn">
+        BOOK YOUR RIDE NOW
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+:root{
+  --gold1:#f5d77a;
+  --gold2:#d4af37;
+  --gold3:#b98d1c;
+}
+
+/* SECTION (sin transición de scroll, fijo) */
+.vipX{
+  position:relative;
+  min-height:100vh;
+  padding:120px 20px;
+  color:white;
+  overflow:hidden;
+
+  opacity:1;
+  transform:none;
+  filter:none;
+}
+
+/* Background */
+.vipX__bg{
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  overflow:hidden;
+  background:#000;
+}
+
+.vipX__video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transform:none;
+}
+
+/* Sombreado superior + inferior */
+.vipX__overlay{
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(to bottom,
+      rgba(0,0,0,1) 0%,
+      rgba(0,0,0,.85) 12%,
+      rgba(0,0,0,.55) 25%,
+      rgba(0,0,0,0) 45%
+    ),
+    linear-gradient(to top,
+      rgba(0,0,0,1) 0%,
+      rgba(0,0,0,.90) 15%,
+      rgba(0,0,0,.60) 30%,
+      rgba(0,0,0,0) 55%
+    ),
+    radial-gradient(circle at 50% 35%,
+      rgba(212,175,55,.15),
+      transparent 60%
+    );
+}
+
+/* Content */
+.vipX__wrap{
+  max-width:1000px;
+  margin:auto;
+  text-align:center;
+  position:relative;
+  z-index:2;
+}
+
+/* =========
+   ANIMACIÓN LENTA (solo al cargar)
+   ========= */
+.vipX__content{
+  --ease: cubic-bezier(.2,.8,.2,1);
+  opacity:0;
+  transform: translateY(22px);
+  filter: blur(6px);
+  animation: vipIn 2.2s var(--ease) forwards;
+}
+
+.vipX__kicker,
+.vipX__title,
+.vipX__desc,
+.vipX__btn{
+  opacity:0;
+  transform: translateY(18px);
+  animation: vipUp 2.2s var(--ease) forwards;
+}
+
+/* Stagger */
+.vipX__kicker{ animation-delay: .20s; }
+.vipX__title { animation-delay: .40s; }
+.vipX__desc  { animation-delay: .62s; }
+.vipX__btn   { animation-delay: .85s; }
+
+@keyframes vipIn{
+  to{
+    opacity:1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+@keyframes vipUp{
+  to{
+    opacity:1;
+    transform: translateY(0);
+  }
+}
+
+/* Typography */
+.vipX__kicker{
+  letter-spacing:.45em;
+  font-size:12px;
+  color:var(--gold2);
+  margin-bottom:20px;
+  font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  text-transform:uppercase;
+}
+
+.vipX__title{
+  font-family:"Cinzel", serif;
+  font-size:clamp(48px,5vw,82px);
+  line-height:1.05;
+  margin:0;
+}
+.vipX__title span{ color:var(--gold2); }
+
+.vipX__desc{
+  max-width:700px;
+  margin:30px auto;
+  opacity:.75;
+  line-height:1.7;
+  font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Button */
+.vipX__btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:30px;
+  height:45px;
+  padding:0 20px;
+  border-radius:14px;
+  text-decoration:none;
+
+  font-weight:800;
+  letter-spacing:.25em;
+  font-size:12px;
+  text-transform:uppercase;
+  font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+  background:linear-gradient(135deg,var(--gold1) 0%,var(--gold2) 40%,var(--gold3) 100%);
+  color:#111;
+  border:1px solid rgba(255,215,120,.6);
+
+  box-shadow:
+    0 0 0 1px rgba(255,215,120,.2),
+    0 20px 45px rgba(212,175,55,.35),
+    0 30px 80px rgba(0,0,0,.7);
+
+  transition:transform .3s ease, box-shadow .3s ease;
+}
+
+.vipX__btn:hover{
+  transform:translateY(-4px);
+  box-shadow:
+    0 0 25px rgba(255,215,120,.6),
+    0 25px 60px rgba(212,175,55,.5),
+    0 40px 100px rgba(0,0,0,.8);
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce){
+  .vipX__content,
+  .vipX__kicker,
+  .vipX__title,
+  .vipX__desc,
+  .vipX__btn{
+    animation:none !important;
+    opacity:1 !important;
+    transform:none !important;
+    filter:none !important;
+  }
+}
+</style>
