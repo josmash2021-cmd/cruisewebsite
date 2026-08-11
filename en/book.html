@@ -6256,26 +6256,70 @@ else setTimeout(_vrPfKick,1500);
 }catch(_){}}
 setTimeout(_vrPfKick,1200);
   function findBestVariant(bId,tc){ var vs=VEHICLE_VARIANTS[bId]; if(!vs||!vs.length) return null; var best=vs[0],bd=Math.abs(vs[0].price-tc); for(var i=0;i<vs.length;i++){var d=Math.abs(vs[i].price-tc);if(d<bd){bd=d;best=vs[i];}} return best; }
-  function _vrHasDiscount(){try{return !_vrLS.get('vr_at');}catch(_){return true;}}
-  function _applyPromoMult(cents){return _vrHasDiscount()?Math.round(cents*1.25):cents;}
+  /* ═══ MOTOR DE TARIFAS — fuente única de verdad ═══
+     Modelo tipo Uber por nivel: base + cuota + $/milla + $/min, con mínimo.
+     Precio final = estimado Uber del nivel equivalente − $5 (nunca bajo el piso).
+     Tabla congelada (Object.freeze) y el cobro SIEMPRE se recalcula aquí:
+     jamás se confía en atributos del DOM, que cualquiera puede editar. */
+  var _VR_PRICING=Object.freeze({
+    discountCents:500,   /* $5 más barato que Uber */
+    floorCents:800,      /* nunca cobrar menos de $8 */
+    tiers:Object.freeze({
+      STANDARD:Object.freeze({base:130,fee:255,perMile:95, perMin:17,min:755}),   /* ≈ UberX */
+      COMPACT: Object.freeze({base:200,fee:255,perMile:130,perMin:25,min:1000}),  /* ≈ Uber Comfort */
+      PREMIUM: Object.freeze({base:250,fee:255,perMile:175,perMin:30,min:1200}),  /* ≈ UberXL */
+      BLACK:   Object.freeze({base:775,fee:0,  perMile:370,perMin:55,min:2500})   /* ≈ Uber Black */
+    })
+  });
+  function _vrTierRates(title){return _VR_PRICING.tiers[String(title||'').trim().toUpperCase()]||_VR_PRICING.tiers.STANDARD;}
+  var _vrHourlyRates=null;
+  function _vrHourlyRateFor(title){
+    /* las tarifas por hora se capturan del HTML una sola vez al arrancar y se congelan */
+    if(!_vrHourlyRates){var o={};try{cards.forEach(function(c){o[String(c.getAttribute('data-title')||'').trim().toUpperCase()]=Number(c.getAttribute('data-hourly-price'))||0;});}catch(_){}_vrHourlyRates=Object.freeze(o);}
+    return _vrHourlyRates[String(title||'').trim().toUpperCase()]||0;
+  }
+  function _vrSurchargeCents(){
+    var s=(typeof window.__vrAptGetSurcharge==='function'?Number(window.__vrAptGetSurcharge()):0);
+    return (isFinite(s)&&s>0)?Math.min(Math.round(s),20000):0;
+  }
+  function _vrRideCents(title,sec,meters){
+    var s=Number(sec)||0,m=Number(meters)||0;
+    if(!isFinite(s)||!isFinite(m)||s<=0||m<=0)return 0;
+    s=Math.min(s,43200);m=Math.min(m,965606);   /* topes de cordura: 12 h / 600 mi */
+    var r=_vrTierRates(title);
+    var uber=r.base+r.fee+Math.round((m/1609.344)*r.perMile)+Math.round((s/60)*r.perMin);
+    if(uber<r.min)uber=r.min;
+    var out=uber-_VR_PRICING.discountCents;
+    return out<_VR_PRICING.floorCents?_VR_PRICING.floorCents:out;
+  }
+  function _vrHourlyCents(title,hours){
+    var h=Number(hours)||0,rate=_vrHourlyRateFor(title);
+    if(!isFinite(h)||h<=0||h>24||rate<=0)return 0;
+    return Math.round(h*rate*100);
+  }
+  /* importe final cobrable: precio del motor + recargo de aeropuerto (una sola vez) */
+  function _vrFinalCents(title){
+    var cents=currentMode==='hourly'?_vrHourlyCents(title,currentHours):_vrRideCents(title,routeDurationSec,window.__vrRouteDistM);
+    return cents>0?cents+_vrSurchargeCents():0;
+  }
   function updateCardPrices(sec){
     if(!cards.length)return;
-    var surcharge=(typeof window.__vrAptGetSurcharge==='function'?window.__vrAptGetSurcharge():0)||0;
+    var surcharge=_vrSurchargeCents();
     cards.forEach(function(card){
-      var rate=Number(card.getAttribute('data-rate'))||0,hRate=Number(card.getAttribute('data-hourly-price'))||rate,est,cents,etaEl=card.querySelector('[data-vipride-eta]');
+      var title=card.getAttribute('data-title')||'',cents,etaEl=card.querySelector('[data-vipride-eta]');
       if(currentMode==='hourly'){
-        est=currentHours*hRate;cents=Math.round(est*100);
+        cents=_vrHourlyCents(title,currentHours);
         if(etaEl)etaEl.textContent=currentHours+' '+t('hours');
       }else{
-        var ds=sec||routeDurationSec||0,hours=ds>0?(ds/3600):0;
-        if(hours>0&&rate>0){est=hours*rate;cents=Math.round(est*100);}
-        else{cents=Number(card.getAttribute('data-base-cents')||card.getAttribute('data-price-cents')||0);est=cents/100;}
+        cents=_vrRideCents(title,sec||routeDurationSec||0,window.__vrRouteDistM||0);
         if(etaEl)etaEl.textContent=routeDurationSec?formatMinutes(routeDurationSec):'--';
       }
-      card.setAttribute('data-base-cents',String(cents+surcharge));
-      var displayCents=_applyPromoMult(cents+surcharge),text=moneyUSD(displayCents/100);
+      /* el recargo se suma UNA vez sobre un precio recién calculado
+         (antes se releía data-base-cents ya recargado y se acumulaba) */
+      var displayCents=cents>0?cents+surcharge:0,text=moneyUSD(displayCents/100);
+      card.setAttribute('data-base-cents',String(displayCents));
       card.setAttribute('data-price',text);card.setAttribute('data-price-cents',String(displayCents));
-      var pe=card.querySelector('[data-vipride-card-price]');if(pe)pe.textContent=cents>0?text:'--';
+      var pe=card.querySelector('[data-vipride-card-price]');if(pe)pe.textContent=displayCents>0?text:'--';
       var pu=card.querySelector('[data-vipride-pickup-eta]'),pl=card.querySelector('.vipRide__ridePickupEtaLabel'),ar=card.querySelector('[data-vipride-arrival-time]'),ci=card.querySelector('.vipRide__clockIcon');
       var _puM=routeDurationSec?Math.max(1,Math.round(routeDurationSec/60)):0;
       if(pu)pu.textContent=_puM?(_puM<60?_puM:formatMinutes(routeDurationSec)):'--';
@@ -7238,7 +7282,10 @@ setTimeout(_vrPfKick,1200);
       }catch(e){console.warn('[Cruise Pay] PaymentRequest init error:',e);}
     }
     function _getRideData(){
-      var cents=Number(selectedRide.priceCents)||0;
+      /* blindaje: el importe a cobrar se recalcula con el motor de tarifas en este
+         mismo momento; lo que muestre el DOM es solo presentación */
+      var cents=_vrFinalCents(selectedRide.title);
+      if(cents<=0)cents=Number(selectedRide.priceCents)||0;
       if(cents<=0)cents=Math.round(Number(String(selectedRide.price||'').replace(/[^0-9.]/g,''))*100)||0;
       return {cents:cents,vehicle:selectedRide.title||'Ride',metadata:{trip_type:(selectedRide.title||'ride').toLowerCase(),pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',payment_method:_selectedPayment,date:dateEl?dateEl.value:'',time:timeEl?timeEl.value:''}};
     }
