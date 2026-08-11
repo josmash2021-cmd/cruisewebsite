@@ -5774,7 +5774,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
   function toHHMM(d){ return pad2(d.getHours())+':'+pad2(d.getMinutes()); }
   function roundUpToStep(d,s){ var r=new Date(d); r.setSeconds(0,0); var m=r.getMinutes()%s; if(m) r.setMinutes(r.getMinutes()+(s-m)); return r; }
   function moneyUSD(n){ return Math.max(0,Number(n)||0).toLocaleString('en-US',{style:'currency',currency:'USD'}); }
-  function formatMinutes(sec){ var m=Math.max(1,Math.round((Number(sec)||0)/60)); return m<60?m+' min':Math.floor(m/60)+' hr '+(m%60)+' min'; }
+  function formatMinutes(sec){ var m=Math.max(1,Math.round((Number(sec)||0)/60)); if(m<60) return m+' min'; var h=Math.floor(m/60),r=m%60; return r?h+' h '+r+' min':h+' h'; }
   function lockMap(){ if(!map||_mapLocked) return; _mapLocked=true; _savedCenter=map.getCenter(); _savedZoom=map.getZoom(); }
   function unlockMap(){ _mapLocked=false; }
   function updateUIText(){
@@ -5958,7 +5958,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     var parts=addr.split(',');
     return parts.length>2?parts.slice(0,2).join(',').trim():addr.trim();
   }
-  function _vrEtaText(){return routeDurationSec?(Math.max(1,Math.round(routeDurationSec/60))+' min'):'--';}
+  function _vrEtaText(){return routeDurationSec?formatMinutes(routeDurationSec):'--';}
   function _vrRefreshEtaBadges(){
     try{document.querySelectorAll('[data-vr-eta]').forEach(function(e){e.textContent=_vrEtaText();});}catch(_){}
   }
@@ -6277,8 +6277,9 @@ setTimeout(_vrPfKick,1200);
       card.setAttribute('data-price',text);card.setAttribute('data-price-cents',String(displayCents));
       var pe=card.querySelector('[data-vipride-card-price]');if(pe)pe.textContent=cents>0?text:'--';
       var pu=card.querySelector('[data-vipride-pickup-eta]'),pl=card.querySelector('.vipRide__ridePickupEtaLabel'),ar=card.querySelector('[data-vipride-arrival-time]'),ci=card.querySelector('.vipRide__clockIcon');
-      if(pu)pu.textContent=routeDurationSec?Math.max(1,Math.round(routeDurationSec/60)):'--';
-      if(pl)pl.textContent='min';
+      var _puM=routeDurationSec?Math.max(1,Math.round(routeDurationSec/60)):0;
+      if(pu)pu.textContent=_puM?(_puM<60?_puM:formatMinutes(routeDurationSec)):'--';
+      if(pl)pl.textContent=(_puM&&_puM<60)?'min':'';
       if(ci)ci.style.display='none';
       if(ar)ar.textContent=window.__vrRouteDistM?((window.__vrRouteDistM/1609.344).toFixed(1)+' mi'):'-- mi';
     });
