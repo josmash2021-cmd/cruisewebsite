@@ -8566,6 +8566,9 @@ html body #vipMpFooterSugs{
   html body .vipRide .vrd-when-panel.is-in>*:nth-child(6){animation-delay:.25s}
   html body .vipRide .vrd-when-panel.is-in>*:nth-child(7){animation-delay:.3s}
   html body .vipRide .vrd-when-panel.is-out{opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease}
+  /* con el panel abierto, el resto del cuadro primero se funde y luego se retira del flujo */
+  html body .vipRide .vipRide__sheet.vrd-when-fade>*:not(.vrd-when-panel){opacity:0!important;transition:opacity .22s ease!important}
+  html body .vipRide .vipRide__sheet.vrd-when-open>*:not(.vrd-when-panel){display:none!important}
 
   /* ---- programar recogida DENTRO del cuadro: la tarjeta muta al panel ----
      El overlay deja de ser modal centrado: se coloca exactamente donde vive
@@ -8683,7 +8686,7 @@ html body #vipMpFooterSugs{
         next: 'Siguiente', terms: 'Ver términos',
         info1: 'Elige tu hora de recogida hasta con 90 días de antelación',
         info2: 'Tiempo de espera extra incluido para encontrarte con tu chofer',
-        info3: 'Cancela sin costo hasta 60 minutos antes' }
+        info3: 'Cancela sin costo hasta 30 minutos antes' }
     : { now: 'Pickup now', later: 'Schedule for later', forMe: 'For me',
         forOther: 'For someone else', search: 'Search',
         whenTitle: 'When do you want to be picked up?', from: 'From ',
@@ -8691,7 +8694,7 @@ html body #vipMpFooterSugs{
         next: 'Next', terms: 'See terms',
         info1: 'Choose your pickup time up to 90 days in advance',
         info2: 'Extra wait time included to meet your ride',
-        info3: 'Cancel at no charge up to 60 minutes in advance' };
+        info3: 'Cancel at no charge up to 30 minutes in advance' };
 
   var ICO_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 1.9"/></svg>';
   var ICO_USER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg>';
@@ -8872,11 +8875,12 @@ html body #vipMpFooterSugs{
     var sheet = document.querySelector('[data-vipride-sheet]');
     var p = ensureWhenPanel();
     if (!sheet || !p || !p.hidden) return;
-    var step1 = sheet.querySelector('[data-vipride-step-panel="1"]');
     _wpPaint(p);
-    if (step1) { step1.style.transition = 'opacity .22s ease'; step1.style.opacity = '0'; }
+    /* el resto del contenido del cuadro se desvanece y deja de ocupar sitio:
+       el panel queda solo, sin huecos ni scroll fantasma */
+    sheet.classList.add('vrd-when-fade');
     setTimeout(function () {
-      if (step1) step1.style.display = 'none';
+      sheet.classList.add('vrd-when-open');
       p.hidden = false;
       p.classList.remove('is-out'); void p.offsetWidth; p.classList.add('is-in');
       try { sheet.scrollTop = 0; } catch (_) {}
@@ -8890,8 +8894,8 @@ html body #vipMpFooterSugs{
     p.classList.remove('is-in'); p.classList.add('is-out');
     setTimeout(function () {
       p.hidden = true; p.classList.remove('is-out');
-      var step1 = sheet.querySelector('[data-vipride-step-panel="1"]');
-      if (step1) { step1.style.display = ''; requestAnimationFrame(function () { step1.style.opacity = '1'; }); }
+      sheet.classList.remove('vrd-when-open');
+      requestAnimationFrame(function () { sheet.classList.remove('vrd-when-fade'); });
     }, 210);
   }
 
@@ -8907,34 +8911,12 @@ html body #vipMpFooterSugs{
       '<button type="button" class="vrd-row" data-vrd-row data-vrd-when>' +
         '<i class="vrd-row__ico">' + ICO_CLOCK + '</i>' +
         '<span class="vrd-row__label" data-vrd-when-label>' + T.now + '</span>' + ICO_CHEV +
-      '</button>' +
-      '<button type="button" class="vrd-chip" data-vrd-row data-vrd-who>' +
-        '<i class="vrd-row__ico">' + ICO_USER + '</i>' +
-        '<span class="vrd-chip__label" data-vrd-who-label>' + T.forMe + '</span>' + ICO_CHEV +
       '</button>';
     form.insertBefore(rows, cta);
 
     rows.querySelector('[data-vrd-when]').addEventListener('click', function (e) {
       e.preventDefault();
       openWhenPanel();
-    });
-
-    rows.querySelector('[data-vrd-who]').addEventListener('click', function (e) {
-      e.preventDefault();
-      var label = rows.querySelector('[data-vrd-who-label]');
-      openMenu(this, [
-        { label: T.forMe, run: function () { label.textContent = T.forMe; } },
-        { label: T.forOther, run: function () {
-            /* misma hoja de datos que usa el booker para el pasajero */
-            if (typeof window.__vrGuestCollect === 'function') {
-              window.__vrGuestCollect(function (info) {
-                if (info && (info.first || info.last)) {
-                  label.textContent = ((info.first || '') + ' ' + (info.last || '')).trim();
-                }
-              });
-            }
-          } }
-      ]);
     });
 
     /* el botón principal se llama como en la referencia */
