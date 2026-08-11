@@ -1327,7 +1327,10 @@ html,body{background:#000!important}
   backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
   box-shadow:none!important;padding:8px 0 0!important;
 }
-.cruise-auth__logo{box-shadow:0 10px 26px rgba(0,0,0,.7),0 0 0 5px rgba(232,197,71,.05)!important}
+/* logo limpio: sin disco gris, sin borde ni halo */
+.cruise-auth__logo{background:transparent!important;border:none!important;box-shadow:none!important}
+/* nada detrás pinta color: todo negro puro */
+main,.cruise-auth__inner,.cruise-auth__screen,.cruise-auth__gate{background:transparent!important}
 /* los botones conservan el relieve 3D */
 .cruise-auth__btn{box-shadow:8px 8px 20px rgba(0,0,0,.85),-4px -4px 14px rgba(255,255,255,.045),inset 0 1px 0 rgba(255,255,255,.09)!important}
 .cruise-auth__btn--primary{box-shadow:8px 10px 24px rgba(0,0,0,.8),0 0 26px rgba(232,197,71,.28),inset 0 1px 0 rgba(255,255,255,.45)!important}
