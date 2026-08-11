@@ -6045,6 +6045,39 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     unlockMap();
   }
   window.__vrSwapPlaces=function(){var x=pickupPlace;pickupPlace=dropoffPlace;dropoffPlace=x;if(pickupEl&&dropoffEl){var v=pickupEl.value;pickupEl.value=dropoffEl.value;dropoffEl.value=v}_pickupManuallySet=true;_gpsActive=false;if(pickupPlace)setMarker('pickup',pickupPlace.lat,pickupPlace.lng);if(dropoffPlace)setMarker('dropoff',dropoffPlace.lat,dropoffPlace.lng);try{afterInputChange();computeRoute();if(pickupPlace&&dropoffPlace){setTimeout(fitRouteBounds,400);setTimeout(showMarkerLabels,2200)}}catch(_){}};
+window.__vrPrefillFromUrl=function(){try{
+if(window.__vrPrefilled)return;window.__vrPrefilled=true;
+var q=new URLSearchParams(window.location.search);
+var pName=q.get('pickup'),dName=q.get('dropoff');
+var pLat=parseFloat(q.get('pickupLat')),pLng=parseFloat(q.get('pickupLng'));
+var dLat=parseFloat(q.get('dropoffLat')),dLng=parseFloat(q.get('dropoffLng'));
+if(!pName||!dName||!isFinite(pLat)||!isFinite(pLng)||!isFinite(dLat)||!isFinite(dLng))return;
+var _dtD=q.get('date'),_dtT=q.get('time');
+_pickupManuallySet=true;_gpsActive=false;
+if(pickupEl)pickupEl.value=pName;
+if(dropoffEl)dropoffEl.value=dName;
+pickupPlace={label:pName,lat:pLat,lng:pLng};
+dropoffPlace={label:dName,lat:dLat,lng:dLng};
+setMarker('pickup',pLat,pLng);
+setMarker('dropoff',dLat,dLng);
+if(_dtD&&/^\d{4}-\d{2}-\d{2}$/.test(_dtD)&&dateEl)dateEl.value=_dtD;
+if(_dtT&&/^\d{2}:\d{2}$/.test(_dtT)&&timeEl)timeEl.value=_dtT;
+if(typeof pad2==='function'){
+if(dateEl&&!dateEl.value){var _nw=new Date();dateEl.value=_nw.getFullYear()+'-'+pad2(_nw.getMonth()+1)+'-'+pad2(_nw.getDate());}
+if(timeEl&&!timeEl.value){var _nx=roundUpToStep(new Date(),15);_nx.setMinutes(_nx.getMinutes()+60);timeEl.value=pad2(_nx.getHours())+':'+pad2(_nx.getMinutes());}
+}
+if(currentStep===1)goToStep(3,'forward');
+afterInputChange();
+try{computeRoute();}catch(_){}
+}catch(_){}};
+var _vrPfTries=0;
+function _vrPfKick(){try{
+if(window.__vrPrefilled)return;
+if(_vrPfTries++>6)return;
+if(typeof map!=='undefined'&&map&&map.loaded&&map.loaded()){window.__vrPrefillFromUrl();}
+else setTimeout(_vrPfKick,1500);
+}catch(_){}}
+setTimeout(_vrPfKick,1200);
   function findBestVariant(bId,tc){ var vs=VEHICLE_VARIANTS[bId]; if(!vs||!vs.length) return null; var best=vs[0],bd=Math.abs(vs[0].price-tc); for(var i=0;i<vs.length;i++){var d=Math.abs(vs[i].price-tc);if(d<bd){bd=d;best=vs[i];}} return best; }
   function _vrHasDiscount(){try{return !_vrLS.get('vr_at');}catch(_){return true;}}
   function _applyPromoMult(cents){return _vrHasDiscount()?Math.round(cents*1.25):cents;}
@@ -6203,6 +6236,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
         setTimeout(function(){map.easeTo({pitch:52,bearing:-12,duration:1600,easing:function(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}})},400);
         /* Resume now that map is ready (works even if DOMContentLoaded resume already ran) */
         try{if(window.__vrCoreResume)window.__vrCoreResume();}catch(_){}
+        try{if(window.__vrPrefillFromUrl)window.__vrPrefillFromUrl();}catch(_){}
         function _sp(lid,prop,val){ try{ map.setPaintProperty(lid,prop,val); }catch(e){} }
         function _sl(lid,prop,val){ try{ map.setLayoutProperty(lid,prop,val); }catch(e){} }
         _sp('background','background-color','#0A1128');
