@@ -342,7 +342,12 @@
           </button>
         </div>
         <div class="vipRide__cardForm" data-vipride-cardform hidden>
-          <h3 class="vipRide__cardForm__title" data-vipride-cf-title>Add credit or debit card</h3>
+          <div class="vipRide__cardForm__head">
+            <button type="button" class="vipRide__cardForm__back" data-vipride-cf-back aria-label="Back">
+              <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+            </button>
+            <h3 class="vipRide__cardForm__title" data-vipride-cf-title>Add credit or debit card</h3>
+          </div>
           <div class="vipRide__cardForm__field">
             <label data-vipride-cf-l-num>Card Number</label>
             <div class="vipRide__cardForm__input" id="vrCfNumber"></div>
@@ -5037,34 +5042,38 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__payOverlay__header{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:14px;padding:calc(env(safe-area-inset-top,0px) + 14px) 20px 14px;flex-shrink:0;z-index:3}
 .vipRide__payOverlay__back{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 140ms}
 .vipRide__payOverlay__back:active{background:rgba(255,255,255,.15)}
-.vipRide__payOverlay__title{font-size:20px;font-weight:800;color:#111;margin:6px 6px 12px;letter-spacing:-.2px}
-.vipRide__payOverlay__list{margin:auto;display:flex;flex-direction:column;gap:0;width:min(440px,calc(100vw - 40px));background:#fff;border:none;border-radius:16px;padding:18px 16px 10px;box-shadow:0 24px 70px rgba(0,0,0,.55);overflow:hidden;scrollbar-width:none;-ms-overflow-style:none}
+.vipRide__payOverlay__title{font-size:20px;font-weight:800;color:#fff;margin:6px 6px 12px;letter-spacing:-.2px}
+.vipRide__payOverlay__list{margin:auto;display:flex;flex-direction:column;gap:0;width:min(440px,calc(100vw - 40px));background:#0d0f14;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:18px 16px 10px;box-shadow:0 24px 70px rgba(0,0,0,.6);overflow:hidden;scrollbar-width:none;-ms-overflow-style:none}
 .vipRide__payOverlay__list::-webkit-scrollbar{display:none;width:0;height:0}
-.vipRide__payOption{width:100%;display:flex;align-items:center;gap:14px;padding:18px 6px;background:transparent;border:none;border-radius:0;color:#111;font-size:16px;font-weight:500;cursor:pointer;touch-action:manipulation;transition:background 150ms;text-align:left;position:relative}
-.vipRide__payOption+.vipRide__payOption{border-top:1px solid #ececec}
-.vipRide__payOption:hover{background:#f7f7f7}
-.vipRide__payOption:active{background:#efefef}
-.vipRide__payOption.is-selected{background:rgba(212,175,55,.1)}
-.vipRide__payOption::after{content:"\203A";margin-left:auto;font-size:22px;line-height:1;color:rgba(0,0,0,.4)}
+.vipRide__payOption{width:100%;display:flex;align-items:center;gap:14px;padding:18px 6px;background:transparent;border:none;border-radius:0;color:#fff;font-size:16px;font-weight:500;cursor:pointer;touch-action:manipulation;transition:background 150ms;text-align:left;position:relative}
+.vipRide__payOption+.vipRide__payOption{border-top:1px solid rgba(255,255,255,.12)}
+.vipRide__payOption:hover{background:rgba(255,255,255,.06)}
+.vipRide__payOption:active{background:rgba(255,255,255,.1)}
+.vipRide__payOption.is-selected{background:rgba(212,175,55,.12)}
+.vipRide__payOption::after{content:"\203A";margin-left:auto;font-size:22px;line-height:1;color:rgba(255,255,255,.45)}
 .vipRide__payOption.is-selected::after{content:""}
 .vipRide__payOption .vipRide__payIcon{position:static!important;transform:none!important;width:40px!important;height:40px!important;max-width:none!important;max-height:none!important;border-radius:10px!important;display:flex!important;align-items:center!important;justify-content:center!important;box-shadow:none}
 .vipRide__payOption .vipRide__payIcon svg{width:55%;height:55%}
 .vipRide__payOption .vipRide__payIcon img{width:65%;height:65%;object-fit:contain}
-.vipRide__payOption .vipRide__payLabel{position:static;flex:0 1 auto;font-size:16px;line-height:1.3;text-align:left;font-weight:500;letter-spacing:0;color:#111;margin:0;padding:0;background:none}
+.vipRide__payOption .vipRide__payLabel{position:static;flex:0 1 auto;font-size:16px;line-height:1.3;text-align:left;font-weight:500;letter-spacing:0;color:#fff;margin:0;padding:0;background:none}
 .vipRide__payOption .vipRide__payCheck{position:static;display:none;margin-left:auto}
-.vipRide__payIcon{width:40px;height:40px;border-radius:10px;background:#f3f3f3;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;color:#111}
+.vipRide__payIcon{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;color:#fff}
 .vipRide__payLabel{min-width:0}
-.vipRide__payCheck{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(0,0,0,.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 200ms}
+.vipRide__payCheck{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(255,255,255,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 200ms}
 .vipRide__payOption.is-selected .vipRide__payCheck{display:flex;background:#d4af37;border-color:#d4af37;color:#000}
 .vipRide__payOption.is-selected .vipRide__payCheck::after{content:'\2713';font-weight:800}
 .vipRide__payOverlay__list{transition:opacity 300ms cubic-bezier(.33,1,.68,1),transform 300ms cubic-bezier(.33,1,.68,1)}
+.vipRide__payOverlay__list[hidden]{display:none!important}
 .vipRide__payOverlay__list.is-out,.vipRide__cardForm.is-out{opacity:0;transform:translateY(-12px) scale(.985);pointer-events:none}
 .vipRide__payOverlay__list.is-entering{opacity:0;transform:translateY(16px) scale(.975)}
 .vipRide__cardForm{margin:auto;width:min(460px,calc(100vw - 40px));max-height:min(88vh,720px);overflow-y:auto;background:#fff;border-radius:16px;padding:26px 22px 14px;box-shadow:0 24px 70px rgba(0,0,0,.55);display:flex;flex-direction:column;gap:15px;opacity:1;transform:translateY(0) scale(1);transition:opacity 320ms cubic-bezier(.33,1,.68,1),transform 320ms cubic-bezier(.33,1,.68,1);scrollbar-width:none;-ms-overflow-style:none}
 .vipRide__cardForm::-webkit-scrollbar{display:none;width:0;height:0}
 .vipRide__cardForm[hidden]{display:none!important}
 .vipRide__cardForm.is-entering{opacity:0;transform:translateY(18px) scale(.975)}
-.vipRide__cardForm__title{font-size:25px;font-weight:800;color:#111;margin:0 0 4px;letter-spacing:-.4px}
+.vipRide__cardForm__head{display:flex;align-items:center;gap:12px;margin:0 0 2px}
+.vipRide__cardForm__back{width:36px;height:36px;border-radius:50%;background:#f3f3f3;border:none;color:#111;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 140ms}
+.vipRide__cardForm__back:hover{background:#e7e7e7}
+.vipRide__cardForm__title{font-size:25px;font-weight:800;color:#111;margin:0;letter-spacing:-.4px}
 .vipRide__cardForm__field{display:flex;flex-direction:column;gap:8px}
 .vipRide__cardForm__field>label{font-size:15px;font-weight:700;color:#111}
 .vipRide__cardForm__row{display:flex;gap:14px}
@@ -5843,6 +5852,8 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
   }
   function showMarkerLabels(){
     removeAddressLabels();
+    /* sin viaje definido (solo el pin de tu ubicacion) no se muestra rotulo */
+    if(currentStep<3 && !(pickupPlace&&dropoffPlace)) return;
     if(pickupPlace && pickupMarker){
       var pEl=createLabelEl('pickup',pickupPlace.label);
       pEl.style.cssText+=';position:absolute;left:14px;top:-30px;transform:perspective(400px) rotateY(-50deg) scale(.8);';
@@ -7063,6 +7074,8 @@ setTimeout(_vrPfKick,1200);
       if(currentLang==='es'&&e.nick)e.nick.placeholder=t('cfNickPh');
       e.add.addEventListener('click',_cfSubmit);
       e.cancel.addEventListener('click',function(){_swapPanels(_cardForm,_payList);});
+      var bk=_cardForm.querySelector('[data-vipride-cf-back]');
+      if(bk)bk.addEventListener('click',function(){_swapPanels(_cardForm,_payList);});
     }
     function _openCardForm(){
       if(!_cardForm){_vrToast(t('paymentError'),'err');return;}
@@ -7807,8 +7820,8 @@ setTimeout(_vrPfKick,1200);
 </main>
 <style>
 /* ═══ Claymorfismo oscuro — CruiseInRide booker ═══ */
-html body:has(#vipRide-ride_request_48wXbE){background:#17191f!important}
-html body .vipRide,html body .vipRide__bg{background:#17191f}
+html body:has(#vipRide-ride_request_48wXbE){background:#000!important}
+html body .vipRide,html body .vipRide__bg{background:#000}
 
 /* barra "¿A dónde?" / sheet inferior → arcilla flotante sobre el mapa */
 html body .vipRide__sheet{
@@ -7865,7 +7878,7 @@ html body .vipRide__rideCard.is-active,#vrDeskBarRide .vipRide__rideCard.is-acti
 /* overlays a pantalla completa → fondo clay */
 html body .vipRide__locPicker,html body [data-vipride-locpicker]{background:#17191f!important}
 html body .vipRide__mapPicker{background:#17191f}
-html body .vipRide__payOverlay{background:rgba(0,0,0,.35)}
+html body .vipRide__payOverlay{background:rgba(0,0,0,.5)}
 html body .vipRide__scheduleOverlay{background:rgba(23,25,31,.45)}
 html body .vipRide__authPage{background:rgba(23,25,31,.82)}
 html body.vipride-auth-open,html.vipride-auth-open,html.vipride-auth-open body{background:#17191f!important}
@@ -7899,10 +7912,10 @@ html body .vipRide__payOption{
   box-shadow:none;
 }
 html body .vipRide__payOption:hover{
-  background:#f7f7f7;
+  background:rgba(255,255,255,.06);
   box-shadow:none;
 }
-html body .vipRide__payOverlay__list{background:#fff;border:none;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+html body .vipRide__payOverlay__list{background:#0d0f14;border:1px solid rgba(255,255,255,.1);box-shadow:0 24px 70px rgba(0,0,0,.6)}
 
 /* botones dorados principales alineados con la home */
 html body .vipRide__requestBtn,html body .vipRide__stepNext:not([disabled]){
@@ -8053,7 +8066,7 @@ html body #vipMpFooterSugs{
     box-shadow:8px 8px 18px rgba(0,0,0,.42),-6px -6px 14px rgba(255,255,255,.09),inset 0 1px 0 rgba(255,255,255,.45);
   }
   html body .vipRide__scheduleOverlay:not([hidden]){background:rgba(23,25,31,.78)!important}
-  html body .vipRide__payOverlay:not([hidden]){background:rgba(0,0,0,.35)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  html body .vipRide__payOverlay:not([hidden]){background:rgba(0,0,0,.5)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
   html body .vipRide__laterOverlay:not([hidden]){background:rgba(23,25,31,.94)!important}
   html body .vipRide__scheduleOverlay .vipRide__schedPage{
     background:#20242d!important;border:none!important;border-radius:26px!important;
