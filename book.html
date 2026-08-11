@@ -5852,6 +5852,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       else if(map)map.easeTo({center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:0,bearing:0,duration:900,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
     }
     if(n===2&&dir==='back'){ hideMarkerLabels(); }
+    _vrSaveState();
   }
   function showMarkerLabels(){
     removeAddressLabels();
@@ -6213,6 +6214,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       if(routeDurationSec) updateCardPrices(routeDurationSec); else{ computeRoute(); updateCardPrices(); }
       goToStep(3,'forward');
     }
+    _vrSaveState();
   }
   function setMarker(which,lat,lng){
     if(which==='pickup'){if(pickupMarker){pickupMarker.remove();pickupMarker=null}pickupMarker=new mapboxgl.Marker({element:createPickupMarkerEl()}).setLngLat([lng,lat]).addTo(map);}
@@ -6229,6 +6231,7 @@ var pName=q.get('pickup'),dName=q.get('dropoff');
 var pLat=parseFloat(q.get('pickupLat')),pLng=parseFloat(q.get('pickupLng'));
 var dLat=parseFloat(q.get('dropoffLat')),dLng=parseFloat(q.get('dropoffLng'));
 if(!pName||!dName||!isFinite(pLat)||!isFinite(pLng)||!isFinite(dLat)||!isFinite(dLng))return;
+window.__vrUrlPrefilled=true;
 var _dtD=q.get('date'),_dtT=q.get('time');
 _pickupManuallySet=true;_gpsActive=false;
 if(pickupEl)pickupEl.value=pName;
@@ -6251,10 +6254,48 @@ var _vrPfTries=0;
 function _vrPfKick(){try{
 if(window.__vrPrefilled)return;
 if(_vrPfTries++>6)return;
-if(typeof map!=='undefined'&&map&&map.loaded&&map.loaded()){window.__vrPrefillFromUrl();}
+if(typeof map!=='undefined'&&map&&map.loaded&&map.loaded()){window.__vrPrefillFromUrl();if(!window.__vrUrlPrefilled)_vrRestoreState();}
 else setTimeout(_vrPfKick,1500);
 }catch(_){}}
 setTimeout(_vrPfKick,1200);
+  /* ═══ persistencia: recargar la página NO borra la reserva en curso ═══
+     Direcciones, fecha/hora, modo, paso y vehículo se guardan en sessionStorage
+     al cambiar y al salir; se restauran al recargar (la URL ?pickup=… manda).
+     Caduca a las 6 h y se limpia al confirmarse la reserva. */
+  var _VR_ST_KEY='vr_book_state';
+  function _vrSaveState(){try{
+    if(window.__vrRestoring)return;
+    var st={m:currentMode,h:currentHours,s:currentStep,p:pickupPlace,d:dropoffPlace,
+      pv:pickupEl?pickupEl.value:'',dv:dropoffEl?dropoffEl.value:'',
+      dt:dateEl?dateEl.value:'',tm:timeEl?timeEl.value:'',
+      v:selectedRide?selectedRide.title:'',ts:Date.now()};
+    sessionStorage.setItem(_VR_ST_KEY,JSON.stringify(st));
+  }catch(_){}}
+  function _vrClearState(){try{sessionStorage.removeItem(_VR_ST_KEY);}catch(_){}}
+  window.__vrClearBookState=_vrClearState;
+  function _vrRestoreState(){try{
+    var raw=sessionStorage.getItem(_VR_ST_KEY);if(!raw)return;
+    var st=JSON.parse(raw)||{};
+    if(!st.ts||(Date.now()-st.ts)>21600000){_vrClearState();return;}
+    window.__vrRestoring=true;
+    try{
+      if(st.m==='hourly')setMode('hourly');
+      if(st.m==='hourly'&&st.h){currentHours=Math.max(MIN_HOURS,Math.min(MAX_HOURS,Number(st.h)||MIN_HOURS));updateHoursDisplay();}
+      if(st.p&&isFinite(st.p.lat)&&isFinite(st.p.lng)){_pickupManuallySet=true;_gpsActive=false;pickupPlace=st.p;if(pickupEl)pickupEl.value=st.pv||st.p.label||'';setMarker('pickup',st.p.lat,st.p.lng);}
+      if(st.d&&isFinite(st.d.lat)&&isFinite(st.d.lng)){dropoffPlace=st.d;if(dropoffEl)dropoffEl.value=st.dv||st.d.label||'';setMarker('dropoff',st.d.lat,st.d.lng);}
+      var _tdy=new Date(),_iso=_tdy.getFullYear()+'-'+pad2(_tdy.getMonth()+1)+'-'+pad2(_tdy.getDate());
+      if(st.dt&&st.dt>=_iso&&dateEl)dateEl.value=st.dt;
+      if(st.tm&&timeEl)timeEl.value=st.tm;
+      if(st.s===3&&pickupPlace&&(dropoffPlace||st.m==='hourly')&&currentStep===1)goToStep(3,'forward');
+      afterInputChange();
+      if(pickupPlace&&dropoffPlace&&currentMode!=='hourly'){try{computeRoute();}catch(_){}}
+      if(st.v){var _rc=root.querySelector('.vipRide__rideCard[data-title="'+String(st.v).replace(/[^\w -]/g,'')+'"]');if(_rc)selectCard(_rc);}
+    }finally{window.__vrRestoring=false;}
+    _vrSaveState();
+  }catch(_){window.__vrRestoring=false;}}
+  addEventListener('pagehide',_vrSaveState);
+  addEventListener('beforeunload',_vrSaveState);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')_vrSaveState();});
   function findBestVariant(bId,tc){ var vs=VEHICLE_VARIANTS[bId]; if(!vs||!vs.length) return null; var best=vs[0],bd=Math.abs(vs[0].price-tc); for(var i=0;i<vs.length;i++){var d=Math.abs(vs[i].price-tc);if(d<bd){bd=d;best=vs[i];}} return best; }
   /* ═══ MOTOR DE TARIFAS — fuente única de verdad ═══
      Modelo tipo Uber por nivel: base + cuota + $/milla + $/min, con mínimo.
@@ -6375,6 +6416,7 @@ setTimeout(_vrPfKick,1200);
     syncProps(selectedRide);validateCTA(selectedRide);
     if(_dE){if(_dD)_dD.textContent=card.getAttribute('data-desc')||'';if(_dEt)_dEt.textContent=routeDurationSec?formatMinutes(routeDurationSec):'--';if(_dDi)_dDi.textContent=window.__vrRouteDistM?((window.__vrRouteDistM/1609.344).toFixed(1)+' mi'):'-- mi';if(_dS)_dS.textContent=card.getAttribute('data-seats')||'';if(_dP)_dP.textContent=selectedRide.price||'--';_dE.removeAttribute('hidden');}
     if(_actionBtns)_actionBtns.removeAttribute('hidden');
+    _vrSaveState();
   }
   function _expandAllCards(){cards.forEach(function(c){c.classList.remove('is-active')});selectedRide=null;if(_dE)_dE.setAttribute('hidden','');if(_actionBtns)_actionBtns.setAttribute('hidden','')}
   cards.forEach(function(c){c.addEventListener('click',function(){selectCard(c)})});
@@ -7697,7 +7739,7 @@ setTimeout(_vrPfKick,1200);
         if(typeof showMarkerLabels==='function')setTimeout(showMarkerLabels,600);
         if(bar2)bar2.style.width='100%';
         _postBookingToCruise(null,function(data){
-          if(data&&data.booking_id){window.__vrActiveBookingId=data.booking_id;try{var _schedAt=(window.__vrScheduleActive&&dateEl&&timeEl&&dateEl.value&&timeEl.value)?new Date(dateEl.value+'T'+timeEl.value).toISOString():null;localStorage.setItem('vr_active_booking',JSON.stringify({id:data.booking_id,ts:Date.now(),scheduled_at:_schedAt,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||''}));}catch(_){}}
+          if(data&&data.booking_id){window.__vrActiveBookingId=data.booking_id;if(window.__vrClearBookState)window.__vrClearBookState();try{var _schedAt=(window.__vrScheduleActive&&dateEl&&timeEl&&dateEl.value&&timeEl.value)?new Date(dateEl.value+'T'+timeEl.value).toISOString():null;localStorage.setItem('vr_active_booking',JSON.stringify({id:data.booking_id,ts:Date.now(),scheduled_at:_schedAt,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||''}));}catch(_){}}
           try{if(selectedRide&&selectedRide.tier==='vip')_vrCreateVipMenuReservation(data);}catch(_){}
           if(window.__vrScheduleActive){
             /* Email 1: scheduled ride confirmation (to rider) */
