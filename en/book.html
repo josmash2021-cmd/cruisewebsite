@@ -6750,6 +6750,12 @@ setTimeout(_vrPfKick,1200);
     }
     function updateCompactArrow(){if(!compactNext)return;var ok=currentMode==='hourly'?!!(pickupEl&&pickupEl.value.trim()):!!(pickupEl&&pickupEl.value.trim()&&dropoffEl&&dropoffEl.value.trim());compactNext.classList.toggle('is-ready',ok);}
     function openLocPicker(){
+      if(innerWidth>=1024){
+        /* escritorio: las páginas móviles de selección no se usan; los campos
+           con autocompletado viven en el cuadro de la izquierda */
+        try{if(dropoffEl&&!dropoffEl.value.trim())setTimeout(function(){dropoffEl.focus()},300);}catch(_){}
+        return;
+      }
       _vrSheetHide('lp');setNavBg('blur');
       if(window.__vrMorphOpen)window.__vrMorphOpen(locPicker);
       else{locPicker.removeAttribute('hidden');locPicker.classList.remove('is-closing');}
@@ -7040,6 +7046,7 @@ setTimeout(_vrPfKick,1200);
     var _mpDragEndHandler=function(){if(!_mpActive)return;_mpDragging=false;if(mapPickerPin)mapPickerPin.classList.remove('is-dragging');_mpReverseCenter()};
     var _mpMoveEndHandler=function(){if(!_mpActive)return;if(!_mpDragging)_mpReverseCenter()};
     function openMapPicker(){
+      if(innerWidth>=1024)return;   /* escritorio: sin página móvil de "elegir en el mapa" */
       if(!mapPickerEl||!map)return;
       _vrSheetHide('mp');setNavBg('navy');hideSuggestions();_mpActive=true;
       if(_gpsPinMarker)_gpsPinMarker.getElement().style.display='none';
@@ -8348,6 +8355,7 @@ html body #vipMpFooterSugs{
   html body .vipRide .vrd-menu{
     position:absolute; left:0; right:0; z-index:30; margin-top:6px;
     background:#232833; border-radius:12px; overflow:hidden;
+    max-height:320px; overflow-y:auto;
     box-shadow:0 14px 32px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.08);
   }
   html body .vipRide .vrd-menu__item{
@@ -8529,6 +8537,35 @@ html body #vipMpFooterSugs{
     font-size:28px!important; font-weight:800!important; color:#fff!important; margin-left:auto!important; white-space:nowrap!important;
   }
 
+  /* ---- panel "¿Cuándo te recogemos?": réplica de la referencia dentro del cuadro ---- */
+  html body .vipRide .vrd-when-panel{position:relative;display:block}
+  html body .vipRide .vrd-when-panel[hidden]{display:none!important}
+  html body .vipRide .vrd-wp__top{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px}
+  html body .vipRide .vrd-wp__back{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);color:#fff;transition:background .2s}
+  html body .vipRide .vrd-wp__back svg{width:20px;height:20px}
+  html body .vipRide .vrd-wp__back:hover{background:rgba(255,255,255,.14)}
+  html body .vipRide .vrd-wp__clear{border:none;background:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;padding:8px 2px;font-family:inherit}
+  html body .vipRide .vrd-wp__title{margin:2px 0 6px;font-size:26px;line-height:1.2;font-weight:800;color:#fff;letter-spacing:-.02em}
+  html body .vipRide .vrd-wp__from{margin:0 0 16px;font-size:15px;color:rgba(255,255,255,.6)}
+  html body .vipRide .vrd-wp__row{position:relative;width:100%;height:56px;display:flex;align-items:center;gap:12px;padding:0 15px;margin:0 0 12px;border:none;border-radius:12px;background:rgba(255,255,255,.08);color:#fff;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .2s}
+  html body .vipRide .vrd-wp__row:hover{background:rgba(255,255,255,.11)}
+  html body .vipRide .vrd-wp__rowLabel{flex:1;text-align:left}
+  html body .vipRide .vrd-wp__infos{margin:18px 0 0}
+  html body .vipRide .vrd-wp__info{display:flex;align-items:flex-start;gap:16px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:14.5px;line-height:1.45;color:rgba(255,255,255,.8)}
+  html body .vipRide .vrd-wp__info i{flex-shrink:0;width:20px;height:20px;color:#fff;display:flex;margin-top:2px}
+  html body .vipRide .vrd-wp__info i svg{width:20px;height:20px}
+  html body .vipRide .vrd-wp__terms{display:inline-block;margin:14px 0 26px;color:#fff;font-size:14.5px;text-decoration:underline}
+  html body .vipRide .vrd-wp__next{width:100%;height:54px;border:none;border-radius:12px;cursor:pointer;font-size:17px;font-weight:800;font-family:inherit;background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);color:#241c05;box-shadow:8px 8px 18px rgba(0,0,0,.42),-6px -6px 14px rgba(255,255,255,.09),inset 0 1px 0 rgba(255,255,255,.45);transition:filter .2s}
+  html body .vipRide .vrd-wp__next:hover{filter:brightness(1.06)}
+  html body .vipRide .vrd-when-panel.is-in>*{animation:vrdSchedItem .45s cubic-bezier(.22,1,.36,1) both}
+  html body .vipRide .vrd-when-panel.is-in>*:nth-child(2){animation-delay:.05s}
+  html body .vipRide .vrd-when-panel.is-in>*:nth-child(3){animation-delay:.1s}
+  html body .vipRide .vrd-when-panel.is-in>*:nth-child(4){animation-delay:.15s}
+  html body .vipRide .vrd-when-panel.is-in>*:nth-child(5){animation-delay:.2s}
+  html body .vipRide .vrd-when-panel.is-in>*:nth-child(6){animation-delay:.25s}
+  html body .vipRide .vrd-when-panel.is-in>*:nth-child(7){animation-delay:.3s}
+  html body .vipRide .vrd-when-panel.is-out{opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease}
+
   /* ---- programar recogida DENTRO del cuadro: la tarjeta muta al panel ----
      El overlay deja de ser modal centrado: se coloca exactamente donde vive
      la tarjeta y del mismo ancho; la hoja se desvanece debajo (cross-fade)
@@ -8639,9 +8676,21 @@ html body #vipMpFooterSugs{
   var ES = (document.documentElement.lang || 'en').slice(0, 2) === 'es';
   var T = ES
     ? { now: 'Recoger ahora', later: 'Programar para después', forMe: 'Para mí',
-        forOther: 'Para otra persona', search: 'Buscar' }
+        forOther: 'Para otra persona', search: 'Buscar',
+        whenTitle: '¿Cuándo quieres que te recojan?', from: 'Desde ',
+        today: 'Hoy', tomorrow: 'Mañana', nowShort: 'Ahora', clear: 'Restablecer',
+        next: 'Siguiente', terms: 'Ver términos',
+        info1: 'Elige tu hora de recogida hasta con 90 días de antelación',
+        info2: 'Tiempo de espera extra incluido para encontrarte con tu chofer',
+        info3: 'Cancela sin costo hasta 60 minutos antes' }
     : { now: 'Pickup now', later: 'Schedule for later', forMe: 'For me',
-        forOther: 'For someone else', search: 'Search' };
+        forOther: 'For someone else', search: 'Search',
+        whenTitle: 'When do you want to be picked up?', from: 'From ',
+        today: 'Today', tomorrow: 'Tomorrow', nowShort: 'Now', clear: 'Clear',
+        next: 'Next', terms: 'See terms',
+        info1: 'Choose your pickup time up to 90 days in advance',
+        info2: 'Extra wait time included to meet your ride',
+        info3: 'Cancel at no charge up to 60 minutes in advance' };
 
   var ICO_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 1.9"/></svg>';
   var ICO_USER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg>';
@@ -8695,11 +8744,154 @@ html body #vipMpFooterSugs{
   function syncWhen() {
     var label = document.querySelector('[data-vrd-when-label]');
     if (!label) return;
+    var dw = window.__vrDeskWhen;
+    if (dw && dw.label) { if (label.textContent !== dw.label) label.textContent = dw.label; return; }
     var later = segBtn('later');
     var isLater = later && later.classList.contains('is-active');
     /* si hay viaje programado, el propio botón del booker trae la fecha/hora */
     var txt = (isLater ? (later.textContent || '').trim() : T.now) || T.now;
     if (label.textContent !== txt) label.textContent = txt;
+  }
+
+  /* ═══ panel "¿Cuándo te recogemos?" — réplica exacta de la referencia:
+     vive dentro del cuadro y la tarjeta muta hacia él con cross-fade ═══ */
+  var _wpSel = { date: null, time: null };   /* null = Hoy / Ahora */
+  function _wpPad(n) { return (n < 10 ? '0' : '') + n; }
+  function _wpDateISO(d) { return d.getFullYear() + '-' + _wpPad(d.getMonth() + 1) + '-' + _wpPad(d.getDate()); }
+  function _wpFmtDate(d) {
+    var iso = _wpDateISO(d), now = new Date(), tom = new Date(now.getTime() + 864e5);
+    if (iso === _wpDateISO(now)) return T.today;
+    if (iso === _wpDateISO(tom)) return T.tomorrow;
+    var DN = ES ? ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var MN = ES ? ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'] : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return DN[d.getDay()] + ', ' + MN[d.getMonth()] + ' ' + d.getDate();
+  }
+  function _wpFmtTime(hm) {
+    var h = parseInt(hm.split(':')[0], 10), m = hm.split(':')[1], ap = h >= 12 ? 'PM' : 'AM';
+    return (h % 12 || 12) + ':' + m + ' ' + ap;
+  }
+  function _wpPaint(p) {
+    var dl = p.querySelector('[data-wp-date-label]'), tl = p.querySelector('[data-wp-time-label]');
+    var d = _wpSel.date ? new Date(_wpSel.date + 'T00:00:00') : new Date();
+    if (dl) dl.textContent = _wpFmtDate(d);
+    if (tl) tl.textContent = _wpSel.time ? _wpFmtTime(_wpSel.time) : T.nowShort;
+    var fr = p.querySelector('[data-wp-from]');
+    var pu = document.querySelector('[data-vipride-pickup]');
+    var puv = pu && pu.value ? pu.value.split(',')[0].trim() : '';
+    if (fr) { if (puv) { fr.textContent = T.from + puv; fr.hidden = false; } else fr.hidden = true; }
+  }
+  function ensureWhenPanel() {
+    var sheet = document.querySelector('[data-vipride-sheet]');
+    if (!sheet) return null;
+    var p = sheet.querySelector('.vrd-when-panel');
+    if (p) return p;
+    var ICO_CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>';
+    var ICO_HOUR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12M6 22h12M8 2v4l4 4 4-4V2M8 22v-4l4-4 4 4v4"/></svg>';
+    var ICO_CARD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/></svg>';
+    var termsHref = ES ? 'index.html' : '../en/index.html';
+    p = document.createElement('div');
+    p.className = 'vrd-when-panel';
+    p.hidden = true;
+    p.innerHTML =
+      '<div class="vrd-wp__top">' +
+        '<button type="button" class="vrd-wp__back" data-wp-back aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>' +
+        '<button type="button" class="vrd-wp__clear" data-wp-clear>' + T.clear + '</button>' +
+      '</div>' +
+      '<h2 class="vrd-wp__title">' + T.whenTitle + '</h2>' +
+      '<p class="vrd-wp__from" data-wp-from hidden></p>' +
+      '<button type="button" class="vrd-wp__row" data-vrd-row data-wp-date>' +
+        '<i class="vrd-row__ico">' + ICO_CAL + '</i><span class="vrd-wp__rowLabel" data-wp-date-label>' + T.today + '</span>' + ICO_CHEV +
+      '</button>' +
+      '<button type="button" class="vrd-wp__row" data-vrd-row data-wp-time>' +
+        '<i class="vrd-row__ico">' + ICO_CLOCK + '</i><span class="vrd-wp__rowLabel" data-wp-time-label>' + T.nowShort + '</span>' + ICO_CHEV +
+      '</button>' +
+      '<div class="vrd-wp__infos">' +
+        '<div class="vrd-wp__info"><i>' + ICO_CAL + '</i><span>' + T.info1 + '</span></div>' +
+        '<div class="vrd-wp__info"><i>' + ICO_HOUR + '</i><span>' + T.info2 + '</span></div>' +
+        '<div class="vrd-wp__info"><i>' + ICO_CARD + '</i><span>' + T.info3 + '</span></div>' +
+      '</div>' +
+      '<a class="vrd-wp__terms" href="' + termsHref + '">' + T.terms + '</a>' +
+      '<button type="button" class="vrd-wp__next" data-wp-next>' + T.next + '</button>';
+    sheet.appendChild(p);
+    p.querySelector('[data-wp-back]').addEventListener('click', function () { closeWhenPanel(); });
+    p.querySelector('[data-wp-clear]').addEventListener('click', function () { _wpSel = { date: null, time: null }; _wpPaint(p); });
+    p.querySelector('[data-wp-date]').addEventListener('click', function (e) {
+      e.preventDefault();
+      var items = [], base = new Date();
+      for (var i = 0; i < 30; i++) {
+        (function (d) {
+          items.push({ label: _wpFmtDate(d), run: function () { _wpSel.date = _wpDateISO(d); _wpPaint(p); } });
+        })(new Date(base.getTime() + i * 864e5));
+      }
+      openMenu(this, items);
+    });
+    p.querySelector('[data-wp-time]').addEventListener('click', function (e) {
+      e.preventDefault();
+      var items = [], today = !_wpSel.date || _wpSel.date === _wpDateISO(new Date());
+      if (today) items.push({ label: T.nowShort, run: function () { _wpSel.time = null; _wpPaint(p); } });
+      var slots = [], mm;
+      if (today) {
+        var t0 = new Date(Date.now() + 3600000);
+        mm = Math.ceil((t0.getHours() * 60 + t0.getMinutes()) / 30) * 30;
+      } else mm = 6 * 60;
+      for (; mm <= 23 * 60 + 30; mm += 30) slots.push(_wpPad(Math.floor(mm / 60)) + ':' + _wpPad(mm % 60));
+      slots.forEach(function (hm) {
+        items.push({ label: _wpFmtTime(hm), run: function () { _wpSel.time = hm; _wpPaint(p); } });
+      });
+      openMenu(this, items);
+    });
+    p.querySelector('[data-wp-next]').addEventListener('click', function () {
+      var dEl = document.querySelector('[data-vipride-date]'), tEl = document.querySelector('[data-vipride-time]');
+      var todayISO = _wpDateISO(new Date());
+      if (!_wpSel.time && (!_wpSel.date || _wpSel.date === todayISO)) {
+        /* Hoy + Ahora = recogida inmediata */
+        window.__vrScheduleActive = false; window.__vrDeskWhen = null;
+        var b = segBtn('now'); if (b) b.click();
+      } else {
+        var dISO = _wpSel.date || todayISO, hm = _wpSel.time;
+        if (!hm) {
+          var t1 = new Date(Date.now() + 3600000);
+          var mnx = Math.ceil((t1.getHours() * 60 + t1.getMinutes()) / 30) * 30;
+          if (mnx > 23 * 60 + 30) mnx = 23 * 60 + 30;
+          hm = _wpPad(Math.floor(mnx / 60)) + ':' + _wpPad(mnx % 60);
+          _wpSel.time = hm;
+        }
+        if (dEl) { dEl.value = dISO; try { dEl.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) {} }
+        if (tEl) { tEl.value = hm; try { tEl.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) {} }
+        window.__vrScheduleActive = true;
+        window.__vrDeskWhen = { label: _wpFmtDate(new Date(dISO + 'T00:00:00')) + ', ' + _wpFmtTime(hm) };
+      }
+      syncWhen();
+      closeWhenPanel();
+    });
+    return p;
+  }
+  function openWhenPanel() {
+    if (!mq.matches) return;
+    var sheet = document.querySelector('[data-vipride-sheet]');
+    var p = ensureWhenPanel();
+    if (!sheet || !p || !p.hidden) return;
+    var step1 = sheet.querySelector('[data-vipride-step-panel="1"]');
+    _wpPaint(p);
+    if (step1) { step1.style.transition = 'opacity .22s ease'; step1.style.opacity = '0'; }
+    setTimeout(function () {
+      if (step1) step1.style.display = 'none';
+      p.hidden = false;
+      p.classList.remove('is-out'); void p.offsetWidth; p.classList.add('is-in');
+      try { sheet.scrollTop = 0; } catch (_) {}
+    }, 230);
+  }
+  function closeWhenPanel() {
+    var sheet = document.querySelector('[data-vipride-sheet]');
+    var p = sheet && sheet.querySelector('.vrd-when-panel');
+    if (!p || p.hidden) return;
+    closeMenu();
+    p.classList.remove('is-in'); p.classList.add('is-out');
+    setTimeout(function () {
+      p.hidden = true; p.classList.remove('is-out');
+      var step1 = sheet.querySelector('[data-vipride-step-panel="1"]');
+      if (step1) { step1.style.display = ''; requestAnimationFrame(function () { step1.style.opacity = '1'; }); }
+    }, 210);
   }
 
   function buildRows() {
@@ -8723,18 +8915,7 @@ html body #vipMpFooterSugs{
 
     rows.querySelector('[data-vrd-when]').addEventListener('click', function (e) {
       e.preventDefault();
-      var later = segBtn('later'), isLater = later && later.classList.contains('is-active');
-      if (isLater) {
-        /* ya hay horario programado: menú para volver a "ahora" o cambiarlo */
-        openMenu(this, [
-          { label: T.now, run: function () { var b = segBtn('now'); if (b) b.click(); setTimeout(syncWhen, 60); } },
-          { label: T.later, run: function () { var b = segBtn('later'); if (b) b.click(); setTimeout(syncWhen, 400); } }
-        ]);
-      } else {
-        /* directo al panel de programar: la tarjeta muta con el cross-fade */
-        if (later) later.click();
-        setTimeout(syncWhen, 400);
-      }
+      openWhenPanel();
     });
 
     rows.querySelector('[data-vrd-who]').addEventListener('click', function (e) {
