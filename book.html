@@ -4956,6 +4956,7 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 @media(prefers-reduced-motion:reduce){.vipRide__rideList.is-skel .vipRide__rideCard::after{animation:none}}
 [data-vipride-detail]{display:none!important}
 #vrDeskBarRide .vrdbr__detail{display:none!important}
+.mapboxgl-ctrl-logo,.mapboxgl-ctrl-attrib{display:none!important}
 .vipRide__cardPrice{font-weight:800;font-size:clamp(20px,5vw,26px);color:#fff;white-space:nowrap;letter-spacing:-.3px}
 .vipRide__rideBadgeCol{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:6px;margin-left:auto}
 .vipRide__rideCard{min-height:112px}
@@ -6269,7 +6270,6 @@ setTimeout(_vrPfKick,1200);
       mapboxgl.workerCount=Math.max(2,Math.min(4,navigator.hardwareConcurrency||2));
       mapboxgl.maxParallelImageRequests=16;
       map=new mapboxgl.Map({container:'vipRideMap-ride_request_48wXbE',style:'mapbox://styles/mapbox/dark-v11',center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:45,bearing:-10,maxPitch:55,attributionControl:false,antialias:true,interactive:true,dragRotate:true,touchPitch:true,dragPan:true,scrollZoom:true,touchZoomRotate:true,doubleClickZoom:true,keyboard:false,cooperativeGestures:false,fadeDuration:450,useWebGL2:true,optimizeForTerrain:false,renderWorldCopies:false});
-      map.addControl(new mapboxgl.AttributionControl({compact:true}),'bottom-left');
       map.touchZoomRotate.enable({around:'center'});
       map.scrollZoom.setWheelZoomRate(1/200);
       map.scrollZoom.setZoomRate(1/200);
@@ -6278,7 +6278,10 @@ setTimeout(_vrPfKick,1200);
       map.on('style.load',function(){var s=function(l,p,v){try{if(map.getLayer(l))map.setPaintProperty(l,p,v);}catch(e){}};s('background','background-color','#0A1128');s('land','background-color','#0A1128');s('landcover','fill-color','#0F1A36');s('landuse','fill-color','#0F1A36');s('water','fill-color','#070E22');s('building','fill-color','#111D3A');});
       map.once('render',function(){try{var c=map.getCanvas();if(c)c.style.willChange='transform';}catch(_){}});
       map.on('load',function(){
-        var _mSk=root.querySelector('[data-vr-mapsk]');if(_mSk){_mSk.classList.add('is-hidden');setTimeout(function(){_mSk.remove&&_mSk.remove()},500);}
+        /* el esqueleto se retira cuando el mapa esta completamente cargado, no antes */
+        var _hideSk=function(){var _mSk=root.querySelector('[data-vr-mapsk]');if(_mSk){_mSk.classList.add('is-hidden');setTimeout(function(){_mSk.remove&&_mSk.remove()},500);}};
+        var _skT=setTimeout(_hideSk,4000);
+        map.once('idle',function(){clearTimeout(_skT);_hideSk();});
         setTimeout(function(){map.easeTo({pitch:52,bearing:-12,duration:1600,easing:function(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}})},400);
         /* Resume now that map is ready (works even if DOMContentLoaded resume already ran) */
         try{if(window.__vrCoreResume)window.__vrCoreResume();}catch(_){}
@@ -6390,7 +6393,7 @@ setTimeout(_vrPfKick,1200);
         if(locateBtn) locateBtn.classList.add('is-locating');
         navigator.geolocation.getCurrentPosition(function(p){
           if(map&&!_pickupManuallySet){
-            map.jumpTo({center:[p.coords.longitude,p.coords.latitude],zoom:16.5,pitch:50,bearing:-10});
+            map.easeTo({center:[p.coords.longitude,p.coords.latitude],zoom:16.5,pitch:50,bearing:-10,duration:1200,easing:function(t){return 1-Math.pow(1-t,3)}});
           }
           updatePickupFromGeo(p.coords.latitude,p.coords.longitude,false);
           if(locateBtn)locateBtn.classList.remove('is-locating');
