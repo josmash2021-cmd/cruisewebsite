@@ -7245,6 +7245,18 @@ setTimeout(_vrPfKick,1200);
       })
       .catch(function(){e.add.textContent=_old;_cfUpdateBtn();_cfShowErr(t('connectionError'));});
     }
+    /* logo correcto según la marca de la tarjeta (la devuelve Stripe) */
+    function _vrCardBrandIcon(brand){
+      var b=String(brand||'').toLowerCase();
+      if(b==='visa')return{bg:'#fff',html:'<b style="font:italic 800 11px Arial,sans-serif;color:#1434CB;letter-spacing:-.5px">VISA</b>'};
+      if(b==='mastercard')return{bg:'#fff',html:'<svg width="26" height="16" viewBox="0 0 32 20"><circle cx="12" cy="10" r="7.5" fill="#EB001B"/><circle cx="20" cy="10" r="7.5" fill="#F79E1B"/><path d="M16 4.7a7.5 7.5 0 0 1 0 10.6 7.5 7.5 0 0 1 0-10.6z" fill="#FF5F00"/></svg>'};
+      if(b==='amex'||b==='american_express')return{bg:'#2E77BC',html:'<b style="font:800 8.5px Arial,sans-serif;color:#fff;letter-spacing:.2px">AMEX</b>'};
+      if(b==='discover')return{bg:'#fff',html:'<b style="font:800 7px Arial,sans-serif;color:#111">DISC<i style="font-style:normal;color:#F76E20">O</i>VER</b>'};
+      if(b==='diners'||b==='diners_club')return{bg:'#fff',html:'<b style="font:800 7px Arial,sans-serif;color:#0079BE">DINERS</b>'};
+      if(b==='jcb')return{bg:'#fff',html:'<svg width="22" height="15" viewBox="0 0 24 16"><rect x="0.5" width="6.8" height="16" rx="2.4" fill="#0E4C96"/><rect x="8.6" width="6.8" height="16" rx="2.4" fill="#C8232C"/><rect x="16.7" width="6.8" height="16" rx="2.4" fill="#009B4C"/></svg>'};
+      if(b==='unionpay')return{bg:'#fff',html:'<b style="font:800 7px Arial,sans-serif;color:#00447C">Union<i style="font-style:normal;color:#E21836">Pay</i></b>'};
+      return null;
+    }
     function _cfSelectCard(nick){
       var opt=document.querySelector('[data-vipride-pay-option="card"]');
       _payOptions.forEach(function(o){o.classList.remove('is-selected');});
@@ -7252,6 +7264,8 @@ setTimeout(_vrPfKick,1200);
       _selectedPayment='card';
       var brand=_cardPm.brand&&_cardPm.brand!=='card'?_cardPm.brand.charAt(0).toUpperCase()+_cardPm.brand.slice(1):'Card';
       var disp=nick||(brand+' •••• '+_cardPm.last4);
+      var _bIc=opt?opt.querySelector('.vipRide__payIcon'):null,_bi=_vrCardBrandIcon(_cardPm.brand);
+      if(_bIc&&_bi){_bIc.innerHTML=_bi.html;_bIc.style.background=_bi.bg;}
       var _tok=(typeof __vipAuthToken==='function')?__vipAuthToken():null;
       if(_tok){fetch(_apiBase+'/auth/web/set-default-payment',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_tok},body:JSON.stringify({method_type:'card',display_name:disp})}).catch(function(){});}
       if(_paymentBtn){
