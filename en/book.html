@@ -5139,7 +5139,7 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__mapLabel--pickup .vipRide__mapLabel__tail{left:-5px;border-right:0;border-top:0}
 .vipRide__mapLabel--dropoff .vipRide__mapLabel__tail{right:-5px;border-left:0;border-bottom:0}
 .vipRide__mapLabel__ico{display:none}
-.vipRide__mapLabel__eta{position:absolute;top:-30px;left:0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;padding:4px 9px;margin:0;background:linear-gradient(135deg,#F5DC7A,#D4A800);color:#0a0e1a;font-size:11px;font-weight:800;line-height:1.2;border-radius:8px;letter-spacing:-.01em;box-shadow:0 3px 10px rgba(0,0,0,.45);white-space:nowrap}
+.vipRide__mapLabel__eta{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;align-self:stretch;padding:6px 9px;margin:-6px 0 -6px -10px;background:linear-gradient(135deg,#F5DC7A,#D4A800);color:#0a0e1a;font-size:11px;font-weight:800;line-height:1.2;border-radius:8px 0 0 8px;letter-spacing:-.01em;white-space:nowrap}
 .vipRide__mapLabel__txt{display:flex;flex-direction:column;gap:1px;min-width:0}
 .vipRide__labelText{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
 .vipRide__mapLabel__kind{display:none}
@@ -6096,7 +6096,21 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     var dL=pickupPlace.lat-dropoffPlace.lat,dN=pickupPlace.lng-dropoffPlace.lng,d=Math.sqrt(dL*dL+dN*dN),nH=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--vip-nav-h'),10)||60;
     var sH=_vrSheetHeight(),iD=innerWidth>=900;
     if(!iD&&sH<200&&currentStep===3)_fR=setTimeout(fitRouteBounds,400);
-    var sP=d<.05?150:170,pad={top:nH+95,right:sP,bottom:Math.max(sH,280)+70,left:sP},mZ=d<.005?15.8:d<.01?15.3:d<.03?14.8:d<.1?14.2:13.4;
+    var mZ=d<.005?15.8:d<.01?15.3:d<.03?14.8:d<.1?14.2:13.4,pad;
+    var _ct=map.getContainer(),_cw=(_ct&&_ct.clientWidth)||innerWidth,_ch=(_ct&&_ct.clientHeight)||innerHeight;
+    if(iD){
+      /* escritorio: el mapa es un panel propio sin hoja encima; margen parejo y moderado
+         para que la ruta llene el encuadre (el extra de arriba deja sitio al rotulo del pin) */
+      var pS=Math.max(40,Math.min(80,Math.round(Math.min(_cw,_ch)*.12)));
+      pad={top:pS+30,right:pS,bottom:pS,left:pS};
+    }else{
+      var sP=d<.05?150:170;
+      pad={top:nH+95,right:sP,bottom:Math.max(sH,280)+70,left:sP};
+    }
+    /* el acolchado nunca debe superar el lienzo: si lo hace, Mapbox no puede encuadrar */
+    var _mxW=Math.max(24,Math.floor((_cw-80)/2)),_mxH=Math.max(24,Math.floor((_ch-80)/2));
+    pad.left=Math.min(pad.left,_mxW);pad.right=Math.min(pad.right,_mxW);
+    pad.top=Math.min(pad.top,_mxH);pad.bottom=Math.min(pad.bottom,_mxH);
     var c=map.cameraForBounds(b,{padding:pad,maxZoom:mZ,pitch:0,bearing:0});
     if(!c){_fR=setTimeout(fitRouteBounds,300);return;}
     window.__vrFlying=true;
@@ -6124,7 +6138,10 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     var bounds=new mapboxgl.LngLatBounds();
     bounds.extend([pickupPlace.lng,pickupPlace.lat]);bounds.extend([dropoffPlace.lng,dropoffPlace.lat]);
     var headerH=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height'),10)||0,isDesktop=innerWidth>=900;
-    var pad={top:headerH+70,right:120,bottom:_vrSheetHeight()+120,left:120};
+    var _c2=map.getContainer(),_w2=(_c2&&_c2.clientWidth)||innerWidth,_h2=(_c2&&_c2.clientHeight)||innerHeight;
+    var pad=isDesktop?{top:100,right:80,bottom:80,left:80}:{top:headerH+70,right:120,bottom:_vrSheetHeight()+120,left:120};
+    var _w3=Math.max(24,Math.floor((_w2-80)/2)),_h3=Math.max(24,Math.floor((_h2-80)/2));
+    pad.left=Math.min(pad.left,_w3);pad.right=Math.min(pad.right,_w3);pad.top=Math.min(pad.top,_h3);pad.bottom=Math.min(pad.bottom,_h3);
     var cam=map.cameraForBounds(bounds,{padding:pad,maxZoom:14.2,bearing:0,pitch:0});
     if(!cam)return;
     map.easeTo({center:cam.center,zoom:cam.zoom,pitch:0,bearing:0,duration:1100,essential:true,easing:function(t){return 1-Math.pow(1-t,3);}});
@@ -7927,7 +7944,7 @@ html body .vipRide__mapLabel{
   box-shadow:0 3px 10px rgba(0,0,0,.4);
 }
 html body .vipRide__mapLabel__tail{background:rgba(18,21,30,.92);border:1px solid rgba(255,255,255,.12)}
-html body .vipRide__mapLabel__eta{margin:0;border-radius:8px}
+html body .vipRide__mapLabel__eta{margin:-6px 0 -6px -10px;border-radius:8px 0 0 8px}
 
 /* overlay de pago → opciones clay */
 html body .vipRide__payOption{
@@ -8624,7 +8641,13 @@ html body #vipMpFooterSugs{
       if (!co || !co.length) return;
       var b = new window.mapboxgl.LngLatBounds(co[0], co[0]);
       co.forEach(function (c) { b.extend(c); });
-      vrMap.fitBounds(b, { padding: { top: 80, bottom: 80, left: 70, right: 70 }, duration: 900 });
+      /* el lienzo debe coincidir con el panel antes de encuadrar (cambia de ancho en el paso 3) */
+      try { vrMap.resize(); } catch (_) {}
+      var el = vrMap.getContainer(), w = (el && el.clientWidth) || 600, h = (el && el.clientHeight) || 600;
+      var pw = Math.max(24, Math.min(70, Math.floor((w - 80) / 2)));
+      var pb = Math.max(24, Math.min(80, Math.floor((h - 140) / 2)));
+      var pt = Math.min(pb + 30, Math.floor(h / 3));
+      vrMap.fitBounds(b, { padding: { top: pt, bottom: pb, left: pw, right: pw }, duration: 900 });
     } catch (_) {}
   }
 
@@ -8661,7 +8684,17 @@ html body #vipMpFooterSugs{
       var three = step === '3';
       if (sec.classList.contains('vrd-step3') === three) return;
       sec.classList.toggle('vrd-step3', three);
-      setTimeout(function () { nudgeMap(); setTimeout(fitRoute, 120); }, 580);
+      /* el panel del mapa cambia de ancho con transición: reencuadrar al terminar
+         y repetir después por si otro movimiento de cámara pisó el encuadre */
+      var mapEl = document.querySelector('.vipRide__mapContainer') || document.querySelector('.vipRide__map');
+      var refitDone = false;
+      function refit() { if (refitDone) return; refitDone = true; nudgeMap(); setTimeout(fitRoute, 120); }
+      if (mapEl) mapEl.addEventListener('transitionend', function h(ev) {
+        if (ev.propertyName !== 'left') return;
+        mapEl.removeEventListener('transitionend', h); refit();
+      });
+      setTimeout(refit, 620);
+      setTimeout(fitRoute, 1500);
     }
     onStep();
     new MutationObserver(onStep).observe(sheet, {
