@@ -6166,14 +6166,6 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     if(_requestBtn)_requestBtn.textContent=t(window.__vrScheduleActive?'reserveNow':'requestRide');
   }
   function afterInputChange(){
-    setClearVisibility(); syncProps(selectedRide);
-    var locReady=currentMode==='hourly'?pickupEl.value.trim().length>0:pickupEl.value.trim().length>0&&dropoffEl.value.trim().length>0;
-    if(step1NextBtn) step1NextBtn.disabled=!locReady;
-    validateCTA(selectedRide);
-    if(currentStep===2&&locReady&&dateEl.value&&timeEl.value){
-      if(routeDurationSec) updateCardPrices(routeDurationSec); else{ computeRoute(); updateCardPrices(); }
-      goToStep(3,'forward');
-    }
     /* vigilante: con recogida y destino listos, los pines y la ruta deben estar en el mapa */
     clearTimeout(window.__vrRtT);
     window.__vrRtT=setTimeout(function(){try{
@@ -6182,6 +6174,14 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       if(!dropoffMarker)setMarker('dropoff',dropoffPlace.lat,dropoffPlace.lng);
       if(!map.getSource('route'))computeRoute();
     }catch(_){}},600);
+    setClearVisibility(); syncProps(selectedRide);
+    var locReady=currentMode==='hourly'?pickupEl.value.trim().length>0:pickupEl.value.trim().length>0&&dropoffEl.value.trim().length>0;
+    if(step1NextBtn) step1NextBtn.disabled=!locReady;
+    validateCTA(selectedRide);
+    if(currentStep===2&&locReady&&dateEl.value&&timeEl.value){
+      if(routeDurationSec) updateCardPrices(routeDurationSec); else{ computeRoute(); updateCardPrices(); }
+      goToStep(3,'forward');
+    }
   }
   function setMarker(which,lat,lng){
     if(which==='pickup'){if(pickupMarker){pickupMarker.remove();pickupMarker=null}pickupMarker=new mapboxgl.Marker({element:createPickupMarkerEl()}).setLngLat([lng,lat]).addTo(map);}
@@ -6509,20 +6509,19 @@ setTimeout(_vrPfKick,1200);
           }
         });
       }
-      function doGeo(ok,err){navigator.geolocation.getCurrentPosition(function(p){updatePickupFromGeo(p.coords.latitude,p.coords.longitude,true);if(ok)ok();},function(){if(err)err();},{timeout:12000,enableHighAccuracy:true});}
+      function doGeo(ok,err,fly){navigator.geolocation.getCurrentPosition(function(p){updatePickupFromGeo(p.coords.latitude,p.coords.longitude,fly!==false);if(ok)ok();},function(){if(err)err();},{timeout:12000,enableHighAccuracy:true});}
       if(navigator.geolocation){
         if(pickupEl&&!pickupEl.value) pickupEl.placeholder=t('detectingLocation');
         if(locateBtn) locateBtn.classList.add('is-locating');
         navigator.geolocation.getCurrentPosition(function(p){
-          if(map&&!_pickupManuallySet){
-            map.easeTo({center:[p.coords.longitude,p.coords.latitude],zoom:16.5,pitch:50,bearing:-10,duration:1200,easing:function(t){return 1-Math.pow(1-t,3)}});
-          }
+          /* al cargar, la camara se queda en la vista general: solo se coloca el pin */
           updatePickupFromGeo(p.coords.latitude,p.coords.longitude,false);
           if(locateBtn)locateBtn.classList.remove('is-locating');
         },function(){},{ timeout:3000, maximumAge:60000, enableHighAccuracy:false });
         doGeo(
           function(){if(locateBtn)locateBtn.classList.remove('is-locating');},
-          function(){if(locateBtn)locateBtn.classList.remove('is-locating');if(pickupEl)pickupEl.placeholder=currentLang==='es'?'Ingresa dirección':'Enter address';}
+          function(){if(locateBtn)locateBtn.classList.remove('is-locating');if(pickupEl)pickupEl.placeholder=currentLang==='es'?'Ingresa dirección':'Enter address';},
+          false
         );
         navigator.geolocation.watchPosition(
           function(p){updatePickupFromGeo(p.coords.latitude,p.coords.longitude,false);},
