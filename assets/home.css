@@ -406,7 +406,7 @@
 .h-ride__mapSk.is-hidden { opacity: 0; }
 @keyframes vrMapShim { 0% { left: -100%; } 100% { left: 100%; } }
 .h-ride__map .mapboxgl-ctrl-attrib,
-.h-ride__map .mapboxgl-ctrl-logo { opacity: .35; }
+.h-ride__map .mapboxgl-ctrl-logo { display: none !important; }
 
 /* pines dorados del mapa (idénticos a los de reservas) */
 .h-ride__pin { cursor: pointer; width: 0; height: 0; overflow: visible; position: relative; }

@@ -278,15 +278,18 @@
       attributionControl: false,
       antialias: true,
       fadeDuration: 0,
-      renderWorldCopies: false
+      renderWorldCopies: false,
+      /* solo se mira: sin arrastrar, zoom, rotar ni teclado; la camara se
+         mueve desde el codigo (easeTo/fitBounds) */
+      interactive: false
     });
     rideMap = map;
-    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
-    map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-left');
     /* el panel aparece con una transición; reajustamos el lienzo al mostrarse */
     setTimeout(function () { map.resize(); }, 1200);
     setTimeout(function () { map.resize(); }, 2500);
     map.on('load', function () {
+      var logo = el.querySelector('.mapboxgl-ctrl-logo');
+      if (logo) logo.style.display = 'none';
       map.resize();
       /* ocultamos el esqueleto dorado cuando el mapa ya está listo */
       var sk = el.querySelector('.h-ride__mapSk');
