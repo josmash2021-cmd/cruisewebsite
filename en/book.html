@@ -5139,7 +5139,7 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__mapLabel--pickup .vipRide__mapLabel__tail{left:-5px;border-right:0;border-top:0}
 .vipRide__mapLabel--dropoff .vipRide__mapLabel__tail{right:-5px;border-left:0;border-bottom:0}
 .vipRide__mapLabel__ico{display:none}
-.vipRide__mapLabel__eta{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;padding:3px 6px;margin:0;background:linear-gradient(135deg,#F5DC7A,#D4A800);color:#0a0e1a;font-size:10px;font-weight:800;line-height:1.2;border-radius:6px;letter-spacing:-.01em}
+.vipRide__mapLabel__eta{position:absolute;top:-30px;left:0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;padding:4px 9px;margin:0;background:linear-gradient(135deg,#F5DC7A,#D4A800);color:#0a0e1a;font-size:11px;font-weight:800;line-height:1.2;border-radius:8px;letter-spacing:-.01em;box-shadow:0 3px 10px rgba(0,0,0,.45);white-space:nowrap}
 .vipRide__mapLabel__txt{display:flex;flex-direction:column;gap:1px;min-width:0}
 .vipRide__labelText{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
 .vipRide__mapLabel__kind{display:none}
@@ -5848,7 +5848,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       if(dropoffLabelMk){dropoffLabelMk.remove();dropoffLabelMk=0}
       dropoffPlace=null; if(dropoffEl) dropoffEl.value='';
       routeDurationSec=null;
-      if(pickupPlace&&map)map.easeTo({center:[pickupPlace.lng,pickupPlace.lat],zoom:16.5,pitch:50,bearing:-10,duration:1000,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+      if(pickupPlace&&map)map.easeTo({center:[pickupPlace.lng,pickupPlace.lat],zoom:16.5,pitch:0,bearing:0,duration:1000,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
       else if(map)map.easeTo({center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:0,bearing:0,duration:900,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
     }
     if(n===2&&dir==='back'){ hideMarkerLabels(); }
@@ -5870,6 +5870,20 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       dropoffMarker.getElement().appendChild(dEl);
       dropoffLabelMk=dEl;
     }
+    /* si una etiqueta se saldria del mapa, se voltea hacia el lado de adentro */
+    function _lblFix(el,mk){
+      if(!el||!mk||!map)return;
+      try{
+        var c=map.getContainer().getBoundingClientRect();
+        var m=mk.getElement().getBoundingClientRect();
+        var w=el.offsetWidth;
+        if(el.style.left){ if(m.left+14+w>c.right-6){el.style.left='';el.style.right='14px';} }
+        else{ if(m.left-14-w<c.left+6){el.style.right='';el.style.left='14px';} }
+      }catch(_){}
+    }
+    function _lblFixAll(){_lblFix(pickupLabelMk,pickupMarker);_lblFix(dropoffLabelMk,dropoffMarker);}
+    requestAnimationFrame(_lblFixAll);
+    try{map.once('moveend',_lblFixAll);}catch(_){}
     setTimeout(function(){if(pickupMarker){var l=pickupMarker.getElement().querySelector('.vipRide__mapLabel');if(l)l.classList.add('is-visible')}},50);
     setTimeout(function(){if(dropoffMarker){var l=dropoffMarker.getElement().querySelector('.vipRide__mapLabel');if(l)l.classList.add('is-visible')}},300);
   }
@@ -6083,7 +6097,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     var sH=_vrSheetHeight(),iD=innerWidth>=900;
     if(!iD&&sH<200&&currentStep===3)_fR=setTimeout(fitRouteBounds,400);
     var sP=d<.05?150:170,pad={top:nH+95,right:sP,bottom:Math.max(sH,280)+70,left:sP},mZ=d<.005?15.8:d<.01?15.3:d<.03?14.8:d<.1?14.2:13.4;
-    var c=map.cameraForBounds(b,{padding:pad,maxZoom:mZ,pitch:55,bearing:15});
+    var c=map.cameraForBounds(b,{padding:pad,maxZoom:mZ,pitch:0,bearing:0});
     if(!c){_fR=setTimeout(fitRouteBounds,300);return;}
     window.__vrFlying=true;
     if(root&&root.classList)root.classList.add('is-flying');
@@ -6093,8 +6107,8 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     map.easeTo({
       center:c.center,
       zoom:c.zoom,
-      pitch:55,
-      bearing:15,
+      pitch:0,
+      bearing:0,
       duration:1100,
       essential:true,
       easing:function(t){return 1-Math.pow(1-t,3);}
@@ -6111,9 +6125,9 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     bounds.extend([pickupPlace.lng,pickupPlace.lat]);bounds.extend([dropoffPlace.lng,dropoffPlace.lat]);
     var headerH=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height'),10)||0,isDesktop=innerWidth>=900;
     var pad={top:headerH+70,right:120,bottom:_vrSheetHeight()+120,left:120};
-    var cam=map.cameraForBounds(bounds,{padding:pad,maxZoom:14.2,bearing:15,pitch:55});
+    var cam=map.cameraForBounds(bounds,{padding:pad,maxZoom:14.2,bearing:0,pitch:0});
     if(!cam)return;
-    map.easeTo({center:cam.center,zoom:cam.zoom,pitch:55,bearing:15,duration:1100,essential:true,easing:function(t){return 1-Math.pow(1-t,3);}});
+    map.easeTo({center:cam.center,zoom:cam.zoom,pitch:0,bearing:0,duration:1100,essential:true,easing:function(t){return 1-Math.pow(1-t,3);}});
     if(onEnd)setTimeout(onEnd,800);
   }
   function setMode(mode){
@@ -6391,7 +6405,7 @@ setTimeout(_vrPfKick,1200);
       mapboxgl.accessToken=MAPBOX_TOKEN;
       mapboxgl.workerCount=Math.max(2,Math.min(4,navigator.hardwareConcurrency||2));
       mapboxgl.maxParallelImageRequests=16;
-      map=new mapboxgl.Map({container:'vipRideMap-ride_request_48wXbE',style:'mapbox://styles/mapbox/dark-v11',center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:45,bearing:-10,maxPitch:55,attributionControl:false,antialias:true,interactive:true,dragRotate:true,touchPitch:true,dragPan:true,scrollZoom:true,touchZoomRotate:true,doubleClickZoom:true,keyboard:false,cooperativeGestures:false,fadeDuration:450,useWebGL2:true,optimizeForTerrain:false,renderWorldCopies:false});
+      map=new mapboxgl.Map({container:'vipRideMap-ride_request_48wXbE',style:'mapbox://styles/mapbox/dark-v11',center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:0,bearing:0,maxPitch:0,attributionControl:false,antialias:true,interactive:true,dragRotate:true,touchPitch:true,dragPan:true,scrollZoom:true,touchZoomRotate:true,doubleClickZoom:true,keyboard:false,cooperativeGestures:false,fadeDuration:450,useWebGL2:true,optimizeForTerrain:false,renderWorldCopies:false});
       map.touchZoomRotate.enable({around:'center'});
       map.scrollZoom.setWheelZoomRate(1/200);
       map.scrollZoom.setZoomRate(1/200);
@@ -6404,7 +6418,7 @@ setTimeout(_vrPfKick,1200);
         var _hideSk=function(){var _mSk=root.querySelector('[data-vr-mapsk]');if(_mSk){_mSk.classList.add('is-hidden');setTimeout(function(){_mSk.remove&&_mSk.remove()},500);}};
         var _skT=setTimeout(_hideSk,4000);
         map.once('idle',function(){clearTimeout(_skT);_hideSk();});
-        setTimeout(function(){map.easeTo({pitch:52,bearing:-12,duration:1600,easing:function(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}})},400);
+        /* sin 3D: el mapa queda plano desde el inicio */
         /* Resume now that map is ready (works even if DOMContentLoaded resume already ran) */
         try{if(window.__vrCoreResume)window.__vrCoreResume();}catch(_){}
         try{if(window.__vrPrefillFromUrl)window.__vrPrefillFromUrl();}catch(_){}
@@ -6499,7 +6513,7 @@ setTimeout(_vrPfKick,1200);
         if(_lastGeoLat!==null&&Math.abs(lat-_lastGeoLat)<.0005&&Math.abs(lng-_lastGeoLng)<.0005) return;
         _lastGeoLat=lat;_lastGeoLng=lng;
         _gpsActive=true;
-        if(fly) map.easeTo({center:[lng,lat],zoom:16.5,pitch:50,bearing:-10,duration:1000,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+        if(fly) map.easeTo({center:[lng,lat],zoom:16.5,pitch:0,bearing:0,duration:1000,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
         setMarker('pickup', lat, lng);
         reverseGeocode(lat,lng,function(name){
           if(name&&!_pickupManuallySet){
@@ -7610,8 +7624,8 @@ setTimeout(_vrPfKick,1200);
         if(p2&&!_isRes)p2.classList.add('is-visible');
         if(map&&pickupPlace&&dropoffPlace){
           var _b=new mapboxgl.LngLatBounds();_b.extend([pickupPlace.lng,pickupPlace.lat]);_b.extend([dropoffPlace.lng,dropoffPlace.lat]);
-          var _cam=map.cameraForBounds(_b,{padding:{top:80,right:36,bottom:220,left:36},maxZoom:15.5,pitch:52,bearing:15});
-          if(_cam)map.flyTo({center:_cam.center,zoom:_cam.zoom,pitch:52,bearing:15,duration:1400,essential:true,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2}});
+          var _cam=map.cameraForBounds(_b,{padding:{top:80,right:36,bottom:220,left:36},maxZoom:15.5,pitch:0,bearing:0});
+          if(_cam)map.flyTo({center:_cam.center,zoom:_cam.zoom,pitch:0,bearing:0,duration:1400,essential:true,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2}});
         }
         if(typeof showMarkerLabels==='function')setTimeout(showMarkerLabels,600);
         if(bar2)bar2.style.width='100%';
@@ -7706,7 +7720,7 @@ setTimeout(_vrPfKick,1200);
       setTimeout(function(){
         try{
           var tgt=pickupPlace?[pickupPlace.lng,pickupPlace.lat]:(_lastGeoLng!==null?[_lastGeoLng,_lastGeoLat]:null);
-          if(tgt&&map) map.flyTo({center:tgt,zoom:16.5,pitch:50,bearing:-10,duration:1200,essential:true,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+          if(tgt&&map) map.flyTo({center:tgt,zoom:16.5,pitch:0,bearing:0,duration:1200,essential:true,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
           if(!pickupPlace){var _lb=root.querySelector('[data-vipride-locate-btn]')||root.querySelector('.vipRide__locateBtn');if(_lb)_lb.click();}
         }catch(_){}
       },300);
@@ -7913,7 +7927,7 @@ html body .vipRide__mapLabel{
   box-shadow:0 3px 10px rgba(0,0,0,.4);
 }
 html body .vipRide__mapLabel__tail{background:rgba(18,21,30,.92);border:1px solid rgba(255,255,255,.12)}
-html body .vipRide__mapLabel__eta{margin:0;border-radius:6px}
+html body .vipRide__mapLabel__eta{margin:0;border-radius:8px}
 
 /* overlay de pago → opciones clay */
 html body .vipRide__payOption{
