@@ -6073,9 +6073,9 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     setMapLabelsVisible(false);
     map.addSource('route',{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:coords}},lineMetrics:true});
     var _L={'line-cap':'round','line-join':'round'},_T=[0,1];
-    map.addLayer({id:'route-glow',type:'line',source:'route',layout:_L,paint:{'line-color':'#D4AF37','line-width':20,'line-opacity':.20,'line-blur':14,'line-trim-offset':_T}});
-    map.addLayer({id:'route-casing',type:'line',source:'route',layout:_L,paint:{'line-color':'#1a0f00','line-width':8,'line-opacity':.82,'line-trim-offset':_T}});
-    map.addLayer({id:'route-line',type:'line',source:'route',layout:_L,paint:{'line-width':5,'line-opacity':.98,'line-gradient':['interpolate',['linear'],['line-progress'],0,'#D4AF37',.5,'#FFD700',1,'#E8C547'],'line-trim-offset':_T}});
+    map.addLayer({id:'route-glow',type:'line',source:'route',layout:_L,paint:{'line-color':'#D4AF37','line-width':14,'line-opacity':.18,'line-blur':10,'line-trim-offset':_T}});
+    map.addLayer({id:'route-casing',type:'line',source:'route',layout:_L,paint:{'line-color':'#1a0f00','line-width':6,'line-opacity':.82,'line-trim-offset':_T}});
+    map.addLayer({id:'route-line',type:'line',source:'route',layout:_L,paint:{'line-width':3.5,'line-opacity':.98,'line-gradient':['interpolate',['linear'],['line-progress'],0,'#D4AF37',.5,'#FFD700',1,'#E8C547'],'line-trim-offset':_T}});
     var dur=1200,st=0;
     var prefersReduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
     if(prefersReduced){_rtLayers.forEach(function(id){if(map.getLayer(id))map.setPaintProperty(id,'line-trim-offset',[1,1],{validate:false});});return;}
@@ -6316,12 +6316,13 @@ setTimeout(_vrPfKick,1200);
     discountCents:500,   /* $5 más barato que Uber */
     floorCents:800,      /* nunca cobrar menos de $8 */
     tiers:Object.freeze({
-      /* calibrado 2026-08-11 con viaje real Pelham→Lorna Rd (4.2 mi/11 min):
-         UberX $13.94 · Comfort $20.97 · XL $23.97 */
-      STANDARD:Object.freeze({base:130,fee:255,perMile:160,perMin:30,min:950}),   /* ≈ UberX */
-      COMPACT: Object.freeze({base:230,fee:255,perMile:240,perMin:55,min:1300}),  /* ≈ Uber Comfort */
-      PREMIUM: Object.freeze({base:250,fee:255,perMile:275,perMin:67,min:1500}),  /* ≈ UberXL */
-      BLACK:   Object.freeze({base:900,fee:0,  perMile:420,perMin:70,min:3000})   /* ≈ Uber Black */
+      /* calibrado 2026-08-11 con DOS viajes reales de Uber:
+         4.2 mi/11 min → UberX 13.94 · Comfort 20.97 · XL 23.97
+         21.8 mi/30 min (aeropuerto BHM) → UberX 42.93 · XL 65.98 */
+      STANDARD:Object.freeze({base:253, fee:255,perMile:132,perMin:30,min:950}),   /* ≈ UberX */
+      COMPACT: Object.freeze({base:700, fee:255,perMile:167,perMin:40,min:1300}),  /* ≈ Uber Comfort */
+      PREMIUM: Object.freeze({base:800, fee:255,perMile:185,perMin:50,min:1500}),  /* ≈ UberXL */
+      BLACK:   Object.freeze({base:1229,fee:0,  perMile:319,perMin:73,min:3000})   /* ≈ Uber Black */
     })
   });
   function _vrTierRates(title){return _VR_PRICING.tiers[String(title||'').trim().toUpperCase()]||_VR_PRICING.tiers.STANDARD;}
@@ -6804,7 +6805,7 @@ setTimeout(_vrPfKick,1200);
       });
     }
     var laterOverlay=document.querySelector('[data-vipride-later-overlay]'),closeLaterBtn=document.querySelector('[data-vipride-close-later]'),segEl=root.querySelector('[data-vipride-seg]');
-    function openLaterOverlay(){if(!laterOverlay)return;_vrSheetHide('later');setNavBg('dark');if(window.__vrMorphOpen)window.__vrMorphOpen(laterOverlay);else{laterOverlay.removeAttribute('hidden');laterOverlay.classList.remove('is-closing');}}
+    function openLaterOverlay(){if(!laterOverlay)return;if(innerWidth>=1024)return;/* escritorio: sin página "Choose ride type"; el panel del cuadro se encarga */_vrSheetHide('later');setNavBg('dark');if(window.__vrMorphOpen)window.__vrMorphOpen(laterOverlay);else{laterOverlay.removeAttribute('hidden');laterOverlay.classList.remove('is-closing');}}
     function closeLaterOverlay(){
       if(!laterOverlay)return;
       setNavBg(null);_vrSheetShow('later');

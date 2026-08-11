@@ -347,9 +347,9 @@
             removeDemoLayers();
             map.addSource('route', { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coords } }, lineMetrics: true });
             var _L = { 'line-cap': 'round', 'line-join': 'round' }, LAYERS = ['route-glow', 'route-casing', 'route-line'];
-            map.addLayer({ id: 'route-glow', type: 'line', source: 'route', layout: _L, paint: { 'line-color': '#D4AF37', 'line-width': 20, 'line-opacity': .20, 'line-blur': 14, 'line-trim-offset': [0, 0] } });
-            map.addLayer({ id: 'route-casing', type: 'line', source: 'route', layout: _L, paint: { 'line-color': '#1a0f00', 'line-width': 8, 'line-opacity': .82, 'line-trim-offset': [0, 0] } });
-            map.addLayer({ id: 'route-line', type: 'line', source: 'route', layout: _L, paint: { 'line-width': 5, 'line-opacity': .98, 'line-gradient': ['interpolate', ['linear'], ['line-progress'], 0, '#D4AF37', .5, '#FFD700', 1, '#E8C547'], 'line-trim-offset': [0, 0] } });
+            map.addLayer({ id: 'route-glow', type: 'line', source: 'route', layout: _L, paint: { 'line-color': '#D4AF37', 'line-width': 14, 'line-opacity': .18, 'line-blur': 10, 'line-trim-offset': [0, 0] } });
+            map.addLayer({ id: 'route-casing', type: 'line', source: 'route', layout: _L, paint: { 'line-color': '#1a0f00', 'line-width': 6, 'line-opacity': .82, 'line-trim-offset': [0, 0] } });
+            map.addLayer({ id: 'route-line', type: 'line', source: 'route', layout: _L, paint: { 'line-width': 3.5, 'line-opacity': .98, 'line-gradient': ['interpolate', ['linear'], ['line-progress'], 0, '#D4AF37', .5, '#FFD700', 1, '#E8C547'], 'line-trim-offset': [0, 0] } });
             /* la ruta se dibuja de recogida a destino */
             var st = performance.now(), dur = 1800;
             map.repaint = true;
