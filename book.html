@@ -8528,6 +8528,50 @@ html body #vipMpFooterSugs{
   html body .vipRide .vipRide__rideDetail__price{
     font-size:28px!important; font-weight:800!important; color:#fff!important; margin-left:auto!important; white-space:nowrap!important;
   }
+
+  /* ---- programar recogida DENTRO del cuadro: la tarjeta muta al panel ----
+     El overlay deja de ser modal centrado: se coloca exactamente donde vive
+     la tarjeta y del mismo ancho; la hoja se desvanece debajo (cross-fade)
+     y el contenido del panel entra escalonado, sedoso, sin golpes. */
+  html body .vipRide__scheduleOverlay:not([hidden]){
+    position:fixed!important; inset:auto!important;
+    left:var(--vrd-gap)!important; top:var(--vrd-top)!important;
+    right:auto!important; bottom:auto!important;
+    width:var(--vrd-col)!important;
+    max-height:calc(100dvh - var(--vrd-top) - var(--vrd-gap))!important;
+    padding:0!important; background:transparent!important;
+    backdrop-filter:none!important; -webkit-backdrop-filter:none!important;
+    align-items:stretch!important; justify-content:flex-start!important;
+    flex-direction:column!important; overflow:visible!important;
+  }
+  html body .vipRide__scheduleOverlay .vipRide__schedPage{
+    width:100%!important; max-width:none!important; margin:0!important;
+    background:#1b1f27!important; border-radius:20px!important;
+    padding:24px 22px 26px!important;
+    box-shadow:0 18px 44px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.07)!important;
+    max-height:calc(100dvh - var(--vrd-top) - var(--vrd-gap))!important;
+    overflow-y:auto!important;
+  }
+  html body .vipRide .vipRide__sheet[data-vipride-sheet]{
+    transition:opacity .38s cubic-bezier(.22,1,.36,1), transform .38s cubic-bezier(.22,1,.36,1)!important;
+  }
+  html body .vipRide.vrd-sched-open .vipRide__sheet[data-vipride-sheet]{
+    opacity:0!important; transform:scale(.985) translateY(6px)!important; pointer-events:none!important;
+  }
+  html body .vipRide__scheduleOverlay{
+    transition:opacity .42s cubic-bezier(.22,1,.36,1), transform .42s cubic-bezier(.22,1,.36,1)!important;
+  }
+  html body .vipRide__scheduleOverlay.is-entering{
+    opacity:0!important; transform:scale(.985) translateY(8px)!important;
+  }
+  /* el contenido del panel aparece por bloques, de arriba hacia abajo */
+  html body .vipRide__scheduleOverlay:not([hidden]) .vipRide__schedPage:not([hidden])>*{
+    animation:vrdSchedItem .5s cubic-bezier(.22,1,.36,1) both;
+  }
+  html body .vipRide__scheduleOverlay:not([hidden]) .vipRide__schedPage:not([hidden])>*:nth-child(2){animation-delay:.07s}
+  html body .vipRide__scheduleOverlay:not([hidden]) .vipRide__schedPage:not([hidden])>*:nth-child(3){animation-delay:.14s}
+  html body .vipRide__scheduleOverlay:not([hidden]) .vipRide__schedPage:not([hidden])>*:nth-child(4){animation-delay:.21s}
+  @keyframes vrdSchedItem{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 }
 
 </style>
@@ -8679,10 +8723,18 @@ html body #vipMpFooterSugs{
 
     rows.querySelector('[data-vrd-when]').addEventListener('click', function (e) {
       e.preventDefault();
-      openMenu(this, [
-        { label: T.now, run: function () { var b = segBtn('now'); if (b) b.click(); setTimeout(syncWhen, 60); } },
-        { label: T.later, run: function () { var b = segBtn('later'); if (b) b.click(); setTimeout(syncWhen, 400); } }
-      ]);
+      var later = segBtn('later'), isLater = later && later.classList.contains('is-active');
+      if (isLater) {
+        /* ya hay horario programado: menú para volver a "ahora" o cambiarlo */
+        openMenu(this, [
+          { label: T.now, run: function () { var b = segBtn('now'); if (b) b.click(); setTimeout(syncWhen, 60); } },
+          { label: T.later, run: function () { var b = segBtn('later'); if (b) b.click(); setTimeout(syncWhen, 400); } }
+        ]);
+      } else {
+        /* directo al panel de programar: la tarjeta muta con el cross-fade */
+        if (later) later.click();
+        setTimeout(syncWhen, 400);
+      }
     });
 
     rows.querySelector('[data-vrd-who]').addEventListener('click', function (e) {
@@ -8772,6 +8824,20 @@ html body #vipMpFooterSugs{
   document.addEventListener('click', function (e) {
     if (e.target.closest && e.target.closest('[data-vipride-step1-next]')) setTimeout(reveal, 60);
   }, true);
+  /* la tarjeta se desvanece mientras el panel de programar ocupa su lugar */
+  (function () {
+    var ov = document.querySelector('[data-vipride-schedule-overlay]');
+    if (!ov) return;
+    function syncSched() {
+      var sec = document.querySelector('.vipRide');
+      if (!sec) return;
+      var open = mq.matches && !ov.hasAttribute('hidden');
+      sec.classList.toggle('vrd-sched-open', open);
+      if (!open) setTimeout(syncWhen, 80);
+    }
+    syncSched();
+    new MutationObserver(syncSched).observe(ov, { attributes: true, attributeFilter: ['hidden', 'class'] });
+  })();
   /* al volver al paso 1 el mapa se limpia otra vez */
   (function () {
     var sheet = document.querySelector('[data-vipride-sheet]');
