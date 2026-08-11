@@ -5886,20 +5886,26 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
             item.addEventListener('mousedown',function(e){e.preventDefault()});
             item.__vrSelect=function(){
               if(!sug.mapbox_id)return;
+              /* respuesta instantanea: la UI reacciona ya; la red se resuelve detras */
+              var name0=sug.full_address||sug.name||'';
+              if(name0)inputEl.value=name0;
+              container.style.display='none';
+              inputEl.blur();
+              if(currentStep===3)_setCardsLoading(true);
               fetch('https://api.mapbox.com/search/searchbox/v1/retrieve/'+encodeURIComponent(sug.mapbox_id)+'?access_token='+encodeURIComponent(MAPBOX_TOKEN)+'&session_token='+_acSessionToken).then(function(r){return r.json()}).then(function(rData){
                 if(rData.features&&rData.features[0]){
                   var feat=rData.features[0],coords=feat.geometry.coordinates,lng=coords[0],lat=coords[1];
                   var name=feat.properties.full_address||feat.properties.name||sug.full_address||sug.name;
                   var rc=feat.properties&&feat.properties.context&&feat.properties.context.region&&(feat.properties.context.region.region_code||feat.properties.context.region.region_code_full);
                   var st=rc?String(rc).toUpperCase().replace('US-',''):null;
-                  if(which==='pickup'&&st&&window.__vrSvcOk&&!window.__vrSvcOk(st)){container.style.display='none';window.__vrSvcBlockShow&&window.__vrSvcBlockShow(st,currentLang);return}
-                  inputEl.value=name;container.style.display='none';
+                  if(which==='pickup'&&st&&window.__vrSvcOk&&!window.__vrSvcOk(st)){_setCardsLoading(false);window.__vrSvcBlockShow&&window.__vrSvcBlockShow(st,currentLang);return}
+                  inputEl.value=name;
                   var obj={label:name,lat:lat,lng:lng};
                   if(which==='pickup')pickupPlace=obj;else if(which==='dropoff')dropoffPlace=obj;
-                  inputEl.blur();afterInputChange();setMarker(which,lat,lng);computeRoute();
+                  afterInputChange();setMarker(which,lat,lng);computeRoute();
                   _acSessionToken=crypto.randomUUID?crypto.randomUUID():(Date.now()+''+Math.random()).replace('.','');
-                }
-              }).catch(function(){});
+                }else{_setCardsLoading(false);}
+              }).catch(function(){_setCardsLoading(false);});
             };
             item.addEventListener('click',item.__vrSelect);
             container.appendChild(item);
@@ -5908,7 +5914,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
           positionSuggestions(container,inputEl);
           container.style.display='block';
         }).catch(function(){ container.style.display='none'; });
-      },300);
+      },180);
     });
     inputEl.addEventListener('keydown',function(e){var I=container.querySelectorAll('.vipRide__suggestion');if(!I.length||container.style.display==='none')return;if(e.key==='ArrowDown'){e.preventDefault();_sa((_ai+1)%I.length)}else if(e.key==='ArrowUp'){e.preventDefault();_sa((_ai-1+I.length)%I.length)}else if(e.key==='Enter'){e.preventDefault();var t=I[_ai>=0?_ai:0];if(t&&t.__vrSelect)t.__vrSelect()}else if(e.key==='Escape')container.style.display='none'});
     inputEl.addEventListener('focus',function(){if(container.children.length){positionSuggestions(container,inputEl);container.style.display='block'}});
