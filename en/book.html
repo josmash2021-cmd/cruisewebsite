@@ -4865,7 +4865,8 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__label{font-size:var(--fs-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(212,175,55,.75)!important;overflow:visible;white-space:nowrap}
 .vipRide__inputWrap{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);border-radius:var(--radius-sm);padding:clamp(8px,2.5vw,11px) 10px;position:relative;transition:border-color 200ms,background 200ms;min-height:44px;overflow:visible}
 .vipRide__inputWrap:focus-within{border-color:rgba(212,175,55,.55)!important;background:rgba(212,175,55,.06)!important}
-.vipRide__inputIcon{color:#fff;opacity:.9;flex-shrink:0;font-size:11px}
+.vipRide__inputIcon{font-size:0;width:15px;height:15px;box-sizing:border-box;border-radius:50%;border:3px solid #d4af37;background:transparent;flex:0 0 15px;position:relative;opacity:1}
+[data-vipride-dropoff-field] .vipRide__inputIcon::after{content:'';position:absolute;left:50%;top:50%;width:5px;height:5px;border-radius:50%;background:#d4af37;transform:translate(-50%,-50%)}
 .vipRide__input{flex:1;min-width:0;border:0;outline:none;background:transparent!important;font-size:var(--fs-md);color:#fff!important;-webkit-appearance:none;appearance:none}
 .vipRide__input::placeholder{color:rgba(255,255,255,.45)!important;font-size:var(--fs-sm)}
 .vipRide__input:focus{outline:none!important;font-size:var(--fs-md)!important}
@@ -7938,7 +7939,7 @@ html body #vipMpFooterSugs{
     background:rgba(255,255,255,.09)!important;
     box-shadow:inset 0 0 0 1.5px rgba(212,175,55,.5)!important;
   }
-  html body .vipRide .vipRide__sheet .vipRide__inputIcon{ color:#fff!important; font-size:10px!important }
+  html body .vipRide .vipRide__sheet .vipRide__inputIcon{ font-size:0!important }
   html body .vipRide .vipRide__sheet .vipRide__input{ font-size:15px!important; color:#fff!important }
 
   /* filas de horario y de "para quién" (las crea DESK_JS) */
