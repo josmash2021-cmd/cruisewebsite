@@ -6677,22 +6677,43 @@ setTimeout(_vrPfKick,1200);
             try{var c=map.getCenter();cc=[c.lng,c.lat];b=map.getBounds();vw=fDist([b.getWest(),c.lat],[b.getEast(),c.lat]);}catch(_){cc=fCenter;}
             /* preferir puntos del banco visibles en pantalla */
             var avail=b?fPool.filter(function(x){return b.contains(x.p);}):fPool.slice();
-            var sep=vw?Math.min(800,vw*0.12):800;
+            /* bien repartidos: nunca juntos — distancia mínima según el tamaño
+               de pantalla Y ángulos distintos alrededor del centro (cada coche
+               en una zona diferente) */
             var chosen=[],tries=0;
-            while(chosen.length<n&&tries<80&&avail.length){
+            var sep=vw?Math.max(1200,Math.min(11000,vw*(n>=4?0.13:0.17))):1200;
+            var minAng=(Math.PI*2/n)*0.55; /* n=2:≈99°, n=3:≈66°, n=4:≈50° */
+            var angOf=function(p){return Math.atan2(p[1]-cc[1],p[0]-cc[0]);};
+            var angDiff=function(x,y){var d=Math.abs(x-y)%(Math.PI*2);return d>Math.PI?Math.PI*2-d:d;};
+            var farEnough=function(cand,useAng){
+              for(var i=0;i<chosen.length;i++){
+                if(fDist(chosen[i].p,cand.p)<sep)return false;
+                if(useAng&&angDiff(angOf(chosen[i].p),angOf(cand.p))<minAng)return false;
+              }
+              return true;
+            };
+            while(chosen.length<n&&tries<120&&avail.length){
               tries++;
               var cand=avail[Math.floor(Math.random()*avail.length)];
-              var ok=true;
-              for(var i=0;i<chosen.length;i++)if(fDist(chosen[i].p,cand.p)<sep){ok=false;break;}
-              if(ok)chosen.push(cand);
+              if(farEnough(cand,true))chosen.push(cand);
+            }
+            /* si no alcanzó con zonas distintas, relajar: solo exigir distancia */
+            tries=0;
+            while(chosen.length<n&&tries<120&&avail.length){
+              tries++;
+              var cand2=avail[Math.floor(Math.random()*avail.length)];
+              if(farEnough(cand2,false))chosen.push(cand2);
             }
             /* si el mapa está muy acercado y el anillo queda fuera, colocarlos
-               dentro del encuadre para que siempre se vean */
+               dentro del encuadre, igual de separados entre sí */
             if(b&&chosen.length<n){
               var hw=(b.getEast()-b.getWest())/2,hh=(b.getNorth()-b.getSouth())/2;
-              while(chosen.length<n){
+              var guard=0;
+              while(chosen.length<n&&guard<200){
+                guard++;
                 var a2=Math.random()*Math.PI*2,r2=0.35+0.45*Math.random();
-                chosen.push({p:[cc[0]+Math.cos(a2)*hw*r2,cc[1]+Math.sin(a2)*hh*r2],brg:Math.random()*360});
+                var cand3={p:[cc[0]+Math.cos(a2)*hw*r2,cc[1]+Math.sin(a2)*hh*r2],brg:Math.random()*360};
+                if(guard>120||farEnough(cand3,true))chosen.push(cand3);
               }
             }
             chosen.forEach(function(x,i){
