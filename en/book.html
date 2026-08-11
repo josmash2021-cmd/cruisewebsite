@@ -4015,10 +4015,10 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
   #vrDeskBarRide .vrdbr__detailMeta{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.65);font-weight:600}
   #vrDeskBarRide .vrdbr__detailSep{color:rgba(255,255,255,.3)}
   #vrDeskBarRide .vrdbr__detailPrice{font-size:18px;font-weight:800;background:linear-gradient(135deg,#f5f5f5,#c8c8c8 45%,#9a9a9a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#c8c8c8}
-  #vrDeskBarRide .vrdbr__actions{display:flex;flex-direction:column;gap:8px;margin-top:4px}
-  #vrDeskBarRide .vrdbr__payBtn{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:background 160ms}
+  #vrDeskBarRide .vrdbr__actions{display:flex;flex-direction:row;align-items:stretch;gap:10px;margin-top:4px}
+  #vrDeskBarRide .vrdbr__payBtn{flex:1 1 50%;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:background 160ms}
   #vrDeskBarRide .vrdbr__payBtn:hover{background:rgba(255,255,255,.09)}
-  #vrDeskBarRide .vrdbr__reqBtn{width:100%;padding:14px 22px;border-radius:12px;border:none;background:linear-gradient(135deg,#F5DC7A,#E8C547,#D4A800);color:#0a0e1a;font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:opacity 160ms,transform 140ms;box-shadow:0 4px 18px rgba(232,197,71,.3)}
+  #vrDeskBarRide .vrdbr__reqBtn{flex:1 1 50%;min-width:0;white-space:nowrap;padding:14px 22px;border-radius:12px;border:none;background:linear-gradient(135deg,#F5DC7A,#E8C547,#D4A800);color:#0a0e1a;font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:opacity 160ms,transform 140ms;box-shadow:0 4px 18px rgba(232,197,71,.3)}
   #vrDeskBarRide .vrdbr__reqBtn:disabled{opacity:.4;cursor:not-allowed}
   #vrDeskBarRide .vrdbr__reqBtn:not(:disabled):hover{transform:translateY(-1px)}
 }
@@ -4934,15 +4934,16 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__detailPill__icon{width:18px;height:18px;color:#E8C547;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .vipRide__detailPill__icon svg{width:100%;height:100%}
 .vipRide__rideDetail__price{font-size:clamp(24px,5.5vw,32px);font-weight:800;color:#fff;margin-left:auto;white-space:nowrap}
-.vipRide__actionBtns{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.vipRide__actionBtns{margin-top:12px;display:flex;flex-direction:row;align-items:stretch;gap:10px}
 .vipRide__actionBtns>*{opacity:0;animation:vipFB .6s cubic-bezier(.4,0,.2,1) .25s forwards}
 .vipRide__actionBtns>:nth-child(2){animation-delay:.4s}
 @keyframes vipFB{0%{transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .vipRide__actionBtns[hidden]{display:none!important}
-.vipRide__paymentBtn{width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:background 150ms}
+.vipRide__paymentBtn{flex:1 1 50%;min-width:0;display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:background 150ms}
 .vipRide__payBtnLabel{flex:1;text-align:left}
 .vipRide__paymentBtn:active{background:rgba(255,255,255,.1)}
-.vipRide__requestBtn{width:100%;padding:16px;background:#E8C547;border:none;border-radius:12px;font-size:16px;font-weight:800;color:#0a0e1a;text-align:center;cursor:pointer;touch-action:manipulation;transition:opacity 150ms,transform 120ms;box-shadow:0 2px 8px rgba(232,197,71,.25),0 6px 20px rgba(0,0,0,.2)}
+.vipRide__payBtnLabel{flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vipRide__requestBtn{flex:1 1 50%;min-width:0;padding:16px;background:#E8C547;border:none;border-radius:12px;font-size:16px;font-weight:800;color:#0a0e1a;text-align:center;cursor:pointer;touch-action:manipulation;transition:opacity 150ms,transform 120ms;box-shadow:0 2px 8px rgba(232,197,71,.25),0 6px 20px rgba(0,0,0,.2)}
 .vipRide__requestBtn:active:not(:disabled){transform:scale(.97)}
 .vipRide__requestBtn:disabled{opacity:.35;cursor:not-allowed}
 .vipRide__payOverlay{position:fixed;inset:0;z-index:99999;background:#050505;display:flex!important;flex-direction:column;padding-top:0!important;opacity:1;transform:translateY(0) scale(1);transition:opacity 380ms cubic-bezier(.33,1,.68,1),transform 380ms cubic-bezier(.33,1,.68,1);will-change:opacity,transform;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -1px 0 rgba(255,255,255,.02),inset 0 0 140px rgba(0,0,0,.6);isolation:isolate;overflow:hidden;scrollbar-width:none;-ms-overflow-style:none}
