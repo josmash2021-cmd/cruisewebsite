@@ -6265,10 +6265,12 @@ setTimeout(_vrPfKick,1200);
     discountCents:500,   /* $5 más barato que Uber */
     floorCents:800,      /* nunca cobrar menos de $8 */
     tiers:Object.freeze({
-      STANDARD:Object.freeze({base:130,fee:255,perMile:95, perMin:17,min:755}),   /* ≈ UberX */
-      COMPACT: Object.freeze({base:200,fee:255,perMile:130,perMin:25,min:1000}),  /* ≈ Uber Comfort */
-      PREMIUM: Object.freeze({base:250,fee:255,perMile:175,perMin:30,min:1200}),  /* ≈ UberXL */
-      BLACK:   Object.freeze({base:775,fee:0,  perMile:370,perMin:55,min:2500})   /* ≈ Uber Black */
+      /* calibrado 2026-08-11 con viaje real Pelham→Lorna Rd (4.2 mi/11 min):
+         UberX $13.94 · Comfort $20.97 · XL $23.97 */
+      STANDARD:Object.freeze({base:130,fee:255,perMile:160,perMin:30,min:950}),   /* ≈ UberX */
+      COMPACT: Object.freeze({base:230,fee:255,perMile:240,perMin:55,min:1300}),  /* ≈ Uber Comfort */
+      PREMIUM: Object.freeze({base:250,fee:255,perMile:275,perMin:67,min:1500}),  /* ≈ UberXL */
+      BLACK:   Object.freeze({base:900,fee:0,  perMile:420,perMin:70,min:3000})   /* ≈ Uber Black */
     })
   });
   function _vrTierRates(title){return _VR_PRICING.tiers[String(title||'').trim().toUpperCase()]||_VR_PRICING.tiers.STANDARD;}
