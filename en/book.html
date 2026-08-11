@@ -4902,7 +4902,7 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__prices{margin-top:0}
 .vipRide__pricesHeader{margin-bottom:8px;text-align:center}
 .vipRide__pricesTitle{display:block;font-family:'Poppins',sans-serif;font-size:clamp(28px,7vw,38px);font-weight:800;color:#fff!important;letter-spacing:-.03em;text-align:center;width:100%}
-.vipRide__rideList{display:flex!important;flex-direction:column;gap:14px}
+.vipRide__rideList{display:flex!important;flex-direction:column;gap:6px}
 .vipRide__rideCard{-webkit-appearance:none;appearance:none;display:flex!important;flex-direction:row;align-items:center;justify-content:flex-start;gap:18px;width:100%!important;padding:22px 24px!important;border:1px solid rgba(255,255,255,.08);border-radius:22px;background:rgba(255,255,255,.02)!important;cursor:pointer;text-align:left;color:#fff;transition:transform 200ms cubic-bezier(0,0,.2,1),border-color 200ms,background 200ms;touch-action:manipulation;position:relative;overflow:hidden;backface-visibility:hidden;transform:translateZ(0)}
 .vipRide__rideCard *{color:#fff;text-shadow:none!important}
 @media(hover:hover) and (pointer:fine){.vipRide__rideCard:hover{transform:translateY(-2px) translateZ(0);border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.04)!important}}
@@ -5941,8 +5941,9 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       if(t<1)requestAnimationFrame(tick);else map.repaint=false;
     }
     function startDraw(){st=performance.now();map.repaint=true;requestAnimationFrame(tick);}
-    /* la ruta se dibuja cuando la camara termina de encuadrar, no durante el vuelo */
-    if(window.__vrFlying||(map.isMoving&&map.isMoving())){map.once('moveend',startDraw);}else{startDraw();}
+    /* la ruta se dibuja cuando la camara termino de encuadrar y las teselas ya cargaron */
+    function armDraw(){if(map.areTilesLoaded&&!map.areTilesLoaded()){map.once('idle',startDraw);}else{startDraw();}}
+    if(window.__vrFlying||(map.isMoving&&map.isMoving())){map.once('moveend',armDraw);}else{armDraw();}
   }
   function _vrSheetHeight(){
     if(innerWidth>=900){
@@ -6260,7 +6261,7 @@ setTimeout(_vrPfKick,1200);
       mapboxgl.accessToken=MAPBOX_TOKEN;
       mapboxgl.workerCount=Math.max(2,Math.min(4,navigator.hardwareConcurrency||2));
       mapboxgl.maxParallelImageRequests=16;
-      map=new mapboxgl.Map({container:'vipRideMap-ride_request_48wXbE',style:'mapbox://styles/mapbox/dark-v11',center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:45,bearing:-10,maxPitch:55,attributionControl:false,antialias:true,interactive:true,dragRotate:true,touchPitch:true,dragPan:true,scrollZoom:true,touchZoomRotate:true,doubleClickZoom:true,keyboard:false,cooperativeGestures:false,fadeDuration:0,useWebGL2:true,optimizeForTerrain:false,renderWorldCopies:false});
+      map=new mapboxgl.Map({container:'vipRideMap-ride_request_48wXbE',style:'mapbox://styles/mapbox/dark-v11',center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:45,bearing:-10,maxPitch:55,attributionControl:false,antialias:true,interactive:true,dragRotate:true,touchPitch:true,dragPan:true,scrollZoom:true,touchZoomRotate:true,doubleClickZoom:true,keyboard:false,cooperativeGestures:false,fadeDuration:450,useWebGL2:true,optimizeForTerrain:false,renderWorldCopies:false});
       map.addControl(new mapboxgl.AttributionControl({compact:true}),'bottom-left');
       map.touchZoomRotate.enable({around:'center'});
       map.scrollZoom.setWheelZoomRate(1/200);
@@ -7631,12 +7632,13 @@ html body .vipRide__compactPill.is-active{
 
 /* tarjetas de vehículo → relieve clay */
 html body .vipRide__rideCard,#vrDeskBarRide .vipRide__rideCard{
-  background:#262b35!important;border:none;border-radius:18px;
-  box-shadow:inset 1px 1px 3px rgba(255,255,255,.09),inset -4px -4px 8px rgba(0,0,0,.35),6px 8px 16px rgba(0,0,0,.38);
+  background:transparent!important;border:none;border-radius:18px;
+  box-shadow:none;
 }
+html body .vipRide__rideCard+.vipRide__rideCard{border-top:1px solid rgba(255,255,255,.1)}
 html body .vipRide__rideCard.is-active,#vrDeskBarRide .vipRide__rideCard.is-active{
-  background:#262b35!important;border:none!important;outline:none;
-  box-shadow:inset 4px 4px 8px rgba(0,0,0,.45),inset -2px -2px 5px rgba(255,255,255,.05),inset 0 0 0 1.5px rgba(212,175,55,.55)!important;
+  background:transparent!important;border:none!important;outline:none;
+  box-shadow:inset 0 0 0 1.5px rgba(212,175,55,.7)!important;
 }
 
 /* overlays a pantalla completa → fondo clay */
@@ -7906,6 +7908,7 @@ html body #vipMpFooterSugs{
      mueve dentro del formulario (ver DESK_JS). */
   html body .vipRide .vipRide__handle,
   html body .vipRide .vipRide__stepDots,
+  html body .vipRide .vipRide__mapBackBtn,
   html body .vipRide .vipRide__compactCard{ display:none!important }
   html body .vipRide .vipRide__sheet .vipRide__step1Full{ display:block!important }
 
@@ -8035,22 +8038,25 @@ html body #vipMpFooterSugs{
 
   /* "Choose a ride": mismo diseño de tarjeta horizontal en escritorio */
   html body .vipRide .vipRide__rideList{
-    display:flex!important; flex-direction:column!important; gap:14px!important;
+    display:flex!important; flex-direction:column!important; gap:2px!important;
   }
   html body .vipRide .vipRide__rideCard{
     flex-direction:row!important; align-items:center!important;
     justify-content:flex-start!important; text-align:left!important;
     gap:18px!important; padding:16px 20px!important; min-height:132px!important;
-    background:rgba(255,255,255,.02)!important; border:1px solid rgba(255,255,255,.08)!important; border-radius:22px!important;
+    background:transparent!important; border:1px solid transparent!important; border-radius:18px!important;
     box-shadow:none!important;
     transition:transform 200ms,border-color 200ms,background 200ms!important;
   }
+  html body .vipRide .vipRide__rideCard+.vipRide__rideCard{
+    border-top-color:rgba(255,255,255,.1)!important;
+  }
   html body .vipRide .vipRide__rideCard:hover{
-    transform:translateY(-2px)!important; border-color:rgba(255,255,255,.15)!important; background:rgba(255,255,255,.04)!important;
+    transform:translateY(-2px)!important; background:rgba(255,255,255,.03)!important;
   }
   html body .vipRide .vipRide__rideCard.is-active{
-    border-color:rgba(232,197,71,.7)!important; background:rgba(232,197,71,.08)!important;
-    box-shadow:inset 0 0 0 1.5px rgba(212,175,55,.55)!important; outline:none!important;
+    border-color:rgba(232,197,71,.8)!important; background:transparent!important;
+    box-shadow:none!important; outline:none!important;
   }
   html body .vipRide .vipRide__rideCard .vipRide__rideImg{
     flex:0 0 130px!important; width:130px!important;
