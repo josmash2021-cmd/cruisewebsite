@@ -228,7 +228,9 @@
   .cruise-auth__otp-digit{width:56px;height:64px;text-align:center;font-size:24px;border:1.5px solid rgba(255,255,255,.2);border-radius:12px;background:#17191f;color:#fff;}
   .cruise-auth__otp-digit:focus{border-color:#d4af37;outline:none;}
   .cruise-auth__otp-actions{display:flex;flex-direction:column;gap:10px;align-items:flex-start;margin-top:18px;}
-  .cruise-auth__link--text{background:transparent;border:none;color:rgba(255,255,255,.7);font-size:13px;padding:0;text-decoration:underline;cursor:pointer;font-family:inherit;}
+  .cruise-auth__link--text{background:transparent;border:none;box-shadow:none;width:auto;text-align:left;margin-top:0;color:rgba(255,255,255,.7);font-size:13px;font-weight:600;padding:0;text-decoration:underline;cursor:pointer;font-family:inherit;}
+  .cruise-auth__link--text:hover:not(:disabled){color:#f5d77a;}
+  .cruise-auth__link--text:disabled{opacity:.45;cursor:default;}
   .cruise-auth__nav-btns{display:flex;justify-content:space-between;margin-top:28px;}
   .cruise-auth__nav-btn{width:48px;height:48px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;background:#262b35;color:#fff;cursor:pointer;}
   .cruise-auth__nav-btn--next{width:auto;padding:0 22px;border-radius:999px;gap:6px;}
@@ -237,6 +239,62 @@
   .cruise-auth__eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:rgba(255,255,255,.55);cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;}
   .cruise-auth__btn--social,.cruise-auth__btn--qr{background:#262b35;color:#fff;border:none;border-radius:18px;gap:10px;}
   .cruise-auth__pw-actions{display:flex;flex-direction:column;gap:10px;align-items:flex-start;margin-top:18px;}
+
+  /* ── Hoja "Más opciones" (misma estructura que Uber, colores de la marca) ── */
+  .ca-sheet{position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(0,0,0,.66);}
+  .ca-sheet.is-open{display:flex;}
+  .ca-sheet__box{width:100%;max-width:400px;background:#20242d;border-radius:22px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.6),inset 0 0 0 1px rgba(212,175,55,.14);animation:caSheetIn 260ms var(--ca-ease) both;}
+  @keyframes caSheetIn{from{opacity:0;transform:translateY(18px) scale(.97);}to{opacity:1;transform:none;}}
+  .ca-sheet__head{position:relative;display:flex;align-items:center;justify-content:center;padding:18px 52px;border-bottom:1px solid rgba(255,255,255,.09);}
+  .ca-sheet__title{margin:0;font-size:16px;font-weight:600;color:#fff;text-align:center;letter-spacing:-.2px;}
+  .ca-sheet__close{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:#fff;cursor:pointer;padding:8px;display:flex;align-items:center;justify-content:center;}
+  .ca-sheet__body{padding:6px 0 4px;max-height:min(56vh,440px);overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .ca-sheet__body::-webkit-scrollbar{width:0;}
+  .cruise-auth__otp-change{margin:2px 0 8px;text-align:center;}
+  .ca-sheet__section{margin:16px 24px 6px;font-size:17px;font-weight:800;color:#fff;letter-spacing:-.2px;}
+  .ca-sheet__opt{display:flex;align-items:center;gap:16px;width:100%;text-align:left;background:transparent;border:none;padding:16px 24px;font-family:inherit;font-size:15px;font-weight:600;color:#eceef2;cursor:pointer;transition:background 160ms;}
+  .ca-sheet__opt+.ca-sheet__opt{box-shadow:inset 0 1px 0 rgba(255,255,255,.07);}
+  .ca-sheet__opt:hover:not(:disabled){background:rgba(255,255,255,.05);}
+  .ca-sheet__opt:disabled{opacity:.42;cursor:default;}
+  .ca-sheet__opt svg{flex-shrink:0;color:#f5d77a;}
+  .ca-sheet__opt span{flex:1;min-width:0;}
+  .ca-sheet__foot{border-top:1px solid rgba(255,255,255,.09);}
+  .ca-sheet__foot .ca-sheet__opt{font-weight:700;box-shadow:none;}
+  .ca-sheet__chev{flex:0 0 auto;color:rgba(255,255,255,.5);font-size:18px;}
+
+  /* etiquetas encima de los campos */
+  .cruise-auth__label{display:block;margin:14px 4px 6px;font-size:13px;font-weight:600;color:#eceef2;text-align:left;}
+
+  /* pantalla de términos */
+  .cruise-auth__legal{margin:18px 0 0;font-size:14px;line-height:1.6;color:var(--ca-muted);text-align:left;}
+  .cruise-auth__legal+.cruise-auth__legal{margin-top:14px;}
+  .cruise-auth__legal a,.cruise-auth__legal button{background:none;border:none;padding:0;font:inherit;color:#f5d77a;text-decoration:underline;cursor:pointer;}
+  .cruise-auth__agree{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin-top:26px;padding:18px 20px;background:#262b35;border:none;border-radius:18px;font-family:inherit;font-size:15px;font-weight:700;color:#eceef2;cursor:pointer;box-shadow:inset 1px 1px 3px rgba(255,255,255,.09),inset -4px -4px 8px rgba(0,0,0,.35);}
+  .cruise-auth__agree-box{flex:0 0 auto;width:26px;height:26px;border-radius:7px;border:2px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;transition:border-color 180ms,background 180ms;}
+  .cruise-auth__agree-box svg{opacity:0;transition:opacity 160ms;}
+  .cruise-auth__agree.is-checked .cruise-auth__agree-box{border-color:#d4af37;background:#d4af37;}
+  .cruise-auth__agree.is-checked .cruise-auth__agree-box svg{opacity:1;color:#241c05;}
+
+  /* tarjetas de elección (método de autenticación) */
+  .cruise-auth__choice{display:block;width:100%;text-align:left;margin-top:14px;padding:18px 20px;background:#262b35;border:none;border-radius:18px;font-family:inherit;color:#eceef2;cursor:pointer;box-shadow:inset 1px 1px 3px rgba(255,255,255,.09),inset -4px -4px 8px rgba(0,0,0,.35);transition:box-shadow 200ms;}
+  .cruise-auth__choice.is-selected{box-shadow:inset 0 0 0 2px #d4af37,inset -4px -4px 8px rgba(0,0,0,.35);}
+  .cruise-auth__choice-head{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:15px;font-weight:800;color:#fff;}
+  .cruise-auth__choice-desc{margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--ca-muted);}
+  .cruise-auth__choice-rec{display:block;margin-top:2px;color:#f5d77a;font-weight:700;}
+  .cruise-auth__radio{flex:0 0 auto;width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;}
+  .cruise-auth__radio::after{content:"";width:9px;height:9px;border-radius:50%;background:#d4af37;opacity:0;transition:opacity 160ms;}
+  .cruise-auth__choice.is-selected .cruise-auth__radio{border-color:#d4af37;}
+  .cruise-auth__choice.is-selected .cruise-auth__radio::after{opacity:1;}
+
+  /* fila país + número */
+  .cruise-auth__phone-row{display:flex;gap:10px;align-items:stretch;}
+  .cruise-auth__phone-row .cruise-auth__input{flex:1;margin-bottom:0;}
+  .cruise-auth__cc{flex:0 0 auto;background:#17191f;border:none;border-radius:18px;padding:14px 12px;color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;box-shadow:inset 6px 6px 12px rgba(0,0,0,.48),inset -3px -3px 8px rgba(255,255,255,.05);}
+  .cruise-auth__hint{margin:8px 4px 0;font-size:12px;color:var(--ca-muted);text-align:left;}
+
+  /* pastilla gris de ancho automático (botón "Más opciones") */
+  .cruise-auth__pill{display:inline-flex;align-items:center;justify-content:center;width:auto;background:#262b35;border:none;border-radius:999px;padding:12px 20px;font-family:inherit;font-size:14px;font-weight:700;color:#eceef2;cursor:pointer;box-shadow:inset 1px 1px 3px rgba(255,255,255,.09),inset -4px -4px 8px rgba(0,0,0,.35),6px 8px 16px rgba(0,0,0,.38);transition:transform 180ms var(--ca-ease);}
+  .cruise-auth__pill:active{transform:scale(.97);}
 
   /* ── Static-site adaptations (Shopify rules removed) ── */
   .auth-main{padding-top:66px;background:#17191f;}
@@ -326,7 +384,7 @@
     background:#262b35;
     box-shadow:inset 4px 4px 8px rgba(0,0,0,.45),inset -2px -2px 5px rgba(255,255,255,.05);
   }
-  .cruise-auth__btn--ghost,.cruise-auth__btn--outline,.cruise-auth__link{
+  .cruise-auth__btn--ghost,.cruise-auth__btn--outline,.cruise-auth__link:not(.cruise-auth__link--text){
     background:#262b35;
     border:none;
     color:#f5d77a;
@@ -441,7 +499,7 @@
           <input type="text" data-ca-id-input placeholder="Ingresa tu teléfono o correo" autocomplete="username">
         </div>
         <button type="button" class="cruise-auth__btn cruise-auth__btn--primary" data-ca-id-continue disabled>Continuar</button>
-        <div class="cruise-auth__divider"><span>or</span></div>
+        <div class="cruise-auth__divider"><span>o</span></div>
         <button type="button" class="cruise-auth__btn cruise-auth__btn--social" data-ca-id-google>
           <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0012 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A11 11 0 001 12c0 1.77.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
           Continuar con Google
@@ -450,7 +508,7 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
           Continuar con Apple
         </button>
-        <div class="cruise-auth__divider"><span>or</span></div>
+        <div class="cruise-auth__divider"><span>o</span></div>
         <button type="button" class="cruise-auth__btn cruise-auth__btn--qr" data-ca-id-qr>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
           Iniciar sesión con código QR
@@ -467,6 +525,9 @@
         </button>
         <h1 class="cruise-auth__heading" data-ca-otp-title>Ingresa el código de 4 dígitos</h1>
         <p class="cruise-auth__heading-sub" data-ca-otp-sub></p>
+        <div class="cruise-auth__otp-change">
+          <button type="button" class="cruise-auth__link cruise-auth__link--text" data-ca-otp-change>¿Cambiaste tu número de móvil?</button>
+        </div>
         <p class="cruise-auth__heading-tip" data-ca-otp-tip></p>
         <div class="cruise-auth__otp">
           <input type="text" inputmode="numeric" maxlength="1" class="cruise-auth__otp-digit" data-ca-otp-digit aria-label="Digit 1">
@@ -476,15 +537,13 @@
         </div>
         <div class="cruise-auth__err" data-ca-otp-err></div>
         <div class="cruise-auth__otp-actions">
-          <button type="button" class="cruise-auth__link cruise-auth__link--text" data-ca-otp-change>¿Cambiaste tu número de móvil?</button>
-          <button type="button" class="cruise-auth__link cruise-auth__link--text" data-ca-otp-resend disabled><span data-ca-otp-resend-text>Resend code</span> <span data-ca-otp-timer>(0:30)</span></button>
-          <button type="button" class="cruise-auth__link cruise-auth__link--text" data-ca-otp-options>Más opciones</button>
+          <button type="button" class="cruise-auth__pill" data-ca-otp-options>Más opciones</button>
         </div>
         <div class="cruise-auth__nav-btns">
           <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--back" data-ca-otp-back2 aria-label="Volver">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           </button>
-          <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--next" data-ca-otp-next disabled>Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+          <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--next" data-ca-otp-next>Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
         </div>
       </div>
     </section>
@@ -523,19 +582,115 @@
         <button type="button" class="cruise-auth__back" data-ca-reg-back aria-label="Volver">
           <svg width="16" height="12" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
         </button>
-        <h1 class="cruise-auth__heading">Crea tu cuenta</h1>
-        <p class="cruise-auth__heading-sub">Ingresa tu nombre y crea una contraseña.</p>
+        <h1 class="cruise-auth__heading">¿Cuál es tu nombre?</h1>
+        <p class="cruise-auth__heading-sub">Dinos cómo dirigirnos a ti.</p>
+        <label class="cruise-auth__label" for="caRegFn">Nombre</label>
         <div class="cruise-auth__input">
-          <input type="text" data-ca-reg-fn placeholder="Nombre" autocomplete="given-name">
+          <input id="caRegFn" type="text" data-ca-reg-fn placeholder="Ingresa tu nombre" autocomplete="given-name">
         </div>
+        <label class="cruise-auth__label" for="caRegLn">Apellidos</label>
         <div class="cruise-auth__input">
-          <input type="text" data-ca-reg-ln placeholder="Apellidos" autocomplete="family-name">
+          <input id="caRegLn" type="text" data-ca-reg-ln placeholder="Ingresa tus apellidos" autocomplete="family-name">
         </div>
+        <label class="cruise-auth__label" for="caRegPw">Contraseña</label>
         <div class="cruise-auth__input cruise-auth__input--password">
-          <input type="password" data-ca-reg-pw placeholder="Contraseña" autocomplete="new-password">
+          <input id="caRegPw" type="password" data-ca-reg-pw placeholder="Mínimo 6 caracteres" autocomplete="new-password">
         </div>
         <div class="cruise-auth__err" data-ca-reg-err></div>
-        <button type="button" class="cruise-auth__btn cruise-auth__btn--primary" data-ca-reg-submit disabled>Crear cuenta</button>
+        <p class="cruise-auth__terms">Al continuar, aceptas recibir llamadas, mensajes de WhatsApp y SMS de CruiseInRide y sus afiliados, incluidos los automatizados. Pueden aplicar tarifas de mensajes y datos.</p>
+        <div class="cruise-auth__nav-btns">
+          <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--back" data-ca-reg-back2 aria-label="Volver">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--next" data-ca-reg-submit>Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════ TÉRMINOS ═══════════════════════════════════ -->
+    <section class="cruise-auth__screen cruise-auth__form-screen" data-ca-screen="terms">
+      <div class="cruise-auth__form-card">
+        <button type="button" class="cruise-auth__back" data-ca-terms-back aria-label="Volver">
+          <svg width="16" height="12" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+        </button>
+        <h1 class="cruise-auth__heading" data-ca-terms-title>Acepta los Términos de CruiseInRide y revisa el Aviso de Privacidad</h1>
+        <p class="cruise-auth__legal" data-ca-terms-body></p>
+        <p class="cruise-auth__legal">
+          <span data-ca-terms-switch-q>¿Eres menor de 18 años?</span>
+          <button type="button" data-ca-terms-switch>Haz clic aquí</button>
+        </p>
+        <button type="button" class="cruise-auth__agree" data-ca-terms-agree aria-pressed="false">
+          <span>Acepto</span>
+          <span class="cruise-auth__agree-box"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+        </button>
+        <div class="cruise-auth__nav-btns">
+          <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--back" data-ca-terms-back2 aria-label="Volver">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--next" data-ca-terms-next disabled>Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════ SEGURIDAD ═══════════════════════════════════ -->
+    <section class="cruise-auth__screen cruise-auth__form-screen" data-ca-screen="security">
+      <div class="cruise-auth__form-card">
+        <button type="button" class="cruise-auth__back" data-ca-sec-back aria-label="Volver">
+          <svg width="16" height="12" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+        </button>
+        <h1 class="cruise-auth__heading">Mantén tu cuenta segura</h1>
+        <p class="cruise-auth__heading-sub">Para evitar accesos no autorizados, elige un método de autenticación que proteja tu cuenta.</p>
+        <button type="button" class="cruise-auth__choice is-selected" data-ca-sec-opt="phone">
+          <span class="cruise-auth__choice-head">Teléfono <span class="cruise-auth__radio"></span></span>
+          <span class="cruise-auth__choice-desc">Indica un número de teléfono para usarlo al iniciar sesión.<span class="cruise-auth__choice-rec">Recomendado</span></span>
+        </button>
+        <button type="button" class="cruise-auth__choice" data-ca-sec-opt="passkey">
+          <span class="cruise-auth__choice-head">Llave de acceso <span class="cruise-auth__radio"></span></span>
+          <span class="cruise-auth__choice-desc">Las llaves de acceso te permiten entrar con tu cara, tu huella o el PIN de tu dispositivo.</span>
+        </button>
+        <div class="cruise-auth__err" data-ca-sec-err></div>
+        <div class="cruise-auth__nav-btns">
+          <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--back" data-ca-sec-back2 aria-label="Volver">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--next" data-ca-sec-next>Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════ TELÉFONO ═══════════════════════════════════ -->
+    <section class="cruise-auth__screen cruise-auth__form-screen" data-ca-screen="phone">
+      <div class="cruise-auth__form-card">
+        <button type="button" class="cruise-auth__back" data-ca-ph-back aria-label="Volver">
+          <svg width="16" height="12" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+        </button>
+        <h1 class="cruise-auth__heading">Número de teléfono</h1>
+        <p class="cruise-auth__heading-sub">Usarás este número para recibir notificaciones, iniciar sesión y recuperar tu cuenta.</p>
+        <label class="cruise-auth__label" for="caPhNum">Número de teléfono</label>
+        <div class="cruise-auth__phone-row">
+          <select class="cruise-auth__cc" data-ca-ph-cc aria-label="País">
+            <option value="+1" selected>US +1</option>
+            <option value="+52">MX +52</option>
+            <option value="+34">ES +34</option>
+            <option value="+57">CO +57</option>
+            <option value="+58">VE +58</option>
+            <option value="+1809">DO +1809</option>
+            <option value="+504">HN +504</option>
+            <option value="+503">SV +503</option>
+            <option value="+502">GT +502</option>
+            <option value="+51">PE +51</option>
+            <option value="+593">EC +593</option>
+            <option value="+54">AR +54</option>
+            <option value="+56">CL +56</option>
+            <option value="+55">BR +55</option>
+          </select>
+          <div class="cruise-auth__input">
+            <input id="caPhNum" type="tel" inputmode="tel" data-ca-ph-num placeholder="(659) 305-2974" autocomplete="tel">
+          </div>
+        </div>
+        <p class="cruise-auth__hint">Se enviará un código de verificación a este número.</p>
+        <div class="cruise-auth__err" data-ca-ph-err></div>
+        <button type="button" class="cruise-auth__btn cruise-auth__btn--primary" data-ca-ph-submit style="margin-top:18px;">Actualizar</button>
       </div>
     </section>
 
@@ -641,6 +796,55 @@
         </div>
       </div>
     </section>
+
+    <!-- ═══════════════════════════════════ MÁS OPCIONES ═══════════════════════════════════ -->
+    <div class="ca-sheet" data-ca-sheet>
+      <div class="ca-sheet__box" role="dialog" aria-modal="true" aria-labelledby="caSheetTitle">
+        <div class="ca-sheet__head">
+          <h2 class="ca-sheet__title" id="caSheetTitle">Más opciones</h2>
+          <button type="button" class="ca-sheet__close" data-ca-sheet-close aria-label="Cerrar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="ca-sheet__body">
+          <h3 class="ca-sheet__section">Elige otra forma de verificar</h3>
+          <button type="button" class="ca-sheet__opt" data-ca-otp-resend disabled>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3.5-7.1"/><path d="M21 3v5h-5"/></svg>
+            <span><span data-ca-otp-resend-text>Reenviar código por SMS</span> <span data-ca-otp-timer>(0:30)</span></span>
+          </button>
+          <button type="button" class="ca-sheet__opt" data-ca-sheet-call>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/></svg>
+            <span>Llamada telefónica a <span data-ca-sheet-phone></span></span>
+          </button>
+          <button type="button" class="ca-sheet__opt" data-ca-sheet-wa>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.1.55 4.06 1.6 5.8L2 22l4.42-1.68a9.86 9.86 0 004.62 1.18h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0012.04 2zm5.8 14.13c-.25.69-1.43 1.32-1.97 1.4-.5.08-1.15.11-1.85-.12-.43-.13-.98-.32-1.69-.62-2.98-1.29-4.92-4.29-5.07-4.49-.15-.2-1.21-1.61-1.21-3.07 0-1.46.77-2.18 1.04-2.48.27-.3.59-.37.79-.37h.57c.18 0 .43-.7.67.51.25.6.84 2.06.91 2.21.7.15.12.32.02.52-.1.2-.15.32-.3.49l-.44.51c-.15.15-.3.31-.13.61.17.3.77 1.27 1.65 2.06 1.13 1.01 2.09 1.32 2.39 1.47.3.15.47.12.65-.07.17-.2.75-.87.95-1.17.2-.3.4-.25.67-.15.27.1 1.73.82 2.03.97.3.15.5.22.57.35.07.12.07.72-.18 1.41z"/></svg>
+            <span>Enviar código por WhatsApp</span>
+          </button>
+          <button type="button" class="ca-sheet__opt" data-ca-sheet-password>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+            <span>Contraseña</span>
+          </button>
+          <button type="button" class="ca-sheet__opt" data-ca-sheet-google>
+            <svg width="22" height="22" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0012 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A11 11 0 001 12c0 1.77.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+            <span>Google</span>
+          </button>
+          <button type="button" class="ca-sheet__opt" data-ca-sheet-apple>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+            <span>Apple</span>
+          </button>
+          <button type="button" class="ca-sheet__opt" data-ca-sheet-email>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M3 7l9 6 9-6"/></svg>
+            <span>Correo electrónico</span>
+          </button>
+        </div>
+        <div class="ca-sheet__foot">
+          <button type="button" class="ca-sheet__opt" data-ca-sheet-support>
+            <span>Contactar con Soporte</span>
+            <span class="ca-sheet__chev">›</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div class="cruise-auth__toast" data-ca-toast></div>
   </div>
@@ -826,6 +1030,8 @@
   var otpResendText=$('[data-ca-otp-resend-text]');
   var otpTimer=$('[data-ca-otp-timer]');
   var otpOptions=$('[data-ca-otp-options]');
+  var sheet=$('[data-ca-sheet]');
+  var sheetPhone=$('[data-ca-sheet-phone]');
   var otpBack=$('[data-ca-otp-back]');
   var otpBack2=$('[data-ca-otp-back2]');
   var otpNext=$('[data-ca-otp-next]');
@@ -838,21 +1044,41 @@
     return v;
   }
 
+  /* Enmascara el identificador al estilo Uber: ******2042 */
+  function _maskIdentifier(v){
+    var digits=(v||'').replace(/\D/g,'');
+    if(digits.length>=4) return '******'+digits.slice(-4);
+    return v;
+  }
+
+  /* Nombre del titular, si ya lo conocemos (cuenta existente) */
+  function _knownName(v){
+    var u=_user();
+    if(u&&(u.first_name||u.name)) return (u.first_name||u.name).split(' ')[0];
+    var NAMES={'josmash2021@gmail.com':'Jhon'};
+    return NAMES[(v||'').toLowerCase()]||'';
+  }
+
   function _updateOtpTexts(){
+    var existing=_isExistingIdentifier(_identifier);
+    var name=existing?_knownName(_identifier):'';
+    var greeting=existing?('Bienvenido de nuevo'+(name?', '+name:'')+'.'):'';
     if(_idType==='email'){
-      if(otpTitle) otpTitle.textContent='Enter the 4-digit code sent to you at: '+_identifier;
-      if(otpSub){otpSub.textContent='';otpSub.style.fontWeight='';}
-      if(otpTip) otpTip.textContent='Tip: Make sure to check your inbox and spam folders';
-      if(otpChange) otpChange.textContent='Changed your email?';
-      if(otpResendText) otpResendText.textContent='Resend';
+      if(otpTitle) otpTitle.textContent=greeting||'Ingresa el código de 4 dígitos';
+      if(otpSub) otpSub.textContent='Ingresa el código de 4 dígitos que te enviamos a '+_identifier+'.';
+      if(otpTip) otpTip.textContent='Consejo: revisa tu bandeja de entrada y la carpeta de spam.';
+      if(otpChange) otpChange.textContent='¿Cambiaste tu correo?';
+      if(otpResendText) otpResendText.textContent='Reenviar código por correo';
     } else {
-      var phone=_formatPhone(_identifier);
-      if(otpTitle) otpTitle.textContent='Ingresa el código de 4 dígitos enviado por SMS a '+phone+'.';
-      if(otpSub){otpSub.textContent='';otpSub.style.fontWeight='';}
+      var masked=_maskIdentifier(_identifier);
+      if(otpTitle) otpTitle.textContent=greeting||'Ingresa el código de 4 dígitos';
+      if(otpSub) otpSub.textContent='Ingresa el código de 4 dígitos enviado por SMS al '+masked+'.';
       if(otpTip) otpTip.textContent='';
       if(otpChange) otpChange.textContent='¿Cambiaste tu número de móvil?';
-      if(otpResendText) otpResendText.textContent='Resend code via SMS';
+      if(otpResendText) otpResendText.textContent='Reenviar código por SMS';
     }
+    if(otpSub) otpSub.style.fontWeight='';
+    if(sheetPhone) sheetPhone.textContent=_idType==='email'?_identifier:_maskIdentifier(_identifier);
   }
 
   function _resetOtp(){
@@ -865,9 +1091,10 @@
     return otpDigits.map(function(d){return d.value;}).join('');
   }
 
+  /* "Siguiente" siempre activo: al pulsarlo vacío se avisa que el campo es obligatorio */
   function _checkOtpComplete(){
-    var v=_otpValue();
-    if(otpNext) otpNext.disabled=v.length!==4;
+    if(otpNext) otpNext.disabled=false;
+    if(otpErr && _otpValue().length){otpErr.textContent='';otpErr.classList.remove('is-visible');}
   }
 
   function _focusOtpDigit(idx){
@@ -911,7 +1138,7 @@
   function _startResendTimer(){
     _resendSeconds=30;
     if(otpResend) otpResend.disabled=true;
-    if(otpResendText) otpResendText.textContent=_idType==='email'?'Resend':'Resend code via SMS';
+    if(otpResendText) otpResendText.textContent=_idType==='email'?'Reenviar código por correo':'Reenviar código por SMS';
     if(otpTimer) otpTimer.textContent='(0:30)';
     clearInterval(_resendTimer);
     _resendTimer=setInterval(function(){
@@ -927,6 +1154,11 @@
 
   function _handleOtpNext(){
     var v=_otpValue();
+    if(!v.length){
+      if(otpErr){otpErr.textContent='Este campo es obligatorio';otpErr.classList.add('is-visible');}
+      _focusOtpDigit(0);
+      return;
+    }
     if(v!==_mockCode){
       if(otpErr){otpErr.textContent='Código incorrecto. Inténtalo de nuevo.';otpErr.classList.add('is-visible');}
       return;
@@ -952,7 +1184,37 @@
     _resetOtp();
     _startResendTimer();
   });
-  if(otpOptions) otpOptions.addEventListener('click',function(){_toast('Más opciones próximamente','ok');});
+  /* ── Hoja "Más opciones" ── */
+  function _sheetOpen(){if(sheet) sheet.classList.add('is-open');}
+  function _sheetClose(){if(sheet) sheet.classList.remove('is-open');}
+  function _reissueCode(msg){
+    _mockCode=(''+Math.floor(1000+Math.random()*9000));
+    _sheetClose();
+    _resetOtp();
+    _startResendTimer();
+    _toast(msg+': '+_mockCode,'ok');
+  }
+  if(sheet){
+    sheet.addEventListener('click',function(e){if(e.target===sheet) _sheetClose();});
+    var shClose=$('[data-ca-sheet-close]');
+    if(shClose) shClose.addEventListener('click',_sheetClose);
+    var shCall=$('[data-ca-sheet-call]');
+    if(shCall) shCall.addEventListener('click',function(){_reissueCode('Te llamamos con el código');});
+    var shWa=$('[data-ca-sheet-wa]');
+    if(shWa) shWa.addEventListener('click',function(){_reissueCode('Código enviado por WhatsApp');});
+    var shPw=$('[data-ca-sheet-password]');
+    if(shPw) shPw.addEventListener('click',function(){_sheetClose();_updatePasswordTexts();_go('password');});
+    var shGoogle=$('[data-ca-sheet-google]');
+    if(shGoogle) shGoogle.addEventListener('click',function(){_sheetClose();_googleSignIn();});
+    var shApple=$('[data-ca-sheet-apple]');
+    if(shApple) shApple.addEventListener('click',function(){_sheetClose();_appleSignIn();});
+    var shEmail=$('[data-ca-sheet-email]');
+    if(shEmail) shEmail.addEventListener('click',function(){_sheetClose();_go('identifier');});
+    var shSupport=$('[data-ca-sheet-support]');
+    if(shSupport) shSupport.addEventListener('click',function(){_sheetClose();window.open('https://wa.me/16593052974','_blank','noopener');});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape') _sheetClose();});
+  }
+  if(otpOptions) otpOptions.addEventListener('click',_sheetOpen);
   if(otpBack) otpBack.addEventListener('click',function(){_go('identifier');});
   if(otpBack2) otpBack2.addEventListener('click',function(){_go('identifier');});
 
@@ -1002,7 +1264,7 @@
         if(d&&d.access_token){_save(d.access_token,d.user);_toast('¡Bienvenido de nuevo!','ok');_go('profile');}
         else throw new Error('No se recibió token');
       }).catch(function(e){
-        if(pwErr){pwErr.textContent=e.message||'Invalid password';pwErr.classList.add('is-visible');}
+        if(pwErr){pwErr.textContent=e.message||'Contraseña incorrecta';pwErr.classList.add('is-visible');}
         pwNext.disabled=false;
       });
     });
@@ -1016,7 +1278,7 @@
     });
   }
   if(pwForgot) pwForgot.addEventListener('click',function(){_toast('Enlace de restablecimiento enviado','ok');});
-  if(pwOptions) pwOptions.addEventListener('click',function(){_toast('Más opciones próximamente','ok');});
+  if(pwOptions) pwOptions.addEventListener('click',_sheetOpen);
   if(pwBack) pwBack.addEventListener('click',function(){_go('otp');});
   if(pwBack2) pwBack2.addEventListener('click',function(){_go('otp');});
 
@@ -1028,32 +1290,150 @@
   var regErr=$('[data-ca-reg-err]');
   var regBack=$('[data-ca-reg-back]');
 
+  var regBack2=$('[data-ca-reg-back2]');
+
   function _checkReg(){
-    if(!regFn||!regLn||!regPw||!regSubmit) return;
-    var ok=regFn.value.trim()&&regLn.value.trim()&&regPw.value.length>=6;
-    regSubmit.disabled=!ok;
+    if(regErr && regFn && regFn.value.trim() && regLn && regLn.value.trim()){
+      regErr.textContent='';regErr.classList.remove('is-visible');
+    }
   }
 
   if(regFn) regFn.addEventListener('input',_checkReg);
   if(regLn) regLn.addEventListener('input',_checkReg);
   if(regPw) regPw.addEventListener('input',_checkReg);
 
+  function _regError(msg,el){
+    if(regErr){regErr.textContent=msg;regErr.classList.add('is-visible');}
+    if(el) el.focus();
+  }
+
+  /* "Siguiente" del nombre: valida y pasa a Términos (la cuenta se crea al final) */
   if(regSubmit){
     regSubmit.addEventListener('click',function(){
-      var body={first_name:regFn.value.trim(),last_name:regLn.value.trim(),password:regPw.value,role:'rider'};
-      if(_idType==='email') body.email=_identifier; else body.phone=_identifier;
-      regSubmit.disabled=true;
+      if(!regFn.value.trim()) return _regError('Este campo es obligatorio',regFn);
+      if(!regLn.value.trim()) return _regError('Este campo es obligatorio',regLn);
+      if(regPw.value.length<6) return _regError('La contraseña debe tener al menos 6 caracteres',regPw);
       if(regErr){regErr.textContent='';regErr.classList.remove('is-visible');}
-      _fetch('/auth/web/register',{method:'POST',body:body}).then(function(d){
-        if(d.access_token){_save(d.access_token,d.user);_toast('¡Bienvenido a Cruise!','ok');_go('profile');}
-        else throw new Error(d.detail||'Error en el registro');
-      }).catch(function(e){
-        if(regErr){regErr.textContent=e.message||'No se pudo crear la cuenta';regErr.classList.add('is-visible');}
-        regSubmit.disabled=false;
-      });
+      _updateTermsTexts();
+      _go('terms');
     });
   }
-  if(regBack) regBack.addEventListener('click',function(){_go('identifier');});
+  if(regBack) regBack.addEventListener('click',function(){_go('otp');});
+  if(regBack2) regBack2.addEventListener('click',function(){_go('otp');});
+
+  /* ── Términos (versión adulto / menor de 18) ── */
+  var _isTeen=false,_agreed=false;
+  var termsTitle=$('[data-ca-terms-title]');
+  var termsBody=$('[data-ca-terms-body]');
+  var termsSwitchQ=$('[data-ca-terms-switch-q]');
+  var termsSwitch=$('[data-ca-terms-switch]');
+  var termsAgree=$('[data-ca-terms-agree]');
+  var termsNext=$('[data-ca-terms-next]');
+  var termsBack=$('[data-ca-terms-back]');
+  var termsBack2=$('[data-ca-terms-back2]');
+
+  var _LEGAL='<button type="button" data-ca-doc="terms">Términos de uso</button>';
+  var _PRIV='<button type="button" data-ca-doc="privacy">Aviso de privacidad</button>';
+
+  function _updateTermsTexts(){
+    if(_isTeen){
+      if(termsTitle) termsTitle.textContent='Acepta los Términos de la Cuenta Teen y revisa el Aviso de Privacidad';
+      if(termsBody) termsBody.innerHTML='Al seleccionar "Acepto" abajo, confirmo que he revisado y acepto los '+_LEGAL+' y los Términos de la Cuenta Teen, y que he leído el '+_PRIV+'. Estoy dentro del rango de edad permitido para tener una cuenta Teen, cuento con la autorización de mi padre, madre o tutor, y sé que CruiseInRide puede contactarlos.';
+      if(termsSwitchQ) termsSwitchQ.textContent='¿Tienes 18 años o más?';
+    } else {
+      if(termsTitle) termsTitle.textContent='Acepta los Términos de CruiseInRide y revisa el Aviso de Privacidad';
+      if(termsBody) termsBody.innerHTML='Al seleccionar "Acepto" abajo, confirmo que he revisado y acepto los '+_LEGAL+' y que he leído el '+_PRIV+'. Tengo al menos 18 años.';
+      if(termsSwitchQ) termsSwitchQ.textContent='¿Eres menor de 18 años?';
+    }
+  }
+
+  function _setAgreed(v){
+    _agreed=v;
+    if(termsAgree){termsAgree.classList.toggle('is-checked',v);termsAgree.setAttribute('aria-pressed',v?'true':'false');}
+    if(termsNext) termsNext.disabled=!v;
+  }
+
+  if(termsAgree) termsAgree.addEventListener('click',function(){_setAgreed(!_agreed);});
+  if(termsSwitch) termsSwitch.addEventListener('click',function(){_isTeen=!_isTeen;_setAgreed(false);_updateTermsTexts();});
+  if(termsBack) termsBack.addEventListener('click',function(){_go('register');});
+  if(termsBack2) termsBack2.addEventListener('click',function(){_go('register');});
+  if(termsNext) termsNext.addEventListener('click',function(){
+    if(!_agreed) return;
+    if(_idType==='phone'){_doRegister();return;}
+    _go('security');
+  });
+  root.addEventListener('click',function(e){
+    var b=e.target.closest?e.target.closest('[data-ca-doc]'):null;
+    if(b) _toast('El documento legal estará disponible en breve','ok');
+  });
+
+  /* ── Método de autenticación ── */
+  var _secMethod='phone';
+  var secOpts=$$('[data-ca-sec-opt]');
+  var secErr=$('[data-ca-sec-err]');
+  var secNext=$('[data-ca-sec-next]');
+  var secBack=$('[data-ca-sec-back]');
+  var secBack2=$('[data-ca-sec-back2]');
+
+  secOpts.forEach(function(o){
+    o.addEventListener('click',function(){
+      _secMethod=o.getAttribute('data-ca-sec-opt');
+      secOpts.forEach(function(x){x.classList.toggle('is-selected',x===o);});
+      if(secErr){secErr.textContent='';secErr.classList.remove('is-visible');}
+    });
+  });
+  if(secBack) secBack.addEventListener('click',function(){_go('terms');});
+  if(secBack2) secBack2.addEventListener('click',function(){_go('terms');});
+  if(secNext) secNext.addEventListener('click',function(){
+    if(_secMethod==='passkey'){
+      if(secErr){secErr.textContent='Las llaves de acceso aún no están disponibles. Elige Teléfono.';secErr.classList.add('is-visible');}
+      return;
+    }
+    _go('phone');
+  });
+
+  /* ── Número de teléfono ── */
+  var phCc=$('[data-ca-ph-cc]');
+  var phNum=$('[data-ca-ph-num]');
+  var phErr=$('[data-ca-ph-err]');
+  var phSubmit=$('[data-ca-ph-submit]');
+  var phBack=$('[data-ca-ph-back]');
+
+  if(phNum) phNum.addEventListener('input',function(){
+    if(phErr){phErr.textContent='';phErr.classList.remove('is-visible');}
+  });
+  if(phBack) phBack.addEventListener('click',function(){_go('security');});
+  if(phSubmit) phSubmit.addEventListener('click',function(){
+    var digits=(phNum?phNum.value:'').replace(/\D/g,'');
+    if(!digits){
+      if(phErr){phErr.textContent='Este campo es obligatorio';phErr.classList.add('is-visible');}
+      if(phNum) phNum.focus();
+      return;
+    }
+    if(digits.length<7){
+      if(phErr){phErr.textContent='Introduce un número de teléfono válido';phErr.classList.add('is-visible');}
+      return;
+    }
+    _doRegister((phCc?phCc.value:'+1')+digits);
+  });
+
+  /* Crea la cuenta con todo lo recogido en el asistente */
+  function _doRegister(extraPhone){
+    var body={first_name:regFn.value.trim(),last_name:regLn.value.trim(),password:regPw.value,role:'rider'};
+    if(_idType==='email'){body.email=_identifier;if(extraPhone) body.phone=extraPhone;}
+    else body.phone=_identifier;
+    var errBox=extraPhone?phErr:regErr;
+    var btn=extraPhone?phSubmit:termsNext;
+    if(btn) btn.disabled=true;
+    if(errBox){errBox.textContent='';errBox.classList.remove('is-visible');}
+    _fetch('/auth/web/register',{method:'POST',body:body}).then(function(d){
+      if(d.access_token){_save(d.access_token,d.user);_toast('¡Bienvenido a Cruise!','ok');_go('profile');}
+      else throw new Error(d.detail||'Error en el registro');
+    }).catch(function(e){
+      if(errBox){errBox.textContent=e.message||'No se pudo crear la cuenta';errBox.classList.add('is-visible');}
+      if(btn) btn.disabled=false;
+    });
+  }
 
   /* Profile */
   var _profile=null;
