@@ -6980,7 +6980,6 @@ setTimeout(_vrPfKick,1200);
     function _openPayOverlay(){
       if(!_payOverlay) return;
       _vrSheetHide('pay');
-      setNavBg('blur');
       if(_cardForm)_cardForm.setAttribute('hidden','');
       if(_payList){_payList.removeAttribute('hidden');_payList.classList.remove('is-out');}
       _payOverlay.removeAttribute('hidden');
@@ -6999,7 +6998,6 @@ setTimeout(_vrPfKick,1200);
       setTimeout(function(){
         _payOverlay.setAttribute('hidden','');
         _payOverlay.classList.remove('is-closing');
-        setNavBg(null);
       },380);
     }
     if(_paymentBtn){
