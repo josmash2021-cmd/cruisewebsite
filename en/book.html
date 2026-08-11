@@ -5744,8 +5744,8 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       if(dropoffLabelMk){dropoffLabelMk.remove();dropoffLabelMk=0}
       dropoffPlace=null; if(dropoffEl) dropoffEl.value='';
       routeDurationSec=null;
-      if(pickupPlace&&map)map.flyTo({center:[pickupPlace.lng,pickupPlace.lat],zoom:16.5,pitch:50,bearing:-10,duration:1200,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
-      else if(map)map.flyTo({center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:0,bearing:0,duration:900,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+      if(pickupPlace&&map)map.easeTo({center:[pickupPlace.lng,pickupPlace.lat],zoom:16.5,pitch:50,bearing:-10,duration:1000,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+      else if(map)map.easeTo({center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:0,bearing:0,duration:900,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
     }
     if(n===2&&dir==='back'){ hideMarkerLabels(); }
   }
@@ -5976,40 +5976,17 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     window.__vrFlying=true;
     if(root&&root.classList)root.classList.add('is-flying');
     function _endFly(){ window.__vrFlying=false; if(root&&root.classList)root.classList.remove('is-flying'); }
-    function _goFly(){
-      map.once('moveend',_endFly);
-      map.flyTo({
-        center:c.center,
-        zoom:c.zoom,
-        pitch:55,
-        bearing:15,
-        duration:1600,
-        curve:0.9,
-        essential:true,
-        easing:function(t){return 1-Math.pow(1-t,4);}
-      });
-    }
-    /* precalienta las teselas del destino en un mapa oculto: el vuelo llega
-       a una zona ya cargada y no se ve al mapa construyendose */
-    _vrWarmTiles(c,_goFly);
-  }
-  var _preMap=null,_preMapT=null;
-  function _vrWarmTiles(cam,cb){
-    try{
-      if(typeof mapboxgl==='undefined'){cb();return;}
-      if(!_preMap){
-        var host=document.createElement('div');
-        host.style.cssText='position:fixed;left:0;top:0;width:100vw;height:100vh;opacity:0;pointer-events:none;z-index:-1;';
-        document.body.appendChild(host);
-        _preMap=new mapboxgl.Map({container:host,style:'mapbox://styles/mapbox/dark-v11',center:cam.center,zoom:cam.zoom,pitch:55,bearing:15,interactive:false,attributionControl:false,fadeDuration:0,renderWorldCopies:false});
-      }else{
-        _preMap.jumpTo({center:cam.center,zoom:cam.zoom,pitch:55,bearing:15});
-      }
-      var done=false;
-      var fin=function(){if(done)return;done=true;clearTimeout(_preMapT);cb();};
-      _preMapT=setTimeout(fin,900);
-      _preMap.once('idle',fin);
-    }catch(_){cb();}
+    /* transicion directa y suave: la camara va derecho, sin alejarse y acercarse */
+    map.once('moveend',_endFly);
+    map.easeTo({
+      center:c.center,
+      zoom:c.zoom,
+      pitch:55,
+      bearing:15,
+      duration:1100,
+      essential:true,
+      easing:function(t){return 1-Math.pow(1-t,3);}
+    });
   }
   function stopSlowOrbit(){}
   function startSlowOrbit(){}
@@ -6024,7 +6001,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     var pad={top:headerH+60,right:60,bottom:_vrSheetHeight()+120,left:60};
     var cam=map.cameraForBounds(bounds,{padding:pad,maxZoom:14.2,bearing:15,pitch:55});
     if(!cam)return;
-    map.flyTo({center:cam.center,zoom:cam.zoom,pitch:55,bearing:15,duration:1600,essential:true,curve:1.2,easing:function(t){return 1-Math.pow(1-t,4);}});
+    map.easeTo({center:cam.center,zoom:cam.zoom,pitch:55,bearing:15,duration:1100,essential:true,easing:function(t){return 1-Math.pow(1-t,3);}});
     if(onEnd)setTimeout(onEnd,800);
   }
   function setMode(mode){
@@ -6396,7 +6373,7 @@ setTimeout(_vrPfKick,1200);
         if(_lastGeoLat!==null&&Math.abs(lat-_lastGeoLat)<.0005&&Math.abs(lng-_lastGeoLng)<.0005) return;
         _lastGeoLat=lat;_lastGeoLng=lng;
         _gpsActive=true;
-        if(fly) map.flyTo({center:[lng,lat],zoom:16.5,pitch:50,bearing:-10,duration:1200,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+        if(fly) map.easeTo({center:[lng,lat],zoom:16.5,pitch:50,bearing:-10,duration:1000,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
         setMarker('pickup', lat, lng);
         reverseGeocode(lat,lng,function(name){
           if(name&&!_pickupManuallySet){
