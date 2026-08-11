@@ -5976,17 +5976,40 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     window.__vrFlying=true;
     if(root&&root.classList)root.classList.add('is-flying');
     function _endFly(){ window.__vrFlying=false; if(root&&root.classList)root.classList.remove('is-flying'); }
-    map.once('moveend',_endFly);
-    map.flyTo({
-      center:c.center,
-      zoom:c.zoom,
-      pitch:55,
-      bearing:15,
-      duration:1600,
-      curve:1.2,
-      essential:true,
-      easing:function(t){return 1-Math.pow(1-t,4);}
-    });
+    function _goFly(){
+      map.once('moveend',_endFly);
+      map.flyTo({
+        center:c.center,
+        zoom:c.zoom,
+        pitch:55,
+        bearing:15,
+        duration:1600,
+        curve:0.9,
+        essential:true,
+        easing:function(t){return 1-Math.pow(1-t,4);}
+      });
+    }
+    /* precalienta las teselas del destino en un mapa oculto: el vuelo llega
+       a una zona ya cargada y no se ve al mapa construyendose */
+    _vrWarmTiles(c,_goFly);
+  }
+  var _preMap=null,_preMapT=null;
+  function _vrWarmTiles(cam,cb){
+    try{
+      if(typeof mapboxgl==='undefined'){cb();return;}
+      if(!_preMap){
+        var host=document.createElement('div');
+        host.style.cssText='position:fixed;left:0;top:0;width:100vw;height:100vh;opacity:0;pointer-events:none;z-index:-1;';
+        document.body.appendChild(host);
+        _preMap=new mapboxgl.Map({container:host,style:'mapbox://styles/mapbox/dark-v11',center:cam.center,zoom:cam.zoom,pitch:55,bearing:15,interactive:false,attributionControl:false,fadeDuration:0,renderWorldCopies:false});
+      }else{
+        _preMap.jumpTo({center:cam.center,zoom:cam.zoom,pitch:55,bearing:15});
+      }
+      var done=false;
+      var fin=function(){if(done)return;done=true;clearTimeout(_preMapT);cb();};
+      _preMapT=setTimeout(fin,900);
+      _preMap.once('idle',fin);
+    }catch(_){cb();}
   }
   function stopSlowOrbit(){}
   function startSlowOrbit(){}
