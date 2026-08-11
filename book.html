@@ -7855,7 +7855,7 @@ html body #vipMpFooterSugs{
    (a partir de 1024px; en móvil se mantiene el flujo actual tal cual)
    ═══════════════════════════════════════════════════════════════ */
 @media(min-width:1024px){
-  html{ --vrd-col: 420px; --vrd-mid: 470px; --vrd-gap: 22px;
+  html{ --vrd-col: 420px; --vrd-mid: clamp(470px, calc(100vw - 900px), 660px); --vrd-gap: 22px;
         --vrd-top: calc(var(--vip-nav-h,69px) + 22px); }
 
   /* la sección ocupa la ventana justa: la cabecera es fija y flota encima */
@@ -8008,8 +8008,17 @@ html body #vipMpFooterSugs{
     width:var(--vrd-mid)!important;
     max-height:calc(100dvh - var(--vrd-top) - var(--vrd-gap))!important;
     overflow-y:auto!important;
-    padding:0 4px 8px 0!important;
+    padding:0 4px 110px 0!important;
     background:none!important;
+  }
+  /* barra de pago flotante estilo Uber: fija al pie de la columna central */
+  html body .vipRide .vipRide__actionBtns{
+    position:fixed!important;
+    left:calc(var(--vrd-col) + var(--vrd-gap) * 2)!important;
+    width:var(--vrd-mid)!important;
+    bottom:calc(var(--vrd-gap) + 8px)!important;
+    margin:0!important;
+    z-index:60!important;
   }
   html body .vipRide .vipRide__sheet .vipRide__prices{ background:none!important }
 
@@ -8031,7 +8040,7 @@ html body #vipMpFooterSugs{
   html body .vipRide .vipRide__rideCard{
     flex-direction:row!important; align-items:center!important;
     justify-content:flex-start!important; text-align:left!important;
-    gap:18px!important; padding:20px 22px!important; min-height:150px!important;
+    gap:18px!important; padding:16px 20px!important; min-height:132px!important;
     background:rgba(255,255,255,.02)!important; border:1px solid rgba(255,255,255,.08)!important; border-radius:22px!important;
     box-shadow:none!important;
     transition:transform 200ms,border-color 200ms,background 200ms!important;
@@ -8044,17 +8053,17 @@ html body #vipMpFooterSugs{
     box-shadow:inset 0 0 0 1.5px rgba(212,175,55,.55)!important; outline:none!important;
   }
   html body .vipRide .vipRide__rideCard .vipRide__rideImg{
-    flex:0 0 150px!important; width:150px!important;
+    flex:0 0 130px!important; width:130px!important;
   }
   html body .vipRide .vipRide__rideCard .vipRide__rideImgTag,
   html body .vipRide .vipRide__rideCard img{
-    max-height:88px!important;
+    max-height:76px!important;
   }
   html body .vipRide .vipRide__rideCard .vipRide__rideMeta{
     flex:1 1 auto!important; min-width:0!important; text-align:left!important; align-items:flex-start!important;
   }
   html body .vipRide .vipRide__rideCard .vipRide__rideName{
-    font-size:24px!important; text-align:left!important;
+    font-size:21px!important; text-align:left!important;
   }
   html body .vipRide .vipRide__rideCard .vipRide__rideNameRow{
     flex-direction:row!important; align-items:center!important; gap:10px!important;
@@ -8089,7 +8098,7 @@ html body #vipMpFooterSugs{
     display:flex!important; flex-direction:column!important; align-items:flex-end!important; justify-content:center!important; gap:6px!important; margin-left:auto!important;
   }
   html body .vipRide .vipRide__rideCard .vipRide__cardPrice{
-    font-size:28px!important; font-weight:800!important; color:#fff!important;
+    font-size:24px!important; font-weight:800!important; color:#fff!important;
   }
   html body .vipRide .vipRide__rideCard .vipRide__fasterBadge{
     display:inline-flex!important; align-items:center!important; gap:6px!important;
