@@ -4953,6 +4953,10 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__rideList.is-skel .vipRide__rideCard::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);animation:vrSkelSweep 1.1s ease-in-out infinite}
 @keyframes vrSkelSweep{to{transform:translateX(100%)}}
 @media(prefers-reduced-motion:reduce){.vipRide__rideList.is-skel .vipRide__rideCard::after{animation:none}}
+[data-vipride-detail]{display:none!important}
+#vrDeskBarRide .vrdbr__detail{display:none!important}
+.vipRide__cardPrice{font-weight:800;font-size:clamp(17px,4vw,22px);color:#fff;white-space:nowrap;letter-spacing:-.3px}
+.vipRide__rideBadgeCol{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:6px;margin-left:auto}
 .vipRide__payOverlay{position:fixed;inset:0;z-index:99999;background:#050505;display:flex!important;flex-direction:column;padding-top:0!important;opacity:1;transform:translateY(0) scale(1);transition:opacity 380ms cubic-bezier(.33,1,.68,1),transform 380ms cubic-bezier(.33,1,.68,1);will-change:opacity,transform;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -1px 0 rgba(255,255,255,.02),inset 0 0 140px rgba(0,0,0,.6);isolation:isolate;overflow:hidden;scrollbar-width:none;-ms-overflow-style:none}
 .vipRide__payOverlay::-webkit-scrollbar{display:none;width:0;height:0}
 .vipRide__payOverlay::before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(115deg,transparent 0%,transparent 30%,rgba(255,255,255,.015) 38%,rgba(255,255,255,.04) 44%,rgba(255,255,255,.08) 48%,rgba(255,255,255,.11) 50%,rgba(255,255,255,.08) 52%,rgba(255,255,255,.04) 56%,rgba(255,255,255,.015) 62%,transparent 70%,transparent 100%);background-size:400% 100%;pointer-events:none;z-index:0;mix-blend-mode:screen;animation:vrMirrorSweepBg 11s cubic-bezier(.45,.05,.55,.95) infinite;will-change:background-position}
@@ -5949,7 +5953,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     if(!map||!pickupPlace||!dropoffPlace)return;
     clearTimeout(_fR);_fR=null;
     map.off('moveend',_fitTiltHandler);map.off('moveend',_fitRotateHandler);
-    var b=new mapboxgl.LngLatBounds();b.extend([pickupPlace.lng,pickupPlace.lat]);b.extend([dropoffPlace.lng,dropoffPlace.lat]);
+    var b=new mapboxgl.LngLatBounds();b.extend([pickupPlace.lng,pickupPlace.lat]);b.extend([dropoffPlace.lng,dropoffPlace.lat]);try{(window.__vrRouteCoords||[]).forEach(function(cc){b.extend(cc);});}catch(_){}
     var dL=pickupPlace.lat-dropoffPlace.lat,dN=pickupPlace.lng-dropoffPlace.lng,d=Math.sqrt(dL*dL+dN*dN),nH=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--vip-nav-h'),10)||60;
     var sH=_vrSheetHeight(),iD=innerWidth>=900;
     if(!iD&&sH<200&&currentStep===3)_fR=setTimeout(fitRouteBounds,400);
@@ -6105,7 +6109,12 @@ setTimeout(_vrPfKick,1200);
       card.setAttribute('data-base-cents',String(cents+surcharge));
       var displayCents=_applyPromoMult(cents+surcharge),text=moneyUSD(displayCents/100);
       card.setAttribute('data-price',text);card.setAttribute('data-price-cents',String(displayCents));
-      var pe=card.querySelector('[data-vipride-card-price]');if(pe)pe.textContent=text;
+      var pe=card.querySelector('[data-vipride-card-price]');if(pe)pe.textContent=cents>0?text:'--';
+      var pu=card.querySelector('[data-vipride-pickup-eta]'),pl=card.querySelector('.vipRide__ridePickupEtaLabel'),ar=card.querySelector('[data-vipride-arrival-time]'),ci=card.querySelector('.vipRide__clockIcon');
+      if(pu)pu.textContent=routeDurationSec?Math.max(1,Math.round(routeDurationSec/60)):'--';
+      if(pl)pl.textContent='min';
+      if(ci)ci.style.display='none';
+      if(ar)ar.textContent=window.__vrRouteDistM?((window.__vrRouteDistM/1609.344).toFixed(1)+' mi'):'-- mi';
     });
     if(selectedRide){ var act=root.querySelector('.vipRide__rideCard.is-active'); if(act){selectedRide.price=act.getAttribute('data-price')||'';selectedRide.priceCents=Number(act.getAttribute('data-price-cents')||0);syncProps(selectedRide);validateCTA(selectedRide);if(_dEt)_dEt.textContent=routeDurationSec?formatMinutes(routeDurationSec):'--';if(_dDi)_dDi.textContent=window.__vrRouteDistM?((window.__vrRouteDistM/1609.344).toFixed(1)+' mi'):'-- mi';if(_dP)_dP.textContent=selectedRide.price||'--';} }
   }
@@ -6130,8 +6139,10 @@ setTimeout(_vrPfKick,1200);
         if(routeTimeText)routeTimeText.textContent=routeDurationSec?formatMinutes(routeDurationSec):'--';
         if(routeDistText)routeDistText.textContent=routeDistM>0?((routeDistM/1609.344).toFixed(1)+' mi'):'-- mi';
         if(routeEstimate)routeEstimate.hidden=false;
+        window.__vrRouteCoords=(route.geometry&&route.geometry.coordinates)||null;
         drawRoute(route.geometry);updateCardPrices(routeDurationSec);
         _setCardsLoading(false);
+        try{fitRouteBounds();}catch(_){}
         if(currentStep===3)validateCTA(selectedRide);
       }).catch(function(){if(req===routeReq)_setCardsLoading(false);_mbErr('Error al calcular ruta','Route failed');});
   }
@@ -6152,6 +6163,11 @@ setTimeout(_vrPfKick,1200);
   }
   function _expandAllCards(){cards.forEach(function(c){c.classList.remove('is-active')});selectedRide=null;if(_dE)_dE.setAttribute('hidden','');if(_actionBtns)_actionBtns.setAttribute('hidden','')}
   cards.forEach(function(c){c.addEventListener('click',function(){selectCard(c)})});
+  cards.forEach(function(c){
+    var bc=c.querySelector('.vipRide__rideBadgeCol');
+    if(bc&&!c.querySelector('[data-vipride-card-price]')){var pe=document.createElement('div');pe.className='vipRide__cardPrice';pe.setAttribute('data-vipride-card-price','');pe.textContent='--';bc.appendChild(pe);}
+  });
+  try{cards.slice().reverse().forEach(function(c){if(c.parentNode)c.parentNode.appendChild(c);});}catch(_){}
   if(window.__vrTierInit)window.__vrTierInit(root);
   async function doCheckout(triggerBtn){
     _vrToast(currentLang==='es'?'El pago en efectivo no está disponible online.':'Cash payment is not available online.','err');return;
