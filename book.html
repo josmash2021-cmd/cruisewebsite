@@ -341,6 +341,66 @@
             <span class="vipRide__payCheck" aria-hidden="true"></span>
           </button>
         </div>
+        <div class="vipRide__cardForm" data-vipride-cardform hidden>
+          <h3 class="vipRide__cardForm__title" data-vipride-cf-title>Add credit or debit card</h3>
+          <div class="vipRide__cardForm__field">
+            <label data-vipride-cf-l-num>Card Number</label>
+            <div class="vipRide__cardForm__input" id="vrCfNumber"></div>
+          </div>
+          <div class="vipRide__cardForm__row">
+            <div class="vipRide__cardForm__field">
+              <label data-vipride-cf-l-exp>Exp. Date</label>
+              <div class="vipRide__cardForm__input" id="vrCfExp"></div>
+            </div>
+            <div class="vipRide__cardForm__field">
+              <label data-vipride-cf-l-cvc>Security Code</label>
+              <div class="vipRide__cardForm__input" id="vrCfCvc"></div>
+            </div>
+          </div>
+          <div class="vipRide__cardForm__field">
+            <label data-vipride-cf-l-country>Country</label>
+            <select class="vipRide__cardForm__select" data-vipride-cf-country>
+              <option value="US" selected>United States</option>
+              <option value="MX">Mexico</option>
+              <option value="CA">Canada</option>
+              <option value="PR">Puerto Rico</option>
+              <option value="DO">Dominican Republic</option>
+              <option value="CO">Colombia</option>
+              <option value="VE">Venezuela</option>
+              <option value="CU">Cuba</option>
+              <option value="GT">Guatemala</option>
+              <option value="HN">Honduras</option>
+              <option value="SV">El Salvador</option>
+              <option value="NI">Nicaragua</option>
+              <option value="CR">Costa Rica</option>
+              <option value="PA">Panama</option>
+              <option value="EC">Ecuador</option>
+              <option value="PE">Peru</option>
+              <option value="BO">Bolivia</option>
+              <option value="BR">Brazil</option>
+              <option value="AR">Argentina</option>
+              <option value="CL">Chile</option>
+              <option value="UY">Uruguay</option>
+              <option value="PY">Paraguay</option>
+              <option value="ES">Spain</option>
+              <option value="GB">United Kingdom</option>
+              <option value="FR">France</option>
+              <option value="DE">Germany</option>
+              <option value="IT">Italy</option>
+            </select>
+          </div>
+          <div class="vipRide__cardForm__field">
+            <label data-vipride-cf-l-zip>Zip Code</label>
+            <input type="text" class="vipRide__cardForm__text" data-vipride-cf-zip inputmode="numeric" autocomplete="postal-code" maxlength="10">
+          </div>
+          <div class="vipRide__cardForm__field">
+            <label data-vipride-cf-l-nick>Nickname (optional)</label>
+            <input type="text" class="vipRide__cardForm__text" data-vipride-cf-nick maxlength="30" placeholder="e.g. joint account or work card">
+          </div>
+          <div class="vipRide__cardForm__err" data-vipride-cf-err></div>
+          <button type="button" class="vipRide__cardForm__submit" data-vipride-cf-add disabled>Add Card</button>
+          <button type="button" class="vipRide__cardForm__cancel" data-vipride-cf-cancel>Cancel</button>
+        </div>
       </div>
       <div class="vipRide__scheduleOverlay" data-vipride-schedule-overlay hidden>
         <div class="vipRide__schedPage" data-vipride-sched-page="date">
@@ -1002,8 +1062,8 @@
 /* ═══ i18n dictionary + helpers ═══ */
 (function(){if(window.__vrT)return;
 var T={en:{},es:{}};
-T.en={back:'Back',whereto:'Where to?',now:'Now',schedule:'Schedule',clear:'Clear',continue:'Continue',cancel:'Cancel',done:'Done',confirm:'Confirm',ok:'OK',or:'or',OR:'OR',gotit:'Got it',processing:'Processing...',requestRide:'Request Ride',reserveNow:'Reserve Now',pickup:'Pickup',dropoff:'Dropoff',currentLocation:'Current location',detectingLocation:'Detecting location…',enterPickup:'Enter pickup address',searchPickup:'Search pickup address',paymentMethod:'Payment Method',applePay:'Apple Pay',googlePay:'Google Pay',debitCredit:'Credit or debit card',testMode:'Test Mode',simulate:'Simulate payment',scheduleRide:'Schedule a Ride',chooseDate:'Choose a date for your ride',today:'Today',tomorrow:'Tomorrow',weekend:'Weekend',qt30:'+30 min',qt60:'+1 hr',qt120:'+2 hr',airportTrip:'Airport trip',selectTime:'Select Time',pickTime:'Pick your preferred time',earlier:'Earlier',later:'Later',confirmBook:'Confirm & Book',chooseType:'Choose ride type',airport:'Airport',bookAirport:'Book a ride to or from the airport',scheduleLater:'Schedule a ride for later',clearPickup:'Clear pickup',clearDropoff:'Clear dropoff',swap:'Swap',swapPd:'Swap pickup and dropoff',chooseOnMap:'Choose on map',dropPin:'Drop a pin at your exact spot',savedPlaces:'Saved places',recent:'Recent',recentEmpty:'Your recent places will appear here',moveMapDrop:'Move map to set dropoff location',home:'Home',work:'Work',holdSave:'Hold to save current {v} as {k}',savedAs:'Saved as {k}',enterDestFirst:'Enter a destination first',confirmRide:'Confirming your ride',driverFound:'Driver found!',driverOnWay:'Your driver is on the way',yourDriver:'Your Driver',download:'DOWNLOAD',downloadNow:'NOW',trackRide:'Track your ride',inApp:'in the app.',followDriver:"Follow your driver live, message in-trip & get real-time ETA updates.",downloadOn:'Download on the',appStore:'App Store',getItOn:'Get it on',googlePlay:'Google Play',cancellingRide:'Cancelling ride',almostThere:'Almost there...',lookingDriver:'Looking for your driver...',searchingDrivers:'Searching nearby drivers...',matchingRide:'Matching you with a premium ride...',signUpTitle:'To continue, sign up',signUpSub:'Create an account to book your ride',signUpSave:'Sign Up · Save 20%',signIn:'Sign In',continueGuest:'Continue as Guest',createAccount:'Create account',enterEmailSignup:'Enter your email to sign up.',emailAddr:'Email address',continueEmail:'Continue with Email',continuePhone:'Continue with Phone',continueGoogle:'Continue with Google',continueApple:'Continue with Apple',signInTitle:'Sign in',welcomeBack:'Welcome back! Enter your credentials.',emailOrPhone:'Email or phone number',password:'Password',alreadyAccount:'Already have an account?',haveAccount:'Already have an account?',createAccountBtn:'Create Account',byContinuing:'By continuing, you agree to our Terms and Privacy Policy',addressNotFound:'Address not found',searchUnavailable:'Search unavailable',you:'You',detecting:'Detecting…',setPickup:'Set your pick-up',setDropoff:'Set your drop-off',moveMapPickup:'Move map to your preferred pick-up location.',moveMapDropoff:'Move map to your preferred drop-off location.',moveMapTap:'Move map or tap location to search.',searchAddress:'Search address...',location:'Location',paymentTimeout:'Payment timeout',paymentError:'Payment error',connectionError:'Connection error',priceError:'Price error',reservationCancelled:'Reservation cancelled. Hold released.',rideCancelled:'Ride cancelled. Hold released.',noDrivers:'No drivers available right now. Please try again in a few minutes.',rideReserved:'Ride Reserved',emailConfirm:"You'll receive an email confirmation once your driver is assigned.",cancelReservation:'Cancel reservation',signOutConfirm:'Sign out of your Cruise account?',scheduledFor:'Scheduled for {d} at {t}',scheduled:'Scheduled',onWay:'{n} is on the way',from:'From: ',to:'To: ',when:'When: ',tierVip:'Premium Black Edition — leather, snacks & drinks, pro chauffeur',tierPremium:'Mid-tier comfort — climate, USB, leather seats, pro driver',tierComfort:'Standard ride — clean, safe & efficient at the best price',yourInfo:'Your info',close:'Close',driverContact:'The driver needs this to contact you during the ride.',firstName:'First name',lastName:'Last name',email:'Email',phone:'Phone',emailOrPhoneMin:'Email or phone — at least one',provideEmailPhone:'Provide at least email or phone.',fillNameContact:'Fill name(s) and use valid email (with @) or phone (10+ digits).',svcUnavailable:'Service not available here',availableIn:'AVAILABLE IN',setDrop:'Set your drop-off',chooseAirport:'Choose your airport trip',toAirport:'To airport',fromAirport:'From airport',takeToAirport:'Take me TO the airport',flyingOut:"I'm flying out",pickFromAirport:'Pick me up FROM the airport',justLanded:'I just landed',searchAirport:'Search any airport...',noAirports:'No airports match "{q}"',whichAirline:'Which airline are you flying?',noTerminalData:"This airport's terminal data is not available. Your driver will confirm the terminal with you.",whichTerminal:'Which terminal did you arrive at?',selectArrivalDoor:'Select Your Arrival Door',flightNumber:'Flight Number (optional)',flightRequired:'Flight number required — driver will track delays',driverTrack:'Your driver will track your flight and adjust pickup time if delayed.',confirmAptPickup:'Confirm Airport Pickup',pickupLabel:'Pickup',dropoffLabel:'Dropoff location',serviceLocationLabel:'Service location',dateLabel:'Date',timeLabel:'Time',selectTimeSlot:'Select a time slot',chooseRide:'Choose a ride',chooseHourly:'Choose your vehicle',hours:'hours',hoursHint:'Min {min} · Max {max} hours',requestNow:'REQUEST NOW',checkout:'Checkout',ctaHint:'Fill all fields and choose a vehicle.',enterLocation:'Enter location.',enterPickupDestination:'Enter pickup and destination.',chooseVehicle:'Choose a vehicle.',selectTimeDot:'Select a time slot.',processingDots:'Processing…',pointToPoint:'Point to Point',byTheHour:'By the Hour',morning:'Morning',afternoon:'Afternoon',evening:'Evening',night:'Night',chooseDateFirst:'Choose a date first',changeLocation:'Change location',changeDatetime:'Change date & time',duration:'Duration',promoOfferTxt:'Get $5 off your next ride when you download',promoFeat1:'Live GPS tracking',promoFeat2:'Chat with your driver',promoFeat3:'Rate & save favorites',promoFeat4:'Exclusive rider rewards',comingSoon:'Coming soon',loginToSeeOptions:'Log in to see ride options',loginToSeeOptionsSub:'Please take a moment to quickly log in or sign up so we can show you your ride options'};
-T.es={back:'Atrás',whereto:'¿A dónde?',now:'Ahora',schedule:'Programar',clear:'Limpiar',continue:'Continuar',cancel:'Cancelar',done:'Listo',confirm:'Confirmar',ok:'OK',or:'o',OR:'O',gotit:'Entendido',processing:'Procesando...',requestRide:'Solicitar Viaje',reserveNow:'Reservar',pickup:'Recogida',dropoff:'Destino',currentLocation:'Ubicación actual',detectingLocation:'Detectando ubicación…',enterPickup:'Ingresa dirección de recogida',searchPickup:'Buscar dirección de recogida',paymentMethod:'Método de Pago',applePay:'Apple Pay',googlePay:'Google Pay',debitCredit:'Tarjeta de crédito o débito',testMode:'Modo de Prueba',simulate:'Simular pago',scheduleRide:'Programa un Viaje',chooseDate:'Elige una fecha para tu viaje',today:'Hoy',tomorrow:'Mañana',weekend:'Fin de semana',qt30:'+30 min',qt60:'+1 hr',qt120:'+2 hr',airportTrip:'Viaje al aeropuerto',selectTime:'Selecciona Hora',pickTime:'Elige tu hora preferida',earlier:'Antes',later:'Después',confirmBook:'Confirmar y Reservar',chooseType:'Elige tipo de viaje',airport:'Aeropuerto',bookAirport:'Reserva un viaje hacia o desde el aeropuerto',scheduleLater:'Programa un viaje para después',clearPickup:'Limpiar recogida',clearDropoff:'Limpiar destino',swap:'Intercambiar',swapPd:'Intercambiar recogida y destino',chooseOnMap:'Elegir en el mapa',dropPin:'Coloca un pin en tu ubicación exacta',savedPlaces:'Lugares guardados',recent:'Recientes',recentEmpty:'Tus lugares recientes aparecerán aquí',moveMapDrop:'Mueve el mapa para ajustar el destino',home:'Casa',work:'Trabajo',holdSave:'Mantén presionado para guardar {v} como {k}',savedAs:'Guardado como {k}',enterDestFirst:'Ingresa un destino primero',confirmRide:'Confirmando tu viaje',driverFound:'¡Chofer encontrado!',driverOnWay:'Tu chofer está en camino',yourDriver:'Tu Chofer',download:'DESCARGA',downloadNow:'AHORA',trackRide:'Sigue tu viaje',inApp:'en la app.',followDriver:'Sigue a tu chofer en vivo, envía mensajes durante el viaje y recibe actualizaciones de ETA en tiempo real.',downloadOn:'Descárgalo en',appStore:'App Store',getItOn:'Disponible en',googlePlay:'Google Play',cancellingRide:'Cancelando viaje',almostThere:'Casi listo...',lookingDriver:'Buscando tu chofer...',searchingDrivers:'Buscando choferes cercanos...',matchingRide:'Conectándote con un viaje premium...',signUpTitle:'Para continuar, regístrate',signUpSub:'Crea una cuenta para reservar tu viaje',signUpSave:'Regístrate · Ahorra 20%',signIn:'Inicia Sesión',continueGuest:'Continuar como Invitado',createAccount:'Crear cuenta',enterEmailSignup:'Ingresa tu email para registrarte.',emailAddr:'Correo electrónico',continueEmail:'Continuar con Email',continuePhone:'Continuar con Teléfono',continueGoogle:'Continuar con Google',continueApple:'Continuar con Apple',signInTitle:'Inicia sesión',welcomeBack:'¡Bienvenido! Ingresa tus credenciales.',emailOrPhone:'Email o teléfono',password:'Contraseña',alreadyAccount:'¿Ya tienes una cuenta?',haveAccount:'¿Ya tienes una cuenta?',createAccountBtn:'Crear Cuenta',byContinuing:'Al continuar, aceptas nuestros Términos y Política de Privacidad',addressNotFound:'Dirección no encontrada',searchUnavailable:'Búsqueda no disponible',you:'Tú',detecting:'Detectando…',setPickup:'Ajusta tu recogida',setDropoff:'Ajusta tu destino',moveMapPickup:'Mueve el mapa a tu ubicación de recogida preferida.',moveMapDropoff:'Mueve el mapa a tu ubicación de destino preferida.',moveMapTap:'Mueve el mapa o toca la ubicación para buscar.',searchAddress:'Buscar dirección...',location:'Ubicación',paymentTimeout:'Tiempo de pago agotado',paymentError:'Error de pago',connectionError:'Error de conexión',priceError:'Error de precio',reservationCancelled:'Reserva cancelada. Retención liberada.',rideCancelled:'Viaje cancelado. Retención liberada.',noDrivers:'No hay choferes disponibles ahora. Intenta de nuevo en unos minutos.',rideReserved:'Viaje Reservado',emailConfirm:'Recibirás un email de confirmación cuando se asigne tu chofer.',cancelReservation:'Cancelar reserva',signOutConfirm:'¿Cerrar sesión de tu cuenta Cruise?',scheduledFor:'Programado para el {d} a las {t}',scheduled:'Programado',onWay:'{n} está en camino',from:'Desde: ',to:'Hacia: ',when:'Cuándo: ',tierVip:'Premium Black Edition — cuero, snacks y bebidas, chofer profesional',tierPremium:'Comodidad media — clima, USB, asientos de cuero, chofer profesional',tierComfort:'Viaje estándar — limpio, seguro y eficiente al mejor precio',yourInfo:'Tus datos',close:'Cerrar',driverContact:'El chofer necesita esto para contactarte durante el viaje.',firstName:'Nombre',lastName:'Apellido',email:'Email',phone:'Teléfono',emailOrPhoneMin:'Email o teléfono — al menos uno',provideEmailPhone:'Ingresa al menos email o teléfono.',fillNameContact:'Completa el/los nombre(s) y usa un email válido (con @) o teléfono (10+ dígitos).',svcUnavailable:'Servicio no disponible aquí',availableIn:'DISPONIBLE EN',setDrop:'Ajusta tu destino',chooseAirport:'Elige tu viaje al aeropuerto',toAirport:'Al aeropuerto',fromAirport:'Desde el aeropuerto',takeToAirport:'Llévame AL aeropuerto',flyingOut:'Voy a volar',pickFromAirport:'Recógeme DEL aeropuerto',justLanded:'Acabo de aterrizar',searchAirport:'Busca cualquier aeropuerto...',noAirports:'Ningún aeropuerto coincide con "{q}"',whichAirline:'¿Con qué aerolínea vuelas?',noTerminalData:'Los datos de terminal para este aeropuerto no están disponibles. Tu chofer confirmará la terminal contigo.',whichTerminal:'¿En qué terminal llegaste?',selectArrivalDoor:'Selecciona Tu Puerta de Llegada',flightNumber:'Número de Vuelo (opcional)',flightRequired:'Número de vuelo requerido — el chofer rastreará demoras',driverTrack:'Tu chofer rastreará tu vuelo y ajustará la hora de recogida si hay retraso.',confirmAptPickup:'Confirmar Recogida en Aeropuerto',pickupLabel:'Recogida',dropoffLabel:'Destino',serviceLocationLabel:'Ubicación del servicio',dateLabel:'Fecha',timeLabel:'Hora',selectTimeSlot:'Selecciona un horario',chooseRide:'Elige un vehículo',chooseHourly:'Elige tu vehículo',hours:'horas',hoursHint:'Mín {min} · Máx {max} horas',requestNow:'SOLICITAR AHORA',checkout:'Pagar',ctaHint:'Completa todos los campos y elige un vehículo.',enterLocation:'Ingresa la ubicación.',enterPickupDestination:'Ingresa recogida y destino.',chooseVehicle:'Elige un vehículo.',selectTimeDot:'Selecciona un horario.',processingDots:'Procesando…',pointToPoint:'Punto a Punto',byTheHour:'Por Hora',morning:'Mañana',afternoon:'Tarde',evening:'Noche',night:'Madrugada',chooseDateFirst:'Elige una fecha primero',changeLocation:'Cambiar ubicación',changeDatetime:'Cambiar fecha y hora',duration:'Duración',promoOfferTxt:'Obtén $5 de descuento al descargar la app',promoFeat1:'Seguimiento GPS en vivo',promoFeat2:'Chatea con tu chofer',promoFeat3:'Califica y guarda favoritos',promoFeat4:'Recompensas exclusivas',comingSoon:'Próximamente',loginToSeeOptions:'Inicia sesión para ver las opciones de viaje',loginToSeeOptionsSub:'Tómate un momento para iniciar sesión o registrarte y mostrarte las opciones de viaje'};
+T.en={back:'Back',whereto:'Where to?',now:'Now',schedule:'Schedule',clear:'Clear',continue:'Continue',cancel:'Cancel',done:'Done',confirm:'Confirm',ok:'OK',or:'or',OR:'OR',gotit:'Got it',processing:'Processing...',requestRide:'Request Ride',reserveNow:'Reserve Now',pickup:'Pickup',dropoff:'Dropoff',currentLocation:'Current location',detectingLocation:'Detecting location…',enterPickup:'Enter pickup address',searchPickup:'Search pickup address',paymentMethod:'Payment Method',applePay:'Apple Pay',googlePay:'Google Pay',debitCredit:'Credit or debit card',testMode:'Test Mode',simulate:'Simulate payment',scheduleRide:'Schedule a Ride',chooseDate:'Choose a date for your ride',today:'Today',tomorrow:'Tomorrow',weekend:'Weekend',qt30:'+30 min',qt60:'+1 hr',qt120:'+2 hr',airportTrip:'Airport trip',selectTime:'Select Time',pickTime:'Pick your preferred time',earlier:'Earlier',later:'Later',confirmBook:'Confirm & Book',chooseType:'Choose ride type',airport:'Airport',bookAirport:'Book a ride to or from the airport',scheduleLater:'Schedule a ride for later',clearPickup:'Clear pickup',clearDropoff:'Clear dropoff',swap:'Swap',swapPd:'Swap pickup and dropoff',chooseOnMap:'Choose on map',dropPin:'Drop a pin at your exact spot',savedPlaces:'Saved places',recent:'Recent',recentEmpty:'Your recent places will appear here',moveMapDrop:'Move map to set dropoff location',home:'Home',work:'Work',holdSave:'Hold to save current {v} as {k}',savedAs:'Saved as {k}',enterDestFirst:'Enter a destination first',confirmRide:'Confirming your ride',driverFound:'Driver found!',driverOnWay:'Your driver is on the way',yourDriver:'Your Driver',download:'DOWNLOAD',downloadNow:'NOW',trackRide:'Track your ride',inApp:'in the app.',followDriver:"Follow your driver live, message in-trip & get real-time ETA updates.",downloadOn:'Download on the',appStore:'App Store',getItOn:'Get it on',googlePlay:'Google Play',cancellingRide:'Cancelling ride',almostThere:'Almost there...',lookingDriver:'Looking for your driver...',searchingDrivers:'Searching nearby drivers...',matchingRide:'Matching you with a premium ride...',signUpTitle:'To continue, sign up',signUpSub:'Create an account to book your ride',signUpSave:'Sign Up · Save 20%',signIn:'Sign In',continueGuest:'Continue as Guest',createAccount:'Create account',enterEmailSignup:'Enter your email to sign up.',emailAddr:'Email address',continueEmail:'Continue with Email',continuePhone:'Continue with Phone',continueGoogle:'Continue with Google',continueApple:'Continue with Apple',signInTitle:'Sign in',welcomeBack:'Welcome back! Enter your credentials.',emailOrPhone:'Email or phone number',password:'Password',alreadyAccount:'Already have an account?',haveAccount:'Already have an account?',createAccountBtn:'Create Account',byContinuing:'By continuing, you agree to our Terms and Privacy Policy',addressNotFound:'Address not found',searchUnavailable:'Search unavailable',you:'You',detecting:'Detecting…',setPickup:'Set your pick-up',setDropoff:'Set your drop-off',moveMapPickup:'Move map to your preferred pick-up location.',moveMapDropoff:'Move map to your preferred drop-off location.',moveMapTap:'Move map or tap location to search.',searchAddress:'Search address...',location:'Location',paymentTimeout:'Payment timeout',paymentError:'Payment error',connectionError:'Connection error',priceError:'Price error',reservationCancelled:'Reservation cancelled. Hold released.',rideCancelled:'Ride cancelled. Hold released.',noDrivers:'No drivers available right now. Please try again in a few minutes.',rideReserved:'Ride Reserved',emailConfirm:"You'll receive an email confirmation once your driver is assigned.",cancelReservation:'Cancel reservation',signOutConfirm:'Sign out of your Cruise account?',scheduledFor:'Scheduled for {d} at {t}',scheduled:'Scheduled',onWay:'{n} is on the way',from:'From: ',to:'To: ',when:'When: ',tierVip:'Premium Black Edition — leather, snacks & drinks, pro chauffeur',tierPremium:'Mid-tier comfort — climate, USB, leather seats, pro driver',tierComfort:'Standard ride — clean, safe & efficient at the best price',yourInfo:'Your info',close:'Close',driverContact:'The driver needs this to contact you during the ride.',firstName:'First name',lastName:'Last name',email:'Email',phone:'Phone',emailOrPhoneMin:'Email or phone — at least one',provideEmailPhone:'Provide at least email or phone.',fillNameContact:'Fill name(s) and use valid email (with @) or phone (10+ digits).',svcUnavailable:'Service not available here',availableIn:'AVAILABLE IN',setDrop:'Set your drop-off',chooseAirport:'Choose your airport trip',toAirport:'To airport',fromAirport:'From airport',takeToAirport:'Take me TO the airport',flyingOut:"I'm flying out",pickFromAirport:'Pick me up FROM the airport',justLanded:'I just landed',searchAirport:'Search any airport...',noAirports:'No airports match "{q}"',whichAirline:'Which airline are you flying?',noTerminalData:"This airport's terminal data is not available. Your driver will confirm the terminal with you.",whichTerminal:'Which terminal did you arrive at?',selectArrivalDoor:'Select Your Arrival Door',flightNumber:'Flight Number (optional)',flightRequired:'Flight number required — driver will track delays',driverTrack:'Your driver will track your flight and adjust pickup time if delayed.',confirmAptPickup:'Confirm Airport Pickup',pickupLabel:'Pickup',dropoffLabel:'Dropoff location',serviceLocationLabel:'Service location',dateLabel:'Date',timeLabel:'Time',selectTimeSlot:'Select a time slot',chooseRide:'Choose a ride',chooseHourly:'Choose your vehicle',hours:'hours',hoursHint:'Min {min} · Max {max} hours',requestNow:'REQUEST NOW',checkout:'Checkout',ctaHint:'Fill all fields and choose a vehicle.',enterLocation:'Enter location.',enterPickupDestination:'Enter pickup and destination.',chooseVehicle:'Choose a vehicle.',selectTimeDot:'Select a time slot.',processingDots:'Processing…',pointToPoint:'Point to Point',byTheHour:'By the Hour',morning:'Morning',afternoon:'Afternoon',evening:'Evening',night:'Night',chooseDateFirst:'Choose a date first',changeLocation:'Change location',changeDatetime:'Change date & time',duration:'Duration',promoOfferTxt:'Get $5 off your next ride when you download',promoFeat1:'Live GPS tracking',promoFeat2:'Chat with your driver',promoFeat3:'Rate & save favorites',promoFeat4:'Exclusive rider rewards',comingSoon:'Coming soon',loginToSeeOptions:'Log in to see ride options',loginToSeeOptionsSub:'Please take a moment to quickly log in or sign up so we can show you your ride options',cfTitle:'Add credit or debit card',cfNumber:'Card Number',cfExp:'Exp. Date',cfCvc:'Security Code',cfCountry:'Country',cfZip:'Zip Code',cfNick:'Nickname (optional)',cfNickPh:'e.g. joint account or work card',cfAdd:'Add Card'};
+T.es={back:'Atrás',whereto:'¿A dónde?',now:'Ahora',schedule:'Programar',clear:'Limpiar',continue:'Continuar',cancel:'Cancelar',done:'Listo',confirm:'Confirmar',ok:'OK',or:'o',OR:'O',gotit:'Entendido',processing:'Procesando...',requestRide:'Solicitar Viaje',reserveNow:'Reservar',pickup:'Recogida',dropoff:'Destino',currentLocation:'Ubicación actual',detectingLocation:'Detectando ubicación…',enterPickup:'Ingresa dirección de recogida',searchPickup:'Buscar dirección de recogida',paymentMethod:'Método de Pago',applePay:'Apple Pay',googlePay:'Google Pay',debitCredit:'Tarjeta de crédito o débito',testMode:'Modo de Prueba',simulate:'Simular pago',scheduleRide:'Programa un Viaje',chooseDate:'Elige una fecha para tu viaje',today:'Hoy',tomorrow:'Mañana',weekend:'Fin de semana',qt30:'+30 min',qt60:'+1 hr',qt120:'+2 hr',airportTrip:'Viaje al aeropuerto',selectTime:'Selecciona Hora',pickTime:'Elige tu hora preferida',earlier:'Antes',later:'Después',confirmBook:'Confirmar y Reservar',chooseType:'Elige tipo de viaje',airport:'Aeropuerto',bookAirport:'Reserva un viaje hacia o desde el aeropuerto',scheduleLater:'Programa un viaje para después',clearPickup:'Limpiar recogida',clearDropoff:'Limpiar destino',swap:'Intercambiar',swapPd:'Intercambiar recogida y destino',chooseOnMap:'Elegir en el mapa',dropPin:'Coloca un pin en tu ubicación exacta',savedPlaces:'Lugares guardados',recent:'Recientes',recentEmpty:'Tus lugares recientes aparecerán aquí',moveMapDrop:'Mueve el mapa para ajustar el destino',home:'Casa',work:'Trabajo',holdSave:'Mantén presionado para guardar {v} como {k}',savedAs:'Guardado como {k}',enterDestFirst:'Ingresa un destino primero',confirmRide:'Confirmando tu viaje',driverFound:'¡Chofer encontrado!',driverOnWay:'Tu chofer está en camino',yourDriver:'Tu Chofer',download:'DESCARGA',downloadNow:'AHORA',trackRide:'Sigue tu viaje',inApp:'en la app.',followDriver:'Sigue a tu chofer en vivo, envía mensajes durante el viaje y recibe actualizaciones de ETA en tiempo real.',downloadOn:'Descárgalo en',appStore:'App Store',getItOn:'Disponible en',googlePlay:'Google Play',cancellingRide:'Cancelando viaje',almostThere:'Casi listo...',lookingDriver:'Buscando tu chofer...',searchingDrivers:'Buscando choferes cercanos...',matchingRide:'Conectándote con un viaje premium...',signUpTitle:'Para continuar, regístrate',signUpSub:'Crea una cuenta para reservar tu viaje',signUpSave:'Regístrate · Ahorra 20%',signIn:'Inicia Sesión',continueGuest:'Continuar como Invitado',createAccount:'Crear cuenta',enterEmailSignup:'Ingresa tu email para registrarte.',emailAddr:'Correo electrónico',continueEmail:'Continuar con Email',continuePhone:'Continuar con Teléfono',continueGoogle:'Continuar con Google',continueApple:'Continuar con Apple',signInTitle:'Inicia sesión',welcomeBack:'¡Bienvenido! Ingresa tus credenciales.',emailOrPhone:'Email o teléfono',password:'Contraseña',alreadyAccount:'¿Ya tienes una cuenta?',haveAccount:'¿Ya tienes una cuenta?',createAccountBtn:'Crear Cuenta',byContinuing:'Al continuar, aceptas nuestros Términos y Política de Privacidad',addressNotFound:'Dirección no encontrada',searchUnavailable:'Búsqueda no disponible',you:'Tú',detecting:'Detectando…',setPickup:'Ajusta tu recogida',setDropoff:'Ajusta tu destino',moveMapPickup:'Mueve el mapa a tu ubicación de recogida preferida.',moveMapDropoff:'Mueve el mapa a tu ubicación de destino preferida.',moveMapTap:'Mueve el mapa o toca la ubicación para buscar.',searchAddress:'Buscar dirección...',location:'Ubicación',paymentTimeout:'Tiempo de pago agotado',paymentError:'Error de pago',connectionError:'Error de conexión',priceError:'Error de precio',reservationCancelled:'Reserva cancelada. Retención liberada.',rideCancelled:'Viaje cancelado. Retención liberada.',noDrivers:'No hay choferes disponibles ahora. Intenta de nuevo en unos minutos.',rideReserved:'Viaje Reservado',emailConfirm:'Recibirás un email de confirmación cuando se asigne tu chofer.',cancelReservation:'Cancelar reserva',signOutConfirm:'¿Cerrar sesión de tu cuenta Cruise?',scheduledFor:'Programado para el {d} a las {t}',scheduled:'Programado',onWay:'{n} está en camino',from:'Desde: ',to:'Hacia: ',when:'Cuándo: ',tierVip:'Premium Black Edition — cuero, snacks y bebidas, chofer profesional',tierPremium:'Comodidad media — clima, USB, asientos de cuero, chofer profesional',tierComfort:'Viaje estándar — limpio, seguro y eficiente al mejor precio',yourInfo:'Tus datos',close:'Cerrar',driverContact:'El chofer necesita esto para contactarte durante el viaje.',firstName:'Nombre',lastName:'Apellido',email:'Email',phone:'Teléfono',emailOrPhoneMin:'Email o teléfono — al menos uno',provideEmailPhone:'Ingresa al menos email o teléfono.',fillNameContact:'Completa el/los nombre(s) y usa un email válido (con @) o teléfono (10+ dígitos).',svcUnavailable:'Servicio no disponible aquí',availableIn:'DISPONIBLE EN',setDrop:'Ajusta tu destino',chooseAirport:'Elige tu viaje al aeropuerto',toAirport:'Al aeropuerto',fromAirport:'Desde el aeropuerto',takeToAirport:'Llévame AL aeropuerto',flyingOut:'Voy a volar',pickFromAirport:'Recógeme DEL aeropuerto',justLanded:'Acabo de aterrizar',searchAirport:'Busca cualquier aeropuerto...',noAirports:'Ningún aeropuerto coincide con "{q}"',whichAirline:'¿Con qué aerolínea vuelas?',noTerminalData:'Los datos de terminal para este aeropuerto no están disponibles. Tu chofer confirmará la terminal contigo.',whichTerminal:'¿En qué terminal llegaste?',selectArrivalDoor:'Selecciona Tu Puerta de Llegada',flightNumber:'Número de Vuelo (opcional)',flightRequired:'Número de vuelo requerido — el chofer rastreará demoras',driverTrack:'Tu chofer rastreará tu vuelo y ajustará la hora de recogida si hay retraso.',confirmAptPickup:'Confirmar Recogida en Aeropuerto',pickupLabel:'Recogida',dropoffLabel:'Destino',serviceLocationLabel:'Ubicación del servicio',dateLabel:'Fecha',timeLabel:'Hora',selectTimeSlot:'Selecciona un horario',chooseRide:'Elige un vehículo',chooseHourly:'Elige tu vehículo',hours:'horas',hoursHint:'Mín {min} · Máx {max} horas',requestNow:'SOLICITAR AHORA',checkout:'Pagar',ctaHint:'Completa todos los campos y elige un vehículo.',enterLocation:'Ingresa la ubicación.',enterPickupDestination:'Ingresa recogida y destino.',chooseVehicle:'Elige un vehículo.',selectTimeDot:'Selecciona un horario.',processingDots:'Procesando…',pointToPoint:'Punto a Punto',byTheHour:'Por Hora',morning:'Mañana',afternoon:'Tarde',evening:'Noche',night:'Madrugada',chooseDateFirst:'Elige una fecha primero',changeLocation:'Cambiar ubicación',changeDatetime:'Cambiar fecha y hora',duration:'Duración',promoOfferTxt:'Obtén $5 de descuento al descargar la app',promoFeat1:'Seguimiento GPS en vivo',promoFeat2:'Chatea con tu chofer',promoFeat3:'Califica y guarda favoritos',promoFeat4:'Recompensas exclusivas',comingSoon:'Próximamente',loginToSeeOptions:'Inicia sesión para ver las opciones de viaje',loginToSeeOptionsSub:'Tómate un momento para iniciar sesión o registrarte y mostrarte las opciones de viaje',cfTitle:'Agrega tarjeta de crédito o débito',cfNumber:'Número de tarjeta',cfExp:'Vencimiento',cfCvc:'Código de seguridad',cfCountry:'País',cfZip:'Código postal',cfNick:'Apodo (opcional)',cfNickPh:'ej. cuenta personal o del trabajo',cfAdd:'Agregar tarjeta'};
 function detLang(){try{var sl='es'.toLowerCase();if(sl.indexOf('es')===0)return 'es';var l=(navigator.language||'en').toLowerCase();return l.indexOf('es')===0?'es':'en';}catch(_){return 'en';}}
 window.__vrLang=detLang();
 window.__vrT=function(k,rep,forceLang){var lang=forceLang||window.__vrLang||'en';var tx=(T[lang]&&T[lang][k])||T.en[k]||k;if(rep)for(var r in rep)tx=tx.replace(new RegExp('\\{'+r+'\\}','g'),rep[r]);return tx;};
@@ -1036,6 +1096,15 @@ window.__vrApplyI18n=function(){
     ['[data-vipride-pay-apple]','applePay'],
     ['[data-vipride-pay-google]','googlePay'],
     ['[data-vipride-pay-card]','debitCredit'],
+    ['[data-vipride-cf-title]','cfTitle'],
+    ['[data-vipride-cf-l-num]','cfNumber'],
+    ['[data-vipride-cf-l-exp]','cfExp'],
+    ['[data-vipride-cf-l-cvc]','cfCvc'],
+    ['[data-vipride-cf-l-country]','cfCountry'],
+    ['[data-vipride-cf-l-zip]','cfZip'],
+    ['[data-vipride-cf-l-nick]','cfNick'],
+    ['[data-vipride-cf-add]','cfAdd'],
+    ['[data-vipride-cf-cancel]','cancel'],
     ['[data-vipride-pay-test-label]','testMode'],
     ['[data-vipride-pay-test-sub]','simulate'],
     ['[data-vipride-sch-heading]','scheduleRide'],
@@ -4092,6 +4161,8 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
   html body:has(.vipRide__authPage[data-visible]) #vrDeskBar{display:none!important}
   html body .vipRide__payOverlay:not([hidden]),
   html body .vipRide__scheduleOverlay:not([hidden]){position:fixed!important;inset:0!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:40px 20px!important;background:rgba(0,0,0,.72)!important;backdrop-filter:blur(28px)!important;-webkit-backdrop-filter:blur(28px)!important;overflow-y:auto!important}
+  html body .vipRide__payOption[data-vipride-pay-option="apple_pay"],
+  html body .vipRide__payOption[data-vipride-pay-option="google_pay"]{display:none!important}
   html body .vipRide__laterOverlay:not([hidden]){position:fixed!important;inset:0!important;display:flex!important;flex-direction:column!important;padding:40px 20px!important;background:linear-gradient(135deg,#1e1e24,#0a0a10)!important;backdrop-filter:blur(20px)!important;-webkit-backdrop-filter:blur(20px)!important;overflow-y:auto!important;overflow-x:hidden!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.1)!important;isolation:isolate!important}
   html body .vipRide__laterOverlay:not([hidden]) > *{position:relative!important;z-index:2!important}
   @keyframes vrMirrorShift{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:0% 0%}}
@@ -4986,6 +5057,29 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__payCheck{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(0,0,0,.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 200ms}
 .vipRide__payOption.is-selected .vipRide__payCheck{display:flex;background:#d4af37;border-color:#d4af37;color:#000}
 .vipRide__payOption.is-selected .vipRide__payCheck::after{content:'\2713';font-weight:800}
+.vipRide__payOverlay__list{transition:opacity 300ms cubic-bezier(.33,1,.68,1),transform 300ms cubic-bezier(.33,1,.68,1)}
+.vipRide__payOverlay__list.is-out,.vipRide__cardForm.is-out{opacity:0;transform:translateY(-12px) scale(.985);pointer-events:none}
+.vipRide__payOverlay__list.is-entering{opacity:0;transform:translateY(16px) scale(.975)}
+.vipRide__cardForm{margin:auto;width:min(460px,calc(100vw - 40px));max-height:min(88vh,720px);overflow-y:auto;background:#fff;border-radius:16px;padding:26px 22px 14px;box-shadow:0 24px 70px rgba(0,0,0,.55);display:flex;flex-direction:column;gap:15px;opacity:1;transform:translateY(0) scale(1);transition:opacity 320ms cubic-bezier(.33,1,.68,1),transform 320ms cubic-bezier(.33,1,.68,1);scrollbar-width:none;-ms-overflow-style:none}
+.vipRide__cardForm::-webkit-scrollbar{display:none;width:0;height:0}
+.vipRide__cardForm[hidden]{display:none!important}
+.vipRide__cardForm.is-entering{opacity:0;transform:translateY(18px) scale(.975)}
+.vipRide__cardForm__title{font-size:25px;font-weight:800;color:#111;margin:0 0 4px;letter-spacing:-.4px}
+.vipRide__cardForm__field{display:flex;flex-direction:column;gap:8px}
+.vipRide__cardForm__field>label{font-size:15px;font-weight:700;color:#111}
+.vipRide__cardForm__row{display:flex;gap:14px}
+.vipRide__cardForm__row .vipRide__cardForm__field{flex:1 1 0;min-width:0}
+.vipRide__cardForm__input,.vipRide__cardForm__text,.vipRide__cardForm__select{background:#f3f3f3;border:none;border-radius:8px;padding:15px 14px;font-size:16px;color:#111;width:100%;box-sizing:border-box;font-family:inherit}
+.vipRide__cardForm__text:focus,.vipRide__cardForm__select:focus{outline:2px solid #111}
+.vipRide__cardForm__text::placeholder{color:#9c9c9c}
+.vipRide__cardForm__select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'><path d='M1 1l6 6 6-6' fill='none' stroke='%23111' stroke-width='2' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;cursor:pointer}
+.vipRide__cardForm__err{display:none;color:#c0262d;font-size:14px;font-weight:600}
+.vipRide__cardForm__err.is-on{display:block}
+.vipRide__cardForm__submit{margin-top:4px;background:#000;color:#fff;border:none;border-radius:10px;padding:17px;font-size:17px;font-weight:700;cursor:pointer;transition:background 150ms,transform 120ms}
+.vipRide__cardForm__submit:disabled{background:#8f8f8f;cursor:default}
+.vipRide__cardForm__submit:not(:disabled):active{transform:scale(.985)}
+.vipRide__cardForm__cancel{background:none;border:none;color:#111;font-size:17px;font-weight:700;padding:10px;cursor:pointer;border-radius:8px}
+.vipRide__cardForm__cancel:hover{background:#f5f5f5}
 .vipRide__scheduleOverlay{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.15);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);display:flex!important;flex-direction:column;padding-top:var(--vip-nav-h,0);transition:opacity 380ms cubic-bezier(.33,1,.68,1),transform 380ms cubic-bezier(.33,1,.68,1);transform:translateY(0) scale(1);will-change:opacity,transform}
 .vipRide__scheduleOverlay.is-entering{opacity:0;transform:translateY(14px) scale(.985)}
 .vipRide__scheduleOverlay[hidden]{display:none!important}
@@ -6871,10 +6965,14 @@ setTimeout(_vrPfKick,1200);
     updateCompactArrow();
     var _payOverlay = document.querySelector('[data-vipride-pay-overlay]');
     var _payOptions = document.querySelectorAll('[data-vipride-pay-option]');
+    var _payList=_payOverlay?_payOverlay.querySelector('.vipRide__payOverlay__list'):null;
+    var _cardForm=document.querySelector('[data-vipride-cardform]');
     function _openPayOverlay(){
       if(!_payOverlay) return;
       _vrSheetHide('pay');
       setNavBg('blur');
+      if(_cardForm)_cardForm.setAttribute('hidden','');
+      if(_payList){_payList.removeAttribute('hidden');_payList.classList.remove('is-out');}
       _payOverlay.removeAttribute('hidden');
       _payOverlay.classList.add('is-entering');
       _payOverlay.classList.remove('is-closing');
@@ -6906,6 +7004,7 @@ setTimeout(_vrPfKick,1200);
     }
     _payOptions.forEach(function(opt){
       opt.addEventListener('click', function(){
+        if(opt.getAttribute('data-vipride-pay-option')==='card' && _stripe){ _openCardForm(); return; }
         _payOptions.forEach(function(o){ o.classList.remove('is-selected'); });
         opt.classList.add('is-selected');
         _selectedPayment = opt.getAttribute('data-vipride-pay-option');
@@ -6933,6 +7032,109 @@ setTimeout(_vrPfKick,1200);
         }, 300);
       });
     });
+    /* ── Formulario de tarjeta (Stripe Elements, estilo Uber) ── */
+    var _cardPm=null,_cfMounted=false,_cfNumber=null,_cfState={num:false,exp:false,cvc:false};
+    function _cfEls(){return{zip:_cardForm.querySelector('[data-vipride-cf-zip]'),country:_cardForm.querySelector('[data-vipride-cf-country]'),nick:_cardForm.querySelector('[data-vipride-cf-nick]'),add:_cardForm.querySelector('[data-vipride-cf-add]'),cancel:_cardForm.querySelector('[data-vipride-cf-cancel]'),err:_cardForm.querySelector('[data-vipride-cf-err]')};}
+    function _cfUpdateBtn(){var e=_cfEls();e.add.disabled=!(_cfState.num&&_cfState.exp&&_cfState.cvc&&e.zip.value.trim().length>=3);}
+    function _cfShowErr(msg){var e=_cfEls();if(!msg){e.err.classList.remove('is-on');e.err.textContent='';return;}e.err.textContent=msg;e.err.classList.add('is-on');}
+    function _swapPanels(from,to){
+      if(!from||!to)return;
+      from.classList.add('is-out');
+      setTimeout(function(){
+        from.setAttribute('hidden','');from.classList.remove('is-out');
+        to.removeAttribute('hidden');to.classList.add('is-entering');
+        requestAnimationFrame(function(){requestAnimationFrame(function(){to.classList.remove('is-entering');});});
+      },230);
+    }
+    function _cfMount(){
+      if(_cfMounted||!_stripe||!_cardForm)return;
+      _cfMounted=true;
+      var st={base:{fontSize:'16px',color:'#111','::placeholder':{color:'#9c9c9c'}},invalid:{color:'#c0262d'}};
+      var els=_stripe.elements({locale:currentLang==='es'?'es':'en'});
+      _cfNumber=els.create('cardNumber',{style:st,showIcon:true});
+      var exp=els.create('cardExpiry',{style:st,placeholder:'MM / YY'});
+      var cvc=els.create('cardCvc',{style:st,placeholder:'123'});
+      _cfNumber.mount('#vrCfNumber');exp.mount('#vrCfExp');cvc.mount('#vrCfCvc');
+      _cfNumber.on('change',function(ev){_cfState.num=!!ev.complete;_cfShowErr(ev.error?ev.error.message:null);_cfUpdateBtn();});
+      exp.on('change',function(ev){_cfState.exp=!!ev.complete;_cfShowErr(ev.error?ev.error.message:null);_cfUpdateBtn();});
+      cvc.on('change',function(ev){_cfState.cvc=!!ev.complete;_cfShowErr(ev.error?ev.error.message:null);_cfUpdateBtn();});
+      var e=_cfEls();
+      e.zip.addEventListener('input',_cfUpdateBtn);
+      if(currentLang==='es'&&e.nick)e.nick.placeholder=t('cfNickPh');
+      e.add.addEventListener('click',_cfSubmit);
+      e.cancel.addEventListener('click',function(){_swapPanels(_cardForm,_payList);});
+    }
+    function _openCardForm(){
+      if(!_cardForm){_vrToast(t('paymentError'),'err');return;}
+      _cfMount();
+      _cfShowErr(null);
+      _swapPanels(_payList,_cardForm);
+    }
+    function _cfSubmit(){
+      var e=_cfEls();
+      if(e.add.disabled)return;
+      e.add.disabled=true;var _old=e.add.textContent;e.add.textContent=t('processing');
+      _stripe.createPaymentMethod({type:'card',card:_cfNumber,billing_details:{address:{postal_code:e.zip.value.trim(),country:e.country.value}}})
+      .then(function(res){
+        if(res.error){e.add.textContent=_old;_cfUpdateBtn();_cfShowErr(res.error.message||t('paymentError'));return;}
+        _cardPm={id:res.paymentMethod.id,brand:(res.paymentMethod.card&&res.paymentMethod.card.brand)||'card',last4:(res.paymentMethod.card&&res.paymentMethod.card.last4)||''};
+        e.add.textContent=_old;_cfUpdateBtn();
+        _cfSelectCard(e.nick?e.nick.value.trim():'');
+      })
+      .catch(function(){e.add.textContent=_old;_cfUpdateBtn();_cfShowErr(t('connectionError'));});
+    }
+    function _cfSelectCard(nick){
+      var opt=document.querySelector('[data-vipride-pay-option="card"]');
+      _payOptions.forEach(function(o){o.classList.remove('is-selected');});
+      if(opt)opt.classList.add('is-selected');
+      _selectedPayment='card';
+      var brand=_cardPm.brand&&_cardPm.brand!=='card'?_cardPm.brand.charAt(0).toUpperCase()+_cardPm.brand.slice(1):'Card';
+      var disp=nick||(brand+' •••• '+_cardPm.last4);
+      var _tok=(typeof __vipAuthToken==='function')?__vipAuthToken():null;
+      if(_tok){fetch(_apiBase+'/auth/web/set-default-payment',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+_tok},body:JSON.stringify({method_type:'card',display_name:disp})}).catch(function(){});}
+      if(_paymentBtn){
+        var icon=opt?opt.querySelector('.vipRide__payIcon'):null;
+        var oldIcon=_paymentBtn.querySelector('.vipRide__payBtnIcon');
+        if(oldIcon&&icon){
+          var cloned=icon.cloneNode(true);
+          cloned.className='vipRide__payBtnIcon';
+          cloned.style.cssText='width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;'+(icon.getAttribute('style')||'');
+          oldIcon.replaceWith(cloned);
+        }
+        var btnLabel=_paymentBtn.querySelector('.vipRide__payBtnLabel');
+        if(btnLabel)btnLabel.textContent=disp;
+      }
+      setTimeout(function(){
+        _closePayOverlay();
+        if(_requestBtn)_requestBtn.disabled=false;
+      },250);
+    }
+    function _payWithCardElement(){
+      if(_payBusy)return;
+      _payBusy=true;
+      _payClientSecret=null;_pendingPaymentIntentId=null;
+      var d=_getRideData();
+      if(d.cents<=0){_vrToast(t('priceError'),'err');_payBusy=false;return;}
+      _requestBtn.disabled=true;_requestBtn.textContent=t('processing');
+      fetch(_apiBase+'/payments/web/create-intent',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+_webKey},
+        body:JSON.stringify({amount:d.cents,currency:'usd',description:'Cruise '+d.vehicle+' Ride',metadata:d.metadata})
+      })
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+      .then(function(data){
+        if(!data.client_secret)throw new Error(data.detail||'Intent error');
+        _payClientSecret=data.client_secret;
+        return _stripe.confirmCardPayment(_payClientSecret,{payment_method:_cardPm.id});
+      })
+      .then(function(res){
+        if(!res)return;
+        if(res.error){_payBusy=false;_payFailed(res.error);return;}
+        _pendingPaymentIntentId=res.paymentIntent.id;
+        _payBusy=false;_showTestConfirm();
+      })
+      .catch(function(e){_payBusy=false;_payFailed(e||{message:t('paymentError')});});
+    }
     var _stripe=window.Stripe?Stripe('pk_live_51T4BXG4JZyaaA3VKQmdt1gQp3Mi4jGVSmYZ6aWl8ZEQ7k07gzzGzlOKde9n4zdLbhhmclJKysCdAVnNy5Uh8TeMf00YAldU9fo'):null;
     var _webKey='5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad',_apiBase='https://cruise-api-proxy.cruise-api.workers.dev',_payReq=null,_payReqAvailable=false,_payClientSecret=null,_pendingPaymentIntentId=null;
     try{window.__vrWebKey=_webKey;}catch(_){}
@@ -7505,7 +7707,9 @@ setTimeout(_vrPfKick,1200);
         _vrTrack('request_ride_clicked',{vehicle:selectedRide.title,payment:_selectedPayment,amount_cents:selectedRide.priceCents});
         if(_selectedPayment==='cash'){doCheckout(_requestBtn);return;}
         if(_selectedPayment==='test_mode'){_showTestConfirm();return;}
-        if((_selectedPayment==='apple_pay'||_selectedPayment==='google_pay') && _stripe){
+        if(_selectedPayment==='card' && _cardPm && _stripe){
+          _payWithCardElement();
+        } else if((_selectedPayment==='apple_pay'||_selectedPayment==='google_pay') && _stripe){
           _payWithNativeSheet();
         } else {
           _payWithCheckout();
@@ -7661,7 +7865,7 @@ html body .vipRide__rideCard.is-active,#vrDeskBarRide .vipRide__rideCard.is-acti
 /* overlays a pantalla completa → fondo clay */
 html body .vipRide__locPicker,html body [data-vipride-locpicker]{background:#17191f!important}
 html body .vipRide__mapPicker{background:#17191f}
-html body .vipRide__payOverlay{background:transparent}
+html body .vipRide__payOverlay{background:rgba(0,0,0,.35)}
 html body .vipRide__scheduleOverlay{background:rgba(23,25,31,.45)}
 html body .vipRide__authPage{background:rgba(23,25,31,.82)}
 html body.vipride-auth-open,html.vipride-auth-open,html.vipride-auth-open body{background:#17191f!important}
@@ -7849,7 +8053,7 @@ html body #vipMpFooterSugs{
     box-shadow:8px 8px 18px rgba(0,0,0,.42),-6px -6px 14px rgba(255,255,255,.09),inset 0 1px 0 rgba(255,255,255,.45);
   }
   html body .vipRide__scheduleOverlay:not([hidden]){background:rgba(23,25,31,.78)!important}
-  html body .vipRide__payOverlay:not([hidden]){background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  html body .vipRide__payOverlay:not([hidden]){background:rgba(0,0,0,.35)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
   html body .vipRide__laterOverlay:not([hidden]){background:rgba(23,25,31,.94)!important}
   html body .vipRide__scheduleOverlay .vipRide__schedPage{
     background:#20242d!important;border:none!important;border-radius:26px!important;
