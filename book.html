@@ -8242,11 +8242,7 @@ html body #vipMpFooterSugs{
   html body #vrDeskBarRide{ display:none!important }
 
 
-  /* pines de recogida y destino: no hasta pulsar Search.
-     El punto azul/dorado de "tu ubicación" (gpsPin) sí se mantiene siempre. */
-  html body .vipRide:not(.vrd-searched) .mapboxgl-marker:not(:has(.vipRide__gpsPin)):not(:has(.vipRide__youLabel)){
-    opacity:0!important; pointer-events:none!important;
-  }
+  /* los pines y la ruta se ven desde que se elige el destino (estilo Uber) */
   html body .vipRide .mapboxgl-marker{ transition:opacity .45s ease }
 
   /* ---- paso 3: el formulario se queda a la izquierda y la lista va al centro ---- */
@@ -8580,10 +8576,8 @@ html body #vipMpFooterSugs{
     syncWhen();
   }
 
-  /* ---- nada dibujado en el mapa hasta pulsar Search ----
-     El motor calcula la ruta en cuanto eliges una dirección (lo necesita para
-     precios y tiempos), así que no se bloquea el cálculo: se ocultan las capas
-     de la ruta y los pines hasta que el usuario pulsa el botón. */
+  /* la ruta y los pines se muestran en cuanto hay destino (estilo Uber);
+     aquí solo se conserva la referencia al mapa para los reencuadres. */
   var vrMap = null, searched = false;
   var ROUTE_LAYERS = ['route-shadow', 'route-glow', 'route-casing', 'route-line'];
 
@@ -8595,10 +8589,6 @@ html body #vipMpFooterSugs{
       try {
         if (mq.matches && layer && typeof layer.id === 'string' && layer.id.indexOf('route-') === 0) {
           vrMap = this;
-          if (!searched) {
-            layer.layout = layer.layout || {};
-            layer.layout.visibility = 'none';
-          }
         }
       } catch (_) {}
       return origAdd.apply(this, arguments);
@@ -8637,7 +8627,6 @@ html body #vipMpFooterSugs{
     searched = false;
     var sec = document.querySelector('.vipRide');
     if (sec) sec.classList.remove('vrd-searched');
-    setRouteVisible(false);
   }
 
   patchMapbox();
