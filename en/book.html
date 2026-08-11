@@ -5040,9 +5040,9 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__mapLabel--pickup .vipRide__mapLabel__tail{left:-5px;border-right:0;border-top:0}
 .vipRide__mapLabel--dropoff .vipRide__mapLabel__tail{right:-5px;border-left:0;border-bottom:0}
 .vipRide__mapLabel__ico{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:7px;flex-shrink:0;background:linear-gradient(135deg,#F5DC7A,#D4A800);color:#0a0e1a;box-shadow:0 2px 6px rgba(232,197,71,.4)}
-.vipRide__mapLabel__eta{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;align-self:stretch;padding:0 9px;margin:-7px 4px -7px -9px;background:linear-gradient(135deg,#F5DC7A,#D4A800);color:#0a0e1a;font-size:12px;font-weight:800;border-radius:11px 0 0 11px;letter-spacing:-.01em}
+.vipRide__mapLabel__eta{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;padding:3px 6px;margin:0;background:linear-gradient(135deg,#F5DC7A,#D4A800);color:#0a0e1a;font-size:10px;font-weight:800;line-height:1.2;border-radius:6px;letter-spacing:-.01em}
 .vipRide__mapLabel__txt{display:flex;flex-direction:column;gap:1px;min-width:0}
-.vipRide__labelText{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vipRide__labelText{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
 .vipRide__mapLabel__kind{font-size:8.5px;font-weight:800;letter-spacing:.14em;color:#E8C547;text-transform:uppercase}
 .vipRide__labelText{font-size:clamp(11px,2.3vw,12.5px);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,.96);max-width:clamp(110px,32vw,200px)}
 .vipRide__youLabel{position:absolute;left:50%;top:-64px;transform:translateX(-50%);background:linear-gradient(135deg,#F5DC7A,#E8C547);color:#0a0e1a;font-size:11px;font-weight:800;padding:4px 12px;border-radius:10px;white-space:nowrap;box-shadow:0 4px 14px rgba(232,197,71,.45);pointer-events:none;animation:youLabelIn 480ms cubic-bezier(.34,1.56,.64,1) 600ms both,youLabelPulse 2.8s ease-in-out 1400ms infinite}
@@ -5980,7 +5980,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     var dL=pickupPlace.lat-dropoffPlace.lat,dN=pickupPlace.lng-dropoffPlace.lng,d=Math.sqrt(dL*dL+dN*dN),nH=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--vip-nav-h'),10)||60;
     var sH=_vrSheetHeight(),iD=innerWidth>=900;
     if(!iD&&sH<200&&currentStep===3)_fR=setTimeout(fitRouteBounds,400);
-    var sP=d<.05?110:130,pad={top:nH+70,right:sP,bottom:Math.max(sH,280)+60,left:sP},mZ=d<.005?15.8:d<.01?15.3:d<.03?14.8:d<.1?14.2:13.4;
+    var sP=d<.05?150:170,pad={top:nH+95,right:sP,bottom:Math.max(sH,280)+70,left:sP},mZ=d<.005?15.8:d<.01?15.3:d<.03?14.8:d<.1?14.2:13.4;
     var c=map.cameraForBounds(b,{padding:pad,maxZoom:mZ,pitch:55,bearing:15});
     if(!c){_fR=setTimeout(fitRouteBounds,300);return;}
     window.__vrFlying=true;
@@ -6165,6 +6165,8 @@ setTimeout(_vrPfKick,1200);
         window.__vrRouteCoords=(route.geometry&&route.geometry.coordinates)||null;
         try{fitRouteBounds();}catch(_){}
         drawRoute(route.geometry);updateCardPrices(routeDurationSec);_vrRefreshEtaBadges();
+        /* los pines se recrean al cambiar direccion: hay que volver a colgar los rotulos */
+        if(currentStep===3)setTimeout(showMarkerLabels,1150);
         _setCardsLoading(false);
         if(currentStep===3)validateCTA(selectedRide);
       }).catch(function(){if(req===routeReq)_setCardsLoading(false);_mbErr('Error al calcular ruta','Route failed');});
@@ -7689,7 +7691,7 @@ html body .vipRide__mapLabel{
   box-shadow:inset 1px 1px 3px rgba(255,255,255,.09),inset -4px -4px 8px rgba(0,0,0,.35),6px 8px 16px rgba(0,0,0,.38);
 }
 html body .vipRide__mapLabel__tail{background:rgba(32,36,45,.95);border:none}
-html body .vipRide__mapLabel__eta{margin:-7px 4px -7px -9px;border-radius:13px 0 0 13px}
+html body .vipRide__mapLabel__eta{margin:0;border-radius:6px}
 
 /* overlay de pago → opciones clay */
 html body .vipRide__payOption{
