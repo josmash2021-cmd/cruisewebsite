@@ -300,7 +300,7 @@
               <span class="vipRide__payBtnLabel" data-vipride-rc-heading>Payment Method</span>
               <svg aria-hidden="true" width="7" height="12" viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.4"><path d="M1 1l5 5-5 5"/></svg>
             </button>
-            <button type="button" class="vipRide__requestBtn" data-vipride-request-btn disabled aria-label="Request ride"><span data-vipride-request-text>Request Ride</span></button>
+            <button type="button" class="vipRide__requestBtn" data-vipride-request-btn aria-label="Request ride"><span data-vipride-request-text>Request Ride</span></button>
           </div>
           <form class="vipRide__ctaForm" data-vipride-form style="display:none">
             <input type="hidden" name="id" value="" data-vipride-booking-variant>
@@ -5628,13 +5628,13 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
   function _mbErr(es,en){var n=Date.now();if(n-_mbErrAt<8e3)return;_mbErrAt=n;_vrToast&&_vrToast(currentLang==='es'?es:en,'err');}
   function _isLoggedIn(){return typeof __vipAuthCheck==='function'?__vipAuthCheck():(!!_vrLS.get('vr_at')||_vrGuest);}
   function _showAuthGate(){if(typeof __vipShowGate==='function')__vipShowGate();}
-  function showSearchAuthModal(){
+  function showSearchAuthModal(titleText,subText){
     if(!_searchAuthModal)return;
     var title=_searchAuthModal.querySelector('[data-vipride-search-auth-title]');
     var sub=_searchAuthModal.querySelector('[data-vipride-search-auth-sub]');
     var btn=_searchAuthModal.querySelector('[data-vipride-search-auth-continue]');
-    if(title)title.textContent=t('loginToSeeOptions');
-    if(sub)sub.textContent=t('loginToSeeOptionsSub');
+    if(title)title.textContent=titleText||t('loginToSeeOptions');
+    if(sub)sub.textContent=subText||t('loginToSeeOptionsSub');
     if(btn)btn.textContent=t('continue');
     _searchAuthModal.hidden=false;
     requestAnimationFrame(function(){requestAnimationFrame(function(){_searchAuthModal.setAttribute('data-visible','');});});
@@ -5759,7 +5759,6 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     });
   }
   if(step1NextBtn)step1NextBtn.addEventListener('click',function(){
-    if(!_isLoggedIn()){showSearchAuthModal();return;}
     goToStep(3,'forward');
   });
   if(stepBackBtn)stepBackBtn.addEventListener('click',function(){goToStep(1,'back');});
@@ -6843,7 +6842,6 @@ setTimeout(_vrPfKick,1200);
     }
     if(_paymentBtn){
       _paymentBtn.addEventListener('click', function(){
-        if(!_isLoggedIn() && typeof __vipShowGate==='function'){_vrPostAuth='pay';_showAuthGate();return;}
         _openPayOverlay();
       });
     }
@@ -7413,7 +7411,7 @@ setTimeout(_vrPfKick,1200);
       var payBtnLbl=root.querySelector('.vipRide__payBtnLabel');
       if(payBtnLbl)payBtnLbl.textContent=t('paymentMethod');
       root.querySelectorAll('[data-vipride-pay-option]').forEach(function(o){o.classList.remove('is-active');});
-      if(_requestBtn){_requestBtn.disabled=true;_requestBtn.textContent=t('requestRide');}
+      if(_requestBtn){_requestBtn.disabled=false;_requestBtn.textContent=t('requestRide');}
       try{validateCTA(null);}catch(_){}
       try{compactPills.forEach(function(b){b.classList.toggle('is-active',b.getAttribute('data-compact-mode')==='now');});if(segEl)segEl.classList.remove('is-later');}catch(_){}
       window.__vrAptActive=false;window.__vrAptSurchargeCents=0;
@@ -7436,27 +7434,26 @@ setTimeout(_vrPfKick,1200);
     }
     if(_requestBtn){
       _requestBtn.addEventListener('click', function(){
-        if(!selectedRide || !_selectedPayment) return;
         if(_payBusy || _requestBtn.disabled) return;
-        _vrTrack('request_ride_clicked',{vehicle:selectedRide.title,payment:_selectedPayment,amount_cents:selectedRide.priceCents});
-        function _proceed(){
-          if(_selectedPayment==='cash'){doCheckout(_requestBtn);return;}
-          if(_selectedPayment==='test_mode'){_showTestConfirm();return;}
-          if((_selectedPayment==='apple_pay'||_selectedPayment==='google_pay') && _stripe){
-            _payWithNativeSheet();
-          } else {
-            _payWithCheckout();
-          }
-        }
+        if(!selectedRide) return;
         var isAuthed=!!(typeof __vipAuthToken==='function'?__vipAuthToken():_vrLS.get('vr_at'));
-        if(_selectedPayment==='cash'&&!isAuthed){_vrToast('Sign in required for Cash','err');if(typeof __vipShowGate==='function')_showAuthGate();return;}
-        if(isAuthed){_proceed();return;}
-        if(typeof window.__vrGuestCollect==='function'){
-          window.__vrGuestCollect(function(info){if(info&&info.first_name&&info.last_name&&info.email)_proceed();else _vrToast(t('provideEmailPhone')||'Please provide your info','err');});
+        if(!isAuthed){
+          _vrTrack('auth_required');
+          showSearchAuthModal(
+            currentLang==='es'?'Inicia sesión para solicitar tu viaje':'Log in to request your ride',
+            currentLang==='es'?'Inicia sesión o crea tu cuenta en un momento para confirmar tu viaje':'Please take a moment to quickly log in or sign up so we can confirm your ride'
+          );
           return;
         }
-        _vrToast('Please sign in or provide guest info','err');
-        if(typeof __vipShowGate==='function'){_vrTrack('auth_required');_showAuthGate();}
+        if(!_selectedPayment){_openPayOverlay();return;}
+        _vrTrack('request_ride_clicked',{vehicle:selectedRide.title,payment:_selectedPayment,amount_cents:selectedRide.priceCents});
+        if(_selectedPayment==='cash'){doCheckout(_requestBtn);return;}
+        if(_selectedPayment==='test_mode'){_showTestConfirm();return;}
+        if((_selectedPayment==='apple_pay'||_selectedPayment==='google_pay') && _stripe){
+          _payWithNativeSheet();
+        } else {
+          _payWithCheckout();
+        }
       });
     }
     _vrGuest=false;
