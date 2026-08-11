@@ -248,7 +248,6 @@
   }
   function makePinEl(icon, pulse, youText) {
     var el = document.createElement('div'); el.className = 'h-ride__pin' + (pulse ? ' h-ride__pin--pulse' : '');
-    el.style.zIndex = '3';   /* los pines siempre por encima de la flota decorativa */
     var inner = document.createElement('div'); inner.className = 'h-ride__pinInner';
     inner.innerHTML = goldenPinSvg(icon);
     el.appendChild(inner);
@@ -326,107 +325,8 @@
         try { if (map.getSource('route')) map.removeSource('route'); } catch (e) {}
       }
       ['country-label', 'state-label', 'settlement-label', 'settlement-minor-label', 'settlement-subdivision-label', 'road-label', 'transit-label', 'natural-point-label', 'water-point-label', 'water-line-label', 'natural-line-label', 'poi-label'].forEach(function (id) { try { map.setLayoutProperty(id, 'visibility', 'none'); } catch (e) {} });
-      /* ---- flota decorativa (efecto Uber): 3 Suburbans + 2-3 SUVs recorriendo
-         calles reales de la ciudad activa. Solo visual, sin datos reales: rutas
-         de Directions API, avance suave y rotación según el rumbo de la calle. ---- */
-      var FLEET_BASE = isEs ? 'assets/' : '../assets/';
-      var FLEET_REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-      var fleetGen = 0, fleetMarkers = [], fleetCenter = null;
-      function fleetDist(a, b) { /* metros aprox (equirectangular; sobra a escala ciudad) */
-        var toR = Math.PI / 180;
-        var dx = (b[0] - a[0]) * toR * Math.cos(((a[1] + b[1]) / 2) * toR), dy = (b[1] - a[1]) * toR;
-        return Math.sqrt(dx * dx + dy * dy) * 6371000;
-      }
-      function fleetBrg(a, b) {
-        var toR = Math.PI / 180, la1 = a[1] * toR, la2 = b[1] * toR, dLn = (b[0] - a[0]) * toR;
-        var y = Math.sin(dLn) * Math.cos(la2);
-        var x = Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dLn);
-        return Math.atan2(y, x) * 180 / Math.PI;
-      }
-      function fleetRandNear(c, km) {
-        var a = Math.random() * Math.PI * 2, r = (0.25 + 0.75 * Math.random()) * km;
-        return [c[0] + Math.cos(a) * r / (111.32 * Math.cos(c[1] * Math.PI / 180)), c[1] + Math.sin(a) * r / 110.57];
-      }
-      function fleetCarEl(type) {
-        var img = document.createElement('img');
-        img.src = FLEET_BASE + (type === 'sub' ? 'car-suburban.png' : 'car-suv.png');
-        img.alt = '';
-        img.draggable = false;
-        /* la Suburban un poco más grande que el SUV; sombra proyectada debajo */
-        img.style.cssText = 'display:block;height:' + (type === 'sub' ? 44 : 37) + 'px;width:auto;filter:drop-shadow(0 4px 4px rgba(0,0,0,.55)) drop-shadow(0 1px 2px rgba(0,0,0,.45));pointer-events:none;user-select:none;';
-        var el = document.createElement('div');
-        el.style.cssText = 'pointer-events:none;z-index:1;will-change:transform;';
-        el.appendChild(img);
-        return el;
-      }
-      function fleetClear() {
-        fleetGen++;
-        fleetMarkers.forEach(function (m) { try { m.remove(); } catch (e) {} });
-        fleetMarkers = [];
-      }
-      function fleetDrive(marker, from, center, gen) {
-        if (gen !== fleetGen) return;
-        var to = fleetRandNear(center, 4.5);
-        fetch('https://api.mapbox.com/directions/v5/mapbox/driving/' + from[0] + ',' + from[1] + ';' + to[0] + ',' + to[1] + '?geometries=geojson&overview=full&access_token=' + encodeURIComponent(mapboxgl.accessToken))
-          .then(function (r) { return r.json(); })
-          .then(function (d) {
-            if (gen !== fleetGen) return;
-            var g = d && d.routes && d.routes[0] && d.routes[0].geometry;
-            var pts = g && g.coordinates;
-            if (!pts || pts.length < 2) { setTimeout(function () { fleetDrive(marker, fleetRandNear(center, 3), center, gen); }, 6000); return; }
-            marker.setLngLat(pts[0]);
-            var seg = 0, tOnSeg = 0, segLen = Math.max(0.5, fleetDist(pts[0], pts[1]));
-            var rot = marker.getRotation();
-            var last = performance.now();
-            (function step(now) {
-              if (gen !== fleetGen) return;
-              /* dt acotado: si la pestaña estuvo oculta, el coche no da saltos */
-              var dt = Math.min(0.1, (now - last) / 1000); last = now;
-              /* velocidad ligada al zoom: ~9 px/seg en pantalla */
-              var mpp = 156543.034 * Math.cos(pts[seg][1] * Math.PI / 180) / Math.pow(2, map.getZoom());
-              var adv = Math.max(14, mpp * 9) * dt;
-              while (adv > 0 && seg < pts.length - 1) {
-                var rem = segLen * (1 - tOnSeg);
-                if (adv < rem) { tOnSeg += adv / segLen; adv = 0; }
-                else { adv -= rem; seg++; tOnSeg = 0; if (seg < pts.length - 1) segLen = Math.max(0.5, fleetDist(pts[seg], pts[seg + 1])); }
-              }
-              if (seg >= pts.length - 1) {
-                marker.setLngLat(pts[pts.length - 1]);
-                /* pausa breve (recogida imaginaria) y sale hacia otra ruta */
-                setTimeout(function () { fleetDrive(marker, pts[pts.length - 1], center, gen); }, 1500 + Math.random() * 3500);
-                return;
-              }
-              var a = pts[seg], b2 = pts[seg + 1];
-              marker.setLngLat([a[0] + (b2[0] - a[0]) * tOnSeg, a[1] + (b2[1] - a[1]) * tOnSeg]);
-              var diff = ((fleetBrg(a, b2) - rot + 540) % 360) - 180;
-              rot += diff * Math.min(1, dt * 6);   /* giro suave en curvas */
-              marker.setRotation(rot);
-              requestAnimationFrame(step);
-            })(last);
-          }).catch(function () {
-            if (gen !== fleetGen) return;
-            setTimeout(function () { fleetDrive(marker, from, center, gen); }, 8000);
-          });
-      }
-      function ensureFleet(center) {
-        if (fleetCenter && fleetDist(fleetCenter, center) < 2000) return;  /* misma zona: no respawnear */
-        fleetCenter = center;
-        fleetClear();
-        var gen = fleetGen;
-        var types = ['sub', 'sub', 'sub', 'suv', 'suv'];
-        if (Math.random() < 0.5) types.push('suv');   /* 2 o 3 SUVs, siempre 3 Suburbans */
-        types.forEach(function (tp, i) {
-          var start = fleetRandNear(center, 3.5);
-          var m = new mapboxgl.Marker({ element: fleetCarEl(tp), rotationAlignment: 'map', pitchAlignment: 'map', anchor: 'center' })
-            .setLngLat(start).setRotation(Math.random() * 360).addTo(map);
-          fleetMarkers.push(m);
-          if (FLEET_REDUCED) return;   /* accesibilidad: se quedan quietos */
-          setTimeout(function () { fleetDrive(m, start, center, gen); }, 400 + i * 500);
-        });
-      }
       rideDemoRoute = function (fromCoords, city, pickupIsUser) {
         var req = ++rideDemoReq;
-        ensureFleet((city && city.coords) || fromCoords);
         rideRouteCancelled = true;
         if (ridePickupMarker) { ridePickupMarker.remove(); ridePickupMarker = null; }
         if (rideDropoffMarker) { rideDropoffMarker.remove(); rideDropoffMarker = null; }
@@ -761,7 +661,6 @@
     function ridePinEl(kind, label) {
       var el = document.createElement('div');
       el.className = 'vipRide__marker' + (kind === 'dropoff' ? ' vipRide__marker--pulse' : '');
-      el.style.zIndex = '3';   /* pines por encima de la flota decorativa */
       var inner = document.createElement('div');
       inner.className = 'vipRide__markerInner';
       inner.innerHTML = rideGoldenPin(kind === 'pickup' ? RIDE_PIN_ICONS.person : rideDetectDropoffIcon(label || ''));
