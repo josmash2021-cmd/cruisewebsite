@@ -5066,29 +5066,30 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__payOverlay__list[hidden]{display:none!important}
 .vipRide__payOverlay__list.is-out,.vipRide__cardForm.is-out{opacity:0;transform:translateY(-12px) scale(.985);pointer-events:none}
 .vipRide__payOverlay__list.is-entering{opacity:0;transform:translateY(16px) scale(.975)}
-.vipRide__cardForm{margin:auto;width:min(460px,calc(100vw - 40px));max-height:min(88vh,720px);overflow-y:auto;background:#fff;border-radius:16px;padding:26px 22px 14px;box-shadow:0 24px 70px rgba(0,0,0,.55);display:flex;flex-direction:column;gap:15px;opacity:1;transform:translateY(0) scale(1);transition:opacity 320ms cubic-bezier(.33,1,.68,1),transform 320ms cubic-bezier(.33,1,.68,1);scrollbar-width:none;-ms-overflow-style:none}
+.vipRide__cardForm{margin:auto;width:min(460px,calc(100vw - 40px));max-height:min(88vh,720px);overflow-y:auto;background:#0d0f14;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:26px 22px 14px;box-shadow:0 24px 70px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:15px;opacity:1;transform:translateY(0) scale(1);transition:opacity 320ms cubic-bezier(.33,1,.68,1),transform 320ms cubic-bezier(.33,1,.68,1);scrollbar-width:none;-ms-overflow-style:none}
 .vipRide__cardForm::-webkit-scrollbar{display:none;width:0;height:0}
 .vipRide__cardForm[hidden]{display:none!important}
 .vipRide__cardForm.is-entering{opacity:0;transform:translateY(18px) scale(.975)}
 .vipRide__cardForm__head{display:flex;align-items:center;gap:12px;margin:0 0 2px}
-.vipRide__cardForm__back{width:36px;height:36px;border-radius:50%;background:#f3f3f3;border:none;color:#111;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 140ms}
-.vipRide__cardForm__back:hover{background:#e7e7e7}
-.vipRide__cardForm__title{font-size:25px;font-weight:800;color:#111;margin:0;letter-spacing:-.4px}
+.vipRide__cardForm__back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 140ms}
+.vipRide__cardForm__back:hover{background:rgba(255,255,255,.16)}
+.vipRide__cardForm__title{font-size:25px;font-weight:800;color:#fff;margin:0;letter-spacing:-.4px}
 .vipRide__cardForm__field{display:flex;flex-direction:column;gap:8px}
-.vipRide__cardForm__field>label{font-size:15px;font-weight:700;color:#111}
+.vipRide__cardForm__field>label{font-size:15px;font-weight:700;color:#fff}
 .vipRide__cardForm__row{display:flex;gap:14px}
 .vipRide__cardForm__row .vipRide__cardForm__field{flex:1 1 0;min-width:0}
-.vipRide__cardForm__input,.vipRide__cardForm__text,.vipRide__cardForm__select{background:#f3f3f3;border:none;border-radius:8px;padding:15px 14px;font-size:16px;color:#111;width:100%;box-sizing:border-box;font-family:inherit}
-.vipRide__cardForm__text:focus,.vipRide__cardForm__select:focus{outline:2px solid #111}
-.vipRide__cardForm__text::placeholder{color:#9c9c9c}
-.vipRide__cardForm__select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'><path d='M1 1l6 6 6-6' fill='none' stroke='%23111' stroke-width='2' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;cursor:pointer}
-.vipRide__cardForm__err{display:none;color:#c0262d;font-size:14px;font-weight:600}
+.vipRide__cardForm__input,.vipRide__cardForm__text,.vipRide__cardForm__select{background:rgba(255,255,255,.08);border:none;border-radius:8px;padding:15px 14px;font-size:16px;color:#fff;width:100%;box-sizing:border-box;font-family:inherit}
+.vipRide__cardForm__text:focus,.vipRide__cardForm__select:focus{outline:2px solid rgba(212,175,55,.7)}
+.vipRide__cardForm__text::placeholder{color:#8a8f98}
+.vipRide__cardForm__select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'><path d='M1 1l6 6 6-6' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;cursor:pointer}
+.vipRide__cardForm__select option{color:#111;background:#fff}
+.vipRide__cardForm__err{display:none;color:#ff6b6b;font-size:14px;font-weight:600}
 .vipRide__cardForm__err.is-on{display:block}
-.vipRide__cardForm__submit{margin-top:4px;background:#000;color:#fff;border:none;border-radius:10px;padding:17px;font-size:17px;font-weight:700;cursor:pointer;transition:background 150ms,transform 120ms}
-.vipRide__cardForm__submit:disabled{background:#8f8f8f;cursor:default}
+.vipRide__cardForm__submit{margin-top:4px;background:#fff;color:#000;border:none;border-radius:10px;padding:17px;font-size:17px;font-weight:700;cursor:pointer;transition:background 150ms,transform 120ms}
+.vipRide__cardForm__submit:disabled{background:rgba(255,255,255,.22);color:rgba(255,255,255,.6);cursor:default}
 .vipRide__cardForm__submit:not(:disabled):active{transform:scale(.985)}
-.vipRide__cardForm__cancel{background:none;border:none;color:#111;font-size:17px;font-weight:700;padding:10px;cursor:pointer;border-radius:8px}
-.vipRide__cardForm__cancel:hover{background:#f5f5f5}
+.vipRide__cardForm__cancel{background:none;border:none;color:#fff;font-size:17px;font-weight:700;padding:10px;cursor:pointer;border-radius:8px}
+.vipRide__cardForm__cancel:hover{background:rgba(255,255,255,.08)}
 .vipRide__scheduleOverlay{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.15);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);display:flex!important;flex-direction:column;padding-top:var(--vip-nav-h,0);transition:opacity 380ms cubic-bezier(.33,1,.68,1),transform 380ms cubic-bezier(.33,1,.68,1);transform:translateY(0) scale(1);will-change:opacity,transform}
 .vipRide__scheduleOverlay.is-entering{opacity:0;transform:translateY(14px) scale(.985)}
 .vipRide__scheduleOverlay[hidden]{display:none!important}
@@ -5131,6 +5132,8 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__mapLabel--pickup{transform-origin:left center}
 .vipRide__mapLabel--dropoff{transform-origin:right center}
 .vipRide__mapLabel.is-visible{opacity:1;transform:perspective(400px) rotateY(0) scale(1)!important}
+.vipRide__youLabel{transition:opacity 420ms cubic-bezier(.33,1,.68,1)}
+.vipRide__marker.is-labeled .vipRide__youLabel{opacity:0}
 @keyframes mapLabelBreathe{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.55),0 0 22px rgba(232,197,71,.12)}50%{box-shadow:0 6px 22px rgba(0,0,0,.6),0 0 36px rgba(232,197,71,.22)}}
 .vipRide__mapLabel__tail{position:absolute;bottom:10px;width:8px;height:8px;background:rgba(12,14,26,.92);border:1px solid rgba(255,255,255,.14);transform:rotate(45deg)}
 .vipRide__mapLabel--pickup .vipRide__mapLabel__tail{left:-5px;border-right:0;border-top:0}
@@ -5859,6 +5862,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       pEl.style.cssText+=';position:absolute;left:14px;top:-30px;transform:perspective(400px) rotateY(-50deg) scale(.8);';
       pickupMarker.getElement().appendChild(pEl);
       pickupLabelMk=pEl;
+      try{pickupMarker.getElement().classList.add('is-labeled');}catch(_){}
     }
     if(dropoffPlace && dropoffMarker){
       var dEl=createLabelEl('dropoff',dropoffPlace.label);
@@ -5956,6 +5960,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
   function removeAddressLabels(){
     if(pickupLabelMk){pickupLabelMk.remove();pickupLabelMk=0}
     if(dropoffLabelMk){dropoffLabelMk.remove();dropoffLabelMk=0}
+    try{if(pickupMarker)pickupMarker.getElement().classList.remove('is-labeled');}catch(_){}
   }
   var _suggestionContainers=[];
   var _acDebounceTimers={};
@@ -6169,6 +6174,14 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       if(routeDurationSec) updateCardPrices(routeDurationSec); else{ computeRoute(); updateCardPrices(); }
       goToStep(3,'forward');
     }
+    /* vigilante: con recogida y destino listos, los pines y la ruta deben estar en el mapa */
+    clearTimeout(window.__vrRtT);
+    window.__vrRtT=setTimeout(function(){try{
+      if(!map||!pickupPlace||!dropoffPlace||currentMode==='hourly')return;
+      if(!pickupMarker)setMarker('pickup',pickupPlace.lat,pickupPlace.lng);
+      if(!dropoffMarker)setMarker('dropoff',dropoffPlace.lat,dropoffPlace.lng);
+      if(!map.getSource('route'))computeRoute();
+    }catch(_){}},600);
   }
   function setMarker(which,lat,lng){
     if(which==='pickup'){if(pickupMarker){pickupMarker.remove();pickupMarker=null}pickupMarker=new mapboxgl.Marker({element:createPickupMarkerEl()}).setLngLat([lng,lat]).addTo(map);}
@@ -7057,7 +7070,7 @@ setTimeout(_vrPfKick,1200);
     function _cfMount(){
       if(_cfMounted||!_stripe||!_cardForm)return;
       _cfMounted=true;
-      var st={base:{fontSize:'16px',color:'#111','::placeholder':{color:'#9c9c9c'}},invalid:{color:'#c0262d'}};
+      var st={base:{fontSize:'16px',color:'#fff','::placeholder':{color:'#8a8f98'}},invalid:{color:'#ff6b6b'}};
       var els=_stripe.elements({locale:currentLang==='es'?'es':'en'});
       _cfNumber=els.create('cardNumber',{style:st,showIcon:true});
       var exp=els.create('cardExpiry',{style:st,placeholder:'MM / YY'});
