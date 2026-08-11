@@ -4949,15 +4949,15 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide input[type="time"]{background:transparent!important;color:#fff!important;-webkit-appearance:none!important}
 .vipRide__clear{flex-shrink:0;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.3);width:26px;height:26px;border-radius:999px;cursor:pointer;font-size:16px;line-height:24px;display:none;color:#fff;align-items:center;justify-content:center}
 .vipRide__field{overflow:visible!important}
-.vipRide__suggestions{position:fixed;z-index:99999;background:#1c2029;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;box-shadow:0 12px 34px rgba(0,0,0,.5);display:none;max-height:300px;overflow-y:auto;-webkit-overflow-scrolling:touch;width:280px;padding:4px}
-.vipRide__suggestion{padding:12px 10px;color:#fff;font-size:var(--fs-sm);cursor:pointer;border-top:1px solid rgba(255,255,255,.07);transition:background 160ms;display:flex;align-items:center;gap:12px;min-height:60px;border-radius:8px}
+.vipRide__suggestions{position:fixed;z-index:99999;background:#1c2029;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;box-shadow:0 12px 34px rgba(0,0,0,.5);display:none;max-height:340px;overflow-y:auto;-webkit-overflow-scrolling:touch;width:280px;padding:4px 0}
+.vipRide__suggestion{padding:11px 16px;color:#fff;font-size:var(--fs-sm);cursor:pointer;border-top:1px solid rgba(255,255,255,.07);transition:background 160ms;display:flex;align-items:center;gap:14px;min-height:64px}
 .vipRide__suggestion:first-child{border-top:none}
 .vipRide__suggestion:hover,.vipRide__suggestion.is-active{background:rgba(255,255,255,.07)}
-.vipRide__suggestionIcon{flex-shrink:0;width:38px;height:38px;margin:0;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.1);color:rgba(255,255,255,.85);opacity:1}
-.vipRide__suggestionIcon svg{width:17px;height:17px}
+.vipRide__suggestionIcon{flex-shrink:0;width:42px;height:42px;margin:0;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;opacity:1}
+.vipRide__suggestionIcon svg{width:19px;height:19px}
 .vipRide__suggestionText{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.vipRide__suggestionMain{font-weight:600;font-size:15px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.vipRide__suggestionSub{font-size:13px;color:rgba(255,255,255,.5);margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vipRide__suggestionMain{font-weight:700;font-size:16px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vipRide__suggestionSub{font-size:13.5px;line-height:1.35;color:rgba(255,255,255,.55);margin-top:0;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .vipRide__hoursWrap{display:flex;align-items:center;justify-content:center;gap:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius-sm);padding:10px 12px}
 .vipRide__hoursBtn{width:clamp(36px,9vw,44px);height:clamp(36px,9vw,44px);border-radius:9px;background:var(--gold);border:none;color:#000;font-size:clamp(16px,4vw,20px);font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 140ms,opacity 180ms;touch-action:manipulation}
 .vipRide__hoursBtn:hover:not(:disabled){transform:scale(1.08)}
@@ -5161,6 +5161,10 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
   html body .vipRide .vipRide__step1Full{display:none!important}
   html body .vipRide .vipRide__sheet[data-vipride-step="1"] .vipRide__handle,html body .vipRide .vipRide__sheet[data-vipride-step="1"] .vipRide__stepDots,html body .vipRide .vipRide__sheet[data-vipride-step="3"] .vipRide__handle,html body .vipRide .vipRide__sheet[data-vipride-step="3"] .vipRide__stepDots{display:none!important}
   html body .vipRide .vipRide__locChip,html body .vipRide .vipRide__locChips{left:0!important;right:0!important;width:min(1400px,calc(100vw - 48px))!important;max-width:1400px!important;margin:0 auto!important}
+}
+@media(min-width:900px) and (max-width:1023px){
+  /* solo el escritorio viejo (barra ancha) estira las sugerencias; en el
+     layout nuevo ≥1024 el menú va pegado a su cuadro, estilo Uber */
   html body .vipRide .vipRide__suggestions{max-width:min(1400px,calc(100vw - 48px))!important;left:0!important;right:0!important;margin:0 auto!important}
 }
 .vipRide__compactCard{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0}
@@ -5981,7 +5985,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
   var _acDebounceTimers={};
   var _acSessionToken=crypto.randomUUID?crypto.randomUUID():(Date.now()+''+Math.random()).replace('.','');
   function closeSuggestions(){ _suggestionContainers.forEach(function(c){ c.style.display='none'; }); }
-  function positionSuggestions(c,i){var r=i.getBoundingClientRect(),vH=innerHeight,sB=vH-r.bottom,sA=r.top;c.style.width=r.width+'px';c.style.left=r.left+'px';c.style.maxHeight=Math.min(210,Math.max(sB,sA)-16)+'px';if(sB<160&&sA>sB){c.style.top='';c.style.bottom=(vH-r.top+4)+'px'}else{c.style.bottom='';c.style.top=(r.bottom+4)+'px'}}
+  function positionSuggestions(c,i){var r=i.getBoundingClientRect(),vH=innerHeight,sB=vH-r.bottom,sA=r.top;c.style.width=r.width+'px';c.style.left=r.left+'px';c.style.maxHeight=Math.min(340,Math.max(sB,sA)-16)+'px';if(sB<160&&sA>sB){c.style.top='';c.style.bottom=(vH-r.top+4)+'px'}else{c.style.bottom='';c.style.top=(r.bottom+4)+'px'}}
   function attachAutocomplete(inputEl,which){
     var container=document.createElement('div');
     container.className='vipRide__suggestions';
@@ -6009,7 +6013,13 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
             var item=document.createElement('div');item.className='vipRide__suggestion';
             var main=sug.name||sug.full_address||'',sub=sug.full_address||sug.place_formatted||'';
             if(sub.indexOf(main)===0)sub=sub.substring(main.length).replace(/^[\s,]+/,'');
-            var iSvg=sug.feature_type==='poi'?'<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="10" rx="1.5" fill="currentColor"/><rect x="5" y="1" width="6" height="5" rx="1" fill="currentColor" opacity=".6"/></svg>':'<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1C5.24 1 3 3.24 3 6c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5z" fill="currentColor"/><circle cx="8" cy="6" r="2" fill="#000" opacity=".3"/></svg>';
+            /* icono según el tipo de lugar, estilo Uber: avión, cubiertos o pin */
+            var _pinSvg='<svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor"/><circle cx="12" cy="9" r="2.6" fill="#1c2029"/></svg>';
+            var _forkSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v7c0 1.1.9 2 2 2h3a2 2 0 0 0 2-2V2"/><path d="M7.5 2v20"/><path d="M20 15V2a4.5 4.5 0 0 0-4.5 4.5V13c0 1.1.9 2 2 2H20zm0 0v7"/></svg>';
+            var _planeSvg='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.5 15.5v-2l-8.5-5.2V3.6a1.4 1.4 0 0 0-2.8 0v4.7L1.7 13.5v2l8.5-2.6v5.4l-2.3 1.7v1.6l3.7-1.1 3.7 1.1v-1.6l-2.3-1.7v-5.4l8.5 2.6z"/></svg>';
+            var _cat=(((sug.poi_category||[]).join(' '))+' '+main).toLowerCase();
+            var iSvg=/airport|aeropuerto|terminal/.test(_cat)?_planeSvg:
+              (/restaurant|food|cafe|coffee|taco|pizza|burger|grill|bakery|breakfast|brunch|diner|sushi|bbq|barbecue|seafood|steak|deli|donut|sandwich|wing|chicken|\bbar\b|pub|cantina|taquer|restaurante|comida|panader|cafeter/.test(_cat)?_forkSvg:_pinSvg);
             item.innerHTML='<span class="vipRide__suggestionIcon">'+iSvg+'</span><span class="vipRide__suggestionText"><span class="vipRide__suggestionMain">'+escapeHtml(main)+'</span>'+(sub?'<span class="vipRide__suggestionSub">'+escapeHtml(sub)+'</span>':'')+'</span>';
             item.addEventListener('mousedown',function(e){e.preventDefault()});
             item.__vrSelect=function(){
