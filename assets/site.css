@@ -192,9 +192,10 @@ img { max-width: 100%; }
   display: none;
   flex-direction: column;
   gap: 5px;
-  background: rgba(255, 255, 255, .05);
-  border: 1px solid rgba(212, 175, 55, .5);
-  border-radius: 50%;
+  /* sin círculo: solo las 3 rayas */
+  background: none;
+  border: none;
+  border-radius: 0;
   width: 40px; height: 40px;
   align-items: center; justify-content: center;
   cursor: pointer;
@@ -233,7 +234,7 @@ img { max-width: 100%; }
   .ch-nav a::after { left: 10px; transform: none; }
   .ch-nav a:hover::after, .ch-nav a[aria-current="page"]::after { width: 42px; }
   body.ch-open .ch-nav { transform: translateY(0); opacity: 1; pointer-events: auto; }
-  body.ch-open .ch-burger { background: rgba(212, 175, 55, .14); }
+  body.ch-open .ch-burger { background: none; }
   body.ch-open .ch-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   body.ch-open .ch-burger span:nth-child(2) { opacity: 0; }
   body.ch-open .ch-burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
