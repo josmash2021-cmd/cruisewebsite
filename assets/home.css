@@ -503,6 +503,9 @@
   flex-wrap: wrap;
   gap: 16px;
 }
+/* CTAs del hero cuadrados con esquinas redondas (pc y móvil) */
+.h-buttons .btn-gold,
+.h-buttons .btn-ghost { border-radius: 16px; }
 .h-col--right .h-buttons { justify-content: flex-end; }
 
 .btn-ghost {
@@ -576,7 +579,7 @@
   align-items: center;
   gap: 9px;
   padding: 12px 20px;
-  border-radius: 999px;
+  border-radius: 14px;
   background: rgba(10, 11, 14, .55);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);

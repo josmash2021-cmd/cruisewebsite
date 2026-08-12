@@ -180,7 +180,7 @@ img { max-width: 100%; }
   color: #fff;
   text-decoration: none;
   background: linear-gradient(145deg, var(--gold-light), var(--gold) 55%, var(--gold-deep));
-  border-radius: 999px;
+  border-radius: 12px;
   padding: 13px 28px;
   margin-left: 8px;
   transition: filter .25s ease, transform .25s ease;
