@@ -844,7 +844,10 @@ a.h-store { text-decoration: none; }
   z-index: 3;
   width: 52%;
   height: 19%;
-  background: #d4af37;
+  /* vidrio dorado: semi transparente y con desenfoque de lo que hay detrás */
+  background: rgba(212, 175, 55, .38);
+  -webkit-backdrop-filter: blur(10px) saturate(1.35);
+  backdrop-filter: blur(10px) saturate(1.35);
   border-radius: 28px 0 40px 0;
 }
 .sv-plate::before,
@@ -852,7 +855,12 @@ a.h-store { text-decoration: none; }
   content: '';
   position: absolute;
   width: 26px; height: 26px;
-  background: radial-gradient(circle at 0 0, rgba(0, 0, 0, 0) 26px, #d4af37 26.5px);
+  background: rgba(212, 175, 55, .38);
+  -webkit-backdrop-filter: blur(10px) saturate(1.35);
+  backdrop-filter: blur(10px) saturate(1.35);
+  /* la máscara deja la cuña cóncava y recorta también el desenfoque */
+  -webkit-mask: radial-gradient(circle at 0 0, transparent 26px, #000 26.5px);
+          mask: radial-gradient(circle at 0 0, transparent 26px, #000 26.5px);
 }
 .sv-plate::before { right: 0; top: -26px; }
 .sv-plate::after { left: -26px; bottom: 0; }
@@ -865,7 +873,8 @@ a.h-store { text-decoration: none; }
   box-shadow: none;
   text-shadow: none;
   border-radius: inherit;
-  color: #241c05;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .45);
   font-size: 14.5px;
   font-weight: 800;
   letter-spacing: .05em;
