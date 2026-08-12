@@ -703,18 +703,102 @@ img,video{-webkit-user-drag:none}
     <div class="vipRide__testConfirm__phase2" data-vipride-test-p2>
       <div class="vipRide__testSheet">
         <div class="vipRide__testStars" data-vipride-test-stars4 aria-hidden="true"></div>
-        <div class="vipRide__testSheet__handle" aria-hidden="true"></div>
-        <div class="vipRide__testSheet__row">
-          <div class="vipRide__testSheet__icon" aria-hidden="true">
-            <img src="../assets/media/logo-icon.png" alt="" width="168" height="162" class="vipRide__testSheet__logo">
+        <div class="vrTrip__pane" data-vrtrip-pane="searching">
+          <div class="vipRide__testSheet__handle" aria-hidden="true"></div>
+          <div class="vipRide__testSheet__row">
+            <div class="vipRide__testSheet__icon" aria-hidden="true">
+              <img src="../assets/media/logo-icon.png" alt="" width="168" height="162" class="vipRide__testSheet__logo">
+            </div>
+            <div class="vipRide__testSheet__info">
+              <div class="vipRide__testSheet__status" data-vipride-test-msg data-vrp-almost style="transition:opacity 380ms ease">Almost there...</div>
+              <div class="vipRide__testSheet__route" data-vipride-test-route></div>
+            </div>
           </div>
-          <div class="vipRide__testSheet__info">
-            <div class="vipRide__testSheet__status" data-vipride-test-msg data-vrp-almost style="transition:opacity 380ms ease">Almost there...</div>
-            <div class="vipRide__testSheet__route" data-vipride-test-route></div>
+          <div class="vipRide__testBar vipRide__testBar--phase2"><div class="vipRide__testBar__fill" data-vipride-test-bar2></div></div>
+          <button type="button" class="vipRide__testCancelBtn" data-vipride-test-cancel2 data-vrp-cancel-btn>Cancel</button>
+        </div>
+
+        <!-- ═══ viaje con chofer asignado: la misma tarjeta cambia de contenido ═══ -->
+        <div class="vrTrip__pane vrTrip__trip" data-vrtrip-pane="trip" hidden>
+          <div class="vrTrip__pill" data-vrtrip-pill><span class="vrTrip__pillDot" aria-hidden="true"></span><span data-vrtrip-pill-txt>Your driver is on the way</span></div>
+
+          <div class="vrTrip__eta" data-vrtrip-eta-box>
+            <div class="vrTrip__etaNum" data-vrtrip-eta>--</div>
+            <div class="vrTrip__etaUnit" data-vrtrip-eta-lbl>min away</div>
+            <div class="vrTrip__etaDist" data-vrtrip-dist></div>
+          </div>
+
+          <div class="vrTrip__steps" aria-hidden="true">
+            <div class="vrTrip__stepLine"><span class="vrTrip__stepFill" data-vrtrip-step-fill></span></div>
+            <div class="vrTrip__step is-on" data-vrtrip-step="enroute"><i></i><b>En route</b></div>
+            <div class="vrTrip__step" data-vrtrip-step="arrived"><i></i><b>Arrived</b></div>
+            <div class="vrTrip__step" data-vrtrip-step="intrip"><i></i><b>In trip</b></div>
+            <div class="vrTrip__step" data-vrtrip-step="done"><i></i><b>Done</b></div>
+          </div>
+
+          <div class="vrTrip__card">
+            <div class="vrTrip__avatar" data-vrtrip-photo aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="rgba(255,255,255,.55)"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+            </div>
+            <div class="vrTrip__who">
+              <div class="vrTrip__name" data-vrtrip-name>Your driver</div>
+              <div class="vrTrip__meta">
+                <span class="vrTrip__rating" data-vrtrip-rating-wrap hidden><svg viewBox="0 0 24 24" fill="#d4af37"><path d="M12 2l2.95 6.37L22 9.42l-5 4.94L18.18 22 12 18.5 5.82 22 7 14.36 2 9.42l7.05-1.05z"/></svg><span data-vrtrip-rating></span></span>
+                <span class="vrTrip__vehicle" data-vrtrip-vehicle></span>
+              </div>
+            </div>
+            <span class="vrTrip__plate" data-vrtrip-plate hidden></span>
+          </div>
+
+          <div class="vrTrip__acts">
+            <button type="button" class="vrTrip__act vrTrip__act--call" data-vrtrip-call>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+              <b>Call</b>
+            </button>
+            <button type="button" class="vrTrip__act" data-vrtrip-chat>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              <b>Chat</b><span class="vrTrip__unread" data-vrtrip-unread hidden>0</span>
+            </button>
+            <button type="button" class="vrTrip__act" data-vrtrip-share>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+              <b>Share</b>
+            </button>
+            <button type="button" class="vrTrip__act" data-vrtrip-support>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+              <b>Support</b>
+            </button>
+          </div>
+
+          <div class="vrTrip__route">
+            <div class="vrTrip__rRow"><i class="vrTrip__rDot"></i><span data-vrtrip-pickup></span></div>
+            <div class="vrTrip__rRow" data-vrtrip-stop-row hidden><i class="vrTrip__rDot vrTrip__rDot--stop"></i><span data-vrtrip-stop></span></div>
+            <div class="vrTrip__rRow"><i class="vrTrip__rDot vrTrip__rDot--end"></i><span data-vrtrip-dropoff></span></div>
+          </div>
+
+          <form class="vrTrip__stopForm" data-vrtrip-stop-form hidden autocomplete="off">
+            <input type="text" class="vrTrip__chatInput" data-vrtrip-stop-input placeholder="Address of the new stop" maxlength="160" autocomplete="off">
+            <button type="submit" class="vrTrip__chatSend" aria-label="Add stop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></button>
+          </form>
+
+          <div class="vrTrip__more">
+            <button type="button" class="vrTrip__link" data-vrtrip-addstop>Add a stop</button>
+            <button type="button" class="vrTrip__link vrTrip__link--danger" data-vrtrip-cancel>Cancel ride</button>
           </div>
         </div>
-        <div class="vipRide__testBar vipRide__testBar--phase2"><div class="vipRide__testBar__fill" data-vipride-test-bar2></div></div>
-        <button type="button" class="vipRide__testCancelBtn" data-vipride-test-cancel2 data-vrp-cancel-btn>Cancel</button>
+
+        <!-- ═══ chat con el chofer: ocupa la tarjeta entera ═══ -->
+        <div class="vrTrip__pane vrTrip__chat" data-vrtrip-pane="chat" hidden>
+          <div class="vrTrip__chatHead">
+            <button type="button" class="vrTrip__chatBack" data-vrtrip-chat-back aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+            <div class="vrTrip__chatWho"><div class="vrTrip__chatName" data-vrtrip-chat-name>Your driver</div><div class="vrTrip__chatSub" data-vrtrip-chat-sub>Online</div></div>
+            <div class="vrTrip__chatAvatar" data-vrtrip-chat-avatar aria-hidden="true"></div>
+          </div>
+          <div class="vrTrip__chatBody" data-vrtrip-chat-body></div>
+          <form class="vrTrip__chatForm" data-vrtrip-chat-form autocomplete="off">
+            <input type="text" class="vrTrip__chatInput" data-vrtrip-chat-input placeholder="Type a message…" maxlength="500" autocomplete="off">
+            <button type="submit" class="vrTrip__chatSend" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -3334,6 +3418,424 @@ window.__VR_AIRPORTS = [
 
 </script>
 
+<script>
+/* ═══ Tarjeta del viaje — window.__vrTripShow(driverData, bookingId, api, key) ═══
+   La misma caja donde se busca chofer muta y muestra el viaje en curso: estado,
+   minutos para llegar, ficha del chofer, llamar/chat/compartir/soporte, la ruta
+   y las opciones de agregar parada y cancelar. Se apoya solo en lo que el Worker
+   expone de verdad: GET /bookings/web/{id}/status (estado, eta_minutes,
+   distance_miles, driver_*, vehicle_*), GET|POST /bookings/web/{id}/chat y
+   POST /bookings/web/{id}/cancel. */
+(function(){
+  'use strict';
+  if(window.__vrTripShow)return;
+  var es=(document.documentElement.lang||'').toLowerCase().indexOf('es')===0;
+  var T=es?{
+    enroute:'Tu chofer está en camino',arrived:'Tu chofer llegó',intrip:'En viaje',done:'Viaje terminado',
+    s1:'En camino',s2:'Llegó',s3:'En viaje',s4:'Terminado',
+    minAway:'min para llegar',minTrip:'min de viaje',here:'te espera',arrivedNow:'ya está afuera',
+    yourDriver:'Tu chofer',call:'Llamar',chat:'Chat',share:'Compartir',support:'Soporte',
+    addStop:'Agregar parada',cancel:'Cancelar viaje',
+    stopPh:'Dirección de la nueva parada',msgPh:'Escribe un mensaje…',online:'En línea',
+    chatEmpty:'Sin mensajes todavía. Escríbele a tu chofer.',
+    noPhone:'El chofer aún no compartió su teléfono.',
+    stopSent:'Parada enviada al chofer. El costo extra lo ajusta él contigo.',
+    stopFail:'No se pudo enviar la parada. Llama al chofer.',
+    shareTxt:'Voy en camino con CruiseInRide.',
+    shareOk:'Datos del viaje copiados.',
+    cancelAsk:'¿Cancelar este viaje? Se libera la retención de tu tarjeta.',
+    cancelled:'Viaje cancelado.',
+    sendFail:'No se envió el mensaje. Intenta de nuevo.',
+    mi:'mi'
+  }:{
+    enroute:'Your driver is on the way',arrived:'Your driver has arrived',intrip:'On trip',done:'Trip completed',
+    s1:'En route',s2:'Arrived',s3:'In trip',s4:'Done',
+    minAway:'min away',minTrip:'min of trip',here:'is waiting',arrivedNow:'is outside',
+    yourDriver:'Your driver',call:'Call',chat:'Chat',share:'Share',support:'Support',
+    addStop:'Add a stop',cancel:'Cancel ride',
+    stopPh:'Address of the new stop',msgPh:'Type a message…',online:'Online',
+    chatEmpty:'No messages yet. Say hello to your driver.',
+    noPhone:'The driver has not shared a phone number yet.',
+    stopSent:'Stop sent to your driver. He adjusts the extra cost with you.',
+    stopFail:'Could not send the stop. Please call your driver.',
+    shareTxt:'I am on my way with CruiseInRide.',
+    shareOk:'Trip details copied.',
+    cancelAsk:'Cancel this ride? The hold on your card will be released.',
+    cancelled:'Ride cancelled.',
+    sendFail:'Message not sent. Please try again.',
+    mi:'mi'
+  };
+  var SUPPORT_WA='16593052974';
+  var api='',key='',bid=null,pollIv=null,chatIv=null;
+  var phone='',photo='',name='',step='',driverId='',chatOpen=false,ended=false;
+  var lastMsgId=0,lastSeen=0,unread=0,sending=false,started=false;
+  var STEPS=['enroute','arrived','intrip','done'];
+
+  function root(){return document.querySelector('[data-vipride-test-p2]');}
+  function q(s){var r=root();return r?r.querySelector(s):null;}
+  function toast(m,t){if(window.__vrToast)window.__vrToast(m,t);}
+
+  function setPane(which){
+    var r=root();if(!r)return;
+    r.querySelectorAll('[data-vrtrip-pane]').forEach(function(p){
+      var on=p.getAttribute('data-vrtrip-pane')===which;
+      if(on){p.hidden=false;p.classList.remove('is-in');void p.offsetWidth;p.classList.add('is-in');}
+      else p.hidden=true;
+    });
+  }
+
+  function setStep(s){
+    if(step===s)return;
+    step=s;
+    var i=STEPS.indexOf(s);if(i<0)i=0;
+    var r=root();if(!r)return;
+    r.querySelectorAll('[data-vrtrip-step]').forEach(function(el,n){
+      el.classList.toggle('is-done',n<i);
+      el.classList.toggle('is-on',n===i);
+    });
+    var fill=q('[data-vrtrip-step-fill]');
+    if(fill)fill.style.width=(i/(STEPS.length-1)*100)+'%';
+    var pill=q('[data-vrtrip-pill-txt]');
+    if(pill)pill.textContent=T[s]||T.enroute;
+    /* llegado o en viaje: la cuenta de minutos deja de tener sentido como "falta" */
+    var box=q('[data-vrtrip-eta-box]');
+    if(s==='arrived'&&box){
+      var n=q('[data-vrtrip-eta]'),l=q('[data-vrtrip-eta-lbl]');
+      if(n)n.textContent='0';if(l)l.textContent=T.arrivedNow;
+    }
+    /* con el viaje empezado ya no se puede cancelar ni agregar parada por aquí */
+    var canEdit=(s==='enroute'||s==='arrived');
+    var cb=q('[data-vrtrip-cancel]'),ab=q('[data-vrtrip-addstop]');
+    if(cb)cb.disabled=!canEdit;
+    if(ab)ab.disabled=(s==='done');
+  }
+
+  function setEta(m){
+    var n=Number(m);
+    if(!isFinite(n)||n<0)return;
+    var el=q('[data-vrtrip-eta]'),lb=q('[data-vrtrip-eta-lbl]');
+    if(el)el.textContent=String(Math.max(0,Math.round(n)));
+    if(lb)lb.textContent=(step==='intrip')?T.minTrip:T.minAway;
+  }
+  function setDist(mi){
+    var el=q('[data-vrtrip-dist]');if(!el)return;
+    var n=Number(mi);
+    el.textContent=(isFinite(n)&&n>0)?(n<10?n.toFixed(1):Math.round(n))+' '+T.mi:'';
+  }
+
+  function setDriver(d){
+    d=d||{};
+    if(d.driver_id)driverId=d.driver_id;
+    if(d.driver_name)name=d.driver_name;
+    if(d.driver_phone)phone=d.driver_phone;
+    var nEl=q('[data-vrtrip-name]');if(nEl)nEl.textContent=name||T.yourDriver;
+    var cn=q('[data-vrtrip-chat-name]');if(cn)cn.textContent=name||T.yourDriver;
+
+    var rw=q('[data-vrtrip-rating-wrap]'),rv=q('[data-vrtrip-rating]');
+    var r=Number(d.driver_rating);
+    if(rw){if(isFinite(r)&&r>0){if(rv)rv.textContent=r.toFixed(1);rw.hidden=false;}else rw.hidden=true;}
+
+    var parts=[];
+    if(d.vehicle_year&&d.vehicle_make&&d.vehicle_model)parts.push(d.vehicle_year+' '+d.vehicle_make+' '+d.vehicle_model);
+    else if(d.vehicle_make&&d.vehicle_model)parts.push(d.vehicle_make+' '+d.vehicle_model);
+    else if(d.vehicle)parts.push(d.vehicle);
+    if(d.vehicle_color)parts.push(d.vehicle_color);
+    var vEl=q('[data-vrtrip-vehicle]');if(vEl)vEl.textContent=parts.join(' · ');
+
+    var pl=q('[data-vrtrip-plate]');
+    if(pl){if(d.vehicle_plate){pl.textContent=d.vehicle_plate;pl.hidden=false;}else pl.hidden=true;}
+
+    if(d.driver_photo_url&&d.driver_photo_url!==photo){
+      photo=d.driver_photo_url;
+      ['[data-vrtrip-photo]','[data-vrtrip-chat-avatar]'].forEach(function(sel){
+        var host=q(sel);if(!host)return;
+        var img=document.createElement('img');img.src=photo;img.alt='';
+        host.innerHTML='';host.appendChild(img);
+      });
+    }
+    var cbn=q('[data-vrtrip-call]');if(cbn)cbn.disabled=!phone;
+  }
+
+  function setRoute(pu,dr){
+    var a=q('[data-vrtrip-pickup]'),b=q('[data-vrtrip-dropoff]');
+    if(a&&pu)a.textContent=pu;
+    if(b&&dr)b.textContent=dr;
+  }
+
+  /* ── estado desde el servidor ── */
+  function apply(d){
+    if(!d||ended)return;
+    var raw=String(d.raw_status||d.status||'').toLowerCase();
+    if(raw==='completed'||raw==='ended'){
+      setStep('done');ended=true;stopPolls();
+      try{localStorage.removeItem('vr_active_booking');}catch(_){}
+      setTimeout(close,6000);return;
+    }
+    if(raw==='cancelled'||raw==='canceled'){
+      ended=true;stopPolls();
+      try{localStorage.removeItem('vr_active_booking');}catch(_){}
+      close();
+      if(window.__vrNoDriverShow){
+        var why=(d.cancelled_by==='dispatch'||d.cancelled_by==='admin'||d.driver_name||d.driver_id)?'dispatch_cancelled':'no_driver';
+        window.__vrNoDriverShow(null,why);
+      }
+      return;
+    }
+    if(raw.indexOf('arrived')>=0)setStep('arrived');
+    else if(raw==='in_trip'||raw==='on_trip'||raw==='in_progress')setStep('intrip');
+    else setStep('enroute');
+    if(step!=='arrived'&&d.eta_minutes!==undefined&&d.eta_minutes!==null)setEta(d.eta_minutes);
+    if(d.distance_miles!==undefined)setDist(d.distance_miles);
+    setDriver(d);
+  }
+
+  function pollStatus(){
+    if(!bid||!api)return;
+    fetch(api+'/bookings/web/'+bid+'/status',{headers:{'Authorization':'Bearer '+key}})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){if(d)apply(d);}).catch(function(){});
+  }
+
+  /* ── chat ── */
+  /* El backend no marca el emisor de una sola forma: se prueban todas las que
+     el tracker anterior ya vio en produccion, en el mismo orden. */
+  function isDriverMsg(m){
+    var role=String(m.sender_role||m.sender_type||m.from||m.from_role||m.role||'').toLowerCase();
+    if(role)return role==='driver'||role==='conductor'||role==='dr';
+    if(m.from_driver===true||m.is_driver===true)return true;
+    if(m.from_rider===true||m.is_rider===true)return false;
+    var sid=m.sender_id||m.user_id||m.from_id||null;
+    if(driverId&&sid)return String(sid)===String(driverId);
+    return !!sid;   /* con id pero sin marcas, es la otra parte */
+  }
+  function bubble(m,mine){
+    var b=document.createElement('div');
+    var dr=(mine===true)?false:isDriverMsg(m);
+    b.className='vrTrip__bubble vrTrip__bubble--'+(dr?'dr':'me');
+    b.textContent=m.message||m.text||m.body||'';
+    var ts=m.created_at?new Date(m.created_at):null;
+    if(ts&&!isNaN(ts.getTime())){
+      var s=document.createElement('span');s.className='vrTrip__bubbleTime';
+      s.textContent=ts.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      b.appendChild(s);
+    }
+    return b;
+  }
+  function renderChat(list){
+    var body=q('[data-vrtrip-chat-body]');if(!body)return;
+    if(!list||!list.length){
+      if(!body.querySelector('.vrTrip__chatEmpty')){
+        body.innerHTML='<div class="vrTrip__chatEmpty">'+T.chatEmpty+'</div>';
+      }
+      return;
+    }
+    body.innerHTML='';
+    list.forEach(function(m){body.appendChild(bubble(m));});
+    body.scrollTop=body.scrollHeight;
+  }
+  function fetchChat(render){
+    if(!bid||!api)return Promise.resolve();
+    return fetch(api+'/bookings/web/'+bid+'/chat',{headers:{'Authorization':'Bearer '+key}})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){
+        var list=(d&&(d.messages||d.data||d.items))||(Array.isArray(d)?d:[]);
+        if(!Array.isArray(list))list=[];
+        var top=list.length?(list[list.length-1].id||lastMsgId):lastMsgId;
+        if(render||chatOpen){renderChat(list);lastSeen=top;unread=0;}
+        else{
+          var n=list.filter(function(m){return (m.id||0)>lastSeen&&isDriverMsg(m);}).length;
+          if(n>0)unread+=n;
+          lastSeen=top;
+        }
+        lastMsgId=top;
+        var u=q('[data-vrtrip-unread]');
+        if(u){if(unread>0){u.textContent=unread>9?'9+':String(unread);u.hidden=false;}else u.hidden=true;}
+      }).catch(function(){});
+  }
+  function sendMsg(text){
+    if(!text||sending||!bid||!api)return;
+    sending=true;
+    var body=q('[data-vrtrip-chat-body]');
+    if(body){
+      var empty=body.querySelector('.vrTrip__chatEmpty');if(empty)empty.remove();
+      body.appendChild(bubble({message:text},true));
+      body.scrollTop=body.scrollHeight;
+    }
+    return fetch(api+'/bookings/web/'+bid+'/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({message:text})
+    }).then(function(r){
+      sending=false;
+      if(!r.ok)throw new Error('send');
+      return fetchChat(true);
+    }).catch(function(){sending=false;toast(T.sendFail,'err');});
+  }
+  function openChat(){
+    chatOpen=true;unread=0;
+    var u=q('[data-vrtrip-unread]');if(u)u.hidden=true;
+    var sub=q('[data-vrtrip-chat-sub]');if(sub)sub.textContent=T.online;
+    setPane('chat');
+    fetchChat(true);
+    if(chatIv)clearInterval(chatIv);
+    chatIv=setInterval(function(){fetchChat(true);},4000);
+    var inp=q('[data-vrtrip-chat-input]');if(inp)setTimeout(function(){try{inp.focus();}catch(_){}},220);
+  }
+  function closeChat(){
+    chatOpen=false;lastSeen=lastMsgId;
+    if(chatIv)clearInterval(chatIv);
+    chatIv=setInterval(function(){fetchChat(false);},6000);
+    setPane('trip');
+  }
+
+  /* ── acciones ── */
+  function doShare(){
+    var pu=(q('[data-vrtrip-pickup]')||{}).textContent||'';
+    var dr=(q('[data-vrtrip-dropoff]')||{}).textContent||'';
+    var etaN=(q('[data-vrtrip-eta]')||{}).textContent||'';
+    var veh=(q('[data-vrtrip-vehicle]')||{}).textContent||'';
+    var plate=(q('[data-vrtrip-plate]')||{}).textContent||'';
+    var lines=[T.shareTxt];
+    if(name)lines.push((es?'Chofer: ':'Driver: ')+name+(veh?' — '+veh:'')+(plate?' ('+plate+')':''));
+    if(pu&&dr)lines.push(pu+' → '+dr);
+    if(etaN&&etaN!=='--')lines.push(etaN+' '+T.minAway);
+    lines.push(location.origin+location.pathname);
+    var txt=lines.join('\n');
+    if(navigator.share){navigator.share({title:'CruiseInRide',text:txt}).catch(function(){});return;}
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){toast(T.shareOk,'ok');}).catch(function(){});
+      return;
+    }
+    toast(txt);
+  }
+  function doSupport(){
+    var msg=(es?'Hola, necesito ayuda con mi viaje':'Hi, I need help with my ride')+(bid?' #'+bid:'');
+    window.open('https://wa.me/'+SUPPORT_WA+'?text='+encodeURIComponent(msg),'_blank','noopener');
+  }
+  function addStop(addr){
+    /* El backend no tiene endpoint de paradas: la parada viaja al chofer por el
+       chat, que es el único canal real, y el importe lo ajusta él. */
+    var msg=(es?'El pasajero agregó una parada: ':'The rider added a stop: ')+addr;
+    var row=q('[data-vrtrip-stop-row]'),sp=q('[data-vrtrip-stop]');
+    return Promise.resolve(sendMsg(msg)).then(function(){
+      if(sp)sp.textContent=addr;
+      if(row)row.hidden=false;
+      toast(T.stopSent,'ok');
+    }).catch(function(){toast(T.stopFail,'err');});
+  }
+  function doCancel(){
+    if(!confirm(T.cancelAsk))return;
+    ended=true;stopPolls();
+    try{if(window.__vrCancelBooking)window.__vrCancelBooking(api,key);}catch(_){}
+    try{localStorage.removeItem('vr_active_booking');}catch(_){}
+    toast(T.cancelled,'ok');
+    close();
+  }
+
+  function wire(){
+    if(started)return;started=true;
+    var r=root();if(!r)return;
+    var on=function(sel,ev,fn){var el=r.querySelector(sel);if(el)el.addEventListener(ev,fn);};
+    on('[data-vrtrip-call]','click',function(){
+      if(!phone){toast(T.noPhone,'err');return;}
+      location.href='tel:'+String(phone).replace(/[^\d+]/g,'');
+    });
+    on('[data-vrtrip-chat]','click',openChat);
+    on('[data-vrtrip-chat-back]','click',function(e){e.preventDefault();closeChat();});
+    on('[data-vrtrip-share]','click',doShare);
+    on('[data-vrtrip-support]','click',doSupport);
+    on('[data-vrtrip-cancel]','click',doCancel);
+    on('[data-vrtrip-addstop]','click',function(){
+      var form=r.querySelector('[data-vrtrip-stop-form]');if(!form)return;
+      form.hidden=!form.hidden;
+      if(!form.hidden){var i=form.querySelector('input');if(i)setTimeout(function(){try{i.focus();}catch(_){}},120);}
+    });
+    var sform=r.querySelector('[data-vrtrip-stop-form]');
+    if(sform)sform.addEventListener('submit',function(e){
+      e.preventDefault();
+      var i=sform.querySelector('input'),v=i?(i.value||'').trim():'';
+      if(!v)return;
+      if(i)i.value='';sform.hidden=true;
+      addStop(v);
+    });
+    var cform=r.querySelector('[data-vrtrip-chat-form]');
+    if(cform)cform.addEventListener('submit',function(e){
+      e.preventDefault();
+      var i=cform.querySelector('input'),v=i?(i.value||'').trim():'';
+      if(!v)return;
+      if(i){i.value='';try{i.focus();}catch(_){}}
+      sendMsg(v);
+    });
+    /* textos que el markup trae en inglés */
+    var lbl=[['[data-vrtrip-call] b',T.call],['[data-vrtrip-chat] b',T.chat],['[data-vrtrip-share] b',T.share],
+             ['[data-vrtrip-support] b',T.support],['[data-vrtrip-addstop]',T.addStop],['[data-vrtrip-cancel]',T.cancel],
+             ['[data-vrtrip-step="enroute"] b',T.s1],['[data-vrtrip-step="arrived"] b',T.s2],
+             ['[data-vrtrip-step="intrip"] b',T.s3],['[data-vrtrip-step="done"] b',T.s4],
+             ['[data-vrtrip-eta-lbl]',T.minAway],['[data-vrtrip-pill-txt]',T.enroute],['[data-vrtrip-name]',T.yourDriver]];
+    lbl.forEach(function(p){var el=r.querySelector(p[0]);if(el)el.textContent=p[1];});
+    var ph=r.querySelector('[data-vrtrip-stop-input]');if(ph)ph.placeholder=T.stopPh;
+    var pm=r.querySelector('[data-vrtrip-chat-input]');if(pm)pm.placeholder=T.msgPh;
+  }
+
+  function stopPolls(){
+    if(pollIv){clearInterval(pollIv);pollIv=null;}
+    if(chatIv){clearInterval(chatIv);chatIv=null;}
+  }
+  function close(){
+    stopPolls();
+    if(window.__vrCloseTestConfirm){try{window.__vrCloseTestConfirm();}catch(_){}}
+  }
+
+  window.__vrTripShow=function(driverData,bookingId,apiBase,webKey,pickup,dropoff){
+    var r=root();if(!r)return false;
+    bid=bookingId||window.__vrActiveBookingId||null;
+    api=apiBase||'';key=webKey||'';
+    ended=false;chatOpen=false;unread=0;lastMsgId=0;lastSeen=0;step='';
+    wire();
+    setRoute(pickup||window.__vrLastPickup||'',dropoff||window.__vrLastDropoff||'');
+    setDriver(driverData||{});
+    var d0=driverData||{};
+    if(d0.eta_minutes!==undefined&&d0.eta_minutes!==null)setEta(d0.eta_minutes);
+    if(d0.distance_miles!==undefined)setDist(d0.distance_miles);
+    setStep('enroute');
+    apply(d0);
+    setPane('trip');
+    stopPolls();
+    if(bid&&api){
+      pollStatus();
+      pollIv=setInterval(pollStatus,4000);
+      fetchChat(false);
+      chatIv=setInterval(function(){fetchChat(false);},6000);
+    }
+    return true;
+  };
+  window.__vrTripStop=function(){ended=true;stopPolls();};
+
+  /* Reanudar al recargar: abre el contenedor, aparta el formulario y deja la
+     tarjeta en el mismo sitio y estado en que estaba el viaje. */
+  window.__vrTripResume=function(d,bookingId,apiBase,webKey){
+    try{
+      var ov=document.querySelector('[data-vipride-test-confirm]');
+      var p2=document.querySelector('[data-vipride-test-p2]');
+      var sec=document.querySelector('.vipRide');
+      var sh=document.querySelector('[data-vipride-sheet]');
+      if(!ov||!p2)return false;
+      window.__vrActiveBookingId=bookingId||window.__vrActiveBookingId;
+      ov.removeAttribute('hidden');
+      ['[data-vipride-test-p1]','[data-vipride-test-driver]','[data-vipride-reserve-ok]'].forEach(function(s){
+        var el=ov.querySelector(s);if(el)el.style.display='none';
+      });
+      p2.style.display='';
+      if(sh)sh.classList.add('is-test-hidden');
+      if(sec)sec.classList.add('is-searching');
+      requestAnimationFrame(function(){p2.classList.add('is-visible');});
+      var pu=(d&&(d.pickup_address||d.pickup))||'',dr=(d&&(d.dropoff_address||d.dropoff))||'';
+      return window.__vrTripShow(d,bookingId,apiBase,webKey,pu,dr);
+    }catch(_){return false;}
+  };
+})();
+</script>
+
 </section>
 <script>
 (function(){var e=document.querySelector('meta[name="theme-color"]');if(e)e.setAttribute('content','#080e20');else{var m=document.createElement('meta');m.name='theme-color';m.content='#080e20';document.head.appendChild(m);}var ab=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');if(!ab){var a=document.createElement('meta');a.name='apple-mobile-web-app-status-bar-style';a.content='black-translucent';document.head.appendChild(a);}var vp=document.querySelector('meta[name="viewport"]');if(vp){vp.content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover';}else{var v=document.createElement('meta');v.name='viewport';v.content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover';document.head.appendChild(v);}
@@ -4464,6 +4966,112 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__testSheet .vipRide__testStar{background:#d4af37;box-shadow:0 0 7px rgba(212,175,55,.6);animation-name:vipSheetDrift;animation-timing-function:linear}
 @keyframes vipSheetDrift{0%{opacity:0;transform:translateY(16px) scale(.5)}18%{opacity:.85}72%{opacity:.45}100%{opacity:0;transform:translateY(-52px) scale(1.05)}}
 .vipRide__testSheet__logo{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 0 12px rgba(212,175,55,.35))}
+
+/* ═══ tarjeta del viaje: la misma caja muta de "buscando" a "chofer asignado" ═══
+   Tres paneles hermanos (searching / trip / chat) que se relevan con un fundido.
+   Hereda el fondo negro con partículas doradas de .vipRide__testSheet. */
+.vrTrip__pane{display:flex;flex-direction:column;gap:16px;min-width:0}
+.vrTrip__pane[hidden]{display:none!important}
+.vrTrip__pane.is-in{animation:vrTripIn .5s cubic-bezier(.22,1,.36,1) both}
+@keyframes vrTripIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.vrTrip__trip{gap:14px}
+
+.vrTrip__pill{align-self:center;display:inline-flex;align-items:center;gap:8px;padding:7px 15px;border-radius:999px;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.34);color:#f5d77a;font:700 11.5px/1 'Inter',sans-serif;letter-spacing:.1em;text-transform:uppercase;text-align:center}
+.vrTrip__pillDot{width:7px;height:7px;border-radius:50%;background:#d4af37;box-shadow:0 0 8px rgba(212,175,55,.8);animation:vrTripBlink 1.8s ease-in-out infinite;flex-shrink:0}
+@keyframes vrTripBlink{0%,100%{opacity:1}50%{opacity:.28}}
+
+.vrTrip__eta{text-align:center;line-height:1}
+.vrTrip__etaNum{font:800 clamp(46px,12vw,60px)/1 'Poppins','Inter',sans-serif;color:#fff;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.vrTrip__etaUnit{margin-top:6px;font:700 11.5px/1 'Inter',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#d4af37}
+.vrTrip__etaDist{margin-top:7px;font:500 12.5px/1 'Inter',sans-serif;color:rgba(255,255,255,.42)}
+.vrTrip__etaDist:empty{display:none}
+
+.vrTrip__steps{position:relative;display:flex;justify-content:space-between;padding:4px 2px 0}
+.vrTrip__stepLine{position:absolute;left:8px;right:8px;top:9px;height:2px;border-radius:2px;background:rgba(255,255,255,.11);overflow:hidden}
+.vrTrip__stepFill{display:block;height:100%;width:0;border-radius:2px;background:linear-gradient(90deg,#b8922c,#f2d577);transition:width .7s cubic-bezier(.22,1,.36,1)}
+.vrTrip__step{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;min-width:0}
+.vrTrip__step i{width:11px;height:11px;border-radius:50%;background:#101010;border:2px solid rgba(255,255,255,.2);transition:background .35s,border-color .35s,box-shadow .35s}
+.vrTrip__step b{font:700 8.5px/1.1 'Inter',sans-serif;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.34);text-align:center;transition:color .35s}
+.vrTrip__step.is-done i{background:#d4af37;border-color:#d4af37}
+.vrTrip__step.is-on i{background:#f5d77a;border-color:#f5d77a;box-shadow:0 0 0 4px rgba(212,175,55,.18)}
+.vrTrip__step.is-on b,.vrTrip__step.is-done b{color:#fff}
+
+.vrTrip__card{display:flex;align-items:center;gap:13px;padding:13px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07)}
+.vrTrip__avatar{width:52px;height:52px;flex-shrink:0;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.07);border:2px solid rgba(212,175,55,.42);display:flex;align-items:center;justify-content:center}
+.vrTrip__avatar svg{width:60%;height:60%}
+.vrTrip__avatar img{width:100%;height:100%;object-fit:cover}
+.vrTrip__who{flex:1;min-width:0}
+.vrTrip__name{font:800 17px/1.2 'Poppins','Inter',sans-serif;color:#fff;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vrTrip__meta{display:flex;align-items:center;gap:9px;margin-top:4px;min-width:0}
+.vrTrip__rating{display:inline-flex;align-items:center;gap:4px;font:700 13px/1 'Inter',sans-serif;color:rgba(255,255,255,.82);flex-shrink:0}
+.vrTrip__rating svg{width:13px;height:13px}
+.vrTrip__vehicle{font:500 12.5px/1.25 'Inter',sans-serif;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.vrTrip__plate{flex-shrink:0;align-self:flex-start;padding:4px 9px;border-radius:7px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.34);color:#f5d77a;font:800 11.5px/1 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.vrTrip__plate[hidden]{display:none!important}
+
+.vrTrip__acts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.vrTrip__act{position:relative;-webkit-appearance:none;appearance:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:11px 4px;border-radius:14px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.045);color:#fff;font-family:inherit;cursor:pointer;transition:background .2s,border-color .2s,transform .15s}
+.vrTrip__act svg{width:19px;height:19px}
+.vrTrip__act b{font:600 10.5px/1 'Inter',sans-serif;letter-spacing:.02em;color:rgba(255,255,255,.8)}
+.vrTrip__act:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.16)}
+.vrTrip__act:active{transform:scale(.96)}
+.vrTrip__act--call{background:rgba(34,197,94,.13);border-color:rgba(34,197,94,.38);color:#4ade80}
+.vrTrip__act--call b{color:#4ade80}
+.vrTrip__act--call:hover{background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.5)}
+.vrTrip__act[disabled]{opacity:.35;cursor:not-allowed}
+.vrTrip__unread{position:absolute;top:6px;right:8px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#e8474b;color:#fff;font:800 10px/17px 'Inter',sans-serif;text-align:center}
+.vrTrip__unread[hidden]{display:none!important}
+
+.vrTrip__route{display:flex;flex-direction:column;gap:0;padding:12px 13px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.vrTrip__rRow{position:relative;display:flex;align-items:center;gap:11px;min-height:26px;font:500 12.5px/1.3 'Inter',sans-serif;color:rgba(255,255,255,.72)}
+.vrTrip__rRow span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.vrTrip__rRow+.vrTrip__rRow::before{content:'';position:absolute;left:4px;top:-13px;width:1.5px;height:26px;background:rgba(212,175,55,.4)}
+.vrTrip__rDot{width:9px;height:9px;flex-shrink:0;border-radius:50%;border:2px solid #d4af37;background:transparent}
+.vrTrip__rDot--stop{border-color:#f5d77a;background:#f5d77a}
+.vrTrip__rDot--end{border-radius:2px;background:#d4af37}
+
+.vrTrip__stopForm{display:flex;align-items:center;gap:9px}
+.vrTrip__stopForm[hidden]{display:none!important}
+.vrTrip__more{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:2px}
+.vrTrip__link{-webkit-appearance:none;appearance:none;background:none;border:none;padding:9px 4px;font:600 13px/1 'Inter',sans-serif;color:rgba(255,255,255,.6);cursor:pointer;font-family:inherit;transition:color .2s}
+.vrTrip__link:hover{color:#fff}
+.vrTrip__link--danger{color:rgba(232,71,75,.85)}
+.vrTrip__link--danger:hover{color:#ff6b6f}
+.vrTrip__link[disabled]{opacity:.35;cursor:not-allowed}
+
+/* ── chat ── */
+.vrTrip__chat{gap:0;flex:1 1 auto;min-height:0}
+/* en móvil la hoja es un panel inferior: con chofer asignado crece mucho,
+   así que se le pone tope y scroll propio */
+@media(max-width:1023px){
+  .vipRide__testConfirm__phase2 .vipRide__testSheet{max-height:calc(100dvh - var(--vip-nav-h,60px) - 34px);overflow:hidden auto}
+}
+.vrTrip__chatHead{display:flex;align-items:center;gap:11px;padding-bottom:13px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.vrTrip__chatBack{-webkit-appearance:none;appearance:none;width:34px;height:34px;flex-shrink:0;border:none;border-radius:10px;background:rgba(255,255,255,.06);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s}
+.vrTrip__chatBack svg{width:19px;height:19px}
+.vrTrip__chatBack:hover{background:rgba(255,255,255,.12)}
+.vrTrip__chatWho{flex:1;min-width:0}
+.vrTrip__chatName{font:700 14.5px/1.2 'Inter',sans-serif;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vrTrip__chatSub{display:flex;align-items:center;gap:6px;margin-top:3px;font:600 10.5px/1 'Inter',sans-serif;color:#22c55e;letter-spacing:.05em}
+.vrTrip__chatSub::before{content:'';width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.7)}
+.vrTrip__chatAvatar{width:36px;height:36px;flex-shrink:0;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.07);border:1.5px solid rgba(212,175,55,.4)}
+.vrTrip__chatAvatar img{width:100%;height:100%;object-fit:cover}
+.vrTrip__chatBody{flex:1;min-height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding:14px 2px;scroll-behavior:smooth}
+.vrTrip__chatBody::-webkit-scrollbar{width:4px}
+.vrTrip__chatBody::-webkit-scrollbar-thumb{background:rgba(212,175,55,.25);border-radius:4px}
+.vrTrip__bubble{max-width:82%;padding:9px 13px;border-radius:15px;font:500 13.5px/1.4 'Inter',sans-serif;word-wrap:break-word;animation:vrTripMsg .25s ease-out both}
+@keyframes vrTripMsg{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.vrTrip__bubble--me{align-self:flex-end;background:linear-gradient(145deg,#f2d577,#d4af37);color:#241c05;border-bottom-right-radius:5px}
+.vrTrip__bubble--dr{align-self:flex-start;background:rgba(255,255,255,.08);color:#fff;border-bottom-left-radius:5px}
+.vrTrip__bubbleTime{display:block;margin-top:4px;font:600 9.5px/1 'Inter',sans-serif;opacity:.55;text-align:right}
+.vrTrip__chatEmpty{margin:auto;padding:20px;text-align:center;font:500 12.5px/1.5 'Inter',sans-serif;color:rgba(255,255,255,.38)}
+.vrTrip__chatForm{display:flex;align-items:center;gap:9px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.vrTrip__chatInput{flex:1;min-width:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;color:#fff;font:500 13.5px/1.3 'Inter',sans-serif;padding:11px 15px;outline:none;transition:border-color .2s}
+.vrTrip__chatInput:focus{border-color:rgba(212,175,55,.5)}
+.vrTrip__chatInput::placeholder{color:rgba(255,255,255,.33)}
+.vrTrip__chatSend{-webkit-appearance:none;appearance:none;width:39px;height:39px;flex-shrink:0;border:none;border-radius:50%;background:linear-gradient(145deg,#f2d577,#d4af37);color:#241c05;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s}
+.vrTrip__chatSend svg{width:17px;height:17px}
+.vrTrip__chatSend:active{transform:scale(.92)}
 .vipRide__testConfirm__phase2.is-visible .vipRide__testSheet{transform:translateY(0)}
 .vipRide__sheet{transition:opacity 620ms cubic-bezier(.22,1,.36,1),transform 620ms cubic-bezier(.22,1,.36,1);will-change:transform,opacity;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:translateZ(0)}
 .vipRide__sheet{transition:opacity .6s cubic-bezier(.2,.9,.25,1.1),transform .6s cubic-bezier(.2,.9,.25,1.1)!important}
@@ -4641,7 +5249,15 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
           return true;
         }
       }
-      /* ya no hay pantalla que abrir: la pagina se queda donde estaba */
+      /* viaje vivo: se reabre la tarjeta con el chofer justo donde estaba.
+         Sin chofer todavia no se toca la pagina, para no secuestrar la recarga. */
+      var hasReal=hasDriver||isLive;
+      if(hasReal&&typeof window.__vrTripResume==='function'){
+        var payload=realD||{status:'accepted',booking_id:parsed.id,pickup_address:parsed.pickup,dropoff_address:parsed.dropoff};
+        if(!payload.pickup_address)payload.pickup_address=parsed.pickup;
+        if(!payload.dropoff_address)payload.dropoff_address=parsed.dropoff;
+        if(window.__vrTripResume(payload,parsed.id,_EARLY_API,_EARLY_KEY)){_coreResumed=true;return true;}
+      }
       _coreResumed=true;return true;
     }
     return true;
@@ -4710,6 +5326,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     save:function(data){try{_vrLS.set(this.key,JSON.stringify({data:data,ts:Date.now()}))}catch(_){}},
     load:function(){try{var raw=_vrLS.get(this.key);if(!raw)return null;var o=JSON.parse(raw);if(!o||!o.ts||Date.now()-o.ts>this.ttl){this.clear();return null;}return o.data;}catch(_){return null;}},
     clear:function(){_vrLS.del(this.key)}};
+  window.__vrToast=function(m,t){try{_vrToast(m,t);}catch(_){}};
   function _vrToast(msg,type){
     if(!msg)return;
     var host=document.querySelector('.vR-toastHost');
@@ -6943,35 +7560,15 @@ setTimeout(_vrPfKick,1200);
     function _showDriverFound(overlay,driverData){
       _vrTrack('driver_found',{driver:driverData&&driverData.driver_name});
       try{_vrSendVipMenuEmail(driverData);}catch(_){}
-      var q=function(s){return overlay.querySelector(s)},p2=q('[data-vipride-test-p2]'),pDriver=q('[data-vipride-test-driver]'),barDriver=q('[data-vipride-test-bar-driver]');
-      if(p2){p2.classList.remove('is-visible');setTimeout(function(){p2.style.display='none'},400);}
-      var nameEl=q('[data-vipride-driver-name]'),ratingEl=q('[data-vipride-driver-rating]'),ratingWrapEl=q('[data-vipride-driver-rating-wrap]'),onwayEl=q('[data-vipride-driver-onway]'),photoEl=q('[data-vipride-driver-photo]'),vehicleEl=q('[data-vipride-driver-vehicle]'),plateEl=q('[data-vipride-driver-plate]');
-      var dName=(driverData&&driverData.driver_name)||t('yourDriver'),dRatingRaw=driverData?driverData.driver_rating:null,dPhoto=(driverData&&driverData.driver_photo_url)||null;
-      if(nameEl)nameEl.textContent=dName;
-      if(ratingWrapEl){
-        var hR=dRatingRaw!==null&&dRatingRaw!==undefined&&dRatingRaw!==''&&Number(dRatingRaw)>0;
-        if(hR){if(ratingEl)ratingEl.textContent=Number(dRatingRaw).toFixed(1);ratingWrapEl.hidden=false;}else ratingWrapEl.hidden=true;
-      }
-      if(onwayEl)onwayEl.textContent=t('onWay',{n:dName.split(' ')[0]});
-      if(photoEl&&dPhoto){var img=document.createElement('img');img.src=dPhoto;img.alt=dName;photoEl.innerHTML='';photoEl.appendChild(img);}
-      if(vehicleEl){
-        var vMake=(driverData&&driverData.vehicle_make)||'',vModel=(driverData&&driverData.vehicle_model)||'',vPlate=(driverData&&driverData.vehicle_plate)||'',vYear=(driverData&&driverData.vehicle_year)||'',vColor=(driverData&&driverData.vehicle_color)||'',vParts=[];
-        if(vYear&&vMake&&vModel)vParts.push(vYear+' '+vMake+' '+vModel);else if(vMake&&vModel)vParts.push(vMake+' '+vModel);
-        if(vColor)vParts.push(vColor);
-        vehicleEl.textContent=vParts.join(' • ');vehicleEl.style.display=vParts.length?'':'none';
-        if(plateEl){if(vPlate){plateEl.textContent=vPlate;plateEl.hidden=false;}else plateEl.hidden=true;}
-      }
       var _mapBack=root.querySelector('[data-vipride-map-back]');
       if(_mapBack)_mapBack.hidden=true;
       window.__vrLastPickup=pickupEl?pickupEl.value:'';window.__vrLastDropoff=dropoffEl?dropoffEl.value:'';
-      setTimeout(function(){
-        if(pDriver)pDriver.classList.add('is-visible');
-        if(barDriver)barDriver.style.width='100%';
-        /* fin del flujo: la tarjeta de seguimiento y la promo de la app ya
-           no existen, asi que tras leer los datos del chofer se cierra y se
-           vuelve al mapa */
-        setTimeout(function(){try{_closeTestConfirm(overlay);}catch(_){}},7000);
-      },420);
+      /* la misma tarjeta donde se buscaba chofer pasa a mostrar el viaje:
+         estado, minutos, ficha del chofer, llamar/chat/compartir/soporte,
+         la ruta y las opciones de parada y cancelar */
+      if(window.__vrTripShow&&window.__vrTripShow(driverData,window.__vrActiveBookingId,_apiBase,_webKey,window.__vrLastPickup,window.__vrLastDropoff))return;
+      /* sin tarjeta disponible no queda nada que enseñar: se cierra */
+      setTimeout(function(){try{_closeTestConfirm(overlay);}catch(_){}},1200);
     }
     function _pollForDriver(bookingId, overlay){
       if(!bookingId)return;
@@ -7042,6 +7639,8 @@ setTimeout(_vrPfKick,1200);
           st4.appendChild(_st);
         }
       }
+      /* al arrancar una reserva la tarjeta vuelve siempre al panel de busqueda */
+      try{if(window.__vrTripStop)window.__vrTripStop();overlay.querySelectorAll('[data-vrtrip-pane]').forEach(function(p){p.hidden=p.getAttribute('data-vrtrip-pane')!=='searching';});}catch(_){}
       if(sheet)sheet.classList.add('is-test-hidden');
       overlay.removeAttribute('hidden');
       var _isRes=window.__vrScheduleActive;
@@ -7101,6 +7700,7 @@ setTimeout(_vrPfKick,1200);
       });
       overlay.querySelectorAll('[data-vipride-test-cancel],[data-vipride-test-cancel2]').forEach(function(btn){btn.addEventListener('click',function(){if(window.__vrCancelBooking&&window.__vrCancelBooking(_apiBase,_webKey))_vrToast(t('rideCancelled'),'ok');_closeTestConfirm(overlay);},{once:true});});
     }
+    window.__vrCloseTestConfirm=function(){try{_closeTestConfirm();}catch(_){}};
     function _closeTestConfirm(overlay){
       if(!overlay) overlay=root.querySelector('[data-vipride-test-confirm]');
       if(!overlay) return;
@@ -7976,6 +8576,15 @@ html body #vipMpFooterSugs{
   }
   html body .vipRide__testConfirm__phase2 .vipRide__testCancelBtn{
     align-self:center!important; padding:4px 22px 2px!important; font-size:15px!important;
+  }
+  /* con el chofer ya asignado la tarjeta lleva mucho más contenido: se alinea
+     arriba y hace scroll dentro de sí misma en lugar de centrar. El chat, en
+     cambio, llena la altura y el que hace scroll es el hilo de mensajes. */
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet:has([data-vrtrip-pane="trip"]:not([hidden])){
+    justify-content:flex-start!important; padding:24px 20px!important; overflow:hidden auto!important;
+  }
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet:has([data-vrtrip-pane="chat"]:not([hidden])){
+    justify-content:flex-start!important; padding:20px!important;
   }
 }
 
