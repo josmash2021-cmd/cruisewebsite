@@ -458,9 +458,13 @@
   .hero-inner {
     overflow: hidden;
     max-height: 1600px;
-    transition: max-height 1.1s cubic-bezier(.6, 0, .3, 1) .55s;
+    /* el hueco de la fase 1 se libera de un solo golpe cuando sus textos ya
+       se desvanecieron: así el panel NO sube deslizándose — solo hace fade
+       en su posición final */
+    transition: max-height .01s linear .75s;
   }
   .hero--phase2 .hero-inner { max-height: 0; }
+  .hero--phase2 .h-phase2 { transition: opacity 1.6s ease .85s, visibility 0s .85s; }
 }
 @media (max-width: 640px) {
   .h-ride { grid-template-columns: 1fr; }
