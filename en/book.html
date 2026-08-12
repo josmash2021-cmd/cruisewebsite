@@ -6767,11 +6767,21 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       if(map.isMoving&&map.isMoving())return;
       var ct=map.getContainer(),sig=(ct?ct.clientWidth:0)+'x'+(ct?ct.clientHeight:0);
       if(sig!==_vwSig){_vwSig=sig;_vwTries=0;}
-      var vb=map.getBounds();
+      /* la comprobación es contra la ZONA VISIBLE, no contra el lienzo: si el
+         lienzo se extiende por detrás de la hoja de vehículos, un punto puede
+         estar "dentro del mapa" y aun así oculto bajo la hoja */
+      var rc=ct.getBoundingClientRect();
+      var sEl=document.querySelector('[data-vipride-sheet]');
+      var sr=(sEl&&sEl.offsetHeight>0)?sEl.getBoundingClientRect():null;
+      var visB=rc.height;
+      if(sr&&sr.top<rc.bottom)visB=Math.max(80,sr.top-rc.top);
       var pts=[[pickupPlace.lng,pickupPlace.lat],[dropoffPlace.lng,dropoffPlace.lat]];
       try{(window.__vrRouteCoords||[]).forEach(function(cc){pts.push(cc);});}catch(_){}
       var out=false;
-      for(var i=0;i<pts.length;i++){if(!vb.contains(pts[i])){out=true;break;}}
+      for(var i=0;i<pts.length;i++){
+        var pj=map.project(pts[i]);
+        if(pj.x<0||pj.x>rc.width||pj.y<0||pj.y>visB){out=true;break;}
+      }
       if(!out){_vwTries=0;return;}
       if(_vwTries>=4)return;
       _vwTries++;
