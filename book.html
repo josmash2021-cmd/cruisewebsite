@@ -769,10 +769,32 @@ img,video{-webkit-user-drag:none}
             </button>
           </div>
 
+          <button type="button" class="vrTrip__meet" data-vrtrip-meet hidden>I'm with my driver</button>
+
           <div class="vrTrip__more">
             <button type="button" class="vrTrip__link" data-vrtrip-addstop>Add a stop</button>
             <button type="button" class="vrTrip__link vrTrip__link--danger" data-vrtrip-cancel>Cancel ride</button>
           </div>
+        </div>
+
+        <!-- ═══ Califica el viaje: réplica de ride_rating_screen.dart ═══ -->
+        <div class="vrTrip__pane vrTrip__rate" data-vrtrip-pane="rate" hidden>
+          <div class="vrTrip__rateAvatar" data-vrtrip-rate-photo aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="rgba(255,255,255,.5)"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+          </div>
+          <h3 class="vrTrip__rateTitle" data-vrtrip-rate-title>How was your ride?</h3>
+          <p class="vrTrip__rateSub" data-vrtrip-rate-sub></p>
+          <div class="vrTrip__stars" data-vrtrip-stars role="group" aria-label="Rating">
+            <button type="button" class="vrTrip__star" data-vrtrip-star="1" aria-label="1"><svg viewBox="0 0 24 24"><path d="M12 2l2.95 6.37L22 9.42l-5 4.94L18.18 22 12 18.5 5.82 22 7 14.36 2 9.42l7.05-1.05z"/></svg></button>
+            <button type="button" class="vrTrip__star" data-vrtrip-star="2" aria-label="2"><svg viewBox="0 0 24 24"><path d="M12 2l2.95 6.37L22 9.42l-5 4.94L18.18 22 12 18.5 5.82 22 7 14.36 2 9.42l7.05-1.05z"/></svg></button>
+            <button type="button" class="vrTrip__star" data-vrtrip-star="3" aria-label="3"><svg viewBox="0 0 24 24"><path d="M12 2l2.95 6.37L22 9.42l-5 4.94L18.18 22 12 18.5 5.82 22 7 14.36 2 9.42l7.05-1.05z"/></svg></button>
+            <button type="button" class="vrTrip__star" data-vrtrip-star="4" aria-label="4"><svg viewBox="0 0 24 24"><path d="M12 2l2.95 6.37L22 9.42l-5 4.94L18.18 22 12 18.5 5.82 22 7 14.36 2 9.42l7.05-1.05z"/></svg></button>
+            <button type="button" class="vrTrip__star" data-vrtrip-star="5" aria-label="5"><svg viewBox="0 0 24 24"><path d="M12 2l2.95 6.37L22 9.42l-5 4.94L18.18 22 12 18.5 5.82 22 7 14.36 2 9.42l7.05-1.05z"/></svg></button>
+          </div>
+          <div class="vrTrip__starLbl" data-vrtrip-star-lbl></div>
+          <textarea class="vrTrip__rateNote" data-vrtrip-rate-note maxlength="200" rows="2" placeholder="Leave a comment (optional)"></textarea>
+          <button type="button" class="vrTrip__rateSend" data-vrtrip-rate-send disabled>Submit rating</button>
+          <button type="button" class="vrTrip__link" data-vrtrip-rate-skip>Not now</button>
         </div>
 
         <!-- ═══ Seguridad y soporte: la misma tarjeta muta al panel (réplica del
@@ -3497,6 +3519,11 @@ window.__VR_AIRPORTS = [
     rcFail:'No se pudo aplicar el cambio. Llama a tu chofer.',
     rcNone:'Sin resultados. Prueba con otra dirección.',
     driverBailed:'El chofer canceló. Buscando otro chofer…',
+    meet:'Ya estoy con mi chofer',meetSent:'Le avisamos a tu chofer.',
+    rateTitle:'¿Qué tal tu viaje?',rateSub:'Califica tu viaje con {n}',
+    ratePh:'Deja un comentario (opcional)',rateSend:'Enviar calificación',rateSkip:'Ahora no',
+    rateOk:'¡Gracias por calificar!',rateFail:'No se pudo enviar la calificación.',
+    st1:'Malo',st2:'Regular',st3:'Bien',st4:'Muy bien',st5:'¡Excelente!',
     mi:'mi'
   }:{
     enroute:'Your driver is on the way',arrived:'Your driver has arrived',intrip:'On trip',done:'Trip completed',
@@ -3527,6 +3554,11 @@ window.__VR_AIRPORTS = [
     rcFail:'Could not apply the change. Please call your driver.',
     rcNone:'No results. Try another address.',
     driverBailed:'Your driver cancelled. Finding you another driver…',
+    meet:"I'm with my driver",meetSent:'We let your driver know.',
+    rateTitle:'How was your ride?',rateSub:'Rate your ride with {n}',
+    ratePh:'Leave a comment (optional)',rateSend:'Submit rating',rateSkip:'Not now',
+    rateOk:'Thanks for rating!',rateFail:'Could not send the rating.',
+    st1:'Poor',st2:'Below average',st3:'Average',st4:'Great',st5:'Excellent!',
     mi:'mi'
   };
   var SUPPORT_WA='16593052974';
@@ -3684,6 +3716,10 @@ window.__VR_AIRPORTS = [
       if(n)n.textContent='0';if(l)l.textContent=T.arrivedNow;
     }
     /* con el viaje empezado ya no se puede cancelar ni agregar parada por aquí */
+    /* el chofer marcó que llegó: el pasajero confirma el encuentro, igual que
+       la pantalla de confirmar recogida de la app */
+    var meet=q('[data-vrtrip-meet]');
+    if(meet&&!meet.disabled)meet.hidden=(s!=='arrived');
     var canEdit=(s==='enroute'||s==='arrived');
     var cb=q('[data-vrtrip-cancel]'),ab=q('[data-vrtrip-addstop]');
     if(cb)cb.disabled=!canEdit;
@@ -3745,8 +3781,11 @@ window.__VR_AIRPORTS = [
     var raw=String(d.raw_status||d.status||'').toLowerCase();
     if(raw==='completed'||raw==='ended'){
       setStep('done');ended=true;stopPolls();
+      /* el viaje terminó: la tarjeta pasa a calificar, como la app. forget()
+         corre al enviar o al saltar, para que recargar no pierda la pantalla */
+      if(hadDriver&&!rateSent){setTimeout(openRate,900);return;}
       forget();
-      setTimeout(close,6000);return;
+      setTimeout(close,4000);return;
     }
     if(raw==='cancelled'||raw==='canceled'){
       ended=true;stopPolls();
@@ -3865,7 +3904,7 @@ window.__VR_AIRPORTS = [
     setPane('chat');
     fetchChat(true);
     if(chatIv)clearInterval(chatIv);
-    chatIv=setInterval(function(){fetchChat(true);},4000);
+    chatIv=setInterval(function(){fetchChat(true);},1500);
     var inp=q('[data-vrtrip-chat-input]');if(inp)setTimeout(function(){try{inp.focus();}catch(_){}},220);
   }
   function closeChat(){
@@ -4056,6 +4095,48 @@ window.__VR_AIRPORTS = [
     close();
   }
 
+  var rateStars=0,rateSent=false;
+  function setStars(n){
+    rateStars=n;
+    var r=root();if(!r)return;
+    r.querySelectorAll('[data-vrtrip-star]').forEach(function(b){
+      b.classList.toggle('is-on',Number(b.getAttribute('data-vrtrip-star'))<=n);
+    });
+    var lb=q('[data-vrtrip-star-lbl]');
+    if(lb){lb.textContent=T['st'+n]||'';lb.classList.toggle('is-on',n>0);}
+    var sb=q('[data-vrtrip-rate-send]');if(sb)sb.disabled=n<1;
+  }
+  function openRate(){
+    if(rateSent)return;
+    setStars(0);
+    var note=q('[data-vrtrip-rate-note]');if(note){note.value='';note.placeholder=T.ratePh;}
+    var ti=q('[data-vrtrip-rate-title]');if(ti)ti.textContent=T.rateTitle;
+    var su=q('[data-vrtrip-rate-sub]');if(su)su.textContent=T.rateSub.replace('{n}',name||T.yourDriver);
+    var sb=q('[data-vrtrip-rate-send]');if(sb){sb.textContent=T.rateSend;sb.disabled=true;}
+    var sk=q('[data-vrtrip-rate-skip]');if(sk)sk.textContent=T.rateSkip;
+    /* la foto del chofer, la misma que ya se cargó en la ficha */
+    if(photo){var ph=q('[data-vrtrip-rate-photo]');if(ph){var im=document.createElement('img');im.src=photo;im.alt='';ph.innerHTML='';ph.appendChild(im);}}
+    setPane('rate');
+  }
+  function sendRate(){
+    if(rateStars<1||rateSent||!bid||!api)return;
+    var note=q('[data-vrtrip-rate-note]'),txt=note?(note.value||'').trim():'';
+    var sb=q('[data-vrtrip-rate-send]');if(sb)sb.disabled=true;
+    fetch(api+'/bookings/web/'+bid+'/rate',{method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({stars:rateStars,comment:txt})})
+      .then(function(r){if(!r.ok)throw new Error('http '+r.status);
+        rateSent=true;toast(T.rateOk,'ok');forget();close();})
+      .catch(function(){if(sb)sb.disabled=false;toast(T.rateFail,'err');});
+  }
+  /* el pasajero confirma que ya está con el chofer: se le avisa por el chat,
+     que es el canal que además le dispara push en su app */
+  function meetDriver(){
+    var b=q('[data-vrtrip-meet]');
+    if(b){b.disabled=true;b.textContent=T.meetSent;}
+    var line=es?'El pasajero confirmó que ya está contigo.':'The rider confirmed they are with you now.';
+    Promise.resolve(sendMsg(line)).then(function(){toast(T.meetSent,'ok');}).catch(function(){});
+  }
   function wire(){
     if(started)return;started=true;
     var r=root();if(!r)return;
@@ -4080,6 +4161,12 @@ window.__VR_AIRPORTS = [
       /* confirma primero: está a un toque de Contactar soporte y un 911
          marcado por error no es poca cosa (igual que en la app) */
       if(confirm(T.ask911))location.href='tel:911';
+    });
+    on('[data-vrtrip-meet]','click',meetDriver);
+    on('[data-vrtrip-rate-send]','click',sendRate);
+    on('[data-vrtrip-rate-skip]','click',function(){forget();close();});
+    r.querySelectorAll('[data-vrtrip-star]').forEach(function(b){
+      b.addEventListener('click',function(){setStars(Number(b.getAttribute('data-vrtrip-star'))||0);});
     });
     on('[data-vrtrip-rc-back]','click',openSupport);
     on('[data-vrtrip-rc-confirm]','click',rcCommit);
@@ -4106,7 +4193,7 @@ window.__VR_AIRPORTS = [
              ['[data-vrtrip-sup-title]',T.supTitle],['[data-vrtrip-sup-problem-lbl]',T.problem],
              ['[data-vrtrip-sup-stop-lbl]',T.supStop],['[data-vrtrip-sup-dest-lbl]',T.supDest],
              ['[data-vrtrip-sup-911-lbl]',T.sup911],['[data-vrtrip-sup-contact-lbl]',T.supContact],
-             ['[data-vrtrip-rc-confirm]',T.rcConfirm]];
+             ['[data-vrtrip-rc-confirm]',T.rcConfirm],['[data-vrtrip-meet]',T.meet]];
     lbl.forEach(function(p){var el=r.querySelector(p[0]);if(el)el.textContent=p[1];});
     var pm=r.querySelector('[data-vrtrip-chat-input]');if(pm)pm.placeholder=T.msgPh;
   }
@@ -5415,6 +5502,30 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vrTrip__rcConfirm:hover{filter:brightness(1.06)}
 .vrTrip__rcConfirm[disabled]{opacity:.45;cursor:not-allowed}
 
+.vrTrip__meet{-webkit-appearance:none;appearance:none;width:100%;height:52px;border:none;border-radius:14px;background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);color:#241c05;font:800 15px/1 'Inter',sans-serif;font-family:inherit;cursor:pointer;box-shadow:0 6px 20px rgba(212,175,55,.3);animation:vrTripMeetIn .5s cubic-bezier(.22,1,.36,1) both;transition:filter .2s,transform .15s}
+.vrTrip__meet[hidden]{display:none!important}
+.vrTrip__meet:hover{filter:brightness(1.06)}
+.vrTrip__meet:active{transform:scale(.98)}
+.vrTrip__meet[disabled]{opacity:.5;cursor:default;animation:none}
+@keyframes vrTripMeetIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* ── califica el viaje ── */
+.vrTrip__rate{align-items:center;text-align:center;gap:0}
+.vrTrip__rateAvatar{width:84px;height:84px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.07);border:2.5px solid rgba(212,175,55,.4);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.vrTrip__rateAvatar svg{width:52%;height:52%}
+.vrTrip__rateAvatar img{width:100%;height:100%;object-fit:cover}
+.vrTrip__rateTitle{margin:0;font:800 24px/1.2 'Poppins','Inter',sans-serif;color:#fff;letter-spacing:-.02em}
+.vrTrip__rateSub{margin:8px 0 0;font:500 14px/1.4 'Inter',sans-serif;color:rgba(255,255,255,.55)}
+.vrTrip__stars{display:flex;justify-content:center;gap:6px;margin-top:26px}
+.vrTrip__star{-webkit-appearance:none;appearance:none;border:none;background:none;padding:4px;cursor:pointer;line-height:0}
+.vrTrip__star svg{width:38px;height:38px;fill:rgba(255,255,255,.22);transition:fill .2s,transform .2s}
+.vrTrip__star.is-on svg{fill:#E8C547;transform:scale(1.15)}
+.vrTrip__starLbl{min-height:20px;margin-top:6px;font:600 14px/1.4 'Inter',sans-serif;color:#E8C547;opacity:0;transition:opacity .3s}
+.vrTrip__starLbl.is-on{opacity:1}
+.vrTrip__rateNote{width:100%;margin-top:24px;padding:12px 14px;border:none;border-radius:12px;background:rgba(255,255,255,.06);color:#fff;font:500 14px/1.4 'Inter',sans-serif;font-family:inherit;outline:none;resize:none}
+.vrTrip__rateNote::placeholder{color:rgba(255,255,255,.33)}
+.vrTrip__rateSend{-webkit-appearance:none;appearance:none;width:100%;height:54px;margin-top:18px;border:none;border-radius:16px;background:#E8C547;color:#0a0a0a;font:800 15px/1 'Inter',sans-serif;font-family:inherit;cursor:pointer;transition:filter .2s}
+.vrTrip__rateSend:hover{filter:brightness(1.06)}
+.vrTrip__rateSend[disabled]{opacity:.35;cursor:not-allowed}
 .vrTrip__more{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:2px}
 .vrTrip__link{-webkit-appearance:none;appearance:none;background:none;border:none;padding:9px 4px;font:600 13px/1 'Inter',sans-serif;color:rgba(255,255,255,.6);cursor:pointer;font-family:inherit;transition:color .2s}
 .vrTrip__link:hover{color:#fff}
