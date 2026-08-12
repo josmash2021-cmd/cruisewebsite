@@ -6822,7 +6822,10 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
          rótulo del pin —más la cabecera si se ve— y abajo lo que mide la hoja: la
          ruta llena la parte visible del mapa sin meterse debajo de la tarjeta. */
       var sP=Math.max(24,Math.min(48,Math.round(_cw*0.08)));
-      var _topBase=document.body.classList.contains('vrm-nohdr')?26:(nH+26);
+      /* sin cabecera manda la flecha de volver (arriba a la izquierda, 14+34 px):
+         el rótulo del pin cuelga por encima de él, así que se le deja sitio o el
+         nombre del destino se le monta encima */
+      var _topBase=document.body.classList.contains('vrm-nohdr')?64:(nH+26);
       /* ¿la hoja TAPA el mapa o vive debajo de él? En el paso 3 el mapa es una
          franja que termina justo donde empieza la hoja, así que reservarle el
          alto entero de la hoja dejaba el encuadre en 120 px y la ruta se salía.
@@ -6863,9 +6866,15 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       easing:function(t){return 1-Math.pow(1-t,3);}
     });
   }
+  /* el encuadre del paso 3 también se pide desde fuera (MOBILE_JS, al cambiar
+     de paso, cuando la franja del mapa ya está medida) */
+  window.__vrFitStep3=function(){try{fitRouteBounds();}catch(_){}};
   function stopSlowOrbit(){}
   function startSlowOrbit(){}
-  var _vrRz,_vrDidInitFit=false;function _vrOnR(){clearTimeout(_vrRz);_vrRz=setTimeout(function(){if(currentStep===3&&pickupPlace&&dropoffPlace&&!window.__vrFlying){try{map&&map.resize();}catch(_){}}},260);}
+  /* el lienzo se vuelve a medir SIEMPRE: si se saltaba el resize por estar la
+     cámara en vuelo, Mapbox se quedaba con el tamaño viejo y la ruta encajaba
+     en un mapa que ya no existía */
+  var _vrRz,_vrDidInitFit=false;function _vrOnR(){clearTimeout(_vrRz);_vrRz=setTimeout(function(){if(currentStep===3&&pickupPlace&&dropoffPlace){try{map&&map.resize();}catch(_){}}},260);}
   addEventListener('resize',_vrOnR);addEventListener('orientationchange',_vrOnR);
   function mapCenterForStep3(onEnd){
     if(!map||!pickupPlace||!dropoffPlace)return;
@@ -7751,7 +7760,14 @@ setTimeout(_vrPfKick,1200);
   (function(){function m(){var n=document.querySelector(q),h=n?n.getBoundingClientRect().height|0:0;if(h<40&&innerWidth>=900)h=72;document.documentElement.style.setProperty('--vip-nav-h',h+'px')}m();addEventListener('resize',m);setTimeout(m,400);setTimeout(m,1200)})();
   (function(){
     var _isMobile=window.innerWidth<900;
-    if(_isMobile)(function(){var s=root;if(!s)return;function e(){var r=s.getBoundingClientRect(),t=r.top,b=window.innerHeight-r.bottom;if(t>0||b>0){s.style.marginTop=(-t)+'px';s.style.height='calc(100dvh + '+t+'px + '+(b>0?b:0)+'px)';}}e();window.addEventListener('resize',e,{passive:true});setTimeout(e,500);setTimeout(e,1500);})();
+    /* Pantalla completa en el teléfono: la sección se sube para tapar el hueco
+       que deja la cabecera fija. SE MIDE SIEMPRE DESDE CERO (se limpian antes
+       el tirón y el alto): en el paso 3 la cabecera se esconde y el relleno de
+       <main> pasa a 0, así que el tirón viejo —96 px— ya no correspondía y
+       dejaba la sección entera por encima del borde de la pantalla. Ahí se
+       perdían la flecha de volver (quedaba fuera, arriba) y el trozo de arriba
+       del mapa: la ruta parecía cortada. */
+    if(_isMobile)(function(){var s=root;if(!s)return;function e(){s.style.marginTop='';s.style.height='';var r=s.getBoundingClientRect(),t=r.top,b=window.innerHeight-r.bottom;if(t>0||b>0){s.style.marginTop=(-t)+'px';s.style.height='calc(100dvh + '+t+'px + '+(b>0?b:0)+'px)';}}window.__vrFullBleed=e;e();window.addEventListener('resize',e,{passive:true});setTimeout(e,500);setTimeout(e,1500);})();
     (function(){['[data-vipride-locpicker]','[data-vipride-mappicker]','[data-vipride-later-overlay]','[data-vipride-pay-overlay]','[data-vipride-schedule-overlay]'].forEach(function(sel){var el=root.querySelector(sel);if(el)document.body.appendChild(el);});})();
     var _siteNav=document.querySelector(q);
     var _navOrigBg=_siteNav?(_siteNav.style.background||''):'',_navOrigBdf=_siteNav?(_siteNav.style.backdropFilter||''):'',_navOrigZ=_siteNav?(_siteNav.style.zIndex||''):'',_navOrigPos=_siteNav?(_siteNav.style.position||''):'';
@@ -11296,6 +11312,14 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     if (sec.classList.contains('vrm-step1') !== one || sec.classList.contains('vrm-step3') !== three) {
       sec.classList.toggle('vrm-step1', one);
       sec.classList.toggle('vrm-step3', three);
+      /* la cabecera acaba de esconderse (o de volver): el tirón que sube la
+         sección a pantalla completa hay que volver a medirlo aquí mismo, antes
+         de calcular la franja del mapa, o toda la pantalla queda 96 px arriba */
+      try { if (window.__vrFullBleed) window.__vrFullBleed(); } catch (_) {}
+      setTimeout(function () {
+        try { if (window.__vrFullBleed) window.__vrFullBleed(); } catch (_) {}
+        try { if (three && window.__vrFitStep3) window.__vrFitStep3(); } catch (_) {}
+      }, 180);
       askResize();
     }
     /* con un overlay abierto la hoja se desplaza y se apaga: su medida no sirve */
