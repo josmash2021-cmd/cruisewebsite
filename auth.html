@@ -1875,6 +1875,21 @@ main{overflow:hidden!important}
   .ca-side__item--out:hover{background:rgba(255,80,80,.08);color:#ff8a8a}
   .cruise-auth__profile{padding-left:230px!important}
 }
+/* ─── 1:1 con la referencia: plano, SIN caja oscura alrededor ─── */
+.cruise-auth__profile .cruise-auth__sub-card{background:transparent!important;border:none!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}
+@media(min-width:900px){
+  /* contenido en columna ancha junto a la barra, no centrado en tarjetita */
+  .cruise-auth__profile{justify-content:flex-start!important;align-items:flex-start!important;padding-left:320px!important;padding-top:48px!important}
+  .cruise-auth__profile .cruise-auth__sub-screen{width:100%;max-width:720px}
+  .cruise-auth__profile .cruise-auth__sub-card{max-width:720px!important;width:100%!important;padding:0!important}
+  /* sin cabecera "Perfil/Editar": como la referencia (editar vive en Sugerencias) */
+  .cruise-auth__profile-header{display:none!important}
+  /* las 3 tarjetas con tamaño de la referencia, alineadas al inicio */
+  .cruise-auth__profile .cruise-auth__rows{grid-template-columns:repeat(3,minmax(0,220px));justify-content:start;gap:16px}
+  .cruise-auth__profile .cruise-auth__row{height:122px}
+  /* salir: botón discreto, no barra gigante */
+  .cruise-auth__profile .cruise-auth__signout{width:auto;padding-left:28px;padding-right:28px}
+}
 .cruise-auth__cc{text-align:center;text-align-last:center}
 .cruise-auth__phone-row{justify-content:center}
 .cruise-auth__agree{justify-content:center;gap:12px}
