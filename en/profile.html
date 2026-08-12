@@ -1308,9 +1308,10 @@ img,video{-webkit-user-drag:none}
   function _monthYear(iso){try{var d=new Date(iso);var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getMonth()]+' '+d.getFullYear();}catch(_){return'';}}
   function _monthsAgo(iso){try{var d=new Date(iso);if(isNaN(d.getTime()))return'—';var days=(Date.now()-d.getTime())/(86400000);if(days<1)return'Today';if(days<30)return Math.max(1,Math.round(days))+' d';var months=days/30.44;if(months<12)return Math.round(months)+' mo';var years=months/12;return(years<10?years.toFixed(1):Math.round(years))+' yr';}catch(_){return'—';}}
 
-  /* La foto no puede subirse por /auth/photo (endpoint de la app móvil: exige
-     firma x-signature). Se envía como photo_url por PATCH /auth/web/profile y se
-     conserva una copia local por si el backend aún no la almacena. */
+  /* La foto va a POST /auth/web/photo (JWT, sube a Firebase Storage y sincroniza
+     app+dispatch). No sirven /auth/photo (exige firma x-signature de la app móvil)
+     ni PATCH /auth/web/profile (descarta photo_url si no empieza por http). Se
+     conserva copia local por si el servidor aún no tiene la ruta. */
   function _localPhoto(){try{return localStorage.getItem('vr_photo_local')||'';}catch(_){return'';}}
   function _shrinkPhoto(file,cb){
     var rd=new FileReader();
@@ -1599,9 +1600,9 @@ img,video{-webkit-user-drag:none}
     _shrinkPhoto(file,function(durl){
       if(!durl){_toast('We could not read that image','err');return;}
       _toast('Uploading photo…','ok');
-      _fetchWeb('/auth/web/profile',{method:'PATCH',body:{photo_url:durl}}).then(function(d){
-        _keepPhoto(durl);
-        _toast(d&&d.photo_url===durl?'Photo updated':'Photo saved in this browser only','ok');
+      _fetchWeb('/auth/web/photo',{method:'POST',body:{photo:durl}}).then(function(d){
+        _keepPhoto((d&&d.photo_url)||durl);
+        _toast('Photo updated','ok');
       }).catch(function(){_keepPhoto(durl);_toast('Photo saved in this browser only','ok');});
     });
   });

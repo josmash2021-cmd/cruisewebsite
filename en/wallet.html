@@ -175,7 +175,9 @@
   var list=document.querySelector('[data-wal-list]');
   var CARD='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>';
   function api(path){
-    return fetch(API+path,{headers:{'Content-Type':'application/json','X-Web-Key':KEY,'X-API-Key':KEY,'Authorization':'Bearer '+tok()}})
+    /* Sin X-Web-Key: no está en allow_headers del backend y su preflight CORS
+       tumbaba toda petición de esta página. */
+    return fetch(API+path,{headers:{'Content-Type':'application/json','X-API-Key':KEY,'Authorization':'Bearer '+tok()}})
       .then(function(r){if(!r.ok) throw new Error('HTTP '+r.status);return r.json();});
   }
   var u=usr();

@@ -259,7 +259,10 @@
   var $=function(s){return document.querySelector(s);};
   function api(path,opts){
     opts=opts||{};
-    var h={'Content-Type':'application/json','X-Web-Key':KEY,'X-API-Key':KEY};
+    /* Sin X-Web-Key: el backend no la lee (su comprobación mira Authorization) y
+       no está en allow_headers, así que su preflight CORS tumbaba toda petición
+       de esta página. */
+    var h={'Content-Type':'application/json','X-API-Key':KEY};
     h['Authorization']='Bearer '+tok();
     return fetch(API+path,{method:opts.method||'GET',headers:h,body:opts.body?JSON.stringify(opts.body):undefined})
       .then(function(r){return r.json().then(function(d){if(!r.ok){var e=new Error(d&&d.detail||('HTTP '+r.status));e.status=r.status;throw e;}return d;});});
@@ -309,9 +312,11 @@
   function pickPhoto(){if(phIn)phIn.click();}
   var fw=$('[data-acc-face-wrap]');if(fw)fw.addEventListener('click',pickPhoto);
   var pb=$('[data-acc-photo-btn]');if(pb)pb.addEventListener('click',pickPhoto);
-  /* /auth/photo es el endpoint de la app móvil: exige firma (x-signature) que la
-     web no puede generar, así que siempre devolvía error. Aquí recortamos la foto
-     a un cuadrado de 256px y la guardamos con PATCH /auth/web/profile. */
+  /* La foto va a /auth/web/photo, que sube a Firebase Storage y sincroniza con la
+     app y dispatch. NO se puede usar /auth/photo (es el endpoint de la app móvil:
+     exige firma x-signature) ni PATCH /auth/web/profile (descarta photo_url si no
+     empieza por http). Mientras el servidor no tenga la ruta, la foto se queda
+     guardada en este navegador y se avisa de ello. */
   function shrinkPhoto(file,cb){
     var rd=new FileReader();
     rd.onerror=function(){cb('');};
@@ -338,12 +343,12 @@
     phIn.value='';
     shrinkPhoto(file,function(durl){
       if(!durl){alert('No se pudo leer esa imagen. Prueba con otra foto.');return;}
-      api('/auth/web/profile',{method:'PATCH',body:{photo_url:durl}}).then(function(d){
-        keepPhoto(durl);
-        if(!d||d.photo_url!==durl) alert('Tu foto ya se ve, pero el servidor todavía no la guarda: por ahora solo aparece en este navegador.');
+      api('/auth/web/photo',{method:'POST',body:{photo:durl}}).then(function(d){
+        if(d&&d.photo_url){keepPhoto(d.photo_url);}
+        else{keepPhoto(durl);alert('Tu foto ya se ve, pero el servidor no devolvió confirmación.');}
       }).catch(function(){
         keepPhoto(durl);
-        alert('Tu foto se guardó en este navegador, pero no se pudo enviar al servidor.');
+        alert('Tu foto se guardó en este navegador. Se sincronizará con la app cuando el servidor se actualice.');
       });
     });
   });
