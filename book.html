@@ -8857,7 +8857,9 @@ html body #vipMpFooterSugs{
   /* el paso 1 deja de ser una tarjeta flotante sobre el mapa: es la cabecera
      de la página — campos, píldoras y, debajo, el mapa como tarjeta aparte */
   html body .vipRide .vipRide__sheet[data-vipride-step="1"]{
-    top:var(--vip-nav-h,64px)!important; bottom:auto!important;
+    /* max(): si --vip-nav-h llegara a medirse en 0 (la barra a medio animar
+       al refrescar), el cuadro no puede quedar metido debajo de la barra */
+    top:max(var(--vip-nav-h,64px), 64px)!important; bottom:auto!important;
     left:0!important; right:0!important;
     padding:12px 12px 14px!important;
     background:transparent!important; border:none!important; border-radius:0!important;
@@ -9120,7 +9122,7 @@ html body #vipMpFooterSugs{
   html body .vipRide .vipRide__sheet[data-vipride-step="3"]{
     position:fixed!important; left:0!important; right:0!important; bottom:0!important;
     border-radius:20px 20px 0 0!important;
-    max-height:62svh!important;
+    max-height:52svh!important;
   }
   html body .vipRide .vipRide__sheet[data-vipride-step="3"] .vipRide__handle{
     display:block!important; width:40px; height:4px; margin:0 auto 10px;
@@ -9193,6 +9195,62 @@ html body #vipMpFooterSugs{
   html body .vipRide [data-vipride-request-btn]{
     flex:none!important; width:100%!important; height:54px!important;
     border-radius:14px!important; font-size:16px!important; letter-spacing:.02em!important;
+  }
+
+  /* los carritos decorativos del mapa, más pequeños en el teléfono
+     (el tamaño viene inline desde el motor: hace falta !important) */
+  html body .vipRide .vrFleetCar img[src*="car-suburban"]{ height:25px!important }
+  html body .vipRide .vrFleetCar img[src*="car-sedan"]{ height:21px!important }
+
+  /* ── página "¿Cuándo te recogemos?" (la abre la píldora del reloj) ──
+     pantalla completa, negra y minimalista: atrás sin círculo, título,
+     desde dónde, dos filas (fecha y hora), los beneficios y Siguiente. */
+  html body .vrm-when{
+    position:fixed; inset:0; z-index:9995; background:#000;
+    display:flex; flex-direction:column; overflow-y:auto;
+    padding:calc(env(safe-area-inset-top,0px) + 8px) 18px calc(16px + env(safe-area-inset-bottom,0px));
+  }
+  html body .vrm-when[hidden]{ display:none!important }
+  html body .vrm-when__back{
+    align-self:flex-start; background:none; border:none; padding:10px 4px; margin:0 0 4px -4px;
+    color:#fff; cursor:pointer;
+  }
+  html body .vrm-when__back svg{ width:24px; height:20px; display:block }
+  html body .vrm-when__title{
+    margin:2px 0 8px; font-family:'Poppins','Inter',sans-serif;
+    font-size:24px; line-height:1.25; font-weight:800; color:#fff; letter-spacing:-.02em;
+  }
+  html body .vrm-when__from{ margin:0 0 18px; font-size:15px; color:rgba(255,255,255,.55) }
+  html body .vrm-when__rows{ position:relative }
+  html body .vrm-when__row{
+    display:flex; align-items:center; gap:13px; width:100%; height:56px;
+    margin:0 0 12px; padding:0 15px; border:none; border-radius:12px; cursor:pointer;
+    background:rgba(255,255,255,.08); color:#fff;
+    font-family:inherit; font-size:16px; font-weight:600; text-align:left;
+    touch-action:manipulation;
+  }
+  html body .vrm-when__row:active{ background:rgba(255,255,255,.13) }
+  html body .vrm-when__row .vrm-pill__ico{ flex:0 0 19px; width:19px; height:19px }
+  html body .vrm-when__row .vrm-pill__label{ flex:1 1 auto; font-size:16px!important }
+  html body .vrm-when__infos{ margin:14px 0 0 }
+  html body .vrm-when__info{
+    display:flex; align-items:flex-start; gap:14px; padding:14px 0;
+    border-bottom:1px solid rgba(255,255,255,.1);
+    font-size:14px; line-height:1.45; color:rgba(255,255,255,.75);
+  }
+  html body .vrm-when__info i{ flex:0 0 19px; width:19px; height:19px; color:#f5d77a; display:flex; margin-top:1px }
+  html body .vrm-when__info i svg{ width:100%; height:100% }
+  html body .vrm-when__terms{ display:inline-block; margin:16px 0 20px; color:#fff; font-size:14px; text-decoration:underline }
+  html body .vrm-when__next{
+    flex:0 0 auto; margin-top:auto; width:100%; height:54px;
+    border:none; border-radius:14px; cursor:pointer;
+    font-family:inherit; font-size:16px; font-weight:700; letter-spacing:.02em; color:#241c05;
+    background:linear-gradient(145deg,#f2d577 0%,#d4af37 55%,#b8922c 100%);
+    box-shadow:0 6px 18px rgba(212,175,55,.28);
+  }
+  html body .vrm-when__clear{
+    background:none; border:none; margin:6px 0 0; padding:13px;
+    color:#fff; font-family:inherit; font-size:15px; font-weight:600; cursor:pointer;
   }
 
   /* método de pago: hoja inferior a todo el ancho con filas separadas,
@@ -9733,14 +9791,31 @@ html body #vipMpFooterSugs{
   var mq = window.matchMedia('(max-width:899px)');
   var ES = (document.documentElement.lang || 'en').slice(0, 2) === 'es';
   var T = ES
-    ? { now: 'Recoger ahora', forMe: 'Para mí', forOther: 'Para otra persona', plan: 'Planifica tu viaje' }
-    : { now: 'Pickup now', forMe: 'For me', forOther: 'For someone else', plan: 'Plan your ride' };
+    ? { now: 'Recoger ahora', forMe: 'Para mí', forOther: 'Para otra persona', plan: 'Planifica tu viaje',
+        whenTitle: '¿Cuándo quieres que te recojan?', from: 'Desde ', today: 'Hoy', tomorrow: 'Mañana',
+        nowShort: 'Ahora', next: 'Siguiente', clear: 'Restablecer', terms: 'Ver términos',
+        info1: 'Elige tu hora de recogida hasta con 90 días de antelación',
+        info2: 'Tiempo de espera extra incluido para encontrarte con tu chofer',
+        info3: 'Cancela sin costo hasta 30 minutos antes' }
+    : { now: 'Pickup now', forMe: 'For me', forOther: 'For someone else', plan: 'Plan your ride',
+        whenTitle: 'When do you want to be picked up?', from: 'From ', today: 'Today', tomorrow: 'Tomorrow',
+        nowShort: 'Now', next: 'Next', clear: 'Clear', terms: 'See terms',
+        info1: 'Choose your pickup time up to 90 days in advance',
+        info2: 'Extra wait time included to meet your ride',
+        info3: 'Cancel at no charge up to 30 minutes in advance' };
 
   var ICO_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 1.9"/></svg>';
   var ICO_USER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg>';
   var ICO_CHEV = '<svg class="vrm-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 
   function q(s) { return document.querySelector(s); }
+
+  /* al refrescar, el navegador restauraba el scroll de la página y todo el
+     contenido quedaba metido detrás de la barra del menú: en reservar se
+     arranca siempre arriba */
+  try { history.scrollRestoration = 'manual'; } catch (_) {}
+  try { window.scrollTo(0, 0); } catch (_) {}
+  window.addEventListener('load', function () { try { window.scrollTo(0, 0); } catch (_) {} });
 
   /* ── los campos abren el buscador de siempre ── */
   var FIELDS = [
@@ -9873,6 +9948,129 @@ html body #vipMpFooterSugs{
     sync();
   }
 
+  /* ── página "¿Cuándo te recogemos?": réplica de la referencia a pantalla
+     completa. La abre la píldora del reloj; escribe en los mismos campos de
+     fecha/hora del motor y en __vrScheduleActive, igual que hace el panel
+     equivalente de escritorio. ── */
+  var _wSel = { date: null, time: null };
+  function _wPad(n) { return (n < 10 ? '0' : '') + n; }
+  function _wISO(d) { return d.getFullYear() + '-' + _wPad(d.getMonth() + 1) + '-' + _wPad(d.getDate()); }
+  function _wFmtDate(d) {
+    var iso = _wISO(d), now = new Date(), tom = new Date(now.getTime() + 864e5);
+    if (iso === _wISO(now)) return T.today;
+    if (iso === _wISO(tom)) return T.tomorrow;
+    var DN = ES ? ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var MN = ES ? ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+                : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return DN[d.getDay()] + ', ' + d.getDate() + ' ' + MN[d.getMonth()];
+  }
+  function _wFmtTime(hm) {
+    var h = parseInt(hm.split(':')[0], 10), m = hm.split(':')[1], ap = h >= 12 ? 'PM' : 'AM';
+    return (h % 12 || 12) + ':' + m + ' ' + ap;
+  }
+  function _wPaint(w) {
+    var dl = w.querySelector('[data-w-date]'), tl = w.querySelector('[data-w-time]');
+    if (dl) dl.textContent = _wSel.date ? _wFmtDate(new Date(_wSel.date + 'T00:00:00')) : T.today;
+    if (tl) tl.textContent = _wSel.time ? _wFmtTime(_wSel.time) : T.nowShort;
+    var fr = w.querySelector('[data-w-from]');
+    var pu = q('[data-vipride-pickup]');
+    var puv = pu && pu.value ? pu.value.split(',')[0].trim() : '';
+    if (fr) { fr.textContent = puv ? T.from + puv : ''; fr.style.display = puv ? '' : 'none'; }
+  }
+  function ensureWhen() {
+    var w = document.querySelector('.vrm-when');
+    if (w) return w;
+    var ICO_CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>';
+    var ICO_HOUR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12M6 22h12M8 2v4l4 4 4-4V2M8 22v-4l4-4 4 4v4"/></svg>';
+    var ICO_CARD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/></svg>';
+    var termsHref = ES ? 'index.html' : '../en/index.html';
+    w = document.createElement('div');
+    w.className = 'vrm-when';
+    w.hidden = true;
+    w.innerHTML =
+      '<button type="button" class="vrm-when__back" data-w-back aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>' +
+      '<h2 class="vrm-when__title">' + T.whenTitle + '</h2>' +
+      '<p class="vrm-when__from" data-w-from></p>' +
+      '<div class="vrm-when__rows">' +
+        '<button type="button" class="vrm-when__row" data-w-date-row>' +
+          '<i class="vrm-pill__ico">' + ICO_CAL + '</i><span class="vrm-pill__label" data-w-date>' + T.today + '</span>' + ICO_CHEV +
+        '</button>' +
+        '<button type="button" class="vrm-when__row" data-w-time-row>' +
+          '<i class="vrm-pill__ico">' + ICO_CLOCK + '</i><span class="vrm-pill__label" data-w-time>' + T.nowShort + '</span>' + ICO_CHEV +
+        '</button>' +
+      '</div>' +
+      '<div class="vrm-when__infos">' +
+        '<div class="vrm-when__info"><i>' + ICO_CAL + '</i><span>' + T.info1 + '</span></div>' +
+        '<div class="vrm-when__info"><i>' + ICO_HOUR + '</i><span>' + T.info2 + '</span></div>' +
+        '<div class="vrm-when__info"><i>' + ICO_CARD + '</i><span>' + T.info3 + '</span></div>' +
+      '</div>' +
+      '<a class="vrm-when__terms" href="' + termsHref + '">' + T.terms + '</a>' +
+      '<button type="button" class="vrm-when__next" data-w-next>' + T.next + '</button>' +
+      '<button type="button" class="vrm-when__clear" data-w-clear>' + T.clear + '</button>';
+    document.body.appendChild(w);
+    w.querySelector('[data-w-back]').addEventListener('click', function () { w.hidden = true; });
+    w.querySelector('[data-w-clear]').addEventListener('click', function () { _wSel = { date: null, time: null }; _wPaint(w); });
+    w.querySelector('[data-w-date-row]').addEventListener('click', function (e) {
+      e.preventDefault();
+      var items = [], base = new Date();
+      for (var i = 0; i < 30; i++) {
+        (function (d) {
+          items.push({ label: _wFmtDate(d), run: function () { _wSel.date = _wISO(d); _wPaint(w); } });
+        })(new Date(base.getTime() + i * 864e5));
+      }
+      openMenu(this, items);
+    });
+    w.querySelector('[data-w-time-row]').addEventListener('click', function (e) {
+      e.preventDefault();
+      var items = [], today = !_wSel.date || _wSel.date === _wISO(new Date());
+      if (today) items.push({ label: T.nowShort, run: function () { _wSel.time = null; _wPaint(w); } });
+      var mm;
+      if (today) {
+        var t0 = new Date(Date.now() + 3600000);
+        mm = Math.ceil((t0.getHours() * 60 + t0.getMinutes()) / 30) * 30;
+      } else mm = 6 * 60;
+      for (; mm <= 23 * 60 + 30; mm += 30) {
+        (function (hm) {
+          items.push({ label: _wFmtTime(hm), run: function () { _wSel.time = hm; _wPaint(w); } });
+        })(_wPad(Math.floor(mm / 60)) + ':' + _wPad(mm % 60));
+      }
+      openMenu(this, items);
+    });
+    w.querySelector('[data-w-next]').addEventListener('click', function () {
+      var dEl = q('[data-vipride-date]'), tEl = q('[data-vipride-time]');
+      var todayISO = _wISO(new Date());
+      if (!_wSel.time && (!_wSel.date || _wSel.date === todayISO)) {
+        /* Hoy + Ahora = recogida inmediata */
+        window.__vrScheduleActive = false; window.__vrDeskWhen = null;
+        var b = q('[data-vipride-seg] [data-compact-mode="now"]');
+        if (b) b.click();
+      } else {
+        var dISO = _wSel.date || todayISO, hm = _wSel.time;
+        if (!hm) {
+          var t1 = new Date(Date.now() + 3600000);
+          var mnx = Math.ceil((t1.getHours() * 60 + t1.getMinutes()) / 30) * 30;
+          if (mnx > 23 * 60 + 30) mnx = 23 * 60 + 30;
+          hm = _wPad(Math.floor(mnx / 60)) + ':' + _wPad(mnx % 60);
+          _wSel.time = hm;
+        }
+        if (dEl) { dEl.value = dISO; try { dEl.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) {} }
+        if (tEl) { tEl.value = hm; try { tEl.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) {} }
+        window.__vrScheduleActive = true;
+        window.__vrDeskWhen = { label: _wFmtDate(new Date(dISO + 'T00:00:00')) + ' · ' + _wFmtTime(hm) };
+      }
+      w.hidden = true;
+      syncWhen();
+    });
+    return w;
+  }
+  function openWhen() {
+    closeMenu();
+    var w = ensureWhen();
+    _wPaint(w);
+    w.hidden = false;
+    try { w.scrollTop = 0; } catch (_) {}
+  }
+
   /* cabecera del buscador: el botón de atrás sube a una fila con el título,
      como en la app (se mueve el botón, así conserva su listener) */
   function lpHead() {
@@ -9993,12 +10191,11 @@ html body #vipMpFooterSugs{
         '<span class="vrm-pill__label" data-vrm-who-label>' + T.forMe + '</span>' + ICO_CHEV +
       '</button>';
     place();
-    /* el selector Ahora/Programar del booker sigue vivo (oculto con la tarjeta):
-       la píldora lo pilota, así que programar y aeropuerto siguen accesibles */
+    /* la píldora del reloj abre la página "¿Cuándo te recogemos?", que
+       escribe en los mismos campos del motor que usaba el selector viejo */
     pills.querySelector('[data-vrm-when]').addEventListener('click', function (e) {
       e.preventDefault();
-      var later = q('[data-vipride-seg] [data-compact-mode="later"]');
-      if (later) later.click();
+      openWhen();
     });
     pills.querySelector('[data-vrm-who]').addEventListener('click', function (e) {
       e.preventDefault();
