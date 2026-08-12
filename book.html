@@ -9505,21 +9505,6 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 
-/* ─── Barra de pago/solicitar: un pie de verdad, no un recuadro flotante.
-       Iba a 10px del borde y con margin-top:-42px, así que se montaba sobre
-       la última tarjeta y por el hueco de abajo asomaba la siguiente. Ahora
-       ocupa todo el ancho del sheet, pegada al fondo, y el listado pasa por
-       debajo — como en la referencia. ─── */
-html body .vipRide .vipRide__actionBtns{
-  /* hija directa del sheet: sticky sí puede llegar al fondo del panel */
-  position:sticky!important; bottom:0!important; z-index:8!important;
-  margin:8px calc(var(--pad) * -1) calc(env(safe-area-inset-bottom,0px) * -1 - 10px)!important;
-  padding:12px var(--pad) calc(12px + env(safe-area-inset-bottom,0px))!important;
-  border:none!important; border-top:1px solid rgba(255,255,255,.1)!important;
-  border-radius:0!important;
-  background:#0c0c10!important;
-  box-shadow:0 -14px 26px rgba(0,0,0,.6)!important;
-}
 </style>
 
 <footer class="cruise-footer">
