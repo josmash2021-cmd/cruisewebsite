@@ -204,7 +204,7 @@
         localStorage.removeItem('vr_au');
         localStorage.removeItem('vr_active_booking');
       } catch (_) {}
-      location.href = BASE + 'index.html';
+      location.href = BASE || './';
     });
 
     var promosBtn = panel.querySelector('[data-cam-promos]');
