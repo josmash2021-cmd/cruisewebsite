@@ -312,7 +312,8 @@
     var file=phIn.files&&phIn.files[0];if(!file)return;
     var reader=new FileReader();
     reader.onload=function(){
-      api('/auth/photo',{method:'POST',body:{photo:reader.result}}).then(function(d){
+      var b64=String(reader.result).split(',')[1]||'';
+      api('/auth/photo',{method:'POST',body:{photo:b64}}).then(function(d){
         if(d&&d.photo_url){
           $('[data-acc-face]').innerHTML='<img src="'+d.photo_url+'" alt="">';
           try{var u=JSON.parse(localStorage.getItem('vr_au')||'{}');u.photo_url=d.photo_url;localStorage.setItem('vr_au',JSON.stringify(u));}catch(_){}
