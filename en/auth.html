@@ -898,6 +898,9 @@ img,video{-webkit-user-drag:none}
   function _user(){try{var u=localStorage.getItem('vr_au');return u?JSON.parse(u):null;}catch(_){return null;}}
   function _save(t,u){try{localStorage.setItem('vr_at',t);localStorage.setItem('vr_au',JSON.stringify(u));localStorage.removeItem('vr_photo_local');}catch(_){}}
   function _clear(){try{localStorage.removeItem('vr_at');localStorage.removeItem('vr_au');localStorage.removeItem('vr_photo_local');}catch(_){}}
+  /* Con sesión iniciada esta página no muestra su perfil embebido (copia vieja
+     que además deja el header con "Log in"): manda a la cuenta real. */
+  function _toAccount(){try{_caClear();}catch(_){}location.replace('account.html');}
 
   var toastEl=$('[data-ca-toast]'),toastT=null;
   function _toast(msg,type){
@@ -929,7 +932,7 @@ img,video{-webkit-user-drag:none}
   /* Social auth */
   function _socialAuth(provider,id_token){
     _fetch('/auth/web/social',{method:'POST',body:{provider:provider,id_token:id_token,role:'rider'}}).then(function(d){
-      if(d.access_token){_save(d.access_token,d.user);_toast('Welcome!','ok');_go('profile');}
+      if(d.access_token){_save(d.access_token,d.user);_toAccount();}
       else throw new Error('No token');
     }).catch(function(e){_toast(e.message||'Auth failed','err');});
   }
@@ -1345,7 +1348,7 @@ img,video{-webkit-user-drag:none}
         throw new Error('Invalid response');
       });
       chain.then(function(d){
-        if(d&&d.access_token){_save(d.access_token,d.user);_toast('Welcome back!','ok');_go('profile');}
+        if(d&&d.access_token){_save(d.access_token,d.user);_toAccount();}
         else throw new Error('No token received');
       }).catch(function(e){
         if(pwErr){pwErr.textContent=e.message||'Invalid password';pwErr.classList.add('is-visible');}
@@ -1518,7 +1521,7 @@ img,video{-webkit-user-drag:none}
     if(btn) btn.disabled=true;
     if(errBox){errBox.textContent='';errBox.classList.remove('is-visible');}
     _fetch('/auth/web/register',{method:'POST',body:body}).then(function(d){
-      if(d.access_token){_save(d.access_token,d.user);_toast('Welcome to Cruise!','ok');_go('profile');}
+      if(d.access_token){_save(d.access_token,d.user);_toAccount();}
       else throw new Error(d.detail||'Registration failed');
     }).catch(function(e){
       if(errBox){errBox.textContent=e.message||'Could not create account';errBox.classList.add('is-visible');}
@@ -1835,9 +1838,7 @@ img,video{-webkit-user-drag:none}
 
   /* Init */
   if(_token()){
-    var cached=_user();
-    if(cached) _renderHome(cached);
-    _go('profile');
+    _toAccount();
   }
   else _caRestore();
 })();
