@@ -830,6 +830,29 @@ a.h-store { text-decoration: none; }
     0 24px 52px -12px rgba(212, 175, 55, .20);
 }
 
+/* botón incrustado en la esquina inferior derecha de la foto, dentro de una
+   muesca curva (referencia "Workspace"): placa del color del fondo + dos
+   esquinas cóncavas hechas con degradado radial */
+.sv-media { position: relative; }
+.sv-plate {
+  position: absolute;
+  right: 0; bottom: 0;
+  z-index: 2;
+  line-height: 0;
+  background: var(--bg);
+  padding: 12px 0 0 12px;
+  border-top-left-radius: 24px;
+}
+.sv-plate::before,
+.sv-plate::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  background: radial-gradient(circle at 0 0, rgba(0, 0, 0, 0) 20px, var(--bg) 20.5px);
+}
+.sv-plate::before { right: 0; top: -20px; }
+.sv-plate::after { left: -20px; bottom: 0; }
+
 /* vídeo en bucle: dos capas identicas que se funden en el punto de corte,
    de modo que el reinicio no se nota (home.js hace el relevo) */
 .sv-loop {
