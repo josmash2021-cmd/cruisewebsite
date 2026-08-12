@@ -2094,12 +2094,12 @@
     if (!docked) return;
     if (!base) measureBase();
     var r = slot.getBoundingClientRect();
-    if (r.width > 1) {
-      var s = r.width / base.w;
-      var tx = (r.left + r.width / 2) - base.cx;
-      var ty = (r.top + r.height / 2) - base.cy;
-      fab.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
-    }
+    /* el hueco abre animado de 0 a 36px: se apunta siempre a su tamaño final
+       para que el vuelo no dependa del progreso de esa transición */
+    var s = 36 / base.w;
+    var tx = (r.left + Math.max(r.width, 36) / 2) - base.cx;
+    var ty = (r.top + r.height / 2) - base.cy;
+    fab.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
     raf = requestAnimationFrame(sync);
   }
   function setDocked(on) {

@@ -8921,11 +8921,32 @@ html body #vipMpFooterSugs{
   }
   html body .vrm-menu__item:active{ background:rgba(255,255,255,.08) }
 
+  /* con el buscador abierto la barra del menú se retira y la pantalla es
+     suya entera: nada de cabecera del sitio asomando arriba */
+  html body.vrm-full .cruise-header{ display:none!important }
+  html body.vrm-full .wa-fab{ display:none!important }
+  html body.vrm-full .vipRide__locPicker,
+  html body.vrm-full [data-vipride-locpicker]:not([hidden]){
+    top:0!important; padding-top:env(safe-area-inset-top,0px)!important;
+  }
+
   /* buscador de direcciones: cabecera con atrás + título y las píldoras
      encima de los campos, igual que en la app */
   html body .vrm-lpHead{
     display:flex; align-items:center; gap:12px; padding:12px 16px 4px; flex:0 0 auto;
   }
+  /* minimalismo: los botones son su icono, sin círculo ni relieve */
+  html body .vipRide__locPicker .vipRide__locPicker__back,
+  html body .vipRide__locPicker .vipRide__lpReverse,
+  html body .vipRide .vipRide__mapBackBtn,
+  html body .vipRide__mapPicker .vipRide__mapPicker__back{
+    width:auto!important; height:auto!important; min-width:0!important;
+    padding:10px 6px!important; margin:0!important;
+    background:none!important; border:none!important; border-radius:0!important;
+    box-shadow:none!important; color:#fff!important;
+  }
+  html body .vipRide__locPicker .vipRide__lpReverse{ color:#f5d77a!important }
+  html body .vipRide__locPicker .vipRide__locPicker__back svg{ width:22px!important; height:18px!important }
   html body .vrm-lpHead__title{
     flex:1 1 auto; margin-right:38px; text-align:center;
     font-family:'Poppins','Inter',sans-serif; font-size:17px; font-weight:700; color:#fff;
@@ -9001,6 +9022,12 @@ html body #vipMpFooterSugs{
     background:rgba(255,255,255,.08)!important; color:#f5d77a!important;
   }
   html body .vipRide__locPicker .vipRide__locPicker__shortcutIcon svg{ width:19px!important; height:19px!important }
+  /* sin brillos ni degradados en los iconos de la lista */
+  html body .vipRide__locPicker .vipRide__locPicker__shortcutIcon,
+  html body .vipRide__locPicker .vipRide__lpSavedIcon,
+  html body .vipRide__locPicker .vipRide__lpRecentIcon{
+    filter:none!important; text-shadow:none!important; background-image:none!important;
+  }
   html body .vipRide__locPicker .vipRide__lpSavedChip > span:last-child,
   html body .vipRide__locPicker .vipRide__lpRecentText,
   html body .vipRide__locPicker .vipRide__locPicker__shortcutTitle{

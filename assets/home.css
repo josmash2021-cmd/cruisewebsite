@@ -821,7 +821,7 @@ a.h-store { text-decoration: none; }
   /* el contenido de la fase 1 arranca justo debajo de los botones de las
      tiendas, con aire suficiente para no pegarse al menú; el hero deja de
      forzar la altura de pantalla para no dejar un hueco negro debajo */
-  .hero { padding-top: 320px; }
+  .hero { padding-top: 268px; }
   /* en la fase 2 el panel sube: el hueco se libera justo cuando la fase 1
      se pliega (mismo retardo), así no hay doble salto */
   .hero { transition: padding-top .01s linear .75s; }
