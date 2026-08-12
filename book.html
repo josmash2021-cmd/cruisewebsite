@@ -9541,6 +9541,21 @@ html body #vipMpFooterSugs{
     opacity:0!important; visibility:hidden!important; pointer-events:none!important;
     transform:none!important; transition:none!important;
   }
+  /* ── el mapa cubre el teléfono entero, también DETRÁS de la tarjeta ──
+     En el paso 3 el mapa no es fondo: está recortado a la altura de la hoja de
+     vehículos (top:0 + height:--vrm-map3-h, "la franja termina donde empieza
+     la hoja"). Al pedir el viaje esa hoja desaparece pero el recorte seguía
+     ahí: por eso quedaba un bloque negro desde el final del mapa hasta la
+     tarjeta. Con la pantalla de búsqueda/viaje abierta el mapa vuelve a ser
+     fondo de pantalla completa. */
+  html body:has(.vipRide__testConfirm:not([hidden])) .vipRide .vipRide__map{
+    top:0!important; left:0!important; right:0!important; bottom:0!important;
+    height:auto!important; border-radius:0!important;
+  }
+  html body:has(.vipRide__testConfirm:not([hidden])) .vipRide .vipRide__mapInner,
+  html body:has(.vipRide__testConfirm:not([hidden])) .vipRide .vipRide__mapSkeleton{
+    border-radius:0!important;
+  }
   /* la tarjeta se clava al borde REAL de la pantalla, igual que la hoja del
      paso 3: colgada de la sección (position:absolute) la barra del navegador
      del teléfono le cortaba el último botón. Y respeta la franja del gesto de
