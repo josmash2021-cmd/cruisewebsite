@@ -761,7 +761,16 @@ a.h-store { text-decoration: none; }
   .hero-inner { align-items: center; }
   .h-col--left { text-align: center; }
   .h-divider { justify-content: center; }
+  /* al centrarse, el diamante lleva línea a ambos lados */
+  .h-divider::after {
+    content: '';
+    width: min(150px, 22vw);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, .8));
+  }
   .h-sub { margin-left: auto; margin-right: auto; }
+  /* más aire entre secciones */
+  .section { padding: 124px 24px; }
   /* botones compactos en horizontal */
   .h-col--right { width: 100%; }
   .h-buttons { width: 100%; flex-wrap: nowrap; gap: 10px; }
