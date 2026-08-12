@@ -9554,6 +9554,26 @@ html body #vipMpFooterSugs{
   html body .vipRide__testConfirm__phase2 .vipRide__testSheet:has([data-vrtrip-pane="chat"]:not([hidden])){
     height:82dvh!important;
   }
+  /* ── calificar: ENCIMA DE TODO, a pantalla completa ──
+     era una tarjeta a media pantalla con el mapa asomando arriba y el borde de
+     abajo pisado. Ahora ocupa el teléfono entero, sin nada detrás. Al enviar la
+     calificación (o tocar "Ahora no") la tarjeta se desvanece y debajo ya está
+     la pantalla de pedir viaje, que es lo que se ve al soltarla. */
+  html body:has([data-vrtrip-pane="rate"]:not([hidden])) .cruise-header{
+    visibility:hidden!important; pointer-events:none!important;
+  }
+  html body .vipRide__testConfirm__phase2:has([data-vrtrip-pane="rate"]:not([hidden])){
+    top:0!important; height:100dvh!important; max-height:100dvh!important;
+    padding:0!important; z-index:120!important;
+  }
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet:has([data-vrtrip-pane="rate"]:not([hidden])){
+    height:100dvh!important; max-height:100dvh!important; border-radius:0!important;
+    /* "safe center": centrado mientras quepa y, si no cabe, se desplaza desde
+       arriba sin cortar la foto del chofer */
+    justify-content:safe center!important;
+    padding:26px 18px calc(22px + env(safe-area-inset-bottom,0px))!important;
+    overflow:hidden auto!important;
+  }
 }
 
 </style>
