@@ -772,6 +772,9 @@ a.h-store { text-decoration: none; }
   .h-col--right { gap: 22px; align-items: center; }
   .h-buttons { order: 1; margin-top: 30px; }
   .h-col--right .h-stores { order: 2; }
+  /* el contenido de la fase 1 arranca mucho más abajo, sobre la parte
+     baja del video */
+  .hero { padding-top: 40svh; }
   /* todo el contenido del hero centrado */
   .hero-inner { align-items: center; }
   .h-col--left { text-align: center; }
