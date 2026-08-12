@@ -1722,6 +1722,41 @@ img,video{-webkit-user-drag:none}
     }
   });
 
+  /* ═══ persistencia: recargar NO reinicia el registro ═══
+     El paso del asistente, lo ya escrito y la pantalla actual se guardan en
+     sessionStorage (solo esta pestaña; caduca a los 30 min o al cerrarla).
+     La foto NO se guarda: en base64 puede pasarse del cupo y hacer que no se
+     guarde nada, así que al recargar tras elegirla se vuelve al paso de la
+     foto con todo lo demás ya puesto. */
+  var _CP_ST='cp_signup_state';
+  function _cpSave(){try{
+    var w={};for(var k in _wizState){if(k!=='photoDataUrl')w[k]=_wizState[k];}
+    sessionStorage.setItem(_CP_ST,JSON.stringify({v:_currentScreen,w:w,ts:Date.now()}));
+  }catch(_){}}
+  function _cpClear(){try{sessionStorage.removeItem(_CP_ST);}catch(_){}}
+  (function(){
+    var goBase=_go,wizBase=_wizGo;
+    _go=function(n){goBase(n);if(n==='profile')_cpClear();else _cpSave();};
+    _wizGo=function(s){wizBase(s);_cpSave();};
+  })();
+  function _cpRestore(){try{
+    var raw=sessionStorage.getItem(_CP_ST);if(!raw)return false;
+    var st=JSON.parse(raw)||{};
+    if(!st.ts||Date.now()-st.ts>1800000){_cpClear();return false;}
+    if(st.w)for(var k in st.w)if(k in _wizState)_wizState[k]=st.w[k];
+    if(st.v==='signin'){_go('signin');return true;}
+    if(st.v==='signup'){
+      _go('signup');
+      /* la foto no viaja: no se puede reanudar más allá de ese paso */
+      var s=Number(_wizState.step)||0;
+      var photoStep=_wizSteps.indexOf('photo');
+      if(photoStep>=0&&s>photoStep)s=photoStep;
+      if(s>0)setTimeout(function(){_wizGo(s);},60);
+      return true;
+    }
+    return false;
+  }catch(_){return false;}}
+
   /* ════════════════ INIT ════════════════ */
   var _forceProfile=false;
   try{
@@ -1734,6 +1769,8 @@ img,video{-webkit-user-drag:none}
     if(cached) _renderHome(cached);
     _go('profile');
     _showSub(location.hash==='#scheduled'?'scheduled':location.hash==='#payments'?'payments':'trips');
+  } else {
+    _cpRestore();
   }
 
   /* Safety net: tras 2.5s, marcar como ready → fuerza visible cualquier hijo que haya quedado con opacity:0 */

@@ -3477,6 +3477,7 @@ window.__VR_AIRPORTS = [
 
   function setPane(which){
     var r=root();if(!r)return;
+    try{sessionStorage.setItem('vr_trip_pane',which);}catch(_){}
     r.querySelectorAll('[data-vrtrip-pane]').forEach(function(p){
       var on=p.getAttribute('data-vrtrip-pane')===which;
       if(on){p.hidden=false;p.classList.remove('is-in');void p.offsetWidth;p.classList.add('is-in');}
@@ -3568,12 +3569,12 @@ window.__VR_AIRPORTS = [
     var raw=String(d.raw_status||d.status||'').toLowerCase();
     if(raw==='completed'||raw==='ended'){
       setStep('done');ended=true;stopPolls();
-      try{localStorage.removeItem('vr_active_booking');}catch(_){}
+      forget();
       setTimeout(close,6000);return;
     }
     if(raw==='cancelled'||raw==='canceled'){
       ended=true;stopPolls();
-      try{localStorage.removeItem('vr_active_booking');}catch(_){}
+      forget();
       close();
       if(window.__vrNoDriverShow){
         var why=(d.cancelled_by==='dispatch'||d.cancelled_by==='admin'||d.driver_name||d.driver_id)?'dispatch_cancelled':'no_driver';
@@ -3727,7 +3728,7 @@ window.__VR_AIRPORTS = [
     if(!confirm(T.cancelAsk))return;
     ended=true;stopPolls();
     try{if(window.__vrCancelBooking)window.__vrCancelBooking(api,key);}catch(_){}
-    try{localStorage.removeItem('vr_active_booking');}catch(_){}
+    forget();
     toast(T.cancelled,'ok');
     close();
   }
@@ -3777,6 +3778,12 @@ window.__VR_AIRPORTS = [
     var pm=r.querySelector('[data-vrtrip-chat-input]');if(pm)pm.placeholder=T.msgPh;
   }
 
+  /* el viaje acabó: se borra todo lo que lo haría reaparecer al recargar */
+  function forget(){
+    try{localStorage.removeItem('vr_active_booking');}catch(_){}
+    try{sessionStorage.removeItem('vr_trip_pane');}catch(_){}
+    try{if(window.__vrClearBookState)window.__vrClearBookState();}catch(_){}
+  }
   function stopPolls(){
     if(pollIv){clearInterval(pollIv);pollIv=null;}
     if(chatIv){clearInterval(chatIv);chatIv=null;}
@@ -3830,7 +3837,11 @@ window.__VR_AIRPORTS = [
       if(sec)sec.classList.add('is-searching');
       requestAnimationFrame(function(){p2.classList.add('is-visible');});
       var pu=(d&&(d.pickup_address||d.pickup))||'',dr=(d&&(d.dropoff_address||d.dropoff))||'';
-      return window.__vrTripShow(d,bookingId,apiBase,webKey,pu,dr);
+      var was='';try{was=sessionStorage.getItem('vr_trip_pane')||'';}catch(_){}
+      var ok=window.__vrTripShow(d,bookingId,apiBase,webKey,pu,dr);
+      /* si estaba en el chat, se recarga en el chat */
+      if(ok&&was==='chat')setTimeout(openChat,60);
+      return ok;
     }catch(_){return false;}
   };
 })();
@@ -5257,6 +5268,11 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
         if(!payload.pickup_address)payload.pickup_address=parsed.pickup;
         if(!payload.dropoff_address)payload.dropoff_address=parsed.dropoff;
         if(window.__vrTripResume(payload,parsed.id,_EARLY_API,_EARLY_KEY)){_coreResumed=true;return true;}
+      }
+      /* aun sin chofer: se recarga la MISMA pantalla de busqueda y se sigue
+         esperando, en vez de devolver al formulario vacio */
+      if(!hasReal&&typeof window.__vrResumeSearching==='function'){
+        if(window.__vrResumeSearching(parsed.id,parsed.pickup,parsed.dropoff)){_coreResumed=true;return true;}
       }
       _coreResumed=true;return true;
     }
@@ -7570,6 +7586,43 @@ setTimeout(_vrPfKick,1200);
       /* sin tarjeta disponible no queda nada que enseñar: se cierra */
       setTimeout(function(){try{_closeTestConfirm(overlay);}catch(_){}},1200);
     }
+    /* Reanudar la BUSQUEDA al recargar: repone la tarjeta tal cual estaba, sin
+       volver a crear ni cobrar la reserva, y sigue esperando al chofer. */
+    window.__vrResumeSearching=function(bookingId,pu,dr){
+      try{
+        var overlay=root.querySelector('[data-vipride-test-confirm]');
+        if(!overlay||!bookingId)return false;
+        var p2=overlay.querySelector('[data-vipride-test-p2]');
+        if(!p2)return false;
+        window.__vrActiveBookingId=bookingId;
+        ['[data-vipride-test-p1]','[data-vipride-test-driver]','[data-vipride-reserve-ok]'].forEach(function(s){
+          var el=overlay.querySelector(s);if(el)el.style.display='none';
+        });
+        p2.style.display='';
+        overlay.querySelectorAll('[data-vrtrip-pane]').forEach(function(p){p.hidden=p.getAttribute('data-vrtrip-pane')!=='searching';});
+        var routeEl=overlay.querySelector('[data-vipride-test-route]');
+        if(routeEl){
+          var _s=function(x){x=String(x||'');return x.length>22?x.substring(0,22)+'…':x;};
+          routeEl.textContent=(pu?_s(pu):t('pickup'))+' → '+(dr?_s(dr):t('dropoff'));
+        }
+        _vrSeedStars(overlay);
+        if(sheet)sheet.classList.add('is-test-hidden');
+        overlay.removeAttribute('hidden');
+        root.classList.add('is-searching');
+        if(window.__vrMsgIv)clearInterval(window.__vrMsgIv);
+        window.__vrMsgIv=window.__vrRotateMsg&&window.__vrRotateMsg(overlay.querySelector('[data-vipride-test-msg]'));
+        var bar2=overlay.querySelector('[data-vipride-test-bar2]');
+        requestAnimationFrame(function(){p2.classList.add('is-visible');if(bar2)bar2.style.width='100%';});
+        overlay.querySelectorAll('[data-vipride-test-cancel],[data-vipride-test-cancel2]').forEach(function(btn){
+          btn.addEventListener('click',function(){
+            if(window.__vrCancelBooking&&window.__vrCancelBooking(_apiBase,_webKey))_vrToast(t('rideCancelled'),'ok');
+            _closeTestConfirm(overlay);
+          },{once:true});
+        });
+        _pollForDriver(bookingId,overlay);
+        return true;
+      }catch(_){return false;}
+    };
     function _pollForDriver(bookingId, overlay){
       if(!bookingId)return;
       if(window._vrActivePoll){clearInterval(window._vrActivePoll);window._vrActivePoll=null;}
@@ -7609,6 +7662,19 @@ setTimeout(_vrPfKick,1200);
         host.appendChild(b);
       }catch(_){}
     })();
+    /* partículas doradas del cuadro: las usan tanto el arranque como la
+       reanudación tras recargar */
+    function _vrSeedStars(overlay){
+      var st4=overlay&&overlay.querySelector('[data-vipride-test-stars4]');
+      if(!st4||st4.children.length)return;
+      var n=window.innerWidth>=1024?36:20;
+      for(var i=0;i<n;i++){
+        var s=document.createElement('div');s.className='vipRide__testStar';
+        var sz=(Math.random()*2.2+1).toFixed(1);
+        s.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*94+3)+'%;top:'+(Math.random()*84+8)+'%;--dur:'+(4.5+Math.random()*4).toFixed(2)+'s;--delay:-'+(Math.random()*6).toFixed(2)+'s;';
+        st4.appendChild(s);
+      }
+    }
     function _showTestConfirm(){
       var overlay=root.querySelector('[data-vipride-test-confirm]');
       if(!overlay) return;
@@ -7628,17 +7694,7 @@ setTimeout(_vrPfKick,1200);
         var _pu=pickupEl?pickupEl.value.trim():'',_dr=dropoffEl?dropoffEl.value.trim():'',_short=function(s){return s.length>22?s.substring(0,22)+'…':s};
         routeEl.textContent=(_pu?_short(_pu):'Pickup')+' → '+(_dr?_short(_dr):'Dropoff');
       }
-      /* partículas doradas del cuadro de búsqueda */
-      var st4=overlay.querySelector('[data-vipride-test-stars4]');
-      if(st4&&!st4.children.length){
-        var _nst=window.innerWidth>=1024?36:20;
-        for(var _i=0;_i<_nst;_i++){
-          var _st=document.createElement('div');_st.className='vipRide__testStar';
-          var _sz=(Math.random()*2.2+1).toFixed(1);
-          _st.style.cssText='width:'+_sz+'px;height:'+_sz+'px;left:'+(Math.random()*94+3)+'%;top:'+(Math.random()*84+8)+'%;--dur:'+(4.5+Math.random()*4).toFixed(2)+'s;--delay:-'+(Math.random()*6).toFixed(2)+'s;';
-          st4.appendChild(_st);
-        }
-      }
+      _vrSeedStars(overlay);
       /* al arrancar una reserva la tarjeta vuelve siempre al panel de busqueda */
       try{if(window.__vrTripStop)window.__vrTripStop();overlay.querySelectorAll('[data-vrtrip-pane]').forEach(function(p){p.hidden=p.getAttribute('data-vrtrip-pane')!=='searching';});}catch(_){}
       if(sheet)sheet.classList.add('is-test-hidden');
@@ -7655,7 +7711,7 @@ setTimeout(_vrPfKick,1200);
         if(typeof showMarkerLabels==='function')setTimeout(showMarkerLabels,600);
         if(bar2)bar2.style.width='100%';
         _postBookingToCruise(null,function(data){
-          if(data&&data.booking_id){window.__vrActiveBookingId=data.booking_id;if(window.__vrClearBookState)window.__vrClearBookState();try{var _schedAt=(window.__vrScheduleActive&&dateEl&&timeEl&&dateEl.value&&timeEl.value)?new Date(dateEl.value+'T'+timeEl.value).toISOString():null;localStorage.setItem('vr_active_booking',JSON.stringify({id:data.booking_id,ts:Date.now(),scheduled_at:_schedAt,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||''}));}catch(_){}}
+          if(data&&data.booking_id){window.__vrActiveBookingId=data.booking_id;try{var _schedAt=(window.__vrScheduleActive&&dateEl&&timeEl&&dateEl.value&&timeEl.value)?new Date(dateEl.value+'T'+timeEl.value).toISOString():null;localStorage.setItem('vr_active_booking',JSON.stringify({id:data.booking_id,ts:Date.now(),scheduled_at:_schedAt,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||''}));}catch(_){}}
           try{if(selectedRide&&selectedRide.tier==='vip')_vrCreateVipMenuReservation(data);}catch(_){}
           if(window.__vrScheduleActive){
             /* Email 1: scheduled ride confirmation (to rider) */
