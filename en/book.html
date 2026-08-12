@@ -7262,6 +7262,19 @@ setTimeout(_vrPfKick,1200);
       mapboxgl.maxParallelImageRequests=16;
       map=new mapboxgl.Map({container:'vipRideMap-ride_request_48wXbE',style:'mapbox://styles/mapbox/dark-v11',center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:0,bearing:0,maxPitch:0,attributionControl:false,antialias:true,interactive:true,dragRotate:true,touchPitch:true,dragPan:true,scrollZoom:true,touchZoomRotate:true,doubleClickZoom:true,keyboard:false,cooperativeGestures:false,fadeDuration:450,useWebGL2:true,optimizeForTerrain:false,renderWorldCopies:false});
       window.__vrMap=map; /* el tracker del viaje dibuja el coche del chofer aquí */
+      /* El encuadre de la ruta se calcula con el tamaño que el lienzo tiene en
+         ese instante, pero en el teléfono la franja del mapa del paso 3 se
+         recalcula después (mide dónde queda la hoja de vehículos). Si el mapa
+         encoge luego, la cámara se queda igual y la ruta se sale por arriba.
+         Aquí se vuelve a encuadrar en cuanto el tamaño se asienta. */
+      try{
+        var _rfT=null;
+        map.on('resize',function(){
+          if(currentStep!==3||window.__vrTripLive||innerWidth>=900)return;
+          clearTimeout(_rfT);
+          _rfT=setTimeout(function(){try{fitRouteBounds();}catch(_){}},280);
+        });
+      }catch(_){}
       map.touchZoomRotate.enable({around:'center'});
       map.scrollZoom.setWheelZoomRate(1/200);
       map.scrollZoom.setZoomRate(1/200);
