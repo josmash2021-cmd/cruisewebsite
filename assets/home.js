@@ -2075,8 +2075,10 @@
   update();
 })();
 
-/* ---- botón WhatsApp: al llegar al footer vuela y se acopla junto a las
-   redes sociales (mismo aro que fb/ig); al subir vuelve a su esquina.
+/* ---- botón WhatsApp: al llegar al footer vuela en un solo movimiento hasta
+   la fila de redes y le cede el sitio a un círculo real idéntico a fb/ig
+   (.cf-wa-static); al subir, el círculo se esconde y el botón vuelve volando
+   a su esquina. Sin bucles de rAF: un transform único por viaje.
    OJO: el <a class="wa-fab"> va DESPUÉS de este script en el HTML, así que
    hay que esperar a DOMContentLoaded para encontrarlo ---- */
 (function () {
@@ -2086,41 +2088,46 @@
     start();
   }
   function start() {
-  var fab = document.querySelector('.wa-fab');
-  var slot = document.querySelector('.cf-wa-slot');
-  if (!fab || !slot || !('IntersectionObserver' in window)) return;
-  var base = null, docked = false, raf = 0;
-  function measureBase() {
-    var t = fab.style.transform;
-    fab.style.transform = 'none';
-    var r = fab.getBoundingClientRect();
-    fab.style.transform = t;
-    base = { cx: r.left + r.width / 2, cy: r.top + r.height / 2, w: r.width };
-  }
-  function sync() {
-    raf = 0;
-    if (!docked) return;
-    if (!base) measureBase();
-    var r = slot.getBoundingClientRect();
-    /* el hueco abre animado de 0 a 36px: se apunta siempre a su tamaño final
-       para que el vuelo no dependa del progreso de esa transición */
-    var s = 36 / base.w;
-    var tx = (r.left + Math.max(r.width, 36) / 2) - base.cx;
-    var ty = (r.top + r.height / 2) - base.cy;
-    fab.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
-    raf = requestAnimationFrame(sync);
-  }
-  function setDocked(on) {
-    if (docked === on) return;
-    docked = on;
-    fab.classList.toggle('wa-fab--docked', on);
-    slot.classList.toggle('is-on', on);
-    if (on) { if (!raf) raf = requestAnimationFrame(sync); }
-    else { fab.style.transform = ''; }
-  }
-  new IntersectionObserver(function (es) {
-    setDocked(es[es.length - 1].isIntersecting);
-  }, { rootMargin: '0px 0px -6px 0px' }).observe(slot.parentNode);
-  window.addEventListener('resize', function () { base = null; }, { passive: true });
+    var fab = document.querySelector('.wa-fab');
+    var target = document.querySelector('.cf-wa-static');
+    if (!fab || !target || !('IntersectionObserver' in window)) return;
+    /* la base se mide con el botón aún sin transformar (carga o resize libre) */
+    var b = fab.getBoundingClientRect();
+    var base = { cx: b.left + b.width / 2, cy: b.top + b.height / 2, w: b.width };
+    var state = 0; /* 0 en su esquina · 1 volando · 2 acoplado */
+    var timer = 0;
+    function flyIn() {
+      if (state) return;
+      state = 1;
+      var r = target.getBoundingClientRect();
+      var s = r.width / base.w;
+      var tx = (r.left + r.width / 2) - base.cx;
+      var ty = (r.top + r.height / 2) - base.cy;
+      fab.classList.add('wa-fab--docked');
+      fab.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
+      timer = setTimeout(function () {
+        if (state !== 1) return;
+        state = 2;
+        fab.style.visibility = 'hidden';
+        target.classList.add('is-in');
+      }, 530);
+    }
+    function flyOut() {
+      if (!state) return;
+      clearTimeout(timer);
+      target.classList.remove('is-in');
+      fab.style.visibility = '';
+      fab.classList.remove('wa-fab--docked');
+      fab.style.transform = '';
+      state = 0;
+    }
+    new IntersectionObserver(function (es) {
+      if (es[es.length - 1].isIntersecting) flyIn(); else flyOut();
+    }, { rootMargin: '0px 0px -6px 0px' }).observe(target);
+    window.addEventListener('resize', function () {
+      if (state) return;
+      var r = fab.getBoundingClientRect();
+      base = { cx: r.left + r.width / 2, cy: r.top + r.height / 2, w: r.width };
+    }, { passive: true });
   }
 })();

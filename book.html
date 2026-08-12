@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css?v=20260815k">
+<link rel="stylesheet" href="assets/site.css?v=20260815l">
 </head>
 <body>
 <header class="cruise-header">
@@ -9095,6 +9095,77 @@ html body #vipMpFooterSugs{
      hacer zoom. El de "Elegir en el mapa" se mueve fuera de .vipRide__map,
      así que ahí el pin se sigue colocando con el dedo. */
   html body .vipRide .vipRide__map{ pointer-events:none!important }
+
+  /* ── "Elige un vehículo": misma composición que la referencia ──
+     cabecera pequeña con su asa y una línea, y cada vehículo en una fila de
+     tres columnas: foto | nombre y datos | precio arriba a la derecha. */
+  html body .vipRide .vipRide__sheet[data-vipride-step="3"] .vipRide__handle{
+    display:block!important; width:40px; height:4px; margin:0 auto 10px;
+    border-radius:2px; background:rgba(255,255,255,.18);
+  }
+  html body .vipRide .vipRide__pricesHeader{
+    margin:0 0 12px!important; padding:0 0 12px!important;
+    border-bottom:1px solid rgba(255,255,255,.1)!important;
+  }
+  html body .vipRide .vipRide__pricesTitle{
+    font-size:17px!important; font-weight:600!important; letter-spacing:0!important;
+  }
+  html body .vipRide .vipRide__rideList{ gap:0!important }
+  html body .vipRide .vipRide__rideCard{
+    display:grid!important; grid-template-columns:auto 1fr auto!important;
+    align-items:center!important; gap:0 14px!important;
+    padding:12px 12px!important; margin:0!important;
+    border:1.5px solid transparent!important; border-radius:14px!important;
+    background:transparent!important; box-shadow:none!important; animation:none!important;
+  }
+  html body .vipRide .vipRide__rideCard+.vipRide__rideCard{ border-top:none!important }
+  html body .vipRide .vipRide__rideCard.is-active{
+    border-color:rgba(212,175,55,.9)!important; background:transparent!important;
+    outline:none!important; box-shadow:none!important; animation:none!important;
+  }
+  html body .vipRide .vipRide__rideImg{ flex:none!important; width:96px!important }
+  html body .vipRide .vipRide__rideImgTag,
+  html body .vipRide .vipRide__rideCard img{ max-height:58px!important }
+  html body .vipRide .vipRide__rideMeta{ min-width:0!important; gap:2px!important }
+  html body .vipRide .vipRide__rideNameRow{ flex-wrap:nowrap!important; gap:8px!important }
+  html body .vipRide .vipRide__rideName{
+    font-size:18px!important; font-weight:700!important; line-height:1.25!important;
+  }
+  html body .vipRide .vipRide__seats{ font-size:14px!important }
+  html body .vipRide .vipRide__recBadge{ display:none!important }
+  html body .vipRide .vipRide__rideInfo{ gap:7px!important; margin:0!important }
+  html body .vipRide .vipRide__ridePickupEta,
+  html body .vipRide .vipRide__ridePickupEtaLabel,
+  html body .vipRide .vipRide__rideArrival,
+  html body .vipRide .vipRide__arrivalTime{
+    font-size:13.5px!important; font-weight:500!important; color:rgba(255,255,255,.55)!important;
+  }
+  html body .vipRide .vipRide__rideBadgeCol{
+    margin:0!important; flex-direction:column!important; align-items:flex-end!important; gap:6px!important;
+  }
+  html body .vipRide .vipRide__cardPrice{
+    font-size:19px!important; font-weight:700!important; color:#fff!important; white-space:nowrap;
+  }
+  html body .vipRide .vipRide__fasterBadge{
+    font-size:11px!important; padding:3px 8px!important; border-radius:6px!important; gap:4px!important;
+  }
+  html body .vipRide .vipRide__fasterIcon{ width:12px!important; height:12px!important }
+  /* pago y botón grande, uno debajo del otro y a todo el ancho */
+  html body .vipRide .vipRide__actionBtns{
+    flex-direction:column!important; gap:8px!important; margin:10px 0 0!important;
+    padding:12px 0 0!important; background:none!important; border:none!important;
+    border-top:1px solid rgba(255,255,255,.1)!important; border-radius:0!important;
+    box-shadow:none!important; position:static!important;
+  }
+  html body .vipRide .vipRide__paymentBtn{
+    flex:none!important; width:100%!important; padding:8px 2px!important;
+    background:none!important; border:none!important; border-radius:0!important;
+    font-size:15.5px!important; color:#fff!important;
+  }
+  html body .vipRide [data-vipride-request-btn]{
+    flex:none!important; width:100%!important; height:54px!important;
+    border-radius:14px!important; font-size:16px!important; letter-spacing:.02em!important;
+  }
 
   /* método de pago: hoja inferior a todo el ancho con filas separadas,
      igual colocación que en la app; el mapa sigue viéndose arriba */

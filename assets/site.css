@@ -557,13 +557,10 @@ body:not(.has-hero) main, body:not(.has-hero) > section:first-of-type {
    (la posición/escala la pone home.js con transform) */
 .wa-fab--docked { color: var(--gold-light); box-shadow: none; }
 .wa-fab--docked::before { opacity: 0; }
-/* hueco reservado en la fila de redes: se abre cuando el botón llega */
-.cf-wa-slot {
-  display: inline-flex;
-  width: 0; height: 36px;
-  transition: width .45s cubic-bezier(.22, 1, .36, 1);
-}
-.cf-wa-slot.is-on { width: 36px; }
+/* círculo WhatsApp real de la fila de redes (idéntico a fb/ig): invisible
+   hasta que el botón flotante termina su vuelo y le cede el sitio */
+.cf-wa-static { visibility: hidden; }
+.cf-wa-static.is-in { visibility: visible; }
 .wa-fab:hover {
   transform: translateY(-3px) scale(1.04);
   box-shadow: 0 16px 34px rgba(0, 0, 0, .6),
