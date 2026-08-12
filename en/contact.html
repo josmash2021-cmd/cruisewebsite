@@ -42,6 +42,9 @@ img,video{-webkit-user-drag:none}
   ['gesturestart','gesturechange','gestureend'].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault()})});
 })();
 </script>
+<!-- sesion: la cabecera no puede parpadear como "sin sesion" al refrescar -->
+<style>html.cir-authed .ch-login,html.cir-authed .ch-signup{display:none!important}</style>
+<script>try{if(localStorage.getItem('vr_at'))document.documentElement.classList.add('cir-authed')}catch(_){}</script>
 </head>
 <body class="has-hero">
 <header class="cruise-header">

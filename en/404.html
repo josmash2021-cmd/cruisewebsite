@@ -28,6 +28,9 @@
 <link rel="stylesheet" href="../assets/site.css?v=20260815l">
 <link rel="stylesheet" href="../assets/home.css?v=20260815e">
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet">
+<!-- sesion: la cabecera no puede parpadear como "sin sesion" al refrescar -->
+<style>html.cir-authed .ch-login,html.cir-authed .ch-signup{display:none!important}</style>
+<script>try{if(localStorage.getItem('vr_at'))document.documentElement.classList.add('cir-authed')}catch(_){}</script>
 </head>
 <body class="has-hero">
 <header class="cruise-header">

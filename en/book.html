@@ -44,6 +44,9 @@ img,video{-webkit-user-drag:none}
   ['gesturestart','gesturechange','gestureend'].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault()})});
 })();
 </script>
+<!-- sesion: la cabecera no puede parpadear como "sin sesion" al refrescar -->
+<style>html.cir-authed .ch-login,html.cir-authed .ch-signup{display:none!important}</style>
+<script>try{if(localStorage.getItem('vr_at'))document.documentElement.classList.add('cir-authed')}catch(_){}</script>
 </head>
 <body>
 <header class="cruise-header">
@@ -151,7 +154,7 @@ html.vr-booting-out .cruise-header{animation:vrBootIn .4s cubic-bezier(.22,1,.36
               <label class="vipRide__label" data-vipride-pickup-label>Pickup location</label>
               <div class="vipRide__inputWrap">
                 <span class="vipRide__inputIcon">&#9679;</span>
-                <input type="text" class="vipRide__input" placeholder="Enter pickup address" data-vipride-pickup autocomplete="off">
+                <input type="text" class="vipRide__input" placeholder="Enter pickup address" data-vipride-pickup autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other">
                 <button type="button" class="vipRide__clear" aria-label="Clear" data-vipride-clear="pickup">&times;</button>
               </div>
             </div>
@@ -159,7 +162,7 @@ html.vr-booting-out .cruise-header{animation:vrBootIn .4s cubic-bezier(.22,1,.36
               <label class="vipRide__label">Dropoff location</label>
               <div class="vipRide__inputWrap">
                 <span class="vipRide__inputIcon">&#9632;</span>
-                <input type="text" class="vipRide__input" placeholder="Enter destination address" data-vipride-dropoff autocomplete="off">
+                <input type="text" class="vipRide__input" placeholder="Enter destination address" data-vipride-dropoff autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other">
                 <button type="button" class="vipRide__clear" aria-label="Clear" data-vipride-clear="dropoff">&times;</button>
               </div>
             </div>
@@ -178,6 +181,32 @@ html.vr-booting-out .cruise-header{animation:vrBootIn .4s cubic-bezier(.22,1,.36
             </div>
             <button type="button" class="vipRide__stepNext" data-vipride-step1-next disabled>See prices &#8250;</button>
           </div>
+<script>
+/* Chrome se salta autocomplete="off" y llegaba a escribir el correo guardado
+   del usuario dentro del campo de destino. A un campo de SOLO LECTURA no se le
+   autocompleta: nacen así y dejan de serlo en cuanto el usuario los toca (en el
+   teléfono son de solo lectura siempre, porque los abre el buscador). Red de
+   seguridad: si aun así entra algo con forma de correo, se borra —una dirección
+   de verdad nunca lleva arroba. */
+(function(){try{
+  var mail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  ['[data-vipride-pickup]','[data-vipride-dropoff]'].forEach(function(sel){
+    var el=document.querySelector(sel);
+    if(!el)return;
+    el.setAttribute('readonly','');
+    var free=function(){if(window.innerWidth>=900)el.removeAttribute('readonly');};
+    ['pointerdown','touchstart','focus','click'].forEach(function(ev){el.addEventListener(ev,free,true);});
+    var clean=function(){
+      if(!mail.test((el.value||'').trim()))return;
+      el.value='';
+      try{el.dispatchEvent(new Event('input',{bubbles:true}));}catch(_){}
+    };
+    el.addEventListener('change',clean);
+    el.addEventListener('blur',clean);
+    [400,1200,2500].forEach(function(ms){setTimeout(clean,ms);});
+  });
+}catch(_){}})();
+</script>
         </div>
       </div>
       <input type="date" id="vipDate-ride_request_48wXbE" data-vipride-date style="display:none">
@@ -7069,6 +7098,12 @@ setTimeout(_vrPfKick,1200);
       if(st.tm&&timeEl)timeEl.value=st.tm;
       if(st.s===3&&pickupPlace&&(dropoffPlace||st.m==='hourly')&&currentStep===1)goToStep(3,'forward');
       afterInputChange();
+      /* Al recargar con recogida pero SIN destino nadie movía la cámara: el mapa
+         se quedaba en el centro por defecto (Birmingham) y el pin de recogida
+         caía fuera de la pantalla. Con destino ya se encarga computeRoute(). */
+      if(map&&pickupPlace&&!(dropoffPlace&&currentMode!=='hourly')){
+        try{map.jumpTo({center:[pickupPlace.lng,pickupPlace.lat],zoom:15.5,pitch:0,bearing:0});}catch(_){}
+      }
       if(pickupPlace&&dropoffPlace&&currentMode!=='hourly'){try{computeRoute();}catch(_){}}
       if(st.v){var _rc=root.querySelector('.vipRide__rideCard[data-title="'+String(st.v).replace(/[^\w -]/g,'')+'"]');if(_rc)selectCard(_rc);}
     }finally{window.__vrRestoring=false;}
@@ -7695,12 +7730,27 @@ setTimeout(_vrPfKick,1200);
         }
       }
       if(pickupEl) pickupEl.addEventListener('input',function(){_pickupManuallySet=true;_gpsActive=false;});
+      var _geoFramed=false;   /* el encuadre inicial sobre el GPS se hace una sola vez */
       function updatePickupFromGeo(lat,lng,fly){
         if(_pickupManuallySet) return;
         if(_lastGeoLat!==null&&Math.abs(lat-_lastGeoLat)<.0005&&Math.abs(lng-_lastGeoLng)<.0005) return;
         _lastGeoLat=lat;_lastGeoLng=lng;
         _gpsActive=true;
         if(fly) map.easeTo({center:[lng,lat],zoom:16.5,pitch:0,bearing:0,duration:1000,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+        else if(!_geoFramed){
+          /* Al cargar no se vuela a la ubicación (la cámara se queda en la vista
+             general), pero esa vista general es el centro de Birmingham: a quien
+             abre la página desde Pelham, Hoover o el aeropuerto le quedaba su
+             propio pin FUERA de la pantalla y el mapa no decía nada de su viaje.
+             Solo la primera vez, sin animación, y únicamente si el punto no se ve:
+             si ya está a la vista, la cámara no se toca. */
+          _geoFramed=true;
+          try{
+            var _p=map.project([lng,lat]),_cv=map.getCanvas();
+            var _fuera=_p.x<60||_p.y<60||_p.x>_cv.clientWidth-60||_p.y>_cv.clientHeight-60;
+            if(_fuera)map.jumpTo({center:[lng,lat],zoom:15,pitch:0,bearing:0});
+          }catch(_){}
+        }
         setMarker('pickup', lat, lng);
         reverseGeocode(lat,lng,function(name){
           if(name&&!_pickupManuallySet){
