@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css?v=20260815h">
+<link rel="stylesheet" href="assets/site.css?v=20260815i">
 </head>
 <body>
 <header class="cruise-header">
@@ -1186,7 +1186,7 @@ window.__vrApplyI18n=function(){
   if(tEl&&window.__vrLang==='es')tEl.innerHTML='Al continuar, aceptas nuestros <a href="/policies/terms-of-service" target="_blank">Términos</a> y <a href="/policies/privacy-policy" target="_blank">Política de Privacidad</a>';
   map.forEach(function(e){var el=document.querySelector(e[0]);if(el)el.textContent=t(e[1]);});
   /* Placeholders */
-  [['[data-vipride-lp-pickup]','enterPickup'],['[data-vipride-lp-dropoff]','whereto'],['[data-vipride-su-email-input]','emailAddr'],['[data-vipride-si-user]','emailOrPhone'],['[data-vipride-si-pass]','password'],['[data-vrapt-search]','searchAirport']].forEach(function(e){var el=document.querySelector(e[0]);if(el)el.placeholder=t(e[1]);});
+  [['[data-vipride-pickup]','enterPickup'],['[data-vipride-dropoff]','whereto'],['[data-vipride-lp-pickup]','enterPickup'],['[data-vipride-lp-dropoff]','whereto'],['[data-vipride-su-email-input]','emailAddr'],['[data-vipride-si-user]','emailOrPhone'],['[data-vipride-si-pass]','password'],['[data-vrapt-search]','searchAirport']].forEach(function(e){var el=document.querySelector(e[0]);if(el)el.placeholder=t(e[1]);});
   /* OR labels (multiple) */
   document.querySelectorAll('[data-vipride-or-label]').forEach(function(el){el.textContent=t('OR');});
   /* Back aria-labels */
@@ -9481,7 +9481,6 @@ html body #vipMpFooterSugs{
     });
   }
 
-  function pad(n) { return (n < 10 ? '0' : '') + n; }
   function scheduledLabel() {
     if (!window.__vrScheduleActive) return null;
     var d = q('[data-vipride-date]'), t = q('[data-vipride-time]');

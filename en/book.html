@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/site.css?v=20260815h">
+<link rel="stylesheet" href="../assets/site.css?v=20260815i">
 </head>
 <body>
 <header class="cruise-header">
@@ -1186,7 +1186,7 @@ window.__vrApplyI18n=function(){
   if(tEl&&window.__vrLang==='es')tEl.innerHTML='Al continuar, aceptas nuestros <a href="/policies/terms-of-service" target="_blank">Términos</a> y <a href="/policies/privacy-policy" target="_blank">Política de Privacidad</a>';
   map.forEach(function(e){var el=document.querySelector(e[0]);if(el)el.textContent=t(e[1]);});
   /* Placeholders */
-  [['[data-vipride-lp-pickup]','enterPickup'],['[data-vipride-lp-dropoff]','whereto'],['[data-vipride-su-email-input]','emailAddr'],['[data-vipride-si-user]','emailOrPhone'],['[data-vipride-si-pass]','password'],['[data-vrapt-search]','searchAirport']].forEach(function(e){var el=document.querySelector(e[0]);if(el)el.placeholder=t(e[1]);});
+  [['[data-vipride-pickup]','enterPickup'],['[data-vipride-dropoff]','whereto'],['[data-vipride-lp-pickup]','enterPickup'],['[data-vipride-lp-dropoff]','whereto'],['[data-vipride-su-email-input]','emailAddr'],['[data-vipride-si-user]','emailOrPhone'],['[data-vipride-si-pass]','password'],['[data-vrapt-search]','searchAirport']].forEach(function(e){var el=document.querySelector(e[0]);if(el)el.placeholder=t(e[1]);});
   /* OR labels (multiple) */
   document.querySelectorAll('[data-vipride-or-label]').forEach(function(el){el.textContent=t('OR');});
   /* Back aria-labels */
@@ -9373,6 +9373,207 @@ html body #vipMpFooterSugs{
   /* red de seguridad: el booker reinyecta las barras en pasos posteriores
      (elegir dirección, volver atrás…) y no siempre vía mutación observable */
   setInterval(hideBars, 400);
+})();
+</script>
+<script>
+/* Móvil (<900px): el paso 1 enseña los dos campos y el mapa, como la app.
+   La tarjeta "¿A dónde?" ya no está, así que aquí se reparten sus dos tareas:
+   1) los campos visibles disparan el buscador a pantalla completa de siempre
+      (no se teclea sobre ellos: van en readonly),
+   2) dos píldoras heredan el selector Ahora/Programar del booker y el
+      recogedor de datos de acompañante (__vrGuestCollect). */
+(function () {
+  var mq = window.matchMedia('(max-width:899px)');
+  var ES = (document.documentElement.lang || 'en').slice(0, 2) === 'es';
+  var T = ES
+    ? { now: 'Recoger ahora', forMe: 'Para mí', forOther: 'Para otra persona' }
+    : { now: 'Pickup now', forMe: 'For me', forOther: 'For someone else' };
+
+  var ICO_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 1.9"/></svg>';
+  var ICO_USER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg>';
+  var ICO_CHEV = '<svg class="vrm-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+
+  function q(s) { return document.querySelector(s); }
+
+  /* ── los campos abren el buscador de siempre ── */
+  var FIELDS = [
+    { sel: '[data-vipride-pickup]', pickup: true },
+    { sel: '[data-vipride-dropoff]', pickup: false }
+  ];
+  function wireFields() {
+    if (!mq.matches) return;
+    FIELDS.forEach(function (f) {
+      var el = q(f.sel);
+      if (!el) return;
+      if (!el.hasAttribute('readonly')) { el.setAttribute('readonly', ''); el.style.cursor = 'pointer'; }
+      if (el.__vrmWired) return;
+      el.__vrmWired = 1;
+      el.addEventListener('click', function (e) {
+        if (!mq.matches) return;
+        e.preventDefault();
+        var open = q('[data-vipride-open-locpicker]');
+        if (!open) return;
+        open.click();
+        /* el buscador enfoca el destino por su cuenta; si se tocó el origen,
+           se le devuelve el foco cuando ya terminó de abrirse */
+        if (!f.pickup) return;
+        setTimeout(function () {
+          var lp = q('[data-vipride-lp-pickup]');
+          if (!lp) return;
+          try { lp.removeAttribute('readonly'); lp.focus(); } catch (_) {}
+        }, 320);
+      });
+    });
+  }
+  function unwireFields() {
+    FIELDS.forEach(function (f) {
+      var el = q(f.sel);
+      if (!el) return;
+      el.removeAttribute('readonly');
+      el.style.cursor = '';
+    });
+  }
+
+  /* ── píldoras: horario y pasajero ── */
+  var pills = null;
+
+  function closeMenu() {
+    var m = document.querySelector('.vrm-menu');
+    if (m) m.remove();
+    document.removeEventListener('click', onDocClick, true);
+  }
+  function onDocClick(e) {
+    if (!e.target.closest('.vrm-menu') && !e.target.closest('[data-vrm-who]')) closeMenu();
+  }
+  function openMenu(anchor, items) {
+    closeMenu();
+    var menu = document.createElement('div');
+    menu.className = 'vrm-menu';
+    items.forEach(function (it) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'vrm-menu__item';
+      b.textContent = it.label;
+      b.addEventListener('click', function (e) { e.preventDefault(); closeMenu(); it.run(); });
+      menu.appendChild(b);
+    });
+    anchor.parentNode.appendChild(menu);
+    setTimeout(function () { document.addEventListener('click', onDocClick, true); }, 0);
+  }
+
+  function setWho(txt, marked) {
+    if (!pills) return;
+    var l = pills.querySelector('[data-vrm-who-label]');
+    var b = pills.querySelector('[data-vrm-who]');
+    if (l && l.textContent !== txt) l.textContent = txt;
+    if (b) b.classList.toggle('is-set', !!marked);
+  }
+  function forMe() {
+    /* el viaje vuelve a ser mío: los datos del acompañante dejan de viajar con la reserva */
+    try { if (window.__vrGuestClear) window.__vrGuestClear(); } catch (_) {}
+    setWho(T.forMe, false);
+  }
+  function forOther() {
+    if (!window.__vrGuestCollect) return;
+    window.__vrGuestCollect(function (data) {
+      if (data && data.first_name) setWho(data.first_name, true);
+      else setWho(T.forMe, false);
+    });
+  }
+
+  function scheduledLabel() {
+    if (!window.__vrScheduleActive) return null;
+    var d = q('[data-vipride-date]'), t = q('[data-vipride-time]');
+    if (!d || !t || !d.value || !t.value) return null;
+    var dt = new Date(d.value + 'T00:00:00');
+    if (isNaN(dt.getTime())) return null;
+    var DN = ES ? ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var MN = ES ? ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+                : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var hh = parseInt(t.value.split(':')[0], 10), mm = t.value.split(':')[1] || '00';
+    if (isNaN(hh)) return null;
+    return DN[dt.getDay()] + ' ' + dt.getDate() + ' ' + MN[dt.getMonth()] +
+           ' · ' + (hh % 12 || 12) + ':' + mm + ' ' + (hh >= 12 ? 'PM' : 'AM');
+  }
+  function syncWhen() {
+    if (!pills) return;
+    var l = pills.querySelector('[data-vrm-when-label]');
+    var b = pills.querySelector('[data-vrm-when]');
+    if (!l) return;
+    var txt = scheduledLabel();
+    if (l.textContent !== (txt || T.now)) l.textContent = txt || T.now;
+    if (b) b.classList.toggle('is-set', !!txt);
+  }
+
+  /* las píldoras acompañan al paso: bajo los campos en el 1, bajo el
+     título "Elige un viaje" en el 3 */
+  function place() {
+    if (!pills) return;
+    var sheet = q('[data-vipride-sheet]');
+    var step = sheet ? sheet.getAttribute('data-vipride-step') : '1';
+    var host = step === '3'
+      ? q('[data-vipride-step-panel="3"] .vipRide__rideList')
+      : q('[data-vipride-step1-next]');
+    if (!host || !host.parentNode || pills.nextElementSibling === host) return;
+    host.parentNode.insertBefore(pills, host);
+  }
+
+  function buildPills() {
+    if (pills || !mq.matches) return;
+    if (!q('.vipRide__form[data-vipride-mode="ride"]') || !q('[data-vipride-step1-next]')) return;
+    pills = document.createElement('div');
+    pills.className = 'vrm-pills';
+    pills.innerHTML =
+      '<button type="button" class="vrm-pill" data-vrm-when>' +
+        '<i class="vrm-pill__ico">' + ICO_CLOCK + '</i>' +
+        '<span class="vrm-pill__label" data-vrm-when-label>' + T.now + '</span>' + ICO_CHEV +
+      '</button>' +
+      '<button type="button" class="vrm-pill" data-vrm-who>' +
+        '<i class="vrm-pill__ico">' + ICO_USER + '</i>' +
+        '<span class="vrm-pill__label" data-vrm-who-label>' + T.forMe + '</span>' + ICO_CHEV +
+      '</button>';
+    place();
+    /* el selector Ahora/Programar del booker sigue vivo (oculto con la tarjeta):
+       la píldora lo pilota, así que programar y aeropuerto siguen accesibles */
+    pills.querySelector('[data-vrm-when]').addEventListener('click', function (e) {
+      e.preventDefault();
+      var later = q('[data-vipride-seg] [data-compact-mode="later"]');
+      if (later) later.click();
+    });
+    pills.querySelector('[data-vrm-who]').addEventListener('click', function (e) {
+      e.preventDefault();
+      openMenu(this, [{ label: T.forMe, run: forMe }, { label: T.forOther, run: forOther }]);
+    });
+    var g = null;
+    try { g = window.__vrGuestGet ? window.__vrGuestGet() : null; } catch (_) {}
+    if (g && g.first_name) setWho(g.first_name, true);
+  }
+
+  function tick() {
+    if (!mq.matches) return;
+    wireFields();
+    buildPills();
+    place();
+    syncWhen();
+  }
+  function toDesktop() {
+    unwireFields();
+    closeMenu();
+    if (pills && pills.parentNode) pills.parentNode.removeChild(pills);
+    pills = null;
+  }
+
+  tick();
+  document.addEventListener('DOMContentLoaded', tick);
+  window.addEventListener('load', tick);
+  /* el booker reescribe el paso 1 al volver atrás y al restaurar estado:
+     un repaso barato y periódico mantiene campos y píldoras en su sitio */
+  setInterval(tick, 500);
+  try {
+    mq.addEventListener('change', function () { if (mq.matches) tick(); else toDesktop(); });
+  } catch (_) {
+    try { mq.addListener(function () { if (mq.matches) tick(); else toDesktop(); }); } catch (_e) {}
+  }
 })();
 </script>
 <a class="wa-fab" href="https://wa.me/16593052974" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
