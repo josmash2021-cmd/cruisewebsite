@@ -773,10 +773,11 @@ img,video{-webkit-user-drag:none}
     </div>
     <div class="vipRide__testConfirm__phase2" data-vipride-test-p2>
       <div class="vipRide__testSheet">
+        <div class="vipRide__testStars" data-vipride-test-stars4 aria-hidden="true"></div>
         <div class="vipRide__testSheet__handle" aria-hidden="true"></div>
         <div class="vipRide__testSheet__row">
           <div class="vipRide__testSheet__icon" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#E8C547"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+            <img src="../assets/media/logo-icon.png" alt="" width="168" height="162" class="vipRide__testSheet__logo">
           </div>
           <div class="vipRide__testSheet__info">
             <div class="vipRide__testSheet__status" data-vipride-test-msg data-vrp-almost style="transition:opacity 380ms ease">Almost there...</div>
@@ -5365,14 +5366,19 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__testCancelBtn:active{color:rgba(255,255,255,.8)}
 .vipRide__testConfirm__phase2{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:0 14px clamp(20px,5vw,32px);opacity:0;pointer-events:none;transition:opacity 600ms ease}
 .vipRide__testConfirm__phase2.is-visible{opacity:1;pointer-events:auto}
-.vipRide__testSheet{background:linear-gradient(160deg,rgba(13,20,45,.98) 0%,rgba(8,14,32,.99) 100%);border-radius:20px;padding:16px 18px clamp(18px,5vw,24px);display:flex;flex-direction:column;gap:16px;transform:translateY(40px);transition:transform 650ms cubic-bezier(.2,.8,.2,1);box-shadow:0 8px 48px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.06);overflow:visible}
+.vipRide__testSheet{position:relative;overflow:hidden;background:radial-gradient(130% 100% at 50% 0%,rgba(212,175,55,.12),rgba(212,175,55,0) 62%),#000;border-radius:20px;padding:16px 18px clamp(18px,5vw,24px);display:flex;flex-direction:column;gap:16px;transform:translateY(40px);transition:transform 650ms cubic-bezier(.2,.8,.2,1);box-shadow:0 8px 48px rgba(0,0,0,.65),inset 0 0 0 1px rgba(212,175,55,.18)}
+.vipRide__testSheet>*:not(.vipRide__testStars){position:relative;z-index:1}
+.vipRide__testSheet .vipRide__testStars{border-radius:inherit;z-index:0}
+.vipRide__testSheet .vipRide__testStar{background:#d4af37;box-shadow:0 0 7px rgba(212,175,55,.6);animation-name:vipSheetDrift;animation-timing-function:linear}
+@keyframes vipSheetDrift{0%{opacity:0;transform:translateY(16px) scale(.5)}18%{opacity:.85}72%{opacity:.45}100%{opacity:0;transform:translateY(-52px) scale(1.05)}}
+.vipRide__testSheet__logo{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 0 12px rgba(212,175,55,.35))}
 .vipRide__testConfirm__phase2.is-visible .vipRide__testSheet{transform:translateY(0)}
 .vipRide__sheet{transition:opacity 620ms cubic-bezier(.22,1,.36,1),transform 620ms cubic-bezier(.22,1,.36,1);will-change:transform,opacity;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:translateZ(0)}
 .vipRide__sheet{transition:opacity .6s cubic-bezier(.2,.9,.25,1.1),transform .6s cubic-bezier(.2,.9,.25,1.1)!important}
 .vipRide__sheet.is-test-hidden{opacity:0!important;pointer-events:none!important;transform:translate3d(0,28px,0) scale(.97)!important;transition:.38s!important}
 .vipRide__testSheet__handle{width:38px;height:4px;background:rgba(255,255,255,.13);border-radius:2px;margin:0 auto 6px}
 .vipRide__testSheet__row{display:flex;align-items:center;gap:14px}
-.vipRide__testSheet__icon{width:48px;height:48px;border-radius:50%;flex-shrink:0;background:rgba(232,197,71,.1);border:1.5px solid rgba(232,197,71,.35);display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(232,197,71,.15);position:relative;overflow:visible}
+.vipRide__testSheet__icon{width:48px;height:48px;border-radius:50%;flex-shrink:0;background:none;border:none;display:flex;align-items:center;justify-content:center;box-shadow:none;position:relative;overflow:visible}
 .vipRide__testSheet__icon::before,.vipRide__testSheet__icon::after{content:'';position:absolute;top:50%;left:50%;border-radius:50%;border:1.5px solid rgba(232,197,71,.3);transform:translate(-50%,-50%) scale(.6);animation:vipTestPulse 2.8s cubic-bezier(.4,0,.2,1) infinite;will-change:transform,opacity;pointer-events:none}
 .vipRide__testSheet__icon::before{width:58px;height:58px}
 .vipRide__testSheet__icon::after{width:72px;height:72px;animation-delay:.9s}
@@ -8117,6 +8123,16 @@ setTimeout(_vrPfKick,1200);
         var _pu=pickupEl?pickupEl.value.trim():'',_dr=dropoffEl?dropoffEl.value.trim():'',_short=function(s){return s.length>22?s.substring(0,22)+'…':s};
         routeEl.textContent=(_pu?_short(_pu):'Pickup')+' → '+(_dr?_short(_dr):'Dropoff');
       }
+      /* partículas doradas del cuadro de búsqueda */
+      var st4=overlay.querySelector('[data-vipride-test-stars4]');
+      if(st4&&!st4.children.length){
+        for(var _i=0;_i<22;_i++){
+          var _st=document.createElement('div');_st.className='vipRide__testStar';
+          var _sz=(Math.random()*2.2+1).toFixed(1);
+          _st.style.cssText='width:'+_sz+'px;height:'+_sz+'px;left:'+(Math.random()*94+3)+'%;top:'+(Math.random()*84+8)+'%;--dur:'+(4.5+Math.random()*4).toFixed(2)+'s;--delay:-'+(Math.random()*6).toFixed(2)+'s;';
+          st4.appendChild(_st);
+        }
+      }
       if(sheet)sheet.classList.add('is-test-hidden');
       overlay.removeAttribute('hidden');
       var _isRes=window.__vrScheduleActive;
@@ -8181,7 +8197,7 @@ setTimeout(_vrPfKick,1200);
       if(!overlay) return;
       try{if(window._vrActivePoll){clearInterval(window._vrActivePoll);window._vrActivePoll=null;}if(window.__vrReserveIv){clearInterval(window.__vrReserveIv);window.__vrReserveIv=null;}if(window.__vrMsgIv){clearInterval(window.__vrMsgIv);window.__vrMsgIv=null;}root.classList.remove('is-searching');}catch(_){}
       var w=window;w.__vrAptActive=false;w.__vrAptSurchargeCents=0;w.__vrScheduleActive=false;w.__vrAptCode=w.__vrAptTerminal=w.__vrAptAirline=w.__vrAptDoor=w.__vrAptFlight=null;
-      overlay.querySelectorAll('[data-vipride-test-stars],[data-vipride-test-stars2],[data-vipride-test-stars3]').forEach(function(el){el.innerHTML='';});
+      overlay.querySelectorAll('[data-vipride-test-stars],[data-vipride-test-stars2],[data-vipride-test-stars3],[data-vipride-test-stars4]').forEach(function(el){el.innerHTML='';});
       overlay.style.opacity='0';overlay.style.transition='opacity 380ms ease';
       setTimeout(function(){_vrFullReset(overlay);},400);
     }
@@ -9005,6 +9021,64 @@ html body #vipMpFooterSugs{
   html body .vipRide__scheduleOverlay:not([hidden]) .vipRide__schedPage:not([hidden])>*:nth-child(3){animation-delay:.14s}
   html body .vipRide__scheduleOverlay:not([hidden]) .vipRide__schedPage:not([hidden])>*:nth-child(4){animation-delay:.21s}
   @keyframes vrdSchedItem{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* ---- "Buscando tu chofer": el mapa se abre y la tarjeta muta ----
+     Al pedir el viaje, la columna de vehículos se funde hacia la izquierda,
+     el mapa se despliega hasta cubrir ese hueco y el cuadro de búsqueda
+     ocupa exactamente el sitio de "¿A dónde?" (negro, partículas doradas
+     y el logo dentro del círculo). Todo con la misma curva sedosa. */
+  html body .vipRide.is-searching .vipRide__mapContainer,
+  html body .vipRide.is-searching .vipRide__map{
+    left:calc(var(--vrd-col) + var(--vrd-gap) * 2)!important;
+    transition:left .8s cubic-bezier(.22,1,.36,1)!important;
+  }
+  html body .vipRide.is-searching .vipRide__sheet[data-vipride-sheet]{
+    opacity:0!important; pointer-events:none!important;
+    transition:opacity .42s cubic-bezier(.4,0,.2,1)!important;
+  }
+  html body .vipRide.is-searching .vipRide__sheet .vipRide__step[data-vipride-step-panel="3"]{
+    opacity:0!important; pointer-events:none!important;
+    transition:opacity .45s cubic-bezier(.4,0,.2,1)!important;
+  }
+  /* el desvanecido lleva un leve arrastre hacia la izquierda, como el mapa.
+     El transform va en los hijos: sobre el panel crearía bloque contenedor
+     y la barra de acciones (position:fixed) daría un salto. */
+  html body .vipRide.is-searching .vipRide__sheet .vipRide__step[data-vipride-step-panel="3"]>*{
+    transform:translateX(-24px)!important;
+    transition:transform .7s cubic-bezier(.22,1,.36,1)!important;
+  }
+
+  html body .vipRide__testConfirm__phase2{
+    position:fixed!important; inset:auto!important;
+    left:var(--vrd-gap)!important; top:var(--vrd-top)!important;
+    width:var(--vrd-col)!important;
+    padding:0!important; justify-content:flex-start!important;
+    transition:opacity .6s cubic-bezier(.22,1,.36,1)!important;
+  }
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet{
+    padding:30px 24px 20px!important; gap:20px!important; border-radius:20px!important;
+    transform:translateY(14px) scale(.985);
+    transition:transform .7s cubic-bezier(.22,1,.36,1)!important;
+    box-shadow:0 18px 44px rgba(0,0,0,.55), inset 0 0 0 1px rgba(212,175,55,.18)!important;
+  }
+  html body .vipRide__testConfirm__phase2.is-visible .vipRide__testSheet{ transform:none }
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet__handle{ display:none!important }
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet__row{
+    flex-direction:column!important; align-items:center!important; gap:22px!important;
+    padding:16px 0 0!important;
+  }
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet__icon{ width:86px!important; height:86px!important }
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet__icon::before{ width:104px; height:104px }
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet__icon::after{ width:130px; height:130px }
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet__info{ width:100%; text-align:center }
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet__status{ font-size:20px!important; font-weight:700!important }
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet__route{
+    max-width:100%!important; font-size:13px!important; margin-top:8px!important;
+    color:rgba(255,255,255,.45)!important;
+  }
+  html body .vipRide__testConfirm__phase2 .vipRide__testCancelBtn{
+    align-self:center!important; padding:4px 22px 2px!important; font-size:15px!important;
+  }
 }
 
 </style>
