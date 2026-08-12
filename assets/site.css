@@ -274,6 +274,17 @@ img { max-width: 100%; }
   }
   body.ch-open .ch-nav { transform: translateY(0); opacity: 1; pointer-events: auto; }
   body.ch-open { overflow: hidden; }
+  /* con el menú abierto el header suelta su vidrio: si conserva el
+     backdrop-filter se convierte en "containing block" del menú fijo y
+     lo aplasta contra la barra (los enlaces quedan flotando sin fondo) */
+  body.ch-open .cruise-header {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    border-bottom-color: transparent;
+    transition: none;
+  }
   body.ch-open .ch-burger { background: none; }
   body.ch-open .ch-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   body.ch-open .ch-burger span:nth-child(2) { opacity: 0; }

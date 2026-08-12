@@ -169,7 +169,7 @@
   justify-content: space-between;
   gap: clamp(30px, 5vw, 80px);
   /* el panel va más arriba: menos aire por encima, más por debajo */
-  padding: 72px clamp(20px, 3.5vw, 60px) 118px;
+  padding: 72px clamp(20px, 3.5vw, 60px) 200px;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -659,7 +659,8 @@
 
 /* botones tipo tienda en el hero */
 .h-stores { text-align: left; }
-.h-col--right .h-stores { text-align: right; }
+/* las tiendas van arriba del todo, sobre "Bienvenido a", con aire de separación */
+.h-col--left .h-stores { margin: 0 0 42px; }
 .h-phase2 .h-stores {
   align-self: center;
   text-align: center;
@@ -679,7 +680,6 @@
   gap: 14px;
   flex-wrap: wrap;
 }
-.h-col--right .h-store-row { justify-content: flex-end; }
 .h-store {
   display: inline-flex;
   align-items: center;
@@ -750,9 +750,8 @@ a.h-store { text-decoration: none; }
   .hero-inner { flex-direction: column; align-items: flex-start; gap: 44px; }
   .h-col--right { align-items: flex-start; }
   .h-badges { align-items: flex-start; }
-  /* tiendas de apps centradas */
-  .h-col--right .h-stores { width: 100%; text-align: center; }
-  .h-col--right .h-store-row { justify-content: center; }
+  /* tiendas de apps: siguen arriba, alineadas con el resto del texto */
+  .h-col--left .h-stores { width: 100%; margin-bottom: 34px; }
 }
 
 /* teléfonos: el video sigue de fondo tras el contenido, pero con menos zoom:
@@ -772,10 +771,16 @@ a.h-store { text-decoration: none; }
   .h-badges { display: none; }
   .h-col--right { gap: 22px; align-items: center; }
   .h-buttons { order: 1; margin-top: 30px; }
-  .h-col--right .h-stores { order: 2; }
+  /* las tiendas encabezan el hero, centradas como el resto */
+  .h-col--left .h-store-row { justify-content: center; }
+  .h-col--left .h-stores { margin-bottom: 30px; }
   /* el contenido de la fase 1 arranca mucho más abajo, sobre la parte
      baja del video */
   .hero { padding-top: 40svh; }
+  /* en la fase 2 el panel sube: el hueco se libera justo cuando la fase 1
+     se pliega (mismo retardo), así no hay doble salto */
+  .hero { transition: padding-top .01s linear .75s; }
+  .hero--phase2 { padding-top: 26svh; }
   /* todo el contenido del hero centrado */
   .hero-inner { align-items: center; }
   .h-col--left { text-align: center; }
