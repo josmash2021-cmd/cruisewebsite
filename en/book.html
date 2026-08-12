@@ -3675,6 +3675,40 @@ window.__VR_AIRPORTS = [
     pad.top=Math.round(Math.max(80,window.innerHeight*0.1));
     return pad;
   }
+  /* Encuadre de la RUTA COMPLETA, no de sus dos extremos: una ruta que hace
+     curva se sale del rectángulo que forman los pines, y así es como acababa
+     cortada por abajo. Si el trazo está dibujado se usa su geometría; si no,
+     los dos puntos del viaje. */
+  function routeBounds(m){
+    try{
+      var s=m.getSource('route'),d=s&&s._data;
+      var g=d&&(d.geometry||(d.features&&d.features[0]&&d.features[0].geometry));
+      var c=g&&g.coordinates;
+      if(c&&c.length>1){
+        var b=new mapboxgl.LngLatBounds(c[0],c[0]);
+        for(var i=1;i<c.length;i++)b.extend(c[i]);
+        return b;
+      }
+    }catch(_){}
+    var t=window.__vrTripCoords;
+    if(t&&t.pu&&t.dr){
+      try{
+        var b2=new mapboxgl.LngLatBounds([t.pu.lng,t.pu.lat],[t.pu.lng,t.pu.lat]);
+        b2.extend([t.dr.lng,t.dr.lat]);return b2;
+      }catch(_){}
+    }
+    return null;
+  }
+  window.__vrFitRoute=function(dur){
+    var m=mapRef();if(!m)return false;
+    var b=routeBounds(m);if(!b)return false;
+    try{
+      m.fitBounds(b,{padding:camPad(),maxZoom:15.5,duration:dur||900,essential:true,
+        easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+      camAt=performance.now();
+    }catch(_){return false;}
+    return true;
+  };
   function camFollow(fix){
     var m=mapRef();if(!m)return;
     var now=performance.now(),out=false;
@@ -3780,18 +3814,7 @@ window.__VR_AIRPORTS = [
     /* el mapa venía siguiendo al chofer, así que quedaba pegado a la recogida:
        al volver a buscar se abre otra vez, con calma, hasta enseñar la ruta
        entera por encima de la tarjeta */
-    setTimeout(function(){
-      try{
-        var mm=mapRef(),cc=window.__vrTripCoords;
-        if(mm&&cc&&cc.pu&&cc.dr){
-          var bb=new mapboxgl.LngLatBounds([cc.pu.lng,cc.pu.lat],[cc.pu.lng,cc.pu.lat]);
-          bb.extend([cc.dr.lng,cc.dr.lat]);
-          mm.fitBounds(bb,{padding:camPad(),maxZoom:15.5,duration:1300,essential:true,
-            easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
-          camAt=performance.now();
-        }
-      }catch(_){}
-    },380);
+    setTimeout(function(){window.__vrFitRoute(1300);},380);
     try{
       var r=root();
       var msg=r&&r.querySelector('[data-vipride-test-msg]');
@@ -4567,19 +4590,9 @@ window.__VR_AIRPORTS = [
     setStep('enroute');
     apply(d0);
     setPane('trip');
-    /* encuadre de salida: la ruta arriba, nunca debajo de la tarjeta. Se espera
-       un poco a que la tarjeta esté pintada para medir su alto de verdad */
-    setTimeout(function(){
-      try{
-        var mm=mapRef(),cc=window.__vrTripCoords;
-        if(mm&&cc&&cc.pu&&cc.dr){
-          var bb=new mapboxgl.LngLatBounds([cc.pu.lng,cc.pu.lat],[cc.pu.lng,cc.pu.lat]);
-          bb.extend([cc.dr.lng,cc.dr.lat]);
-          mm.fitBounds(bb,{padding:camPad(),maxZoom:15.5,duration:900});
-          camAt=performance.now();
-        }
-      }catch(_){}
-    },420);
+    /* encuadre de salida: la ruta entera arriba, nunca debajo de la tarjeta. Se
+       espera un poco a que la tarjeta esté pintada para medir su alto real */
+    setTimeout(function(){window.__vrFitRoute(900);},420);
     stopPolls();
     window.__vrTripLive=true;
     if(bid&&api){
@@ -8513,6 +8526,23 @@ setTimeout(_vrPfKick,1200);
     }
     /* Reanudar la BUSQUEDA al recargar: repone la tarjeta tal cual estaba, sin
        volver a crear ni cobrar la reserva, y sigue esperando al chofer. */
+    /* margen del encuadre mientras se busca chofer: en el teléfono la tarjeta
+       tapa la parte de abajo del mapa, así que su ALTO REAL es el margen
+       inferior; si aún no está pintada se usa un tercio de la pantalla */
+    function _vrSearchPad(){
+      var pad={top:80,right:36,bottom:220,left:36};
+      try{
+        if(window.innerWidth<900){
+          var s=document.querySelector('.vipRide__testConfirm__phase2 .vipRide__testSheet');
+          var r=s?s.getBoundingClientRect():null;
+          var h=(r&&r.height>60)?r.height:window.innerHeight*0.32;
+          pad.bottom=Math.round(Math.min(h+30,window.innerHeight*0.62));
+          pad.top=Math.round(Math.max(70,window.innerHeight*0.09));
+          pad.left=pad.right=30;
+        }
+      }catch(_){}
+      return pad;
+    }
     window.__vrResumeSearching=function(bookingId,pu,dr){
       try{
         var overlay=root.querySelector('[data-vipride-test-confirm]');
@@ -8538,6 +8568,18 @@ setTimeout(_vrPfKick,1200);
         window.__vrMsgIv=window.__vrRotateMsg&&window.__vrRotateMsg(overlay.querySelector('[data-vipride-test-msg]'));
         var bar2=overlay.querySelector('[data-vipride-test-bar2]');
         requestAnimationFrame(function(){p2.classList.add('is-visible');if(bar2)bar2.style.width='100%';});
+        /* al ENTRAR así (recarga con el viaje ya pedido) nadie había encuadrado
+           el mapa: se abre la ruta entera por encima de la tarjeta */
+        setTimeout(function(){
+          try{if(window.__vrFitRoute&&window.__vrFitRoute(1100))return;}catch(_){}
+          try{
+            if(map&&pickupPlace&&dropoffPlace){
+              var _rb=new mapboxgl.LngLatBounds();
+              _rb.extend([pickupPlace.lng,pickupPlace.lat]);_rb.extend([dropoffPlace.lng,dropoffPlace.lat]);
+              map.fitBounds(_rb,{padding:_vrSearchPad(),maxZoom:15.5,duration:1100,essential:true});
+            }
+          }catch(_){}
+        },700);
         overlay.querySelectorAll('[data-vipride-test-cancel],[data-vipride-test-cancel2]').forEach(function(btn){
           btn.addEventListener('click',function(){
             if(window.__vrCancelBooking&&window.__vrCancelBooking(_apiBase,_webKey))_vrToast(t('rideCancelled'),'ok');
@@ -8620,23 +8662,6 @@ setTimeout(_vrPfKick,1200);
         routeEl.textContent=(_pu?_short(_pu):'Pickup')+' → '+(_dr?_short(_dr):'Dropoff');
       }
       _vrSeedStars(overlay);
-      /* margen del encuadre mientras se busca chofer: en el teléfono la tarjeta
-         tapa la parte de abajo del mapa, así que su ALTO REAL es el margen
-         inferior; si aún no está pintada se usa un tercio de la pantalla */
-      function _vrSearchPad(){
-        var pad={top:80,right:36,bottom:220,left:36};
-        try{
-          if(window.innerWidth<900){
-            var s=document.querySelector('.vipRide__testConfirm__phase2 .vipRide__testSheet');
-            var r=s?s.getBoundingClientRect():null;
-            var h=(r&&r.height>60)?r.height:window.innerHeight*0.32;
-            pad.bottom=Math.round(Math.min(h+30,window.innerHeight*0.62));
-            pad.top=Math.round(Math.max(70,window.innerHeight*0.09));
-            pad.left=pad.right=30;
-          }
-        }catch(_){}
-        return pad;
-      }
       /* al arrancar una reserva la tarjeta vuelve siempre al panel de busqueda */
       try{if(window.__vrTripStop)window.__vrTripStop();overlay.querySelectorAll('[data-vrtrip-pane]').forEach(function(p){p.hidden=p.getAttribute('data-vrtrip-pane')!=='searching';});}catch(_){}
       if(sheet)sheet.classList.add('is-test-hidden');
@@ -8654,6 +8679,9 @@ setTimeout(_vrPfKick,1200);
              por encima de ella (antes se le daba un margen fijo de 220 px y el
              final de la ruta se quedaba detrás de la tarjeta) */
           setTimeout(function(){
+            /* el tracker encuadra el TRAZO entero (una ruta con curva se sale
+               del rectángulo de sus dos pines); si no está, los dos puntos */
+            try{if(window.__vrFitRoute&&window.__vrFitRoute(700))return;}catch(_){}
             try{
               var _b2=new mapboxgl.LngLatBounds();
               _b2.extend([pickupPlace.lng,pickupPlace.lat]);_b2.extend([dropoffPlace.lng,dropoffPlace.lat]);
@@ -9994,6 +10022,11 @@ html body #vipMpFooterSugs{
     position:fixed!important; left:0!important; right:0!important; bottom:0!important;
     border-radius:20px 20px 0 0!important;
     max-height:50svh!important;
+    /* sin relleno abajo: la barra de pago + "Pedir viaje" va pegajosa y se
+       paraba justo encima de ese relleno, dejando una franja por la que se
+       veía correr la lista de vehículos. La franja del gesto de inicio la pone
+       la propia barra en su padding, así que no se pierde. */
+    padding-bottom:0!important;
   }
   html body .vipRide .vipRide__sheet[data-vipride-step="3"] .vipRide__handle{
     display:block!important; width:40px; height:4px; margin:0 auto 10px;
