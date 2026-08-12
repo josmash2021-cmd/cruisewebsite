@@ -16,9 +16,9 @@
   <a class="ch-logo" href="index.html">
     <img src="assets/media/logo.png" alt="CruiseInRide" height="41">
   </a>
-  <nav class="ch-nav"><a href="index.html" aria-current="page">Inicio</a><a href="book.html" aria-current="page">Reservar</a><a href="contact.html">Contacto</a><a class="ch-nav__cta" href="auth.html">Registrarse</a></nav>
+  <nav class="ch-nav"><a href="index.html" aria-current="page">Inicio</a><a href="book" aria-current="page">Reservar</a><a href="contact.html">Contacto</a><a class="ch-nav__cta" href="auth.html">Registrarse</a></nav>
   <div class="ch-actions">
-    <a class="ch-lang" href="en/book.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.3 9h17.4M3.3 15h17.4"/><path d="M12 3c2.6 2.4 4 5.4 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.4-4-9s1.4-6.6 4-9Z"/></svg>EN</a>
+    <a class="ch-lang" href="en/book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.3 9h17.4M3.3 15h17.4"/><path d="M12 3c2.6 2.4 4 5.4 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.4-4-9s1.4-6.6 4-9Z"/></svg>EN</a>
     <a class="ch-login" href="auth.html">Iniciar sesión</a>
     <a class="ch-signup" href="auth.html">Registrarse</a>
     <button class="ch-burger" aria-label="Menu" onclick="document.body.classList.toggle('ch-open')">
@@ -7652,7 +7652,7 @@ setTimeout(_vrPfKick,1200);
       if(_vrSchedEnRouteSent)return;
       var g=_vrSchedGuest(driverData);if(!g.email)return;
       _vrSchedEnRouteSent=true;
-      var params={to_email:g.email,to_name:g.first_name||'Guest',vehicle:g.vehicle,pickup:g.pickup,driver_name:(driverData&&driverData.driver_name)||'',booking_id:g.bookingId,live_tracking_url:'https://cruiseinride.com/book.html'};
+      var params={to_email:g.email,to_name:g.first_name||'Guest',vehicle:g.vehicle,pickup:g.pickup,driver_name:(driverData&&driverData.driver_name)||'',booking_id:g.bookingId,live_tracking_url:'https://cruiseinride.com/book'};
       _vrPostEmail('/emails/web/sched-enroute',params).then(function(){_vrTrack('sched_enroute_sent');}).catch(function(e){console.warn('[Sched enroute]',e);_vrTrack('sched_enroute_failed',{err:String(e&&e.message||e)});_vrSchedEnRouteSent=false;});
     }
     try{window.__vrSendSchedDriverAssigned=_vrSendSchedDriverAssigned;window.__vrSendSchedEnRoute=_vrSendSchedEnRoute;}catch(_){}
@@ -9122,7 +9122,7 @@ html body #vipMpFooterSugs{
   html body .vipRide .vipRide__sheet[data-vipride-step="3"]{
     position:fixed!important; left:0!important; right:0!important; bottom:0!important;
     border-radius:20px 20px 0 0!important;
-    max-height:52svh!important;
+    max-height:50svh!important;
   }
   html body .vipRide .vipRide__sheet[data-vipride-step="3"] .vipRide__handle{
     display:block!important; width:40px; height:4px; margin:0 auto 10px;
@@ -9295,7 +9295,7 @@ html body #vipMpFooterSugs{
       <img src="assets/media/logo.png" alt="CruiseInRide" height="44">
       <p>Transporte privado premium con chofer</p>
     </div>
-    <a class="cf-hero__cta" href="book.html">Reservar ahora</a>
+    <a class="cf-hero__cta" href="book">Reservar ahora</a>
   </div>
 
   <div class="cf-route" aria-hidden="true">
@@ -9328,7 +9328,7 @@ html body #vipMpFooterSugs{
     <div class="cf-bottom__inner">
       <nav class="cf-bottom__links">
         <a href="index.html">Inicio</a>
-        <a href="book.html">Reservar</a>
+        <a href="book">Reservar</a>
         <a href="contact.html">Contacto</a>
         <a href="index.html">Términos</a>
       </nav>

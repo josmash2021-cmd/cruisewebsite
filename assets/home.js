@@ -514,7 +514,7 @@
   var cityLink = document.querySelector('.h-ride__cityLink');
   if (cityModal && cityLink) {
     var isEsCity = (document.documentElement.lang || 'es').indexOf('es') === 0;
-    var bookHref = cityLink.getAttribute('href') || 'book.html';
+    var bookHref = cityLink.getAttribute('href') || 'book';
     var citySearch = document.getElementById('hCitySearch');
     var cityList = document.getElementById('hCityList');
     var cityCurrentEl = cityModal.querySelector('.h-city__current');

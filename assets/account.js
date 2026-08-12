@@ -137,7 +137,7 @@
       + '    <input id="camPromoInput" class="cam-promo__input" type="text" placeholder="' + T.promoPh + '" data-cam-promo-input autocomplete="off">'
       + '    <p class="cam-promo__msg" data-cam-promo-msg></p>'
       + '    <button type="button" class="cam-promo__apply" data-cam-promo-apply>' + T.apply + '</button>'
-      + '    <a class="cam-promo__go" href="' + BASE + 'book.html">' + T.seePrices + '</a>'
+      + '    <a class="cam-promo__go" href="' + BASE + 'book">' + T.seePrices + '</a>'
       + '    <button type="button" class="cam-promo__close" data-cam-promo-close>' + T.close + '</button>'
       + '  </div>'
       + '</div>';
