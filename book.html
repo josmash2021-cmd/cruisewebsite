@@ -63,6 +63,40 @@ img,video{-webkit-user-drag:none}
 
 <main>
 <script>
+/* ── Recarga sin parpadeo ──────────────────────────────────────────────────
+   El widget arranca SIEMPRE en el paso 1 y solo después restaura donde estabas:
+   al recargar con el viaje a medio pedir se veía un instante la cabecera, los
+   dos campos y "Continuar" sobre el mapa, y de golpe saltaba a la lista de
+   vehículos. Si el estado guardado dice que esta recarga termina en el paso 3
+   —o hay un viaje activo—, la cabecera y la hoja nacen ocultas y entran ya
+   colocadas. Red de seguridad: pase lo que pase, a los 2,6 s se muestran. */
+(function(){
+  try{
+    var st=null;try{st=JSON.parse(sessionStorage.getItem('vr_book_state')||'null');}catch(_){}
+    var trip=false;try{trip=!!localStorage.getItem('vr_active_booking');}catch(_){}
+    var late=!!(st&&st.ts&&(Date.now()-st.ts)<=21600000&&st.u===location.search&&Number(st.s)===3);
+    if(!late&&!trip)return;
+    var h=document.documentElement;
+    h.classList.add('vr-boot');
+    window.__vrBootDone=function(){
+      if(!h.classList.contains('vr-boot'))return;
+      h.classList.add('vr-booting-out');
+      h.classList.remove('vr-boot');
+      setTimeout(function(){h.classList.remove('vr-booting-out');},460);
+    };
+    setTimeout(function(){try{window.__vrBootDone();}catch(_){}},2600);
+  }catch(_){}
+})();
+</script>
+<style>
+html.vr-boot .vipRide__sheet[data-vipride-sheet],
+html.vr-boot .cruise-header,
+html.vr-boot .vipRide__mapBackBtn{opacity:0!important;pointer-events:none!important}
+@keyframes vrBootIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+html.vr-booting-out .vipRide__sheet[data-vipride-sheet],
+html.vr-booting-out .cruise-header{animation:vrBootIn .4s cubic-bezier(.22,1,.36,1) both}
+</style>
+<script>
   try{window.__VIP_BOOKED_SLOTS__=[];}catch(_){window.__VIP_BOOKED_SLOTS__=[];}
   window.__VIP_SVC_STATES__=('AL,FL,').toUpperCase().split(',').map(function(s){return s.trim()}).filter(function(s,i,a){return s&&a.indexOf(s)===i});
   window.__VIP_SVC_BLOCK__={titleEn:"Not available here",titleEs:"No disponible aquí",msgEn:"We operate in Alabama and Florida.",msgEs:"Operamos en Alabama y Florida."};
@@ -6861,6 +6895,8 @@ window.__vrPrefillFromUrl();
    el resto del formulario. Con otra URL —búsqueda nueva desde la portada—
    sigue mandando la URL. */
 if(!window.__vrUrlPrefilled||_vrSameUrlState())_vrRestoreState();
+/* ya está todo en su sitio: se destapa la pantalla (ver "Recarga sin parpadeo") */
+setTimeout(function(){try{if(window.__vrBootDone)window.__vrBootDone();}catch(_){}},520);
 }
 else setTimeout(_vrPfKick,1500);
 }catch(_){}}
