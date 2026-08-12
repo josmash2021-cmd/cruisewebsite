@@ -3655,17 +3655,48 @@ window.__VR_AIRPORTS = [
     var c=window.__vrTripCoords;if(!c)return null;
     return (step==='intrip')?c.dr:c.pu;
   }
+  /* La tarjeta tapa la mitad de abajo del mapa: si la cámara encuadra sin
+     contarla, la ruta y el coche quedan DEBAJO de la tarjeta y no se ven. El
+     margen inferior del encuadre es el alto real de la tarjeta. */
+  function camCard(){
+    try{
+      var s=document.querySelector('.vipRide__testConfirm__phase2 .vipRide__testSheet');
+      if(!s)return 0;
+      var r=s.getBoundingClientRect();
+      return (r.height>0&&r.top<window.innerHeight)?r:0;
+    }catch(_){return 0;}
+  }
+  function camPad(){
+    var pad={top:90,bottom:120,left:70,right:70};
+    if(window.innerWidth>=900)return pad;   /* escritorio: el mapa es panel aparte */
+    var r=camCard();
+    if(r)pad.bottom=Math.round(Math.min(r.height+28,window.innerHeight*0.62));
+    pad.left=34;pad.right=34;
+    pad.top=Math.round(Math.max(80,window.innerHeight*0.1));
+    return pad;
+  }
   function camFollow(fix){
     var m=mapRef();if(!m)return;
     var now=performance.now(),out=false;
-    try{out=!m.getBounds().contains([fix.lng,fix.lat]);}catch(_){}
+    try{
+      out=!m.getBounds().contains([fix.lng,fix.lat]);
+      /* aunque esté "dentro del mapa", si cae detrás de la tarjeta está oculto */
+      if(!out&&window.innerWidth<900){
+        var r=camCard();
+        if(r){
+          var p=m.project([fix.lng,fix.lat]);
+          var mt=m.getContainer().getBoundingClientRect().top;
+          if(p.y+mt>r.top-24)out=true;
+        }
+      }
+    }catch(_){}
     if(!out&&now-camAt<12000)return;
     camAt=now;
     var tg=trkTarget();
     try{
       if(tg){
         var b=new mapboxgl.LngLatBounds([fix.lng,fix.lat],[fix.lng,fix.lat]);b.extend([tg.lng,tg.lat]);
-        m.fitBounds(b,{padding:{top:90,bottom:120,left:70,right:70},maxZoom:15.5,duration:900});
+        m.fitBounds(b,{padding:camPad(),maxZoom:15.5,duration:900});
       }else m.easeTo({center:[fix.lng,fix.lat],duration:900});
     }catch(_){}
   }
@@ -4521,6 +4552,19 @@ window.__VR_AIRPORTS = [
     setStep('enroute');
     apply(d0);
     setPane('trip');
+    /* encuadre de salida: la ruta arriba, nunca debajo de la tarjeta. Se espera
+       un poco a que la tarjeta esté pintada para medir su alto de verdad */
+    setTimeout(function(){
+      try{
+        var mm=mapRef(),cc=window.__vrTripCoords;
+        if(mm&&cc&&cc.pu&&cc.dr){
+          var bb=new mapboxgl.LngLatBounds([cc.pu.lng,cc.pu.lat],[cc.pu.lng,cc.pu.lat]);
+          bb.extend([cc.dr.lng,cc.dr.lat]);
+          mm.fitBounds(bb,{padding:camPad(),maxZoom:15.5,duration:900});
+          camAt=performance.now();
+        }
+      }catch(_){}
+    },420);
     stopPolls();
     window.__vrTripLive=true;
     if(bid&&api){
@@ -9570,8 +9614,15 @@ html body #vipMpFooterSugs{
   html body .vipRide__testConfirm__phase2{
     position:fixed!important; top:auto!important; left:0!important; right:0!important;
     bottom:0!important; height:auto!important; max-height:100dvh!important;
-    padding:0 12px calc(clamp(12px,3.5vw,20px) + env(safe-area-inset-bottom,0px))!important;
+    padding:0 14px calc(16px + env(safe-area-inset-bottom,0px))!important;
   }
+  /* la tarjeta va SÓLIDA: con el mapa a pantalla completa por detrás, ese 4%
+     de transparencia dejaba ver las calles a través del texto */
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet{
+    background:#20242d!important;
+    backdrop-filter:none!important; -webkit-backdrop-filter:none!important;
+  }
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet::before{ opacity:0!important }
   /* el chat sí ocupa casi toda la pantalla, como en la app */
   html body .vipRide__testConfirm__phase2 .vipRide__testSheet:has([data-vrtrip-pane="chat"]:not([hidden])){
     height:82dvh!important;
@@ -10962,7 +11013,23 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
         cambiaba la medida, que disparaba otro resize... y el contenido subía
         y bajaba sin parar. Mapbox ya se reencuadra solo con su ResizeObserver
         cuando el contenedor cambia de tamaño. */
+  /* Freno anti-bucle de la geometría del mapa.
+     Al volver de la pantalla de inicio de sesión hay dos medidas que se turnan
+     (la barra del sitio aparece y desaparece, y con ella el top de la hoja):
+     cada repaso escribía una y el mapa subía y bajaba cada medio segundo, sin
+     parar. Aquí se ignora el ruido de menos de 10 px y, si el valor nuevo es el
+     mismo que el de dos repasos atrás (A→B→A, la firma del bucle), se congela
+     esa medida un segundo y medio: el mapa se queda quieto en una de las dos
+     en vez de columpiarse. */
+  var _vHist = {}, _vLock = {};
   function setVar(el, name, px) {
+    var now = Date.now();
+    if (_vLock[name] && now < _vLock[name]) return;
+    var h = _vHist[name] || (_vHist[name] = []);
+    var prev = h.length ? h[h.length - 1] : null;
+    if (prev !== null && Math.abs(prev - px) < 10) return;
+    if (h.length >= 2 && Math.abs(h[h.length - 2] - px) < 10) { _vLock[name] = now + 1500; return; }
+    h.push(px); if (h.length > 4) h.shift();
     var v = px + 'px';
     if (el.style.getPropertyValue(name) !== v) el.style.setProperty(name, v);
   }
