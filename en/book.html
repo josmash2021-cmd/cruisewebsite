@@ -8877,6 +8877,13 @@ html body #vipMpFooterSugs{
   }
   html body .vipRide.vrm-step1 .vipRide__mapInner,
   html body .vipRide.vrm-step1 .vipRide__mapSkeleton{ border-radius:18px; overflow:hidden }
+  /* y en el paso 3 tampoco es fondo: la franja termina donde empieza la hoja
+     (16px por debajo del borde redondeado para que no asome una rendija);
+     el alto lo mide MOBILE_JS porque la hoja va fija al viewport */
+  html body .vipRide.vrm-step3 .vipRide__map{
+    top:0!important; left:0!important; right:0!important;
+    height:var(--vrm-map3-h,44svh)!important; bottom:auto!important;
+  }
 
   /* sin título ni etiquetas: los campos hablan solos */
   html body .vipRide .vipRide__sheet .vipRide__titleRow,
@@ -9923,28 +9930,48 @@ html body #vipMpFooterSugs{
     var v = px + 'px';
     if (el.style.getPropertyValue(name) !== v) el.style.setProperty(name, v);
   }
+  /* aviso a Mapbox de que su lienzo cambió, con retén: solo se dispara al
+     cambiar de paso o si la franja cambió de verdad, nunca en cada repaso
+     (eso es lo que realimentaba el bucle de subir y bajar) */
+  var _rz = null;
+  function askResize() {
+    clearTimeout(_rz);
+    _rz = setTimeout(function () { try { window.dispatchEvent(new Event('resize')); } catch (_) {} }, 180);
+  }
   function mapCard() {
     var sec = q('.vipRide'), sheet = q('[data-vipride-sheet]');
     if (!sec || !sheet) return;
-    var one = sheet.getAttribute('data-vipride-step') === '1';
+    var step = sheet.getAttribute('data-vipride-step');
+    var one = step === '1', three = step === '3';
     /* en el paso 3 la barra del sitio se esconde: el mapa llega arriba del
        todo y la flecha flota sobre él, como en la app */
     document.body.classList.toggle('vrm-nohdr', !one);
-    if (sec.classList.contains('vrm-step1') !== one) {
+    if (sec.classList.contains('vrm-step1') !== one || sec.classList.contains('vrm-step3') !== three) {
       sec.classList.toggle('vrm-step1', one);
-      /* el lienzo de Mapbox no se entera solo de que el contenedor cambió de
-         tamaño (se quedaba con el ancho de la tarjeta y dejaba una franja
-         negra en el paso 3): un aviso, y solo al cambiar de paso. Nunca al
-         recalcular medidas, que es lo que realimentaba el bucle. */
-      try { window.dispatchEvent(new Event('resize')); } catch (_) {}
+      sec.classList.toggle('vrm-step3', three);
+      askResize();
     }
     /* con un overlay abierto la hoja se desplaza y se apaga: su medida no sirve */
-    if (!one || sheet.classList.contains('is-test-hidden')) return;
+    if (sheet.classList.contains('is-test-hidden')) return;
+    var secTop = sec.getBoundingClientRect().top;
+    if (three) {
+      /* la franja del mapa termina donde empieza la hoja; la hoja va fija al
+         viewport, así que se resta el top de la sección para volver a sus
+         coordenadas. No hay realimentación: la medida no depende del mapa. */
+      var h3 = Math.round(sheet.getBoundingClientRect().top - secTop + 16);
+      if (h3 > 120) {
+        var prev = parseInt(sec.style.getPropertyValue('--vrm-map3-h'), 10) || 0;
+        setVar(sec, '--vrm-map3-h', h3);
+        if (Math.abs(h3 - prev) > 30) askResize();
+      }
+      return;
+    }
+    if (!one) return;
     var top = sheet.offsetTop + sheet.offsetHeight + 8;
     /* el borde de abajo de lo que se ve, en coordenadas de la sección: la
        sección se estira por debajo de la pantalla para meterse bajo la
        cabecera y, si no se descuenta, el mapa se salía por abajo */
-    var visible = window.innerHeight - sec.getBoundingClientRect().top;
+    var visible = window.innerHeight - secTop;
     var h = Math.round(visible - top - 12);
     if (top < 40 || h < 140) return;
     setVar(sec, '--vrm-map-top', top);
@@ -10001,8 +10028,10 @@ html body #vipMpFooterSugs{
     var sec = q('.vipRide');
     if (sec) {
       sec.classList.remove('vrm-step1');
+      sec.classList.remove('vrm-step3');
       sec.style.removeProperty('--vrm-map-top');
       sec.style.removeProperty('--vrm-map-h');
+      sec.style.removeProperty('--vrm-map3-h');
     }
   }
 
