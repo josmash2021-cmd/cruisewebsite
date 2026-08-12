@@ -9074,6 +9074,13 @@ html body #vipMpFooterSugs{
   html body .vipRide.vrd-step3 .vipRide__map{
     left:calc(var(--vrd-col) + var(--vrd-mid) + var(--vrd-gap) * 3)!important;
   }
+  /* el panel del mapa se coloca contra la VENTANA, igual que la columna de la
+     izquierda y la hoja de reserva (las dos son position:fixed). Yendo absoluto
+     dentro de la sección, cualquier desplazamiento que la página le meta arriba
+     se le suma al top y el mapa baja ese mismo tanto: quedaba desalineado con
+     la tarjeta y con una franja negra encima. */
+  html body .vipRide .vipRide__mapContainer,
+  html body .vipRide .vipRide__map{ position:fixed!important }
   html body .vipRide .vipRide__mapInner,
   html body .vipRide .vipRide__mapSkeleton{ border-radius:24px; overflow:hidden }
 
@@ -11115,6 +11122,9 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
   var sh=document.querySelector('[data-vipride-sheet]');
   if(sh)new MutationObserver(function(){grow(700);}).observe(sh,{attributes:true,attributeFilter:['class']});
   window.addEventListener('orientationchange',function(){setTimeout(function(){grow(600);},250);});
+  /* y un par de repasos al cargar: el panel del mapa se coloca contra la
+     ventana y su alto final no es el que tenía al crearse el mapa */
+  window.addEventListener('load',function(){grow(400);setTimeout(function(){grow(300);},1200);});
 })();
 </script>
 <script src="assets/account.js?v=20260815g" defer></script>
