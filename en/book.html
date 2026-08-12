@@ -5463,6 +5463,10 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__actionBtns>:nth-child(2){animation-delay:.4s}
 @keyframes vipFB{0%{transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .vipRide__actionBtns[hidden]{display:none!important}
+/* el bloque "Método de pago + Pedir viaje" es la barra pegajosa de la hoja y
+   vive FUERA de los paneles de paso: al volver de la lista de vehículos al
+   paso 1 se quedaba visible debajo de "Continuar". Solo existe en el paso 3. */
+.vipRide__sheet:not([data-vipride-step="3"]) .vipRide__actionBtns{display:none!important}
 .vipRide__paymentBtn{flex:1 1 50%;min-width:0;display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:14px;font-weight:500;cursor:pointer;touch-action:manipulation;transition:background 150ms}
 .vipRide__payBtnLabel{flex:1;text-align:left}
 .vipRide__paymentBtn:active{background:rgba(255,255,255,.1)}
@@ -6397,6 +6401,8 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     currentStep=n;
     if(n===3)_vrUrlTrip();else _vrUrlSet(null,'');
     if(sheet) sheet.setAttribute('data-vipride-step',String(n));
+    /* la barra de pago + "Pedir viaje" solo pertenece al paso 3 */
+    if(n!==3){var _ab=root.querySelector('[data-vipride-action-btns]');if(_ab)_ab.setAttribute('hidden','');}
     updateStepDots(); closeSuggestions();
     if(n!==3 && typeof stopSlowOrbit==='function') stopSlowOrbit();
     var youLabels=document.querySelectorAll('.vipRide__youLabel');
