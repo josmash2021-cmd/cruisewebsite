@@ -3496,6 +3496,7 @@ window.__VR_AIRPORTS = [
     rcDestChat:'Cambio de destino enviado al chofer por el chat; el ajuste estimado es {a}.',
     rcFail:'No se pudo aplicar el cambio. Llama a tu chofer.',
     rcNone:'Sin resultados. Prueba con otra dirección.',
+    driverBailed:'El chofer canceló. Buscando otro chofer…',
     mi:'mi'
   }:{
     enroute:'Your driver is on the way',arrived:'Your driver has arrived',intrip:'On trip',done:'Trip completed',
@@ -3525,6 +3526,7 @@ window.__VR_AIRPORTS = [
     rcDestChat:'Destination change sent to your driver via chat; the estimated adjustment is {a}.',
     rcFail:'Could not apply the change. Please call your driver.',
     rcNone:'No results. Try another address.',
+    driverBailed:'Your driver cancelled. Finding you another driver…',
     mi:'mi'
   };
   var SUPPORT_WA='16593052974';
@@ -3532,6 +3534,118 @@ window.__VR_AIRPORTS = [
   var phone='',photo='',name='',step='',driverId='',chatOpen=false,ended=false;
   var lastMsgId=0,lastSeen=0,unread=0,sending=false,started=false;
   var STEPS=['enroute','arrived','intrip','done'];
+  /* ── tracking del chofer en el mapa ── */
+  var carM=null,carFrom=null,carTo=null,carT0=0,carRafOn=false;
+  var trkAt=0,trkPos=null,camAt=0,hadDriver=false;
+  var CAR_SRC=location.pathname.replace(/\/(pickup|dropoff)$/,'').replace(/[^/]*$/,'')+((document.documentElement.lang||'en').indexOf('es')===0?'assets/':'../assets/')+'media/car-suburban.png';
+  function mapRef(){return window.__vrMap||null;}
+  function geoBrg(a,b){var toR=Math.PI/180,la1=a.lat*toR,la2=b.lat*toR,dLn=(b.lng-a.lng)*toR;var y=Math.sin(dLn)*Math.cos(la2);var x=Math.cos(la1)*Math.sin(la2)-Math.sin(la1)*Math.cos(la2)*Math.cos(dLn);return Math.atan2(y,x)*180/Math.PI;}
+  function geoDistM(a,b){var toR=Math.PI/180;var dx=(b.lng-a.lng)*toR*Math.cos(((a.lat+b.lat)/2)*toR),dy=(b.lat-a.lat)*toR;return Math.sqrt(dx*dx+dy*dy)*6371000;}
+  function ensureCar(pos){
+    var m=mapRef();if(!m||!window.mapboxgl)return null;
+    if(carM)return carM;
+    var img=document.createElement('img');
+    img.src=CAR_SRC;img.alt='';img.draggable=false;
+    img.style.cssText='display:block;height:38px;width:auto;filter:drop-shadow(0 1px 1px rgba(0,0,0,.7)) drop-shadow(0 4px 7px rgba(0,0,0,.55));pointer-events:none;user-select:none;';
+    var el=document.createElement('div');el.style.pointerEvents='none';el.appendChild(img);
+    try{carM=new mapboxgl.Marker({element:el,rotationAlignment:'map',pitchAlignment:'map',anchor:'center'}).setLngLat([pos.lng,pos.lat]).addTo(m);}catch(_){carM=null;}
+    return carM;
+  }
+  /* el coche se desliza suave entre dos lecturas del GPS (el sondeo es cada
+     4 s): interpolación con easing, y el morro apunta al rumbo real */
+  function carStep(){
+    if(!carM||!carTo){carRafOn=false;return;}
+    var t=(performance.now()-carT0)/3200;if(t>1)t=1;
+    var e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    var la=carFrom.lat+(carTo.lat-carFrom.lat)*e,ln=carFrom.lng+(carTo.lng-carFrom.lng)*e;
+    try{carM.setLngLat([ln,la]);}catch(_){}
+    if(t<1)requestAnimationFrame(carStep);else carRafOn=false;
+  }
+  function trkTarget(){
+    var c=window.__vrTripCoords;if(!c)return null;
+    return (step==='intrip')?c.dr:c.pu;
+  }
+  function camFollow(fix){
+    var m=mapRef();if(!m)return;
+    var now=performance.now(),out=false;
+    try{out=!m.getBounds().contains([fix.lng,fix.lat]);}catch(_){}
+    if(!out&&now-camAt<12000)return;
+    camAt=now;
+    var tg=trkTarget();
+    try{
+      if(tg){
+        var b=new mapboxgl.LngLatBounds([fix.lng,fix.lat],[fix.lng,fix.lat]);b.extend([tg.lng,tg.lat]);
+        m.fitBounds(b,{padding:{top:90,bottom:120,left:70,right:70},maxZoom:15.5,duration:900});
+      }else m.easeTo({center:[fix.lng,fix.lat],duration:900});
+    }catch(_){}
+  }
+  function trkClear(){
+    var m=mapRef();
+    if(m){try{['vrTrkLine','vrTrkGlow'].forEach(function(id){if(m.getLayer(id))m.removeLayer(id);});if(m.getSource('vrTrk'))m.removeSource('vrTrk');}catch(_){}}
+    trkPos=null;trkAt=0;
+  }
+  /* ruta dorada chofer→recogida mientras viene (en viaje la ruta base
+     recogida→destino ya está pintada); se recalcula con freno: al moverse
+     >250 m o cada 25 s, lo que llegue antes */
+  function trkRoute(fix){
+    if(step!=='enroute'&&step!=='arrived'){trkClear();return;}
+    var c=window.__vrTripCoords;if(!c||!c.pu)return;
+    var now=performance.now();
+    if(trkPos&&geoDistM(trkPos,fix)<250&&now-trkAt<25000)return;
+    trkAt=now;trkPos=fix;
+    fetch('https://api.mapbox.com/directions/v5/mapbox/driving/'+fix.lng+','+fix.lat+';'+c.pu.lng+','+c.pu.lat+'?geometries=geojson&overview=full&access_token='+encodeURIComponent(mbToken()))
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var g=d&&d.routes&&d.routes[0]&&d.routes[0].geometry;if(!g)return;
+        var m=mapRef();if(!m)return;
+        if(step!=='enroute'&&step!=='arrived')return;
+        var data={type:'Feature',properties:{},geometry:g};
+        var src=m.getSource('vrTrk');
+        if(src)src.setData(data);
+        else{
+          m.addSource('vrTrk',{type:'geojson',data:data});
+          m.addLayer({id:'vrTrkGlow',type:'line',source:'vrTrk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#E8C547','line-width':10,'line-opacity':.16,'line-blur':3}});
+          m.addLayer({id:'vrTrkLine',type:'line',source:'vrTrk',layout:{'line-cap':'round','line-join':'round'},paint:{'line-color':'#F5DC7A','line-width':3.5,'line-opacity':.95}});
+        }
+      }).catch(function(){});
+  }
+  function moveCar(fix){
+    if(!ensureCar(fix))return;
+    var cur;try{var ll=carM.getLngLat();cur={lat:ll.lat,lng:ll.lng};}catch(_){cur=fix;}
+    var d=geoDistM(cur,fix);
+    if(d>=3){
+      if(d>8){try{carM.setRotation(geoBrg(cur,fix));}catch(_){}}
+      carFrom=cur;carTo=fix;carT0=performance.now();
+      if(!carRafOn){carRafOn=true;requestAnimationFrame(carStep);}
+    }
+    camFollow(fix);trkRoute(fix);
+  }
+  function trackReset(){
+    trkClear();
+    if(carM){try{carM.remove();}catch(_){}carM=null;}
+    carTo=null;carRafOn=false;camAt=0;
+    window.__vrTripLive=false;
+  }
+  /* el chofer canceló: el backend devuelve el viaje a la cola y lo re-ofrece;
+     la tarjeta regresa al panel de búsqueda con su mismo fundido sedoso (el
+     gris neumórfico vuelve al negro estrellado) y se sigue esperando al
+     siguiente chofer con la MISMA reserva. */
+  function goSearching(){
+    hadDriver=false;name='';phone='';photo='';driverId='';
+    trackReset();
+    setPane('searching');
+    toast(T.driverBailed,'ok');
+    try{
+      var r=root();
+      var msg=r&&r.querySelector('[data-vipride-test-msg]');
+      if(window.__vrMsgIv)clearInterval(window.__vrMsgIv);
+      if(msg&&window.__vrRotateMsg){
+        if(window.__vrSearchMsgs&&window.__vrSearchMsgs[1])msg.textContent=window.__vrSearchMsgs[1];
+        window.__vrMsgIv=window.__vrRotateMsg(msg);
+      }
+      var bar=r&&r.querySelector('[data-vipride-test-bar2]');if(bar)bar.style.width='100%';
+    }catch(_){}
+  }
 
   function root(){return document.querySelector('[data-vipride-test-p2]');}
   function q(s){var r=root();return r?r.querySelector(s):null;}
@@ -3644,12 +3758,22 @@ window.__VR_AIRPORTS = [
       }
       return;
     }
+    /* el chofer se bajó: el viaje volvió a la cola sin chofer asignado */
+    var hasDrv=!!(d.driver_name||d.driver_id||d.driver_phone);
+    if((raw==='requested'||raw==='dispatching'||raw==='pending')&&!hasDrv){
+      if(hadDriver)goSearching();
+      return;
+    }
+    if(hasDrv)hadDriver=true;
     if(raw.indexOf('arrived')>=0)setStep('arrived');
     else if(raw==='in_trip'||raw==='on_trip'||raw==='in_progress')setStep('intrip');
     else setStep('enroute');
     if(step!=='arrived'&&d.eta_minutes!==undefined&&d.eta_minutes!==null)setEta(d.eta_minutes);
     if(d.distance_miles!==undefined)setDist(d.distance_miles);
     setDriver(d);
+    /* el GPS del chofer llega en el mismo status: el coche se mueve en el mapa */
+    var dla=Number(d.driver_lat),dln=Number(d.driver_lng);
+    if(isFinite(dla)&&isFinite(dln)&&dla!==0&&dln!==0)moveCar({lat:dla,lng:dln});
   }
 
   function pollStatus(){
@@ -3996,6 +4120,7 @@ window.__VR_AIRPORTS = [
   function stopPolls(){
     if(pollIv){clearInterval(pollIv);pollIv=null;}
     if(chatIv){clearInterval(chatIv);chatIv=null;}
+    trackReset();
   }
   function close(){
     stopPolls();
@@ -4006,7 +4131,7 @@ window.__VR_AIRPORTS = [
     var r=root();if(!r)return false;
     bid=bookingId||window.__vrActiveBookingId||null;
     api=apiBase||'';key=webKey||'';
-    ended=false;chatOpen=false;unread=0;lastMsgId=0;lastSeen=0;step='';
+    ended=false;chatOpen=false;unread=0;lastMsgId=0;lastSeen=0;step='';hadDriver=true;
     wire();
     setRoute(pickup||window.__vrLastPickup||'',dropoff||window.__vrLastDropoff||'');
     setDriver(driverData||{});
@@ -4017,6 +4142,7 @@ window.__VR_AIRPORTS = [
     apply(d0);
     setPane('trip');
     stopPolls();
+    window.__vrTripLive=true;
     if(bid&&api){
       pollStatus();
       pollIv=setInterval(pollStatus,4000);
@@ -5304,30 +5430,32 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
   .vipRide__testConfirm__phase2 .vipRide__testSheet{max-height:calc(100dvh - var(--vip-nav-h,60px) - 34px);overflow:hidden auto}
 }
 .vrTrip__chatHead{display:flex;align-items:center;gap:11px;padding-bottom:13px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
-.vrTrip__chatBack{-webkit-appearance:none;appearance:none;width:34px;height:34px;flex-shrink:0;border:none;border-radius:10px;background:rgba(255,255,255,.06);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s}
-.vrTrip__chatBack svg{width:19px;height:19px}
+.vrTrip__chatBack{-webkit-appearance:none;appearance:none;width:44px;height:44px;flex-shrink:0;border:none;border-radius:50%;background:#14161c;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;box-shadow:inset 2px 2px 5px rgba(0,0,0,.45),inset -1px -1px 3px rgba(255,255,255,.05)}
+.vrTrip__chatBack svg{width:20px;height:20px}
 .vrTrip__chatBack:hover{background:rgba(255,255,255,.12)}
 .vrTrip__chatWho{flex:1;min-width:0}
-.vrTrip__chatName{font:700 14.5px/1.2 'Inter',sans-serif;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vrTrip__chatName{font:800 17px/1.2 'Poppins','Inter',sans-serif;color:#fff;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vrTrip__chatSub{display:flex;align-items:center;gap:6px;margin-top:3px;font:600 10.5px/1 'Inter',sans-serif;color:#22c55e;letter-spacing:.05em}
 .vrTrip__chatSub::before{content:'';width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.7)}
-.vrTrip__chatAvatar{width:36px;height:36px;flex-shrink:0;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.07);border:1.5px solid rgba(212,175,55,.4)}
+.vrTrip__chatAvatar{width:44px;height:44px;flex-shrink:0;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.07);border:1.5px solid rgba(212,175,55,.4)}
 .vrTrip__chatAvatar img{width:100%;height:100%;object-fit:cover}
 .vrTrip__chatBody{flex:1;min-height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding:14px 2px;scroll-behavior:smooth}
 .vrTrip__chatBody::-webkit-scrollbar{width:4px}
 .vrTrip__chatBody::-webkit-scrollbar-thumb{background:rgba(212,175,55,.25);border-radius:4px}
-.vrTrip__bubble{max-width:82%;padding:9px 13px;border-radius:15px;font:500 13.5px/1.4 'Inter',sans-serif;word-wrap:break-word;animation:vrTripMsg .25s ease-out both}
+.vrTrip__bubble{max-width:82%;padding:12px 16px;border-radius:18px;font:600 15px/1.35 'Inter',sans-serif;word-wrap:break-word;animation:vrTripMsg .25s ease-out both}
 @keyframes vrTripMsg{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.vrTrip__bubble--me{align-self:flex-end;background:linear-gradient(145deg,#f2d577,#d4af37);color:#241c05;border-bottom-right-radius:5px}
-.vrTrip__bubble--dr{align-self:flex-start;background:rgba(255,255,255,.08);color:#fff;border-bottom-left-radius:5px}
-.vrTrip__bubbleTime{display:block;margin-top:4px;font:600 9.5px/1 'Inter',sans-serif;opacity:.55;text-align:right}
+.vrTrip__bubble--me{align-self:flex-end;background:linear-gradient(160deg,#f2d577,#d9b23f);color:#241c05}
+.vrTrip__bubble--me .vrTrip__bubbleTime{color:rgba(36,28,5,.6)}
+.vrTrip__bubble--dr{align-self:flex-start;background:#262b35;color:#fff}
+.vrTrip__bubble--dr .vrTrip__bubbleTime{color:rgba(255,255,255,.45)}
+.vrTrip__bubbleTime{display:block;margin-top:5px;font:600 11.5px/1 'Inter',sans-serif;text-align:left}
 .vrTrip__chatEmpty{margin:auto;padding:20px;text-align:center;font:500 12.5px/1.5 'Inter',sans-serif;color:rgba(255,255,255,.38)}
 .vrTrip__chatForm{display:flex;align-items:center;gap:9px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07);flex-shrink:0}
-.vrTrip__chatInput{flex:1;min-width:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;color:#fff;font:500 13.5px/1.3 'Inter',sans-serif;padding:11px 15px;outline:none;transition:border-color .2s}
+.vrTrip__chatInput{flex:1;min-width:0;background:transparent;border:1.5px solid rgba(255,255,255,.16);border-radius:100px;color:#fff;font:500 15px/1.3 'Inter',sans-serif;height:52px;padding:0 18px;outline:none;transition:border-color .2s}
 .vrTrip__chatInput:focus{border-color:rgba(212,175,55,.5)}
 .vrTrip__chatInput::placeholder{color:rgba(255,255,255,.33)}
-.vrTrip__chatSend{-webkit-appearance:none;appearance:none;width:39px;height:39px;flex-shrink:0;border:none;border-radius:50%;background:linear-gradient(145deg,#f2d577,#d4af37);color:#241c05;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s}
-.vrTrip__chatSend svg{width:17px;height:17px}
+.vrTrip__chatSend{-webkit-appearance:none;appearance:none;width:52px;height:52px;flex-shrink:0;border:none;border-radius:50%;background:linear-gradient(145deg,#f2d577,#d4af37);color:#241c05;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s}
+.vrTrip__chatSend svg{width:21px;height:21px}
 .vrTrip__chatSend:active{transform:scale(.92)}
 .vipRide__testConfirm__phase2.is-visible .vipRide__testSheet{transform:translateY(0)}
 .vipRide__sheet{transition:opacity 620ms cubic-bezier(.22,1,.36,1),transform 620ms cubic-bezier(.22,1,.36,1);will-change:transform,opacity;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:translateZ(0)}
@@ -6557,6 +6685,7 @@ setTimeout(_vrPfKick,1200);
       mapboxgl.workerCount=Math.max(2,Math.min(4,navigator.hardwareConcurrency||2));
       mapboxgl.maxParallelImageRequests=16;
       map=new mapboxgl.Map({container:'vipRideMap-ride_request_48wXbE',style:'mapbox://styles/mapbox/dark-v11',center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:0,bearing:0,maxPitch:0,attributionControl:false,antialias:true,interactive:true,dragRotate:true,touchPitch:true,dragPan:true,scrollZoom:true,touchZoomRotate:true,doubleClickZoom:true,keyboard:false,cooperativeGestures:false,fadeDuration:450,useWebGL2:true,optimizeForTerrain:false,renderWorldCopies:false});
+      window.__vrMap=map; /* el tracker del viaje dibuja el coche del chofer aquí */
       map.touchZoomRotate.enable({around:'center'});
       map.scrollZoom.setWheelZoomRate(1/200);
       map.scrollZoom.setZoomRate(1/200);
@@ -6727,7 +6856,11 @@ setTimeout(_vrPfKick,1200);
             }
           }
           function fCycle(gen){
-            if(gen!==fGen||document.hidden||!fPool.length)return;
+            if(gen!==fGen||document.hidden)return;
+            /* con un viaje real en marcha el coche del chofer manda: la flota
+               decorativa se retira para no confundir */
+            if(window.__vrTripLive){fRemove(fMarkers);fMarkers=[];fAnim=[];return;}
+            if(!fPool.length)return;
             fRemove(fMarkers);fMarkers=[];fAnim=[];
             var n=[2,3,4][Math.floor(Math.random()*3)]; /* a veces 2, a veces 3, a veces 4 */
             var cc,b=null,vw=0;
