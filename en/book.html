@@ -8822,6 +8822,25 @@ html body #vipMpFooterSugs{
   html body .vipRide .vipRide__compactCard{ display:none!important }
   html body .vipRide .vipRide__step1Full{ display:block!important }
 
+  /* fondo negro de verdad en todas las pantallas del flujo, sin degradados
+     ni sombras interiores que lo agrisen */
+  html body:has(#vipRide-ride_request_48wXbE),
+  html body .vipRide,
+  html body .vipRide__bg,
+  html body .vipRide__locPicker,
+  html body [data-vipride-locpicker],
+  html body .vipRide__mapPicker,
+  html body .vipRide__sheet[data-vipride-step="3"],
+  html body .vipRide__payOverlay:not([hidden]) > .vipRide__payOverlay__list,
+  html body .vipRide__payOverlay:not([hidden]) > .vipRide__cardForm{
+    background:#000!important; background-image:none!important;
+  }
+  html body .vipRide__locPicker,
+  html body [data-vipride-locpicker],
+  html body .vipRide .vipRide__sheet[data-vipride-step="3"]{
+    box-shadow:none!important;
+  }
+
   /* el paso 1 deja de ser una tarjeta flotante sobre el mapa: es la cabecera
      de la página — campos, píldoras y, debajo, el mapa como tarjeta aparte */
   html body .vipRide .vipRide__sheet[data-vipride-step="1"]{
@@ -8839,7 +8858,8 @@ html body #vipMpFooterSugs{
      completa con la hoja de vehículos encima */
   html body .vipRide.vrm-step1 .vipRide__map{
     top:var(--vrm-map-top,300px)!important;
-    left:12px!important; right:12px!important; bottom:12px!important;
+    height:var(--vrm-map-h,58svh)!important; bottom:auto!important;
+    left:12px!important; right:12px!important;
     border-radius:18px!important; overflow:hidden!important;
   }
   html body .vipRide.vrm-step1 .vipRide__mapInner,
@@ -8921,11 +8941,32 @@ html body #vipMpFooterSugs{
   }
   html body .vrm-menu__item:active{ background:rgba(255,255,255,.08) }
 
+  /* con el buscador abierto la barra del menú se retira y la pantalla es
+     suya entera: nada de cabecera del sitio asomando arriba */
+  html body.vrm-full .cruise-header{ display:none!important }
+  html body.vrm-full .wa-fab{ display:none!important }
+  html body.vrm-full .vipRide__locPicker,
+  html body.vrm-full [data-vipride-locpicker]:not([hidden]){
+    top:0!important; padding-top:env(safe-area-inset-top,0px)!important;
+  }
+
   /* buscador de direcciones: cabecera con atrás + título y las píldoras
      encima de los campos, igual que en la app */
   html body .vrm-lpHead{
     display:flex; align-items:center; gap:12px; padding:12px 16px 4px; flex:0 0 auto;
   }
+  /* minimalismo: los botones son su icono, sin círculo ni relieve */
+  html body .vipRide__locPicker .vipRide__locPicker__back,
+  html body .vipRide__locPicker .vipRide__lpReverse,
+  html body .vipRide .vipRide__mapBackBtn,
+  html body .vipRide__mapPicker .vipRide__mapPicker__back{
+    width:auto!important; height:auto!important; min-width:0!important;
+    padding:10px 6px!important; margin:0!important;
+    background:none!important; border:none!important; border-radius:0!important;
+    box-shadow:none!important; color:#fff!important;
+  }
+  html body .vipRide__locPicker .vipRide__lpReverse{ color:#f5d77a!important }
+  html body .vipRide__locPicker .vipRide__locPicker__back svg{ width:22px!important; height:18px!important }
   html body .vrm-lpHead__title{
     flex:1 1 auto; margin-right:38px; text-align:center;
     font-family:'Poppins','Inter',sans-serif; font-size:17px; font-weight:700; color:#fff;
@@ -9001,6 +9042,12 @@ html body #vipMpFooterSugs{
     background:rgba(255,255,255,.08)!important; color:#f5d77a!important;
   }
   html body .vipRide__locPicker .vipRide__locPicker__shortcutIcon svg{ width:19px!important; height:19px!important }
+  /* sin brillos ni degradados en los iconos de la lista */
+  html body .vipRide__locPicker .vipRide__locPicker__shortcutIcon,
+  html body .vipRide__locPicker .vipRide__lpSavedIcon,
+  html body .vipRide__locPicker .vipRide__lpRecentIcon{
+    filter:none!important; text-shadow:none!important; background-image:none!important;
+  }
   html body .vipRide__locPicker .vipRide__lpSavedChip > span:last-child,
   html body .vipRide__locPicker .vipRide__lpRecentText,
   html body .vipRide__locPicker .vipRide__locPicker__shortcutTitle{
@@ -9683,6 +9730,21 @@ html body #vipMpFooterSugs{
     if (b) b.classList.toggle('is-set', !!txt);
   }
 
+  /* con el buscador abierto la página es suya: se retira la barra del menú.
+     Va con observador y no con el repaso periódico para que el cambio sea
+     instantáneo y no se vea la cabecera medio segundo. */
+  function watchFull() {
+    var lp = q('[data-vipride-locpicker]');
+    if (!lp || lp.__vrmWatched) return;
+    lp.__vrmWatched = 1;
+    var sync = function () {
+      var on = mq.matches && !lp.hasAttribute('hidden');
+      if (document.body.classList.contains('vrm-full') !== on) document.body.classList.toggle('vrm-full', on);
+    };
+    new MutationObserver(sync).observe(lp, { attributes: true, attributeFilter: ['hidden'] });
+    sync();
+  }
+
   /* cabecera del buscador: el botón de atrás sube a una fila con el título,
      como en la app (se mueve el botón, así conserva su listener) */
   function lpHead() {
@@ -9725,29 +9787,36 @@ html body #vipMpFooterSugs{
     host.parentNode.insertBefore(pills, host);
   }
 
-  /* en el paso 1 el mapa es una tarjeta bajo el cuadro: hay que decirle dónde
-     empieza. Mapbox se reencuadra solo al oír un resize. */
-  var _nudge = null;
-  function nudgeMap() {
-    clearTimeout(_nudge);
-    _nudge = setTimeout(function () { try { window.dispatchEvent(new Event('resize')); } catch (_) {} }, 60);
+  /* En el paso 1 el mapa es una tarjeta bajo el cuadro: hay que decirle dónde
+     empieza y cuánto mide.
+     Dos cuidados, porque cada uno costó un bug:
+     1) las medidas van en el sistema de la sección (offsetTop), no del
+        viewport: en el teléfono la sección se sube con margen negativo para
+        meterse bajo la cabecera, y mezclar los dos sistemas dejaba el mapa
+        varios píxeles más abajo de la cuenta;
+     2) nada de disparar un resize. El motor recoloca la sección al oírlo, eso
+        cambiaba la medida, que disparaba otro resize... y el contenido subía
+        y bajaba sin parar. Mapbox ya se reencuadra solo con su ResizeObserver
+        cuando el contenedor cambia de tamaño. */
+  function setVar(el, name, px) {
+    var v = px + 'px';
+    if (el.style.getPropertyValue(name) !== v) el.style.setProperty(name, v);
   }
   function mapCard() {
     var sec = q('.vipRide'), sheet = q('[data-vipride-sheet]');
     if (!sec || !sheet) return;
     var one = sheet.getAttribute('data-vipride-step') === '1';
+    if (sec.classList.contains('vrm-step1') !== one) sec.classList.toggle('vrm-step1', one);
     /* con un overlay abierto la hoja se desplaza y se apaga: su medida no sirve */
-    if (one && !sheet.classList.contains('is-test-hidden')) {
-      var top = Math.round(sheet.getBoundingClientRect().bottom) + 4;
-      if (top > 80 && sec.style.getPropertyValue('--vrm-map-top') !== top + 'px') {
-        sec.style.setProperty('--vrm-map-top', top + 'px');
-        nudgeMap();
-      }
-    }
-    if (sec.classList.contains('vrm-step1') !== one) {
-      sec.classList.toggle('vrm-step1', one);
-      nudgeMap();
-    }
+    if (!one || sheet.classList.contains('is-test-hidden')) return;
+    var top = sheet.offsetTop + sheet.offsetHeight + 8;
+    /* el borde de abajo de lo que se ve, también en coordenadas de la sección:
+       la sección es más alta que la pantalla y si no, el mapa se salía */
+    var visible = window.innerHeight - sec.getBoundingClientRect().top;
+    var h = Math.round(visible - top - 12);
+    if (top < 40 || h < 140) return;
+    setVar(sec, '--vrm-map-top', top);
+    setVar(sec, '--vrm-map-h', h);
   }
 
   function buildPills() {
@@ -9784,6 +9853,7 @@ html body #vipMpFooterSugs{
   function tick() {
     if (!mq.matches) return;
     wireFields();
+    watchFull();
     buildPills();
     place();
     syncWhen();
@@ -9792,6 +9862,7 @@ html body #vipMpFooterSugs{
   function toDesktop() {
     unwireFields();
     closeMenu();
+    document.body.classList.remove('vrm-full');
     if (pills && pills.parentNode) pills.parentNode.removeChild(pills);
     pills = null;
     var sec = q('.vipRide');

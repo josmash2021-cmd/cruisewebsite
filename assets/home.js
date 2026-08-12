@@ -2076,8 +2076,16 @@
 })();
 
 /* ---- botón WhatsApp: al llegar al footer vuela y se acopla junto a las
-   redes sociales (mismo aro que fb/ig); al subir vuelve a su esquina ---- */
+   redes sociales (mismo aro que fb/ig); al subir vuelve a su esquina.
+   OJO: el <a class="wa-fab"> va DESPUÉS de este script en el HTML, así que
+   hay que esperar a DOMContentLoaded para encontrarlo ---- */
 (function () {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+  function start() {
   var fab = document.querySelector('.wa-fab');
   var slot = document.querySelector('.cf-wa-slot');
   if (!fab || !slot || !('IntersectionObserver' in window)) return;
@@ -2111,7 +2119,8 @@
     else { fab.style.transform = ''; }
   }
   new IntersectionObserver(function (es) {
-    setDocked(es[0].isIntersecting);
+    setDocked(es[es.length - 1].isIntersecting);
   }, { rootMargin: '0px 0px -6px 0px' }).observe(slot.parentNode);
   window.addEventListener('resize', function () { base = null; }, { passive: true });
+  }
 })();

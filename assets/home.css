@@ -793,7 +793,9 @@ a.h-store { text-decoration: none; }
     position: static;
     order: 2;
     width: 100%;
-    margin: 44px 0 0;
+    /* el texto sube, pero los botones se quedan donde estaban: lo que sube el
+       hero se compensa aquí */
+    margin: 94px 0 0;
     overflow: hidden;
     max-height: 220px;
     transition: opacity 1.1s cubic-bezier(.22, 1, .36, 1),
@@ -821,7 +823,7 @@ a.h-store { text-decoration: none; }
   /* el contenido de la fase 1 arranca justo debajo de los botones de las
      tiendas, con aire suficiente para no pegarse al menú; el hero deja de
      forzar la altura de pantalla para no dejar un hueco negro debajo */
-  .hero { padding-top: 268px; }
+  .hero { padding-top: 218px; }
   /* en la fase 2 el panel sube: el hueco se libera justo cuando la fase 1
      se pliega (mismo retardo), así no hay doble salto */
   .hero { transition: padding-top .01s linear .75s; }
