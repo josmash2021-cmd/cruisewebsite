@@ -751,22 +751,14 @@ a.h-store { text-decoration: none; }
     -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 58%, transparent);
             mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 58%, transparent);
   }
-  /* orden en teléfono: CTAs → botones de descarga juntos → badges al final, centrados */
-  .h-col--right { gap: 16px; }
-  .h-buttons { order: 1; }
+  /* teléfono: sin badges; CTAs y botones de descarga van más abajo,
+     con un poco de aire entre los dos grupos */
+  .h-badges { display: none; }
+  .h-col--right { gap: 22px; }
+  .h-buttons { order: 1; margin-top: 30px; }
   .h-col--right .h-stores { order: 2; }
-  .h-badges { order: 3; margin-top: 10px; justify-content: center; }
-  /* insignias en UNA sola fila y botones compactos en horizontal */
+  /* botones compactos en horizontal */
   .h-col--right { width: 100%; }
-  .h-badges { flex-wrap: nowrap; justify-content: center; gap: 6px; }
-  .h-badge {
-    padding: 7px clamp(6px, 1.8vw, 10px);
-    font-size: clamp(8.5px, 2.55vw, 10px);
-    gap: 4px;
-    white-space: nowrap;
-    letter-spacing: 0;
-  }
-  .h-badge svg { width: 12px; height: 12px; flex: 0 0 12px; }
   .h-buttons { width: 100%; flex-wrap: nowrap; gap: 10px; }
   .h-buttons .btn-gold,
   .h-buttons .btn-ghost {
