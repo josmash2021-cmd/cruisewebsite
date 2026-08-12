@@ -910,62 +910,40 @@ img,video{-webkit-user-drag:none}
     }).catch(function(e){_toast(e.message||'Auth failed','err');});
   }
   if(GOOGLE_ID){var gs=document.createElement('script');gs.src='https://accounts.google.com/gsi/client';gs.async=true;gs.defer=true;document.head.appendChild(gs);}
-  function _googleSignIn(){
+  /* Botón real de Google, invisible, ENCIMA del botón propio: el clic del
+     usuario cae directo en Google (un solo clic, una sola ventana, devuelve
+     el JWT que el backend verifica con verify_id_token). Sin One Tap: en
+     Chrome moderno se abre y se cierra solo y deja el botón sin responder. */
+  var _gMounted=false,_gTries=0;
+  function _mountGoogle(){
+    if(!GOOGLE_ID||_gMounted)return;
+    if(!(window.google&&window.google.accounts&&window.google.accounts.id)){if(_gTries++<150)setTimeout(_mountGoogle,200);return;}
+    _gMounted=true;
     try{
-      if(!GOOGLE_ID){_toast('Google not configured','err');return;}
-      /* Si el script aún no cargó, esperamos hasta 3s */
-      var tries=0;
-      function tryInit(){
-        if(window.google&&window.google.accounts&&window.google.accounts.id){
-          try{
-            /* initialize + prompt devuelve el ID_TOKEN (JWT) que el backend necesita,
-               NO access_token. El backend hace verify_id_token sobre este JWT. */
-            window.google.accounts.id.initialize({
-              client_id:GOOGLE_ID,
-              callback:function(resp){
-                if(resp&&resp.credential){_socialAuth('google',resp.credential);}
-                else{_toast('Google sign-in cancelled','err');}
-              },
-              auto_select:false,
-              cancel_on_tap_outside:true
-            });
-            window.google.accounts.id.prompt(function(notification){
-              /* Si One Tap no se muestra (bloqueado), fallback a popup OAuth2 flow */
-              if(notification.isNotDisplayed()||notification.isSkippedMoment()){
-                /* Fallback: botón oculto que dispara el popup */
-                try{
-                  var tempDiv=document.createElement('div');
-                  tempDiv.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2147483647;';
-                  document.body.appendChild(tempDiv);
-                  window.google.accounts.id.renderButton(tempDiv,{type:'standard',theme:'filled_black',size:'large',text:'signin_with',shape:'pill'});
-                  /* Click automático */
-                  setTimeout(function(){
-                    var btn=tempDiv.querySelector('[role="button"]');
-                    if(btn) btn.click();
-                    setTimeout(function(){try{document.body.removeChild(tempDiv);}catch(_){}},8000);
-                  },100);
-                }catch(e2){_toast('Google popup blocked. Allow popups and try again.','err');}
-              }
-            });
-          }catch(e){_toast('Google error: '+(e.message||'init failed'),'err');}
-          return;
-        }
-        if(tries++<30){setTimeout(tryInit,100);}
-        else{_toast('Google script did not load','err');}
-      }
-      /* Cargar el script si no está */
-      if(!window.google||!window.google.accounts){
-        if(!document.querySelector('script[src*="accounts.google.com/gsi"]')){
-          var gs=document.createElement('script');
-          gs.src='https://accounts.google.com/gsi/client';
-          gs.async=true;
-          gs.defer=true;
-          document.head.appendChild(gs);
-        }
-        _toast('Loading Google…','ok');
-      }
-      tryInit();
-    }catch(e){_toast('Google error: '+(e.message||e),'err');}
+      window.google.accounts.id.initialize({client_id:GOOGLE_ID,callback:function(resp){
+        if(resp&&resp.credential)_socialAuth('google',resp.credential);
+        else _toast('Google sign-in cancelled','err');
+      },auto_select:false,cancel_on_tap_outside:true});
+      document.querySelectorAll('[data-ca-signin-google],[data-ca-intro-google]').forEach(function(b){
+        if(b._gOv)return;b._gOv=true;
+        if(getComputedStyle(b).position==='static')b.style.position='relative';
+        var host=document.createElement('div');
+        host.setAttribute('aria-hidden','true');
+        host.style.cssText='position:absolute;left:0;top:0;width:400px;height:44px;opacity:0.001;overflow:hidden;transform-origin:0 0;z-index:3;';
+        b.appendChild(host);
+        window.google.accounts.id.renderButton(host,{type:'standard',size:'large',text:'continue_with',width:400});
+        var fit=function(){var w=b.clientWidth,h=b.clientHeight;if(w&&h)host.style.transform='scale('+(w/400)+','+(h/44)+')';};
+        fit();addEventListener('resize',fit);setInterval(fit,700);
+      });
+    }catch(_){_gMounted=false;}
+  }
+  _mountGoogle();
+  function _googleSignIn(){
+    /* respaldo por si el botón real no pudo montarse (red, bloqueadores) */
+    if(!GOOGLE_ID){_toast('Google not configured','err');return;}
+    if(!(window.google&&window.google.accounts&&window.google.accounts.oauth2)){_toast('Google is still loading…','ok');_mountGoogle();return;}
+    var c=window.google.accounts.oauth2.initTokenClient({client_id:GOOGLE_ID,scope:'openid email profile',callback:function(r){if(r&&r.access_token)_socialAuth('google',r.access_token);}});
+    c.requestAccessToken();
   }
   function _decodeJwtPayload(jwt){
     try{

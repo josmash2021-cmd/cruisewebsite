@@ -678,6 +678,7 @@ img,video{-webkit-user-drag:none}
           <span class="cruise-auth__choice-head">Llave de acceso <span class="cruise-auth__radio"></span></span>
           <span class="cruise-auth__choice-desc">Las llaves de acceso te permiten entrar con tu cara, tu huella o el PIN de tu dispositivo.</span>
         </button>
+        <button type="button" data-ca-sec-skip style="display:block;margin:14px auto 0;background:none;border:0;color:rgba(236,238,242,.55);font:600 14px Inter,sans-serif;cursor:pointer;text-decoration:underline;text-underline-offset:3px">Omitir</button>
         <div class="cruise-auth__err" data-ca-sec-err></div>
         <div class="cruise-auth__nav-btns">
           <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--back" data-ca-sec-back2 aria-label="Volver">
@@ -933,16 +934,40 @@ img,video{-webkit-user-drag:none}
     }).catch(function(e){_toast(e.message||'Error de autenticación','err');});
   }
   if(GOOGLE_ID){var gs=document.createElement('script');gs.src='https://accounts.google.com/gsi/client';gs.async=true;gs.defer=true;document.head.appendChild(gs);}
+  /* Botón real de Google, invisible, ENCIMA del botón propio: el clic del
+     usuario cae directo en Google (un solo clic, una sola ventana, devuelve
+     el JWT que el backend verifica). Sin One Tap: en Chrome moderno se abre
+     y se cierra solo y deja el botón sin responder un rato. */
+  var _gMounted=false,_gTries=0;
+  function _mountGoogle(){
+    if(!GOOGLE_ID||_gMounted)return;
+    if(!(window.google&&window.google.accounts&&window.google.accounts.id)){if(_gTries++<150)setTimeout(_mountGoogle,200);return;}
+    _gMounted=true;
+    try{
+      window.google.accounts.id.initialize({client_id:GOOGLE_ID,callback:function(resp){
+        if(resp&&resp.credential)_socialAuth('google',resp.credential);
+        else _toast('Inicio con Google cancelado','err');
+      }});
+      document.querySelectorAll('[data-ca-id-google],[data-ca-sheet-google]').forEach(function(b){
+        if(b._gOv)return;b._gOv=true;
+        if(getComputedStyle(b).position==='static')b.style.position='relative';
+        var host=document.createElement('div');
+        host.setAttribute('aria-hidden','true');
+        host.style.cssText='position:absolute;left:0;top:0;width:400px;height:44px;opacity:0.001;overflow:hidden;transform-origin:0 0;z-index:3;';
+        b.appendChild(host);
+        window.google.accounts.id.renderButton(host,{type:'standard',size:'large',text:'continue_with',width:400});
+        var fit=function(){var w=b.clientWidth,h=b.clientHeight;if(w&&h)host.style.transform='scale('+(w/400)+','+(h/44)+')';};
+        fit();addEventListener('resize',fit);setInterval(fit,700);
+      });
+    }catch(_){_gMounted=false;}
+  }
+  _mountGoogle();
   function _googleSignIn(){
+    /* respaldo por si el botón real no pudo montarse (red, bloqueadores) */
     if(!GOOGLE_ID){_toast('Google no configurado','err');return;}
-    if(!window.google||!window.google.accounts){_toast('Cargando Google, inténtalo de nuevo…','ok');return;}
-    window.google.accounts.id.initialize({client_id:GOOGLE_ID,callback:function(resp){_socialAuth('google',resp.credential);}});
-    window.google.accounts.id.prompt(function(n){
-      if(n.isNotDisplayed()||n.isSkippedMoment()){
-        var client=window.google.accounts.oauth2.initTokenClient({client_id:GOOGLE_ID,scope:'openid email profile',callback:function(resp){if(resp.access_token)_socialAuth('google',resp.access_token);}});
-        client.requestAccessToken();
-      }
-    });
+    if(!(window.google&&window.google.accounts&&window.google.accounts.oauth2)){_toast('Google aún está cargando…','ok');_mountGoogle();return;}
+    var c=window.google.accounts.oauth2.initTokenClient({client_id:GOOGLE_ID,scope:'openid email profile',callback:function(r){if(r&&r.access_token)_socialAuth('google',r.access_token);}});
+    c.requestAccessToken();
   }
   function _appleSignIn(){
     if(!APPLE_ID){_toast('Apple no configurado','err');return;}
@@ -1421,6 +1446,13 @@ img,video{-webkit-user-drag:none}
     }
     _go('phone');
   });
+  /* Omitir: crea la cuenta ya, sin pedir teléfono */
+  var secSkip=$('[data-ca-sec-skip]');
+  if(secSkip) secSkip.addEventListener('click',function(){
+    if(secErr){secErr.textContent='';secErr.classList.remove('is-visible');}
+    secSkip.disabled=true;setTimeout(function(){secSkip.disabled=false;},4000);
+    _doRegister();
+  });
 
   /* ── Número de teléfono ── */
   var phCc=$('[data-ca-ph-cc]');
@@ -1452,7 +1484,7 @@ img,video{-webkit-user-drag:none}
     var body={first_name:regFn.value.trim(),last_name:regLn.value.trim(),password:regPw.value,role:'rider'};
     if(_idType==='email'){body.email=_identifier;if(extraPhone) body.phone=extraPhone;}
     else body.phone=_identifier;
-    var errBox=extraPhone?phErr:regErr;
+    var errBox=extraPhone?phErr:(_currentScreen==='security'?secErr:regErr);
     var btn=extraPhone?phSubmit:termsNext;
     if(btn) btn.disabled=true;
     if(errBox){errBox.textContent='';errBox.classList.remove('is-visible');}
