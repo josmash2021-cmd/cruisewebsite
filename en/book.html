@@ -9823,7 +9823,14 @@ html body #vipMpFooterSugs{
     var sec = q('.vipRide'), sheet = q('[data-vipride-sheet]');
     if (!sec || !sheet) return;
     var one = sheet.getAttribute('data-vipride-step') === '1';
-    if (sec.classList.contains('vrm-step1') !== one) sec.classList.toggle('vrm-step1', one);
+    if (sec.classList.contains('vrm-step1') !== one) {
+      sec.classList.toggle('vrm-step1', one);
+      /* el lienzo de Mapbox no se entera solo de que el contenedor cambió de
+         tamaño (se quedaba con el ancho de la tarjeta y dejaba una franja
+         negra en el paso 3): un aviso, y solo al cambiar de paso. Nunca al
+         recalcular medidas, que es lo que realimentaba el bucle. */
+      try { window.dispatchEvent(new Event('resize')); } catch (_) {}
+    }
     /* con un overlay abierto la hoja se desplaza y se apaga: su medida no sirve */
     if (!one || sheet.classList.contains('is-test-hidden')) return;
     var top = sheet.offsetTop + sheet.offsetHeight + 8;
