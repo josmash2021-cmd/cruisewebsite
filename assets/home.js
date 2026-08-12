@@ -2031,8 +2031,8 @@
   var medias = Array.prototype.slice.call(document.querySelectorAll('.sv-media'));
   if (!medias.length) return;
   var CLIP = 14;     /* % de recorte inicial por lado */
-  var RAD_MAX = 44;  /* radio con la foto cerrada */
-  var RAD_MIN = 12;  /* radio final (= border-radius base de .sv-img) */
+  var RAD_MAX = 58;  /* radio con la foto cerrada */
+  var RAD_MIN = 40;  /* radio final (= border-radius base de .sv-img) */
   var pend = false;
   var update = function () {
     pend = false;

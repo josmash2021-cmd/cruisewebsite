@@ -816,42 +816,63 @@ a.h-store { text-decoration: none; }
   aspect-ratio: 1 / 1;
   object-fit: cover;
   object-position: center;
-  border-radius: 12px;
+  border-radius: 40px;
 }
 
-/* elevación: las fotos/videos de servicios "flotan" sobre el fondo negro.
-   Sobre negro una sombra oscura no se ve, así que la flotación la dan un
-   aro dorado fino y un resplandor cálido que cae hacia abajo */
-.sv-img,
-.sv-loop {
-  box-shadow:
-    0 0 0 1px rgba(212, 175, 55, .25),
-    0 8px 22px rgba(212, 175, 55, .10),
-    0 24px 52px -12px rgba(212, 175, 55, .20);
-}
-
-/* botón incrustado en la esquina inferior derecha de la foto, dentro de una
-   muesca curva (referencia "Workspace"): placa del color del fondo + dos
-   esquinas cóncavas hechas con degradado radial */
 .sv-media { position: relative; will-change: clip-path; }
+
+/* línea que rodea la foto siguiendo sus esquinas redondas; la placa dorada
+   queda por encima, así que la línea muere en la muesca (el botón no forma
+   parte del marco de la foto) */
+.sv-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border: 1px solid rgba(212, 175, 55, .45);
+  border-radius: 40px;
+  pointer-events: none;
+}
+
+/* muesca dorada estilo pestaña en la esquina inferior derecha (referencia
+   "Workspace" de zoox): la pestaña ES el botón — sin caja interior — y las
+   dos curvas cóncavas que la funden con la foto se hacen con degradado
+   radial del mismo dorado */
 .sv-plate {
   position: absolute;
   right: 0; bottom: 0;
-  z-index: 2;
-  line-height: 0;
-  background: var(--bg);
-  padding: 12px 0 0 12px;
-  border-top-left-radius: 24px;
+  z-index: 3;
+  width: 52%;
+  height: 19%;
+  background: #d4af37;
+  border-radius: 28px 0 40px 0;
 }
 .sv-plate::before,
 .sv-plate::after {
   content: '';
   position: absolute;
-  width: 20px; height: 20px;
-  background: radial-gradient(circle at 0 0, rgba(0, 0, 0, 0) 20px, var(--bg) 20.5px);
+  width: 26px; height: 26px;
+  background: radial-gradient(circle at 0 0, rgba(0, 0, 0, 0) 26px, #d4af37 26.5px);
 }
-.sv-plate::before { right: 0; top: -20px; }
-.sv-plate::after { left: -20px; bottom: 0; }
+.sv-plate::before { right: 0; top: -26px; }
+.sv-plate::after { left: -26px; bottom: 0; }
+/* el enlace llena la pestaña: texto directo sobre el dorado */
+.sv-plate .sv-btn {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  text-shadow: none;
+  border-radius: inherit;
+  color: #241c05;
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: .05em;
+}
+.sv-plate .sv-btn::before,
+.sv-plate .sv-btn::after { display: none; }
+.sv-plate:hover { filter: brightness(1.07); }
 
 /* vídeo en bucle: dos capas identicas que se funden en el punto de corte,
    de modo que el reinicio no se nota (home.js hace el relevo) */
@@ -859,7 +880,7 @@ a.h-store { text-decoration: none; }
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
-  border-radius: 12px;
+  border-radius: 40px;
   overflow: hidden;
   background: #0a0a0a;
 }
