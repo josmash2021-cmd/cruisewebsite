@@ -6742,12 +6742,26 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
      si los dos pines y el trazo caen dentro de lo que se ve; si no, se vuelve a
      encuadrar con las medidas de AHORA. Tope de 3 correcciones cada 6 s para que
      nunca pueda convertirse en un bucle. */
+  /* ¿está abierta la tarjeta de buscar chofer / viaje en curso? Esa pantalla
+     tiene SU PROPIO encuadre (camPad, que mide la tarjeta de verdad). El
+     vigilante del paso 3 mide contra la hoja de vehículos —que ahí está
+     escondida— y, si se deja suelto, vuelve a encuadrar como si la pantalla
+     entera fuera visible: el final de la ruta acababa detrás de la tarjeta. */
+  function _vrCardOpen(){
+    try{
+      if(window.__vrTripLive)return true;
+      if(root&&root.classList&&root.classList.contains('is-searching'))return true;
+      var o=root&&root.querySelector('[data-vipride-test-confirm]');
+      return !!(o&&!o.hasAttribute('hidden'));
+    }catch(_){return false;}
+  }
   var _vfTries=0,_vfAt=0,_vfT=null;
   function _verifyRouteFit(){
     clearTimeout(_vfT);
     _vfT=setTimeout(function(){
       try{
         if(!map||currentStep!==3||window.__vrTripLive||!pickupPlace||!dropoffPlace)return;
+        if(_vrCardOpen())return;
         var vb=map.getBounds();
         var pts=[[pickupPlace.lng,pickupPlace.lat],[dropoffPlace.lng,dropoffPlace.lat]];
         try{(window.__vrRouteCoords||[]).forEach(function(cc){pts.push(cc);});}catch(_){}
@@ -6774,6 +6788,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
   setInterval(function(){
     try{
       if(!map||innerWidth>=900||currentStep!==3||window.__vrTripLive)return;
+      if(_vrCardOpen())return;
       if(!pickupPlace||!dropoffPlace||document.hidden)return;
       if(map.isMoving&&map.isMoving())return;
       var ct=map.getContainer(),sig=(ct?ct.clientWidth:0)+'x'+(ct?ct.clientHeight:0);
@@ -6801,6 +6816,8 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
   },1200);
   function fitRouteBounds(){
     if(!map||!pickupPlace||!dropoffPlace)return;
+    /* con la tarjeta de buscar/viaje abierta manda el encuadre de esa pantalla */
+    if(_vrCardOpen()){try{if(window.__vrFitRoute)window.__vrFitRoute(700);}catch(_){}return;}
     clearTimeout(_fR);_fR=null;
     map.off('moveend',_fitTiltHandler);map.off('moveend',_fitRotateHandler);
     var b=new mapboxgl.LngLatBounds();b.extend([pickupPlace.lng,pickupPlace.lat]);b.extend([dropoffPlace.lng,dropoffPlace.lat]);try{(window.__vrRouteCoords||[]).forEach(function(cc){b.extend(cc);});}catch(_){}
