@@ -695,7 +695,10 @@ img,video{-webkit-user-drag:none}
   <div class="cruise-auth__inner">
 
     <!-- ═══════════════════════════════════ GATE (not logged in) ═══════════════════════════════════ -->
-    <section class="cruise-auth__screen cruise-auth__gate is-active" data-ca-screen="gate">
+    <!-- FUERA DEL FLUJO: portada de registro propia de esta página (la del "20% off").
+     El acceso de la web es siempre auth; nada la activa ya. Se conserva el
+     marcado inerte porque varios manejadores consultan sus elementos. -->
+    <section class="cruise-auth__screen cruise-auth__gate" data-ca-screen="gate" hidden>
       <div class="cruise-auth__card">
         <div class="cruise-auth__badge">
           <span>Limited offer</span>
@@ -1305,7 +1308,7 @@ img,video{-webkit-user-drag:none}
   /* Back button — wizard back within signup, or exit to gate */
   $('[data-ca-wiz-back]').addEventListener('click',function(){
     if(_wizState.step>0){_wizGo(_wizState.step-1);}
-    else{_go('gate');}
+    else{location.replace('auth');}
   });
 
   /* ════════════════ SIGN IN ════════════════ */
@@ -1483,7 +1486,7 @@ img,video{-webkit-user-drag:none}
         $('[data-ca-scheduled-list]').innerHTML='<div class="cruise-auth__empty">No scheduled rides</div>';
       });
     }).catch(function(e){
-      if(e.status===401||e.status===403){_clear();_currentScreen='profile';_go('gate');}
+      if(e.status===401||e.status===403){_clear();location.replace('auth');}
     });
   }
 
@@ -1664,26 +1667,8 @@ img,video{-webkit-user-drag:none}
   $('[data-ca-signout]').addEventListener('click',function(){
     _clear();_profile=null;_tripsCache=null;
     _toast('Signed out','ok');
-    _currentScreen='profile';
-    setTimeout(function(){
-      _showSub('home');
-      _go('gate');
-      /* Re-trigger gate card animation */
-      var gateCard=root.querySelector('.cruise-auth__card');
-      if(gateCard){
-        gateCard.style.animation='none';
-        requestAnimationFrame(function(){
-          gateCard.style.animation='';
-          _staggerChildren(gateCard,200);
-        });
-      }
-      var idEl=root.querySelector('[data-ca-signin-id]');
-      var pwEl=root.querySelector('[data-ca-signin-pass]');
-      if(idEl) idEl.value='';
-      if(pwEl) pwEl.value='';
-      var errEl=root.querySelector('[data-ca-signin-err]');
-      if(errEl){errEl.textContent='';errEl.classList.remove('is-visible');}
-    },100);
+    /* al cerrar sesión se sale a la portada, no a la pantalla de acceso propia */
+    setTimeout(function(){location.replace('../en/');},350);
   });
 
   /* ════════════════ EVENT DELEGATION GLOBAL (backup para todos los botones) ════════════════
@@ -1709,8 +1694,8 @@ img,video{-webkit-user-drag:none}
       ev.preventDefault();
       if(typeof _wizGo==='function'){
         if(_wizState&&_wizState.step>0){_wizGo(_wizState.step-1);}
-        else{_go('gate');}
-      }else{_go('gate');}
+        else{location.replace('auth');}
+      }else{location.replace('auth');}
       return;
     }
     /* Google / Apple signin */
@@ -1770,7 +1755,9 @@ img,video{-webkit-user-drag:none}
     _go('profile');
     _showSub(location.hash==='#scheduled'?'scheduled':location.hash==='#payments'?'payments':'trips');
   } else {
-    _cpRestore();
+    /* Sin sesión no se enseña la portada de esta página (la del "20% off"):
+       el acceso es siempre el de auth. */
+    location.replace('auth');
   }
 
   /* Safety net: tras 2.5s, marcar como ready → fuerza visible cualquier hijo que haya quedado con opacity:0 */
