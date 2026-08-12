@@ -6723,6 +6723,34 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     return(s&&s.offsetHeight>0&&!s.classList.contains('is-test-hidden'))?s.offsetHeight:Math.round(window.innerHeight*0.58);
   }
   var _fR=null;
+  /* SEGURO de que la ruta se ve entera.
+     El encuadre se calcula con las medidas del momento, y en el teléfono esas
+     medidas cambian después (la franja del mapa se recalcula cuando la hoja de
+     vehículos se acomoda). Cuando eso pasa, la cámara se queda como estaba y la
+     ruta se sale por arriba. Aquí, al terminar el vuelo, se comprueba de verdad
+     si los dos pines y el trazo caen dentro de lo que se ve; si no, se vuelve a
+     encuadrar con las medidas de AHORA. Tope de 3 correcciones cada 6 s para que
+     nunca pueda convertirse en un bucle. */
+  var _vfTries=0,_vfAt=0,_vfT=null;
+  function _verifyRouteFit(){
+    clearTimeout(_vfT);
+    _vfT=setTimeout(function(){
+      try{
+        if(!map||currentStep!==3||window.__vrTripLive||!pickupPlace||!dropoffPlace)return;
+        var vb=map.getBounds();
+        var pts=[[pickupPlace.lng,pickupPlace.lat],[dropoffPlace.lng,dropoffPlace.lat]];
+        try{(window.__vrRouteCoords||[]).forEach(function(cc){pts.push(cc);});}catch(_){}
+        var out=false;
+        for(var i=0;i<pts.length;i++){if(!vb.contains(pts[i])){out=true;break;}}
+        if(!out)return;
+        var now=Date.now();
+        if(now-_vfAt>6000)_vfTries=0;
+        if(_vfTries>=3)return;
+        _vfAt=now;_vfTries++;
+        fitRouteBounds();
+      }catch(_){}
+    },420);
+  }
   function fitRouteBounds(){
     if(!map||!pickupPlace||!dropoffPlace)return;
     clearTimeout(_fR);_fR=null;
@@ -6771,7 +6799,10 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     if(!c){_fR=setTimeout(fitRouteBounds,300);return;}
     window.__vrFlying=true;
     if(root&&root.classList)root.classList.add('is-flying');
-    function _endFly(){ window.__vrFlying=false; if(root&&root.classList)root.classList.remove('is-flying'); }
+    function _endFly(){
+      window.__vrFlying=false; if(root&&root.classList)root.classList.remove('is-flying');
+      _verifyRouteFit();
+    }
     /* transicion directa y suave: la camara va derecho, sin alejarse y acercarse */
     map.once('moveend',_endFly);
     map.easeTo({
