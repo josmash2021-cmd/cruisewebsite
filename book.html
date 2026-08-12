@@ -3521,6 +3521,7 @@ window.__VR_AIRPORTS = [
     rcNone:'Sin resultados. Prueba con otra dirección.',
     driverBailed:'El chofer canceló. Buscando otro chofer…',
     meet:'Ya estoy con mi chofer',meetSent:'Le avisamos a tu chofer.',
+    meetFail:'No se pudo avisar al chofer. Llámalo.',
     rateTitle:'¿Qué tal tu viaje?',rateSub:'Califica tu viaje con {n}',
     ratePh:'Deja un comentario (opcional)',rateSend:'Enviar calificación',rateSkip:'Ahora no',
     rateOk:'¡Gracias por calificar!',rateFail:'No se pudo enviar la calificación.',
@@ -3556,6 +3557,7 @@ window.__VR_AIRPORTS = [
     rcNone:'No results. Try another address.',
     driverBailed:'Your driver cancelled. Finding you another driver…',
     meet:"I'm with my driver",meetSent:'We let your driver know.',
+    meetFail:'Could not reach your driver. Please call them.',
     rateTitle:'How was your ride?',rateSub:'Rate your ride with {n}',
     ratePh:'Leave a comment (optional)',rateSend:'Submit rating',rateSkip:'Not now',
     rateOk:'Thanks for rating!',rateFail:'Could not send the rating.',
@@ -4135,13 +4137,30 @@ window.__VR_AIRPORTS = [
         rateSent=true;toast(T.rateOk,'ok');forget();close();})
       .catch(function(){if(sb)sb.disabled=false;toast(T.rateFail,'err');});
   }
-  /* el pasajero confirma que ya está con el chofer: se le avisa por el chat,
-     que es el canal que además le dispara push en su app */
+  /* el pasajero confirma que ya está con el chofer. El servidor escribe la
+     bandera rider_confirmed_pickup en el viaje: la pantalla del chofer la
+     escucha en vivo y cambia "Esperando al pasajero" por INICIAR VIAJE al
+     instante (más un push). Si el servidor no la acepta, se cae al chat,
+     que era el único canal hasta ahora. */
   function meetDriver(){
     var b=q('[data-vrtrip-meet]');
     if(b){b.disabled=true;b.textContent=T.meetSent;}
     var line=es?'El pasajero confirmó que ya está contigo.':'The rider confirmed they are with you now.';
-    Promise.resolve(sendMsg(line)).then(function(){toast(T.meetSent,'ok');}).catch(function(){});
+    var byChat=function(){
+      var p=sendMsg(line);
+      if(!p){if(b){b.disabled=false;b.textContent=T.meet;}toast(T.meetFail,'err');return;}
+      /* sendMsg ya avisa por su cuenta si el envío falla */
+      Promise.resolve(p).then(function(){toast(T.meetSent,'ok');}).catch(function(){});
+    };
+    if(!bid||!api){byChat();return;}
+    fetch(api+'/bookings/web/'+bid+'/rider-confirmed',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:'{}'
+    }).then(function(r){
+      if(!r.ok)throw new Error('http '+r.status);
+      toast(T.meetSent,'ok');
+    }).catch(function(){byChat();});
   }
   function wire(){
     if(started)return;started=true;
