@@ -7106,7 +7106,10 @@ setTimeout(_vrPfKick,1200);
                  queda abierto para escribirla. Ajustar el pin sigue disponible
                  a mano desde "Elegir en el mapa". */
               else if(innerWidth<900){
-                if(done)setTimeout(function(){closeLocPicker(true);setTimeout(function(){try{goToStep(3,'forward');computeRoute();setTimeout(fitRouteBounds,300);setTimeout(showMarkerLabels,2000)}catch(_){}},250)},150);
+                /* setNavBg(null) es imprescindible: la página del pin era quien
+                   devolvía la barra a fixed; sin esto quedaba en relative y
+                   empujaba toda la sección 65px hacia abajo */
+                if(done)setTimeout(function(){setNavBg(null);closeLocPicker(true);setTimeout(function(){try{goToStep(3,'forward');computeRoute();setTimeout(fitRouteBounds,300);setTimeout(showMarkerLabels,2000)}catch(_){}},250)},150);
                 else if(forWhich==='pickup'&&lpDropoffEl&&!lpDropoffEl.value.trim())setTimeout(function(){try{lpDropoffEl.focus()}catch(_){}},150);
                 else if(forWhich==='dropoff'&&lpPickupEl&&!lpPickupEl.value.trim())setTimeout(function(){try{lpPickupEl.removeAttribute('readonly');lpPickupEl.focus()}catch(_){}},150);
               }
@@ -9099,9 +9102,18 @@ html body #vipMpFooterSugs{
   /* ── "Elige un vehículo": misma composición que la referencia ──
      cabecera pequeña con su asa y una línea, y cada vehículo en una fila de
      tres columnas: foto | nombre y datos | precio arriba a la derecha. */
-  /* la hoja de vehículos termina en el borde visible, no en el de la sección */
+  /* paso 3 como la app: sin barra del sitio (visibility, no display: así el
+     layout no se mueve y el mapa ya llega arriba del todo por detrás), la
+     flecha flotante casi pegada al borde, y la hoja clavada al borde REAL de
+     la pantalla con position:fixed, a todo el ancho. Con fixed da igual cómo
+     se estire la sección o qué haga la barra del navegador del teléfono: el
+     botón de pedir ya no puede caer fuera de la vista. */
+  html body.vrm-nohdr .cruise-header{ visibility:hidden!important; pointer-events:none!important }
+  html body.vrm-nohdr .vipRide .vipRide__mapBackBtn{ top:calc(env(safe-area-inset-top,0px) + 14px)!important }
   html body .vipRide .vipRide__sheet[data-vipride-step="3"]{
-    bottom:calc(var(--vrm-over,0px) + 10px)!important;
+    position:fixed!important; left:0!important; right:0!important; bottom:0!important;
+    border-radius:20px 20px 0 0!important;
+    max-height:62svh!important;
   }
   html body .vipRide .vipRide__sheet[data-vipride-step="3"] .vipRide__handle{
     display:block!important; width:40px; height:4px; margin:0 auto 10px;
@@ -9161,7 +9173,7 @@ html body #vipMpFooterSugs{
     flex-direction:column!important; gap:8px!important;
     position:sticky!important; bottom:0!important; z-index:6!important;
     margin:10px 0 0!important;
-    padding:12px 0 calc(4px + env(safe-area-inset-bottom,0px))!important;
+    padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px))!important;
     background:#000!important; border:none!important;
     border-top:1px solid rgba(255,255,255,.1)!important;
     border-radius:0!important; box-shadow:none!important;
@@ -9664,6 +9676,18 @@ html body #vipMpFooterSugs{
     new MutationObserver(onStep).observe(sheet, {
       attributes: true, attributeFilter: ['data-vipride-step']
     });
+    /* si el ancho cruza el umbral con el paso 3 ya abierto (mirar la vista
+       móvil y volver a agrandar la ventana), el atributo no muta y la clase
+       vrd-step3 quedaba sin poner: el mapa seguía a todo lo ancho con la
+       lista encima. Al cruzar se reevalúa el paso y se reencuadra. */
+    function onCross() {
+      setTimeout(function () {
+        onStep();
+        if (mq.matches && sheet.getAttribute('data-vipride-step') === '3') setTimeout(reveal, 80);
+      }, 80);
+    }
+    try { mq.addEventListener('change', onCross); }
+    catch (_) { try { mq.addListener(onCross); } catch (_e) {} }
   })();
 
   hideBars();
@@ -9903,6 +9927,9 @@ html body #vipMpFooterSugs{
     var sec = q('.vipRide'), sheet = q('[data-vipride-sheet]');
     if (!sec || !sheet) return;
     var one = sheet.getAttribute('data-vipride-step') === '1';
+    /* en el paso 3 la barra del sitio se esconde: el mapa llega arriba del
+       todo y la flecha flota sobre él, como en la app */
+    document.body.classList.toggle('vrm-nohdr', !one);
     if (sec.classList.contains('vrm-step1') !== one) {
       sec.classList.toggle('vrm-step1', one);
       /* el lienzo de Mapbox no se entera solo de que el contenedor cambió de
@@ -9911,15 +9938,13 @@ html body #vipMpFooterSugs{
          recalcular medidas, que es lo que realimentaba el bucle. */
       try { window.dispatchEvent(new Event('resize')); } catch (_) {}
     }
-    /* el borde de abajo de lo que se ve, en coordenadas de la sección: la
-       sección se estira por debajo de la pantalla para meterse bajo la
-       cabecera, y ese sobrante hay que descontarlo o la hoja de vehículos
-       deja el botón de pedir fuera de la vista */
-    var visible = window.innerHeight - sec.getBoundingClientRect().top;
-    setVar(sec, '--vrm-over', Math.max(0, Math.round(sec.offsetHeight - visible)));
     /* con un overlay abierto la hoja se desplaza y se apaga: su medida no sirve */
     if (!one || sheet.classList.contains('is-test-hidden')) return;
     var top = sheet.offsetTop + sheet.offsetHeight + 8;
+    /* el borde de abajo de lo que se ve, en coordenadas de la sección: la
+       sección se estira por debajo de la pantalla para meterse bajo la
+       cabecera y, si no se descuenta, el mapa se salía por abajo */
+    var visible = window.innerHeight - sec.getBoundingClientRect().top;
     var h = Math.round(visible - top - 12);
     if (top < 40 || h < 140) return;
     setVar(sec, '--vrm-map-top', top);
@@ -9970,6 +9995,7 @@ html body #vipMpFooterSugs{
     unwireFields();
     closeMenu();
     document.body.classList.remove('vrm-full');
+    document.body.classList.remove('vrm-nohdr');
     if (pills && pills.parentNode) pills.parentNode.removeChild(pills);
     pills = null;
     var sec = q('.vipRide');
