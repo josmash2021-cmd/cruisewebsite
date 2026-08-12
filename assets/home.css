@@ -2104,19 +2104,18 @@ a.c-value:hover { color: var(--gold-light); }
   aspect-ratio: 1;
   padding: 18px;
   border-radius: var(--radius-sm);
-  /* mismo dorado que .btn-gold, para que la pieza pertenezca al sistema */
-  background: linear-gradient(145deg, #f2d577, #d4af37 55%, #b8922c);
+  /* minimalista: dorado plano y parejo, sin relieve ni luz lateral */
+  background: #d4af37;
   border: none;
-  box-shadow: var(--nm-raised);
+  box-shadow: none;
   transition: transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s ease;
 }
-/* el codigo sobre el relieve; el badge va en z-index 2, por encima de ambos */
 .aq-qr svg { position: relative; z-index: 1; display: block; width: 100%; height: 100%; }
 .aq-qr:hover {
   transform: translateY(-3px);
-  box-shadow: var(--nm-raised), 0 0 26px rgba(212, 175, 55, .18);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .35);
 }
-.aq-qr:active { transform: translateY(0); box-shadow: var(--nm-pressed); }
+.aq-qr:active { transform: translateY(0); box-shadow: none; }
 /* logo al centro: se apoya en la correccion de errores alta del codigo */
 .aq-qr__badge {
   position: absolute;
