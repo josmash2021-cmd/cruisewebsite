@@ -9527,17 +9527,32 @@ html body #vipMpFooterSugs{
 @media(max-width:899px){
   /* La hoja de elegir viaje se iba con un fundido de 380 ms mientras la de
      búsqueda entraba con otro de 500 ms: medio segundo con las DOS tarjetas
-     encimadas, y la de abajo asomando cortada por el borde. En el teléfono no
-     hay sitio para dos hojas: la de elegir viaje se va de golpe y deja de
-     ocupar espacio en cuanto se abre la pantalla de búsqueda. */
+     encimadas. En el teléfono no hay sitio para dos hojas: se va de golpe. */
   html body .vipRide__sheet.is-test-hidden{
     opacity:0!important; visibility:hidden!important;
     transform:none!important; transition:none!important;
   }
-  /* la tarjeta de búsqueda/viaje respeta la franja del gesto de inicio del
-     teléfono: sin esto su último botón queda debajo del indicador */
+  /* Y no basta con esa clase: por el camino (cerrar el buscador, el selector de
+     fecha, el mapa de recogida…) hay manejadores que se la quitan, y la hoja
+     reaparecía DETRÁS de la tarjeta de búsqueda — vacía, como un bloque negro
+     de media pantalla. Mientras la pantalla de búsqueda/viaje esté abierta la
+     hoja no existe, la tenga o no la tenga. */
+  html body:has(.vipRide__testConfirm:not([hidden])) .vipRide__sheet[data-vipride-sheet]{
+    opacity:0!important; visibility:hidden!important; pointer-events:none!important;
+    transform:none!important; transition:none!important;
+  }
+  /* la tarjeta se clava al borde REAL de la pantalla, igual que la hoja del
+     paso 3: colgada de la sección (position:absolute) la barra del navegador
+     del teléfono le cortaba el último botón. Y respeta la franja del gesto de
+     inicio. */
   html body .vipRide__testConfirm__phase2{
-    padding-bottom:calc(clamp(20px,5vw,32px) + env(safe-area-inset-bottom,0px))!important;
+    position:fixed!important; top:auto!important; left:0!important; right:0!important;
+    bottom:0!important; height:auto!important; max-height:100dvh!important;
+    padding:0 12px calc(clamp(12px,3.5vw,20px) + env(safe-area-inset-bottom,0px))!important;
+  }
+  /* el chat sí ocupa casi toda la pantalla, como en la app */
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet:has([data-vrtrip-pane="chat"]:not([hidden])){
+    height:82dvh!important;
   }
 }
 
