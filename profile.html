@@ -1493,10 +1493,9 @@ img,video{-webkit-user-drag:none}
     if(pmCard) _staggerChildren(pmCard,120);
     var l=$('[data-ca-payments-list]');
     l.innerHTML='<div class="cruise-auth__empty" style="padding:20px 0">Cargando…</div>';
-    /* El endpoint requiere rider_id como query param */
-    var _riderId=(_profile&&(_profile.id||_profile.rider_id||_profile.user_id))||'';
-    var _pmUrl='/riders/payment-methods'+(_riderId?('?rider_id='+encodeURIComponent(_riderId)):'');
-    _fetchWeb(_pmUrl).then(function(methods){
+    /* /riders/payment-methods exige la firma HMAC de la app; la web usa el
+       endpoint JWT /auth/web/payment-methods (mismos campos brand/last4/…). */
+    _fetchWeb('/auth/web/payment-methods').then(function(methods){
       l.innerHTML='';
       if(!Array.isArray(methods)||!methods.length){
         /* No payment methods — show placeholder cards */

@@ -73,6 +73,17 @@
   .wal-balance b{display:block;margin:10px 0 22px;font:800 44px/1 Inter,system-ui,sans-serif;color:#fff;letter-spacing:-1px;}
   .wal-gift{display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border:none;border-radius:999px;background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);color:#241c05;font:800 14px/1 Inter,system-ui,sans-serif;cursor:pointer;box-shadow:6px 8px 18px rgba(0,0,0,.4);}
   .acc-empty{padding:26px 4px;font-size:14px;color:rgba(236,238,242,.55);}
+  /* modal para añadir tarjeta/banco (Stripe Payment Element) — plano y minimal */
+  .wal-modal{position:fixed;inset:0;z-index:9500;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(0,0,0,.66);}
+  .wal-modal.is-open{display:flex;}
+  .wal-modal__box{width:100%;max-width:430px;max-height:calc(100vh - 40px);overflow-y:auto;background:#0e1116;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;box-shadow:0 18px 44px rgba(0,0,0,.55);font-family:Inter,system-ui,sans-serif;}
+  .wal-modal__title{margin:0 0 6px;font:700 18px/1.2 Cinzel,Georgia,serif;color:#fff;}
+  .wal-modal__sub{margin:0 0 16px;font:400 13px/1.5 Inter,system-ui,sans-serif;color:rgba(236,238,242,.62);}
+  .wal-modal__msg{min-height:18px;margin:10px 2px 0;font:500 12px/1.4 Inter,system-ui,sans-serif;color:#ff6b6b;}
+  .wal-modal__save{display:block;width:100%;margin-top:12px;padding:14px;border:none;border-radius:12px;background:#d4af37;color:#1a1405;font:700 14px/1 Inter,system-ui,sans-serif;cursor:pointer;transition:background 160ms;}
+  .wal-modal__save:hover{background:#f5d77a;}
+  .wal-modal__save:disabled{opacity:.5;cursor:not-allowed;}
+  .wal-modal__close{display:block;width:100%;margin-top:10px;padding:12px;background:none;border:1px solid rgba(255,255,255,.15);border-radius:12px;color:#eceef2;font:600 13px/1 Inter,system-ui,sans-serif;cursor:pointer;}
   @media (max-width:820px){
     .acc-layout{grid-template-columns:1fr;gap:20px;}
     .acc-side{position:static;flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px;}
@@ -108,9 +119,20 @@
   <h2 class="acc-h2">Payment Methods</h2>
   <div class="acc-list" data-wal-list><div class="acc-empty">Loading…</div></div>
   <div class="acc-list">
-    <a class="acc-item" href="../en/book"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><div class="acc-item__body"><span class="acc-item__t">Add Payment Method</span></div></a>
+    <button type="button" class="acc-item" data-wal-add><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><div class="acc-item__body"><span class="acc-item__t">Add Payment Method</span></div></button>
   </div>
 </main>
+
+<div class="wal-modal" data-wal-modal>
+  <div class="wal-modal__box">
+    <h3 class="wal-modal__title">Add payment method</h3>
+    <p class="wal-modal__sub">Card or bank account. Stored securely with Stripe and also available in the app.</p>
+    <div data-wal-pe></div>
+    <p class="wal-modal__msg" data-wal-msg></p>
+    <button type="button" class="wal-modal__save" data-wal-save disabled>Save</button>
+    <button type="button" class="wal-modal__close" data-wal-close>Cancel</button>
+  </div>
+</div>
 
 <footer class="cruise-footer">
   <div class="cf-hero">
@@ -165,32 +187,100 @@
 </footer>
 <a class="wa-fab" href="https://wa.me/16593052974" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
 
+<script src="https://js.stripe.com/v3/"></script>
 <script>
 (function(){
   var API='https://cruiseapp2-production.up.railway.app';
   var KEY='5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad';
+  var PK='pk_live_51T4BXG4JZyaaA3VKQmdt1gQp3Mi4jGVSmYZ6aWl8ZEQ7k07gzzGzlOKde9n4zdLbhhmclJKysCdAVnNy5Uh8TeMf00YAldU9fo';
   function tok(){try{return localStorage.getItem('vr_at')||'';}catch(_){return'';}}
   if(!tok()){location.replace('../en/auth.html');return;}
-  function usr(){try{var u=localStorage.getItem('vr_au');return u?JSON.parse(u):null;}catch(_){return null;}}
   var list=document.querySelector('[data-wal-list]');
   var CARD='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>';
-  function api(path){
+  function api(path,opts){
+    opts=opts||{};
     /* Sin X-Web-Key: no está en allow_headers del backend y su preflight CORS
        tumbaba toda petición de esta página. */
-    return fetch(API+path,{headers:{'Content-Type':'application/json','X-API-Key':KEY,'Authorization':'Bearer '+tok()}})
-      .then(function(r){if(!r.ok) throw new Error('HTTP '+r.status);return r.json();});
+    return fetch(API+path,{method:opts.method||'GET',headers:{'Content-Type':'application/json','X-API-Key':KEY,'Authorization':'Bearer '+tok()},body:opts.body?JSON.stringify(opts.body):undefined})
+      .then(function(r){return r.json().catch(function(){return null;}).then(function(d){
+        if(!r.ok) throw new Error((d&&d.detail&&(d.detail.message||d.detail))||('HTTP '+r.status));
+        return d;
+      });});
   }
-  var u=usr();
-  var rid=(u&&(u.id||u.rider_id||u.user_id))||'';
-  api('/riders/payment-methods'+(rid?('?rider_id='+encodeURIComponent(rid)):'')).then(function(m){
-    var arr=Array.isArray(m)?m:(m&&m.payment_methods?m.payment_methods:[]);
-    if(!arr.length){list.innerHTML='<div class="acc-empty">You do not have any saved payment methods yet.</div>';return;}
-    list.innerHTML=arr.map(function(p){
-      var brand=(p.brand||p.card_brand||p.type||'').toString().toUpperCase();
-      var last4=p.last4||p.last_four||'';
-      return '<div class="acc-item">'+CARD+'<div class="acc-item__body"><span class="acc-item__t">'+(brand||'')+(last4?(' •••• '+last4):'')+'</span>'+(p.exp_month?('<span class="acc-item__s">'+p.exp_month+'/'+(p.exp_year||'')+'</span>'):'')+'</div></div>';
-    }).join('');
-  }).catch(function(){list.innerHTML='<div class="acc-empty">Could not load your payment methods.</div>';});
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  function loadList(){
+    list.innerHTML='<div class="acc-empty">Loading…</div>';
+    api('/auth/web/payment-methods').then(function(arr){
+      arr=Array.isArray(arr)?arr:[];
+      if(!arr.length){list.innerHTML='<div class="acc-empty">You do not have any saved payment methods yet.</div>';return;}
+      list.innerHTML=arr.map(function(p){
+        var brand=(p.brand||'').toString().toUpperCase();
+        var label=brand?(brand+(p.last4?(' •••• '+p.last4):'')):(p.display_name||'Payment method');
+        var sub=(p.exp_month?('Expires '+p.exp_month+'/'+(p.exp_year||'')):'')+(p.is_default?((p.exp_month?' · ':'')+'Default'):'');
+        return '<div class="acc-item">'+CARD+'<div class="acc-item__body"><span class="acc-item__t">'+esc(label)+'</span>'+(sub?('<span class="acc-item__s">'+esc(sub)+'</span>'):'')+'</div></div>';
+      }).join('');
+    }).catch(function(){list.innerHTML='<div class="acc-empty">Could not load your payment methods.</div>';});
+  }
+  loadList();
+
+  /* ── Añadir tarjeta o banco: Stripe Payment Element sobre un SetupIntent
+        del backend (/auth/web/payments/setup-intent). Al confirmarse se
+        registra con /auth/web/payment-methods/sync para que la app la vea. ── */
+  var stripe=window.Stripe?Stripe(PK):null;
+  var modal=document.querySelector('[data-wal-modal]');
+  var peBox=document.querySelector('[data-wal-pe]');
+  var msg=document.querySelector('[data-wal-msg]');
+  var saveBtn=document.querySelector('[data-wal-save]');
+  var elements=null;
+  function openModal(){
+    if(!stripe){alert('Could not load the payments module. Check your connection and try again.');return;}
+    modal.classList.add('is-open');
+    msg.textContent='';saveBtn.disabled=true;
+    peBox.innerHTML='<div class="acc-empty" style="padding:16px 0">Loading…</div>';
+    api('/auth/web/payments/setup-intent',{method:'POST',body:{}}).then(function(d){
+      if(!d||!d.client_secret) throw new Error('missing client_secret');
+      elements=stripe.elements({clientSecret:d.client_secret,appearance:{theme:'night',variables:{colorPrimary:'#d4af37',colorBackground:'#14171c',colorText:'#eceef2',colorDanger:'#ff6b6b',borderRadius:'10px',fontFamily:'Inter, system-ui, sans-serif'}}});
+      peBox.innerHTML='';
+      var pe=elements.create('payment');
+      pe.mount(peBox);
+      pe.on('ready',function(){saveBtn.disabled=false;});
+    }).catch(function(e){peBox.innerHTML='';msg.textContent='Could not start the form: '+(e.message||'error');});
+  }
+  function closeModal(){modal.classList.remove('is-open');elements=null;peBox.innerHTML='';}
+  function syncPm(pmId){
+    return api('/auth/web/payment-methods/sync',{method:'POST',body:{stripe_pm_id:pmId,set_default:true,display_name:'Card'}});
+  }
+  if(saveBtn) saveBtn.addEventListener('click',function(){
+    if(!stripe||!elements) return;
+    saveBtn.disabled=true;msg.textContent='';
+    stripe.confirmSetup({elements:elements,confirmParams:{return_url:location.origin+location.pathname},redirect:'if_required'}).then(function(res){
+      if(res.error){msg.textContent=res.error.message||'Could not save the payment method.';saveBtn.disabled=false;return;}
+      var si=res.setupIntent;
+      if(si&&(si.status==='succeeded'||si.status==='processing')&&si.payment_method){
+        syncPm(si.payment_method).then(function(){closeModal();loadList();}).catch(function(){closeModal();loadList();});
+      } else {msg.textContent='The payment method was not confirmed. Try again.';saveBtn.disabled=false;}
+    });
+  });
+  var addBtn=document.querySelector('[data-wal-add]');
+  if(addBtn) addBtn.addEventListener('click',function(e){e.preventDefault();openModal();});
+  var closeBtn=document.querySelector('[data-wal-close]');
+  if(closeBtn) closeBtn.addEventListener('click',closeModal);
+  if(modal) modal.addEventListener('click',function(e){if(e.target===modal) closeModal();});
+
+  /* Regreso de una verificación con redirección (p. ej. cuenta bancaria) */
+  (function(){
+    var q=new URLSearchParams(location.search);
+    var cs=q.get('setup_intent_client_secret');
+    if(!cs||!stripe) return;
+    stripe.retrieveSetupIntent(cs).then(function(r){
+      var si=r&&r.setupIntent;
+      if(si&&(si.status==='succeeded'||si.status==='processing')&&si.payment_method){
+        syncPm(si.payment_method).then(loadList);
+      }
+      try{history.replaceState(null,'',location.pathname);}catch(_){}
+    });
+  })();
   document.querySelector('[data-wal-gift]').addEventListener('click',function(){alert('This option will be available soon.');});
 })();
 </script>
