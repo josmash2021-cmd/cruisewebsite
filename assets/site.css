@@ -209,9 +209,29 @@ img { max-width: 100%; }
   transition: transform .3s, opacity .3s;
 }
 
+/* el CTA del menú móvil no existe en escritorio */
+.ch-nav__cta { display: none; }
+
 @media (max-width: 768px) {
   .cruise-header { padding: 12px 16px; }
   .ch-login { display: none; }
+  /* registro fuera de la barra (vive dentro del menú), idioma a la
+     izquierda y logo más pequeño centrado */
+  .ch-signup { display: none; }
+  .ch-actions { margin-left: auto; }
+  .ch-lang { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); }
+  .ch-logo { position: absolute; left: 50%; transform: translateX(-50%); }
+  .ch-logo img { height: 30px; }
+  .ch-nav .ch-nav__cta {
+    display: block;
+    margin: 12px 0 6px;
+    text-align: center;
+    background: linear-gradient(145deg, #f2d577, #d4af37 55%, #b8922c);
+    color: #241c05;
+    font-weight: 800;
+    padding: 13px 16px;
+    border-radius: 14px;
+  }
   .ch-lang { padding: 10px 6px; }
   .ch-signup { padding: 10px 18px; font-size: 14px; }
   .ch-burger { display: flex; }
