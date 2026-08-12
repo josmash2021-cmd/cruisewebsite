@@ -9521,6 +9521,26 @@ html body #vipMpFooterSugs{
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   TELÉFONO — traspaso a "buscando tu chofer" / viaje en curso
+   ═══════════════════════════════════════════════════════════════ */
+@media(max-width:899px){
+  /* La hoja de elegir viaje se iba con un fundido de 380 ms mientras la de
+     búsqueda entraba con otro de 500 ms: medio segundo con las DOS tarjetas
+     encimadas, y la de abajo asomando cortada por el borde. En el teléfono no
+     hay sitio para dos hojas: la de elegir viaje se va de golpe y deja de
+     ocupar espacio en cuanto se abre la pantalla de búsqueda. */
+  html body .vipRide__sheet.is-test-hidden{
+    opacity:0!important; visibility:hidden!important;
+    transform:none!important; transition:none!important;
+  }
+  /* la tarjeta de búsqueda/viaje respeta la franja del gesto de inicio del
+     teléfono: sin esto su último botón queda debajo del indicador */
+  html body .vipRide__testConfirm__phase2{
+    padding-bottom:calc(clamp(20px,5vw,32px) + env(safe-area-inset-bottom,0px))!important;
+  }
+}
+
 </style>
 
 <style>
