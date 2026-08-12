@@ -4977,6 +4977,17 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
     try {
     if(!homeBar) homeBar=document.getElementById('vrDeskBar');
     if(!rideBar) rideBar=document.getElementById('vrDeskBarRide');
+    /* clones SOLO de escritorio: bajo 900px se apagan SIEMPRE. Este updater
+       corre aunque la página cargara ancha y luego se angoste (o se abra la
+       vista móvil del navegador): seguía encendiéndolos con display:flex
+       !important EN LÍNEA —que le gana al CSS que los esconde— y en el
+       teléfono aparecía la barra blanca sin estilos, peleándose cada 400 ms
+       con hideBars(). */
+    if(window.innerWidth<900){
+      if(homeBar)homeBar.style.setProperty('display','none','important');
+      if(rideBar)rideBar.style.setProperty('display','none','important');
+      return;
+    }
     var sheet=document.querySelector('[data-vipride-sheet]');
     var step=sheet?sheet.getAttribute('data-vipride-step'):'1';
     var laterOpen=document.querySelector('[data-vipride-later-overlay]:not([hidden])');
