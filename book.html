@@ -9099,6 +9099,10 @@ html body #vipMpFooterSugs{
   /* ── "Elige un vehículo": misma composición que la referencia ──
      cabecera pequeña con su asa y una línea, y cada vehículo en una fila de
      tres columnas: foto | nombre y datos | precio arriba a la derecha. */
+  /* la hoja de vehículos termina en el borde visible, no en el de la sección */
+  html body .vipRide .vipRide__sheet[data-vipride-step="3"]{
+    bottom:calc(var(--vrm-over,0px) + 10px)!important;
+  }
   html body .vipRide .vipRide__sheet[data-vipride-step="3"] .vipRide__handle{
     display:block!important; width:40px; height:4px; margin:0 auto 10px;
     border-radius:2px; background:rgba(255,255,255,.18);
@@ -9151,11 +9155,16 @@ html body #vipMpFooterSugs{
   }
   html body .vipRide .vipRide__fasterIcon{ width:12px!important; height:12px!important }
   /* pago y botón grande, uno debajo del otro y a todo el ancho */
+  /* el pago y el botón grande se quedan pegados al fondo de la hoja mientras
+     la lista corre por detrás, como en la referencia */
   html body .vipRide .vipRide__actionBtns{
-    flex-direction:column!important; gap:8px!important; margin:10px 0 0!important;
-    padding:12px 0 0!important; background:none!important; border:none!important;
-    border-top:1px solid rgba(255,255,255,.1)!important; border-radius:0!important;
-    box-shadow:none!important; position:static!important;
+    flex-direction:column!important; gap:8px!important;
+    position:sticky!important; bottom:0!important; z-index:6!important;
+    margin:10px 0 0!important;
+    padding:12px 0 calc(4px + env(safe-area-inset-bottom,0px))!important;
+    background:#000!important; border:none!important;
+    border-top:1px solid rgba(255,255,255,.1)!important;
+    border-radius:0!important; box-shadow:none!important;
   }
   html body .vipRide .vipRide__paymentBtn{
     flex:none!important; width:100%!important; padding:8px 2px!important;
@@ -9902,12 +9911,15 @@ html body #vipMpFooterSugs{
          recalcular medidas, que es lo que realimentaba el bucle. */
       try { window.dispatchEvent(new Event('resize')); } catch (_) {}
     }
+    /* el borde de abajo de lo que se ve, en coordenadas de la sección: la
+       sección se estira por debajo de la pantalla para meterse bajo la
+       cabecera, y ese sobrante hay que descontarlo o la hoja de vehículos
+       deja el botón de pedir fuera de la vista */
+    var visible = window.innerHeight - sec.getBoundingClientRect().top;
+    setVar(sec, '--vrm-over', Math.max(0, Math.round(sec.offsetHeight - visible)));
     /* con un overlay abierto la hoja se desplaza y se apaga: su medida no sirve */
     if (!one || sheet.classList.contains('is-test-hidden')) return;
     var top = sheet.offsetTop + sheet.offsetHeight + 8;
-    /* el borde de abajo de lo que se ve, también en coordenadas de la sección:
-       la sección es más alta que la pantalla y si no, el mapa se salía */
-    var visible = window.innerHeight - sec.getBoundingClientRect().top;
     var h = Math.round(visible - top - 12);
     if (top < 40 || h < 140) return;
     setVar(sec, '--vrm-map-top', top);
