@@ -2001,6 +2001,20 @@
     var maxScroll = function () {
       return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
     };
+    /* site.css declara html{scroll-behavior:smooth}; si el motor moviera el
+       scroll con scrollTo(x,y) cada frame, el navegador animaria cada paso y
+       las dos suavidades se pelearian. Forzar salto instantaneo por frame. */
+    var setScroll = function (y) {
+      try {
+        window.scrollTo({ top: y, left: 0, behavior: 'instant' });
+      } catch (err) {
+        var de = document.documentElement;
+        var prev = de.style.scrollBehavior;
+        de.style.scrollBehavior = 'auto';
+        window.scrollTo(0, y);
+        de.style.scrollBehavior = prev;
+      }
+    };
     var step = function () {
       current += (target - current) * 0.3;   /* suavizado ligero: casi nativo, solo un toque sedoso */
       if (Math.abs(target - current) < 0.5) {
@@ -2009,7 +2023,7 @@
       } else {
         rafId = requestAnimationFrame(step);
       }
-      window.scrollTo(0, current);
+      setScroll(current);
     };
     window.addEventListener('wheel', function (e) {
       if (e.ctrlKey || e.defaultPrevented) return;   /* zoom o widgets propios */
