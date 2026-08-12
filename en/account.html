@@ -37,6 +37,11 @@
   .acc-hero{text-align:center;margin-bottom:30px;}
   .acc-face{width:112px;height:112px;margin:0 auto 16px;border-radius:50%;background:#262b35;color:#f5d77a;display:flex;align-items:center;justify-content:center;font:700 40px/1 Inter,system-ui,sans-serif;overflow:hidden;box-shadow:inset 0 0 0 2px rgba(212,175,55,.3);}
   .acc-face img{width:100%;height:100%;object-fit:cover;}
+  .acc-faceWrap{position:relative;width:112px;margin:0 auto 16px;cursor:pointer;}
+  .acc-faceWrap .acc-face{margin:0;}
+  .acc-face__edit{position:absolute;right:0;bottom:4px;width:30px;height:30px;border-radius:50%;background:linear-gradient(145deg,#f2d577,#d4af37 60%,#b8922c);color:#241c05;display:flex;align-items:center;justify-content:center;border:2px solid #000;pointer-events:none;}
+  .acc-photo-btn{display:inline-flex;align-items:center;gap:8px;margin:0 0 18px;padding:11px 18px;background:#1b1f27;border:1px solid rgba(255,255,255,.08);border-radius:999px;color:#eceef2;font:600 13px/1 Inter,system-ui,sans-serif;cursor:pointer;}
+  .acc-photo-btn:hover{border-color:rgba(212,175,55,.5);color:#f5d77a;}
   .acc-hero h1{margin:0 0 4px;font:800 30px/1.15 Cinzel,Georgia,serif;color:#fff;}
   .acc-hero p{margin:0;font-size:15px;color:rgba(236,238,242,.62);word-break:break-word;}
   .acc-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:26px 0 8px;}
@@ -112,7 +117,11 @@
       <!-- Inicio -->
       <section class="acc-panel is-active" data-acc-panel="home">
         <div class="acc-hero">
-          <div class="acc-face" data-acc-face>C</div>
+          <div class="acc-faceWrap" data-acc-face-wrap role="button" tabindex="0" aria-label="Change photo">
+            <div class="acc-face" data-acc-face>C</div>
+            <span class="acc-face__edit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+            <input type="file" accept="image/*" data-acc-photo-input hidden>
+          </div>
           <h1 data-acc-name>—</h1>
           <p data-acc-mail></p>
         </div>
@@ -132,6 +141,7 @@
       <!-- Datos personales -->
       <section class="acc-panel" data-acc-panel="pinfo">
         <h1 class="acc-h1">Personal info</h1>
+        <button type="button" class="acc-photo-btn" data-acc-photo-btn><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>Change profile photo</button>
         <div class="acc-field"><label for="accFn">First name</label><input id="accFn" type="text" data-acc-fn autocomplete="given-name"></div>
         <div class="acc-field"><label for="accLn">Last name</label><input id="accLn" type="text" data-acc-ln autocomplete="family-name"></div>
         <div class="acc-field"><label for="accEm">Email</label><input id="accEm" type="email" data-acc-em autocomplete="email"></div>
@@ -292,6 +302,25 @@
   try{var cached=localStorage.getItem('vr_au');if(cached) paint(JSON.parse(cached));}catch(_){}
   api('/auth/web/me').then(function(d){paint(d);try{localStorage.setItem('vr_au',JSON.stringify(d));}catch(_){}})
     .catch(function(e){if(e.status===401||e.status===403){try{localStorage.removeItem('vr_at');}catch(_){}location.replace('../en/auth.html');}});
+
+  /* foto de perfil: clic en el avatar o en el boton de Datos personales */
+  var phIn=$('[data-acc-photo-input]');
+  function pickPhoto(){if(phIn)phIn.click();}
+  var fw=$('[data-acc-face-wrap]');if(fw)fw.addEventListener('click',pickPhoto);
+  var pb=$('[data-acc-photo-btn]');if(pb)pb.addEventListener('click',pickPhoto);
+  if(phIn)phIn.addEventListener('change',function(){
+    var file=phIn.files&&phIn.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(){
+      api('/auth/photo',{method:'POST',body:{photo:reader.result}}).then(function(d){
+        if(d&&d.photo_url){
+          $('[data-acc-face]').innerHTML='<img src="'+d.photo_url+'" alt="">';
+          try{var u=JSON.parse(localStorage.getItem('vr_au')||'{}');u.photo_url=d.photo_url;localStorage.setItem('vr_au',JSON.stringify(u));}catch(_){}
+        }
+      }).catch(function(){alert('Could not upload the photo. Try again.');});
+    };
+    reader.readAsDataURL(file);
+  });
 
   var save=$('[data-acc-save]'),msg=$('[data-acc-msg]');
   save.addEventListener('click',function(){
