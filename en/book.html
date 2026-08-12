@@ -6414,6 +6414,65 @@ setTimeout(_vrPfKick,1200);
     var cents=currentMode==='hourly'?_vrHourlyCents(title,currentHours):_vrRideCents(title,routeDurationSec,window.__vrRouteDistM);
     return cents>0?cents+_vrSurchargeCents():0;
   }
+  /* ═══ COTIZACIÓN DEL SERVIDOR ═══
+     El motor de arriba corre en el navegador del cliente, así que su cifra
+     sirve para enseñar un precio, no para cobrarlo. El servidor calcula el
+     mismo precio con la misma tabla sobre una ruta que pide él, y devuelve un
+     token firmado por nivel; al pagar se manda ese token y el servidor rechaza
+     cualquier importe que no cuadre. Aquí se pide la cotización y, cuando
+     llega, manda ella: el cliente ve exactamente lo que se le va a cobrar. */
+  var _VR_Q={key:'',tiers:null,pending:false};
+  var _VR_Q_API='https://cruise-api-proxy.cruise-api.workers.dev';
+  var _VR_Q_KEY='5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad';
+  function _vrQuoteKey(){
+    if(currentMode==='hourly')
+      return 'h|'+currentHours+'|'+(window.__vrAptCode||'');
+    var p=pickupPlace,d=dropoffPlace;
+    if(!p||!d)return '';
+    return 'r|'+[p.lat,p.lng,d.lat,d.lng].map(function(n){return Number(n).toFixed(5);}).join(',')
+      +'|'+(window.__vrRouteDistM||0)+'|'+(routeDurationSec||0)+'|'+(window.__vrAptCode||'');
+  }
+  function _vrQuoteFor(title){
+    var k=_vrQuoteKey();
+    if(!k||k!==_VR_Q.key||!_VR_Q.tiers)return null;
+    return _VR_Q.tiers[String(title||'').trim().toUpperCase()]||null;
+  }
+  function _vrFetchQuote(){
+    var key=_vrQuoteKey();
+    if(!key||_VR_Q.pending)return;
+    if(currentMode!=='hourly'&&(!routeDurationSec||!window.__vrRouteDistM))return;
+    var body={
+      mode:currentMode==='hourly'?'hourly':'ride',
+      hours:currentHours||0,
+      is_airport:!!window.__vrAptActive,
+      airport_code:window.__vrAptCode||null
+    };
+    if(body.mode==='ride'){
+      body.pickup={lat:pickupPlace.lat,lng:pickupPlace.lng};
+      body.dropoff={lat:dropoffPlace.lat,lng:dropoffPlace.lng};
+    }
+    _VR_Q.pending=true;
+    fetch(_VR_Q_API+'/bookings/web/quote',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+_VR_Q_KEY},
+      body:JSON.stringify(body)
+    })
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+      .then(function(d){
+        _VR_Q.pending=false;
+        if(!d||!d.tiers)return;
+        /* la ruta pudo cambiar mientras respondía: solo vale si sigue siendo la misma */
+        if(_vrQuoteKey()!==key)return;
+        _VR_Q.key=key;_VR_Q.tiers=d.tiers;
+        updateCardPrices(routeDurationSec);
+      })
+      .catch(function(e){
+        _VR_Q.pending=false;
+        console.warn('[Cruise] cotización del servidor no disponible:',e&&e.message);
+      });
+  }
+  try{window.__vrFetchQuote=_vrFetchQuote;}catch(_){}
+
   function updateCardPrices(sec){
     if(!cards.length)return;
     var surcharge=_vrSurchargeCents();
@@ -6426,6 +6485,9 @@ setTimeout(_vrPfKick,1200);
         cents=_vrRideCents(title,sec||routeDurationSec||0,window.__vrRouteDistM||0);
         if(etaEl)etaEl.textContent=routeDurationSec?formatMinutes(routeDurationSec):'--';
       }
+      /* si el servidor ya cotizó esta ruta, su cifra manda (incluye recargo) */
+      var q=_vrQuoteFor(title);
+      if(q&&q.cents>0){cents=q.cents-surcharge;}
       /* el recargo se suma UNA vez sobre un precio recién calculado
          (antes se releía data-base-cents ya recargado y se acumulaba) */
       var displayCents=cents>0?cents+surcharge:0,text=moneyUSD(displayCents/100);
@@ -6465,6 +6527,7 @@ setTimeout(_vrPfKick,1200);
         window.__vrRouteCoords=(route.geometry&&route.geometry.coordinates)||null;
         try{fitRouteBounds();}catch(_){}
         drawRoute(route.geometry);updateCardPrices(routeDurationSec);_vrRefreshEtaBadges();
+        _vrFetchQuote();   /* el precio definitivo lo pone el servidor */
         /* los pines se recrean al cambiar direccion: hay que volver a colgar los rotulos */
         setTimeout(showMarkerLabels,400);
         _setCardsLoading(false);
@@ -7530,7 +7593,7 @@ setTimeout(_vrPfKick,1200);
       fetch(_apiBase+'/payments/web/create-intent',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+_webKey},
-        body:JSON.stringify({amount:d.cents,currency:'usd',description:'Cruise '+d.vehicle+' Ride',metadata:d.metadata})
+        body:JSON.stringify({amount:d.cents,currency:'usd',description:'Cruise '+d.vehicle+' Ride',metadata:d.metadata,quote_token:d.quote_token})
       })
       .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
       .then(function(data){
@@ -7597,10 +7660,12 @@ setTimeout(_vrPfKick,1200);
     function _getRideData(){
       /* blindaje: el importe a cobrar se recalcula con el motor de tarifas en este
          mismo momento; lo que muestre el DOM es solo presentación */
-      var cents=_vrFinalCents(selectedRide.title);
+      /* la cotización firmada del servidor manda sobre el cálculo local */
+      var q=(typeof _vrQuoteFor==='function')?_vrQuoteFor(selectedRide.title):null;
+      var cents=(q&&q.cents>0)?q.cents:_vrFinalCents(selectedRide.title);
       if(cents<=0)cents=Number(selectedRide.priceCents)||0;
       if(cents<=0)cents=Math.round(Number(String(selectedRide.price||'').replace(/[^0-9.]/g,''))*100)||0;
-      return {cents:cents,vehicle:selectedRide.title||'Ride',metadata:{trip_type:(selectedRide.title||'ride').toLowerCase(),pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',payment_method:_selectedPayment,date:dateEl?dateEl.value:'',time:timeEl?timeEl.value:''}};
+      return {cents:cents,vehicle:selectedRide.title||'Ride',quote_token:(q&&q.quote_token)||null,metadata:{trip_type:(selectedRide.title||'ride').toLowerCase(),pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',payment_method:_selectedPayment,date:dateEl?dateEl.value:'',time:timeEl?timeEl.value:''}};
     }
     var _payBusy=false;
     function _payWithNativeSheet(){
@@ -7629,7 +7694,7 @@ setTimeout(_vrPfKick,1200);
       fetch(_apiBase+'/payments/web/create-intent',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+_webKey},
-        body:JSON.stringify({amount:d.cents,currency:'usd',description:'Cruise '+d.vehicle+' Ride',metadata:d.metadata})
+        body:JSON.stringify({amount:d.cents,currency:'usd',description:'Cruise '+d.vehicle+' Ride',metadata:d.metadata,quote_token:d.quote_token})
       })
       .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
       .then(function(data){if(!data.client_secret)throw new Error(data.detail||'Intent error');_payClientSecret=data.client_secret;})
@@ -7649,7 +7714,7 @@ setTimeout(_vrPfKick,1200);
           description:'Cruise '+d.vehicle+' Ride',
           success_url:window.location.origin+'/pages/booking-confirmed?session_id={CHECKOUT_SESSION_ID}',
           cancel_url:window.location.href,
-          metadata:d.metadata
+          metadata:d.metadata,quote_token:d.quote_token
         })
       })
       .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
@@ -7751,7 +7816,7 @@ setTimeout(_vrPfKick,1200);
         body:JSON.stringify({
           pickup:{address:d.metadata.pickup,lat:pickupPlace?pickupPlace.lat:null,lng:pickupPlace?pickupPlace.lng:null},
           dropoff:{address:d.metadata.dropoff,lat:dropoffPlace?dropoffPlace.lat:null,lng:dropoffPlace?dropoffPlace.lng:null},
-          vehicle_type:d.vehicle,amount_cents:d.cents,currency:'usd',payment_method:_selectedPayment,
+          vehicle_type:d.vehicle,amount_cents:d.cents,currency:'usd',payment_method:_selectedPayment,quote_token:d.quote_token,hours:currentHours||0,
           scheduled_date:d.metadata.date||null,scheduled_time:d.metadata.time||null,
           scheduled_at:(window.__vrScheduleActive&&d.metadata.date&&d.metadata.time)?new Date(d.metadata.date+'T'+d.metadata.time).toISOString():null,
           is_airport:!!window.__vrAptActive,airport_code:window.__vrAptCode||null,terminal:window.__vrAptTerminal||null,
