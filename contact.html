@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Contacto — CruiseInRide</title>
 <meta name="description" content="Servicio de transporte privado premium con chofer. Flota Chevrolet Suburban, disponible 24/7.">
 <!-- vista previa al compartir el enlace: tarjeta con fondo negro -->
@@ -23,6 +23,25 @@
 <link rel="stylesheet" href="assets/site.css?v=20260815l">
 <link rel="stylesheet" href="assets/home.css?v=20260815e">
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet">
+
+<!-- cir-shield: sin zoom, sin seleccionar/copiar texto ni imagenes (los campos de escribir siguen normales) -->
+<style>
+body{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;-moz-user-select:text;user-select:text}
+img,video{-webkit-user-drag:none}
+</style>
+<script>
+(function(){
+  function inField(e){var t=e.target;return t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)}
+  document.addEventListener('contextmenu',function(e){e.preventDefault()});
+  document.addEventListener('dragstart',function(e){e.preventDefault()});
+  document.addEventListener('copy',function(e){if(!inField(e))e.preventDefault()});
+  document.addEventListener('cut',function(e){if(!inField(e))e.preventDefault()});
+  addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault()},{passive:false});
+  addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&(e.key==='+'||e.key==='-'||e.key==='='||e.key==='0'))e.preventDefault()});
+  ['gesturestart','gesturechange','gestureend'].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault()})});
+})();
+</script>
 </head>
 <body class="has-hero">
 <header class="cruise-header">

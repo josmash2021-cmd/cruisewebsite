@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Iniciar sesión — CruiseInRide</title>
 <meta name="description" content="Inicia sesión o crea tu cuenta CruiseInRide para guardar tus viajes y desbloquear tu descuento.">
 <!-- vista previa al compartir el enlace: tarjeta con fondo negro -->
@@ -473,6 +473,25 @@
   }
   .cruise-auth__avatar-edit{background:#17191f;border:2px solid #d4af37;}
 </style>
+
+<!-- cir-shield: sin zoom, sin seleccionar/copiar texto ni imagenes (los campos de escribir siguen normales) -->
+<style>
+body{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;-moz-user-select:text;user-select:text}
+img,video{-webkit-user-drag:none}
+</style>
+<script>
+(function(){
+  function inField(e){var t=e.target;return t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)}
+  document.addEventListener('contextmenu',function(e){e.preventDefault()});
+  document.addEventListener('dragstart',function(e){e.preventDefault()});
+  document.addEventListener('copy',function(e){if(!inField(e))e.preventDefault()});
+  document.addEventListener('cut',function(e){if(!inField(e))e.preventDefault()});
+  addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault()},{passive:false});
+  addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&(e.key==='+'||e.key==='-'||e.key==='='||e.key==='0'))e.preventDefault()});
+  ['gesturestart','gesturechange','gestureend'].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault()})});
+})();
+</script>
 </head>
 <body>
 <header class="cruise-header">
