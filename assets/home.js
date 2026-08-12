@@ -2045,7 +2045,7 @@
          el mismo rango que usa zoox en sus ScrollTrigger */
       var p = (vh - r.top) / (vh + r.height);
       p = Math.max(0, Math.min(1, p));
-      var v = Math.min(1, p / 0.72);          /* abierta del todo a ~3/4 del recorrido */
+      var v = Math.min(1, p / 0.48);          /* abierta del todo al llegar a la mitad de la pantalla */
       var inset = (CLIP * (1 - v)).toFixed(2);
       var rad = (RAD_MIN + (RAD_MAX - RAD_MIN) * (1 - v)).toFixed(1);
       var val = 'inset(' + inset + '% ' + inset + '% round ' + rad + 'px)';
