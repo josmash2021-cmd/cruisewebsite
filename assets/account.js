@@ -34,12 +34,12 @@
   function user() {
     try { var u = localStorage.getItem('vr_au'); return u ? JSON.parse(u) : null; } catch (_) { return null; }
   }
-  /* La foto puede venir del backend o, si éste aún no la guarda, de la copia
-     local que deja account.html al subirla. */
+  /* La copia local (vr_photo_local) manda: la deja la subida más reciente hecha
+     en este navegador, con cache-buster, así el cambio se ve al instante aunque
+     el backend devuelva siempre la misma URL (que el navegador cachea). */
   function photoOf(u) {
-    var p = u && (u.photo_url || u.avatar_url || u.photo);
-    if (p) return p;
-    try { return localStorage.getItem('vr_photo_local') || ''; } catch (_) { return ''; }
+    try { var l = localStorage.getItem('vr_photo_local'); if (l) return l; } catch (_) {}
+    return (u && (u.photo_url || u.avatar_url || u.photo)) || '';
   }
   function token() {
     try { return localStorage.getItem('vr_at') || ''; } catch (_) { return ''; }
@@ -249,8 +249,29 @@
         localStorage.removeItem('vr_at');
         localStorage.removeItem('vr_au');
         localStorage.removeItem('vr_active_booking');
+        localStorage.removeItem('vr_photo_local');
       } catch (_) {}
       location.href = BASE || './';
+    });
+
+    /* Refresco en vivo del avatar: cuando cualquier página sube una foto emite
+       'vr:photo-updated' (misma pestaña) y el cambio de vr_photo_local dispara
+       'storage' en las demás pestañas abiertas. */
+    function refreshPhoto(src) {
+      if (!src) return;
+      [wrap.querySelector('.cam-avatar'), panel.querySelector('.cam-face')].forEach(function (el) {
+        if (!el) return;
+        var img = document.createElement('img');
+        img.src = src; img.alt = '';
+        el.textContent = '';
+        el.appendChild(img);
+      });
+    }
+    window.addEventListener('vr:photo-updated', function (e) {
+      refreshPhoto((e.detail && e.detail.src) || photoOf(user()));
+    });
+    window.addEventListener('storage', function (e) {
+      if (e.key === 'vr_photo_local' && e.newValue) refreshPhoto(e.newValue);
     });
 
     var promosBtn = panel.querySelector('[data-cam-promos]');

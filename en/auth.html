@@ -896,8 +896,8 @@ img,video{-webkit-user-drag:none}
 
   function _token(){try{return localStorage.getItem('vr_at')||'';}catch(_){return'';}}
   function _user(){try{var u=localStorage.getItem('vr_au');return u?JSON.parse(u):null;}catch(_){return null;}}
-  function _save(t,u){try{localStorage.setItem('vr_at',t);localStorage.setItem('vr_au',JSON.stringify(u));}catch(_){}}
-  function _clear(){try{localStorage.removeItem('vr_at');localStorage.removeItem('vr_au');}catch(_){}}
+  function _save(t,u){try{localStorage.setItem('vr_at',t);localStorage.setItem('vr_au',JSON.stringify(u));localStorage.removeItem('vr_photo_local');}catch(_){}}
+  function _clear(){try{localStorage.removeItem('vr_at');localStorage.removeItem('vr_au');localStorage.removeItem('vr_photo_local');}catch(_){}}
 
   var toastEl=$('[data-ca-toast]'),toastT=null;
   function _toast(msg,type){
@@ -1526,10 +1526,14 @@ img,video{-webkit-user-drag:none}
     rd.readAsDataURL(file);
   }
   function _keepPhoto(src){
+    /* cache-buster: el backend guarda siempre en la misma URL */
+    if(src.indexOf('http')===0) src+=(src.indexOf('?')<0?'?':'&')+'t='+Date.now();
     var im=$('[data-ca-photo]');
     im.src=src;im.hidden=false;$('[data-ca-initial]').style.display='none';
     try{localStorage.setItem('vr_photo_local',src);}catch(_){}
     try{var u=JSON.parse(localStorage.getItem('vr_au')||'{}');u.photo_url=src;localStorage.setItem('vr_au',JSON.stringify(u));}catch(_){}
+    /* avisa al menú del avatar (account.js) y, vía storage, a otras pestañas */
+    try{window.dispatchEvent(new CustomEvent('vr:photo-updated',{detail:{src:src}}));}catch(_){}
   }
 
   function _renderHome(d){
@@ -1540,7 +1544,7 @@ img,video{-webkit-user-drag:none}
     var initial=(first||d.email||'C').charAt(0).toUpperCase();
     $('[data-ca-initial]').textContent=initial;
     var imgEl=$('[data-ca-photo]');
-    var photo=d.photo_url||_localPhoto();
+    var photo=_localPhoto()||d.photo_url;
     if(photo){imgEl.src=photo;imgEl.hidden=false;$('[data-ca-initial]').style.display='none';}
     else{imgEl.hidden=true;$('[data-ca-initial]').style.display='';}
     if(d.average_rating&&d.ratings_count){$('[data-ca-rating-text]').textContent=d.average_rating.toFixed(1)+' · '+d.ratings_count+' trips';}
@@ -1973,6 +1977,6 @@ main{overflow:hidden!important}
 })();
 </script>
 <a class="wa-fab" href="https://wa.me/16593052974" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
-<script src="../assets/account.js?v=20260815d" defer></script>
+<script src="../assets/account.js?v=20260815e" defer></script>
 </body>
 </html>
