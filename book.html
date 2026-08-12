@@ -6799,7 +6799,7 @@ setTimeout(_vrPfKick,1200);
                 .setLngLat(x.p).setRotation(h).addTo(map);
               fMarkers.push(m);
               var el=m.getElement();
-              fAnim.push({el:el._drift,v:5.5+Math.random()*3,d:0,t:performance.now()});
+              fAnim.push({el:el._drift,v:8+Math.random()*4,d:0,t:performance.now()});
               setTimeout(function(){el.style.opacity='1';},80+i*140);
             });
             if(fAnim.length&&!fRafOn){fRafOn=true;requestAnimationFrame(fDrive);}
