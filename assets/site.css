@@ -249,7 +249,11 @@ body:not(.has-hero) main, body:not(.has-hero) > section:first-of-type {
   background: var(--bg-deep);
   border-top: 1px solid rgba(212, 175, 55, .10);
   padding: 0;
+  /* nada del footer (línea SVG, textos largos) debe generar scroll lateral */
+  overflow-x: hidden;
+  overflow-x: clip;
 }
+.cf-stop { min-width: 0; }
 
 .cf-hero {
   max-width: 1180px;

@@ -754,9 +754,14 @@ a.h-store { text-decoration: none; }
   /* teléfono: sin badges; CTAs y botones de descarga van más abajo,
      con un poco de aire entre los dos grupos */
   .h-badges { display: none; }
-  .h-col--right { gap: 22px; }
+  .h-col--right { gap: 22px; align-items: center; }
   .h-buttons { order: 1; margin-top: 30px; }
   .h-col--right .h-stores { order: 2; }
+  /* todo el contenido del hero centrado */
+  .hero-inner { align-items: center; }
+  .h-col--left { text-align: center; }
+  .h-divider { justify-content: center; }
+  .h-sub { margin-left: auto; margin-right: auto; }
   /* botones compactos en horizontal */
   .h-col--right { width: 100%; }
   .h-buttons { width: 100%; flex-wrap: nowrap; gap: 10px; }
@@ -768,6 +773,8 @@ a.h-store { text-decoration: none; }
     font-size: 10.5px;
     letter-spacing: .08em;
     white-space: nowrap;
+    /* cuadrados con esquinas redondas, no píldora */
+    border-radius: 14px;
   }
 }
 
