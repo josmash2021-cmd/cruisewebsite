@@ -1979,3 +1979,84 @@
   }
 
 })();
+
+/* ============================================================
+   Scroll estilo Zoox (2026-08): dos piezas replicadas de zoox.com
+   1) Scroll suave con inercia tipo Lenis (solo rueda/trackpad en
+      dispositivos de puntero fino; en tactil el scroll nativo ya
+      tiene esa inercia, igual que hace Lenis).
+   2) Las fotos de "Experiencia de Lujo" se abren con un recorte
+      redondeado ligado a la posicion del scroll (clip-path con
+      scrub reversible), como los bloques de imagen de zoox.com.
+   ============================================================ */
+(function () {
+  'use strict';
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  /* ---------- 1) inercia de rueda (Lenis casero) ---------- */
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    var target = window.scrollY || 0;
+    var current = target;
+    var rafId = null;
+    var maxScroll = function () {
+      return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    };
+    var step = function () {
+      current += (target - current) * 0.1;   /* lerp .1 = el que trae Lenis por defecto */
+      if (Math.abs(target - current) < 0.5) {
+        current = target;
+        rafId = null;
+      } else {
+        rafId = requestAnimationFrame(step);
+      }
+      window.scrollTo(0, current);
+    };
+    window.addEventListener('wheel', function (e) {
+      if (e.ctrlKey || e.defaultPrevented) return;   /* zoom o widgets propios */
+      var t = e.target;
+      if (t && t.closest && t.closest('.h-ride__sugg, .h-city__list, textarea, select')) return;
+      var d = e.deltaY;
+      if (e.deltaMode === 1) { d *= 33; } else if (e.deltaMode === 2) { d *= window.innerHeight; }
+      e.preventDefault();
+      target = Math.max(0, Math.min(maxScroll(), target + d));
+      if (rafId === null) rafId = requestAnimationFrame(step);
+    }, { passive: false });
+    /* teclado, barra lateral o anclas: resincronizar la meta */
+    window.addEventListener('scroll', function () {
+      if (rafId === null) { target = current = window.scrollY; }
+    }, { passive: true });
+  }
+
+  /* ---------- 2) apertura de las fotos de servicios ---------- */
+  var medias = Array.prototype.slice.call(document.querySelectorAll('.sv-media'));
+  if (!medias.length) return;
+  var CLIP = 14;     /* % de recorte inicial por lado */
+  var RAD_MAX = 44;  /* radio con la foto cerrada */
+  var RAD_MIN = 12;  /* radio final (= border-radius base de .sv-img) */
+  var pend = false;
+  var update = function () {
+    pend = false;
+    var vh = window.innerHeight || 1;
+    for (var i = 0; i < medias.length; i++) {
+      var el = medias[i];
+      var r = el.getBoundingClientRect();
+      if (r.bottom < -80 || r.top > vh + 80) continue;
+      /* progreso 0→1 mientras el bloque recorre el viewport (top→bottom / bottom→top),
+         el mismo rango que usa zoox en sus ScrollTrigger */
+      var p = (vh - r.top) / (vh + r.height);
+      p = Math.max(0, Math.min(1, p));
+      var v = Math.min(1, p / 0.72);          /* abierta del todo a ~3/4 del recorrido */
+      var inset = (CLIP * (1 - v)).toFixed(2);
+      var rad = (RAD_MIN + (RAD_MAX - RAD_MIN) * (1 - v)).toFixed(1);
+      var val = 'inset(' + inset + '% ' + inset + '% round ' + rad + 'px)';
+      el.style.webkitClipPath = val;
+      el.style.clipPath = val;
+    }
+  };
+  var onScroll = function () {
+    if (!pend) { pend = true; requestAnimationFrame(update); }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
+})();

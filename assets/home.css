@@ -833,7 +833,7 @@ a.h-store { text-decoration: none; }
 /* botón incrustado en la esquina inferior derecha de la foto, dentro de una
    muesca curva (referencia "Workspace"): placa del color del fondo + dos
    esquinas cóncavas hechas con degradado radial */
-.sv-media { position: relative; }
+.sv-media { position: relative; will-change: clip-path; }
 .sv-plate {
   position: absolute;
   right: 0; bottom: 0;
