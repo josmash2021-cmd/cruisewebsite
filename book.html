@@ -769,20 +769,58 @@ img,video{-webkit-user-drag:none}
             </button>
           </div>
 
-          <div class="vrTrip__route">
-            <div class="vrTrip__rRow"><i class="vrTrip__rDot"></i><span data-vrtrip-pickup></span></div>
-            <div class="vrTrip__rRow" data-vrtrip-stop-row hidden><i class="vrTrip__rDot vrTrip__rDot--stop"></i><span data-vrtrip-stop></span></div>
-            <div class="vrTrip__rRow"><i class="vrTrip__rDot vrTrip__rDot--end"></i><span data-vrtrip-dropoff></span></div>
-          </div>
-
-          <form class="vrTrip__stopForm" data-vrtrip-stop-form hidden autocomplete="off">
-            <input type="text" class="vrTrip__chatInput" data-vrtrip-stop-input placeholder="Address of the new stop" maxlength="160" autocomplete="off">
-            <button type="submit" class="vrTrip__chatSend" aria-label="Add stop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></button>
-          </form>
-
           <div class="vrTrip__more">
             <button type="button" class="vrTrip__link" data-vrtrip-addstop>Add a stop</button>
             <button type="button" class="vrTrip__link vrTrip__link--danger" data-vrtrip-cancel>Cancel ride</button>
+          </div>
+        </div>
+
+        <!-- ═══ Seguridad y soporte: la misma tarjeta muta al panel (réplica del
+             Safety & Support de la app: driver_info_card.dart) ═══ -->
+        <div class="vrTrip__pane vrTrip__sup" data-vrtrip-pane="support" hidden>
+          <div class="vrTrip__supMenu" data-vrtrip-sup-menu>
+            <div class="vrTrip__supHead">
+              <span class="vrTrip__supHeadIco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg></span>
+              <b class="vrTrip__supTitle" data-vrtrip-sup-title>Safety &amp; Support</b>
+              <button type="button" class="vrTrip__supClose" data-vrtrip-sup-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+            </div>
+            <button type="button" class="vrTrip__supItem" data-vrtrip-sup-problem>
+              <i><svg viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></i>
+              <span data-vrtrip-sup-problem-lbl>Problem with trip</span>
+            </button>
+            <button type="button" class="vrTrip__supItem" data-vrtrip-sup-stop>
+              <i><svg viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z"/><path d="M12 8v6M9 11h6"/></svg></i>
+              <span data-vrtrip-sup-stop-lbl>Add stop</span>
+            </button>
+            <button type="button" class="vrTrip__supItem" data-vrtrip-sup-dest>
+              <i><svg viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z"/><path d="M9.5 11.5l1.7 1.7 3.3-3.4"/></svg></i>
+              <span data-vrtrip-sup-dest-lbl>Change destination</span>
+            </button>
+            <button type="button" class="vrTrip__supItem vrTrip__supItem--danger" data-vrtrip-sup-911>
+              <i><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4z"/><path d="M12 8v4M12 16h.01"/></svg></i>
+              <span data-vrtrip-sup-911-lbl>Call 911</span>
+            </button>
+            <button type="button" class="vrTrip__supItem" data-vrtrip-sup-contact>
+              <i><svg viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg></i>
+              <span data-vrtrip-sup-contact-lbl>Contact support</span>
+            </button>
+          </div>
+          <div class="vrTrip__rc" data-vrtrip-rc hidden>
+            <div class="vrTrip__supHead">
+              <button type="button" class="vrTrip__supClose vrTrip__rcBack" data-vrtrip-rc-back aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+              <b class="vrTrip__supTitle" data-vrtrip-rc-title>Add stop</b>
+            </div>
+            <div class="vrTrip__rcSearch">
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input type="text" class="vrTrip__rcInput" data-vrtrip-rc-input maxlength="160" autocomplete="off" placeholder="Where should the driver stop?">
+            </div>
+            <div class="vrTrip__rcBar" data-vrtrip-rc-bar hidden><i></i></div>
+            <div class="vrTrip__rcList" data-vrtrip-rc-list></div>
+            <div class="vrTrip__rcQuote" data-vrtrip-rc-quote hidden>
+              <b data-vrtrip-rc-addr></b>
+              <span data-vrtrip-rc-price></span>
+              <button type="button" class="vrTrip__rcConfirm" data-vrtrip-rc-confirm>Confirm</button>
+            </div>
           </div>
         </div>
 
@@ -3446,6 +3484,18 @@ window.__VR_AIRPORTS = [
     cancelAsk:'¿Cancelar este viaje? Se libera la retención de tu tarjeta.',
     cancelled:'Viaje cancelado.',
     sendFail:'No se envió el mensaje. Intenta de nuevo.',
+    supTitle:'Seguridad y soporte',problem:'Problema con el viaje',supStop:'Agregar parada',
+    supDest:'Cambiar destino',sup911:'Llamar al 911',supContact:'Contactar soporte',
+    ask911:'¿Llamar al 911? Solo para emergencias reales.',
+    rcStopPh:'¿Dónde debe parar el chofer?',rcDestPh:'Nuevo destino...',
+    rcStopFee:'Costo extra de la parada: {a}',
+    rcDestUp:'El nuevo destino sube la tarifa {a}',rcDestDown:'El nuevo destino baja la tarifa {a}',
+    rcSure:'¿Estás seguro?',rcConfirm:'Confirmar',
+    rcStopOk:'Parada agregada. Tu chofer ya la ve.',rcDestOk:'Destino actualizado.',
+    rcStopChat:'Parada enviada al chofer por el chat; el extra estimado es {a}.',
+    rcDestChat:'Cambio de destino enviado al chofer por el chat; el ajuste estimado es {a}.',
+    rcFail:'No se pudo aplicar el cambio. Llama a tu chofer.',
+    rcNone:'Sin resultados. Prueba con otra dirección.',
     mi:'mi'
   }:{
     enroute:'Your driver is on the way',arrived:'Your driver has arrived',intrip:'On trip',done:'Trip completed',
@@ -3463,6 +3513,18 @@ window.__VR_AIRPORTS = [
     cancelAsk:'Cancel this ride? The hold on your card will be released.',
     cancelled:'Ride cancelled.',
     sendFail:'Message not sent. Please try again.',
+    supTitle:'Safety & Support',problem:'Problem with trip',supStop:'Add stop',
+    supDest:'Change destination',sup911:'Call 911',supContact:'Contact support',
+    ask911:'Call 911? For real emergencies only.',
+    rcStopPh:'Where should the driver stop?',rcDestPh:'New destination...',
+    rcStopFee:'Extra charge for this stop: {a}',
+    rcDestUp:'The new destination raises the fare by {a}',rcDestDown:'The new destination lowers the fare by {a}',
+    rcSure:'Are you sure?',rcConfirm:'Confirm',
+    rcStopOk:'Stop added. Your driver can see it now.',rcDestOk:'Destination updated.',
+    rcStopChat:'Stop sent to your driver via chat; the estimated extra is {a}.',
+    rcDestChat:'Destination change sent to your driver via chat; the estimated adjustment is {a}.',
+    rcFail:'Could not apply the change. Please call your driver.',
+    rcNone:'No results. Try another address.',
     mi:'mi'
   };
   var SUPPORT_WA='16593052974';
@@ -3483,6 +3545,9 @@ window.__VR_AIRPORTS = [
       if(on){p.hidden=false;p.classList.remove('is-in');void p.offsetWidth;p.classList.add('is-in');}
       else p.hidden=true;
     });
+    /* con chofer la tarjeta viste el gris neumórfico; buscando, el negro estrellado */
+    var sheet=r.querySelector('.vipRide__testSheet');
+    if(sheet)sheet.classList.toggle('is-neu',which!=='searching');
   }
 
   function setStep(s){
@@ -3557,11 +3622,8 @@ window.__VR_AIRPORTS = [
     var cbn=q('[data-vrtrip-call]');if(cbn)cbn.disabled=!phone;
   }
 
-  function setRoute(pu,dr){
-    var a=q('[data-vrtrip-pickup]'),b=q('[data-vrtrip-dropoff]');
-    if(a&&pu)a.textContent=pu;
-    if(b&&dr)b.textContent=dr;
-  }
+  var puAddr='',drAddr='';
+  function setRoute(pu,dr){if(pu)puAddr=pu;if(dr)drAddr=dr;}
 
   /* ── estado desde el servidor ── */
   function apply(d){
@@ -3691,14 +3753,12 @@ window.__VR_AIRPORTS = [
 
   /* ── acciones ── */
   function doShare(){
-    var pu=(q('[data-vrtrip-pickup]')||{}).textContent||'';
-    var dr=(q('[data-vrtrip-dropoff]')||{}).textContent||'';
     var etaN=(q('[data-vrtrip-eta]')||{}).textContent||'';
     var veh=(q('[data-vrtrip-vehicle]')||{}).textContent||'';
     var plate=(q('[data-vrtrip-plate]')||{}).textContent||'';
     var lines=[T.shareTxt];
     if(name)lines.push((es?'Chofer: ':'Driver: ')+name+(veh?' — '+veh:'')+(plate?' ('+plate+')':''));
-    if(pu&&dr)lines.push(pu+' → '+dr);
+    if(puAddr&&drAddr)lines.push(puAddr+' → '+drAddr);
     if(etaN&&etaN!=='--')lines.push(etaN+' '+T.minAway);
     lines.push(location.origin+location.pathname);
     var txt=lines.join('\n');
@@ -3713,16 +3773,155 @@ window.__VR_AIRPORTS = [
     var msg=(es?'Hola, necesito ayuda con mi viaje':'Hi, I need help with my ride')+(bid?' #'+bid:'');
     window.open('https://wa.me/'+SUPPORT_WA+'?text='+encodeURIComponent(msg),'_blank','noopener');
   }
-  function addStop(addr){
-    /* El backend no tiene endpoint de paradas: la parada viaja al chofer por el
-       chat, que es el único canal real, y el importe lo ajusta él. */
-    var msg=(es?'El pasajero agregó una parada: ':'The rider added a stop: ')+addr;
-    var row=q('[data-vrtrip-stop-row]'),sp=q('[data-vrtrip-stop]');
-    return Promise.resolve(sendMsg(msg)).then(function(){
-      if(sp)sp.textContent=addr;
-      if(row)row.hidden=false;
-      toast(T.stopSent,'ok');
-    }).catch(function(){toast(T.stopFail,'err');});
+
+  /* ═══ Seguridad y soporte — réplica del panel de la app (driver_info_card.dart):
+     menú de 5 opciones y página de parada/cambio de destino con buscador,
+     cotización con las MISMAS tarifas ancladas de la app y confirmación. ═══ */
+  function tierRates(){
+    var t='';
+    try{var b=JSON.parse(localStorage.getItem('vr_active_booking')||'{}');t=String(b.vehicle||b.tier||'').toLowerCase();}catch(_){}
+    var has=function(ws){return ws.some(function(w){return t.indexOf(w)>=0;});};
+    if(has(['black','vip','suburban','escalade']))return [2.75,0.50];
+    if(has(['premium','suv','traverse']))return [1.75,0.30];
+    if(has(['compact','sedan','camry']))return [1.15,0.22];
+    return [1.00,0.20];
+  }
+  function fmt$(c){return '$'+(Math.abs(c)/100).toFixed(2);}
+  function mbToken(){try{return window.mapboxgl&&mapboxgl.accessToken||'';}catch(_){return '';}}
+  function mbDir(coords){
+    var path=coords.map(function(c){return c.lng+','+c.lat;}).join(';');
+    return fetch('https://api.mapbox.com/directions/v5/mapbox/driving/'+path+'?overview=false&access_token='+encodeURIComponent(mbToken()))
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var rt=d&&d.routes&&d.routes[0];
+        if(!rt)throw new Error('no route');
+        return {mi:rt.distance/1609.344,min:Math.ceil(rt.duration/60)};
+      });
+  }
+  function mbGeocode(qy,prox){
+    var u='https://api.mapbox.com/geocoding/v5/mapbox.places/'+encodeURIComponent(qy)+'.json?limit=4&country=us&language='+(es?'es':'en')+'&access_token='+encodeURIComponent(mbToken());
+    if(prox)u+='&proximity='+prox.lng+','+prox.lat;
+    return fetch(u).then(function(r){return r.json();})
+      .then(function(d){return ((d&&d.features)||[]).map(function(f){return {label:f.place_name,lat:f.center[1],lng:f.center[0]};});});
+  }
+  /* coordenadas del viaje: las siembra _showDriverFound; si faltan (recarga),
+     se geocodifican las direcciones una sola vez */
+  function tripCoords(){
+    var c=window.__vrTripCoords;
+    if(c&&c.pu&&c.dr)return Promise.resolve(c);
+    return Promise.all([
+      puAddr?mbGeocode(puAddr,null):Promise.resolve([]),
+      drAddr?mbGeocode(drAddr,null):Promise.resolve([])
+    ]).then(function(rr){
+      var pu=rr[0][0],dr=rr[1][0];
+      if(!pu||!dr)throw new Error('no coords');
+      window.__vrTripCoords={pu:{lat:pu.lat,lng:pu.lng},dr:{lat:dr.lat,lng:dr.lng}};
+      return window.__vrTripCoords;
+    });
+  }
+  var rcMode='stop',rcPicked=null,rcCents=null,rcBusy=false,rcT=null,rcSeq=0;
+  function rcEl(s){return q(s);}
+  function rcBar(on){var b=rcEl('[data-vrtrip-rc-bar]');if(b)b.hidden=!on;}
+  function openSupport(){
+    var m=rcEl('[data-vrtrip-sup-menu]'),rc=rcEl('[data-vrtrip-rc]');
+    if(m)m.hidden=false;if(rc)rc.hidden=true;
+    setPane('support');
+  }
+  function rcOpen(mode){
+    rcMode=mode;rcPicked=null;rcCents=null;
+    var m=rcEl('[data-vrtrip-sup-menu]'),rc=rcEl('[data-vrtrip-rc]');
+    if(m)m.hidden=true;
+    if(rc){rc.hidden=false;rc.classList.remove('is-in');void rc.offsetWidth;rc.classList.add('is-in');}
+    var ti=rcEl('[data-vrtrip-rc-title]');if(ti)ti.textContent=mode==='stop'?T.supStop:T.supDest;
+    var inp=rcEl('[data-vrtrip-rc-input]');
+    if(inp){inp.value='';inp.placeholder=mode==='stop'?T.rcStopPh:T.rcDestPh;setTimeout(function(){try{inp.focus();}catch(_){}},160);}
+    var ls=rcEl('[data-vrtrip-rc-list]');if(ls)ls.innerHTML='';
+    var qb=rcEl('[data-vrtrip-rc-quote]');if(qb)qb.hidden=true;
+    rcBar(false);
+    if(root()&&root().querySelector('[data-vrtrip-pane="support"]').hidden)setPane('support');
+  }
+  function rcSuggest(qy){
+    var seq=++rcSeq;
+    if(!qy||qy.length<3){var l0=rcEl('[data-vrtrip-rc-list]');if(l0)l0.innerHTML='';rcBar(false);return;}
+    rcBar(true);
+    tripCoords().then(function(c){return mbGeocode(qy,c.pu);}).then(function(list){
+      if(seq!==rcSeq)return;
+      rcBar(false);
+      var ls=rcEl('[data-vrtrip-rc-list]');if(!ls)return;
+      ls.innerHTML='';
+      if(!list.length){var d=document.createElement('div');d.className='vrTrip__chatEmpty';d.textContent=T.rcNone;ls.appendChild(d);return;}
+      list.forEach(function(sg){
+        var b=document.createElement('button');
+        b.type='button';b.className='vrTrip__rcItem';
+        b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg><span></span>';
+        b.querySelector('span').textContent=sg.label;
+        b.addEventListener('click',function(){rcQuote(sg);});
+        ls.appendChild(b);
+      });
+    }).catch(function(){if(seq===rcSeq)rcBar(false);});
+  }
+  /* delta REAL por calle, como la app: ruta con parada menos ruta base;
+     tarifas ancladas por nivel + $2.50 fijo de parada (mínimo $2.50).
+     El cambio de destino usa el mismo delta con signo, sin cuota. */
+  function rcQuote(sg){
+    rcBar(true);rcPicked=null;rcCents=null;
+    var qb=rcEl('[data-vrtrip-rc-quote]');if(qb)qb.hidden=true;
+    tripCoords().then(function(c){
+      var base=mbDir([c.pu,c.dr]);
+      var alt=rcMode==='stop'?mbDir([c.pu,{lat:sg.lat,lng:sg.lng},c.dr]):mbDir([c.pu,{lat:sg.lat,lng:sg.lng}]);
+      return Promise.all([base,alt]);
+    }).then(function(rr){
+      rcBar(false);
+      var r=tierRates(),pm=r[0],pmin=r[1];
+      var dmi=rr[1].mi-rr[0].mi,dmin=rr[1].min-rr[0].min,cents;
+      if(rcMode==='stop'){
+        var road=Math.min(Math.max(dmi,0),200)*pm+Math.min(Math.max(dmin,0),600)*pmin;
+        cents=Math.round((road+2.50)*100);if(cents<250)cents=250;
+      }else{
+        var road2=Math.min(Math.max(dmi,-200),200)*pm+Math.min(Math.max(dmin,-600),600)*pmin;
+        cents=Math.round(road2*100);
+      }
+      rcPicked=sg;rcCents=cents;
+      var ls=rcEl('[data-vrtrip-rc-list]');if(ls)ls.innerHTML='';
+      var ad=rcEl('[data-vrtrip-rc-addr]');if(ad)ad.textContent=sg.label;
+      var pr=rcEl('[data-vrtrip-rc-price]');
+      if(pr)pr.textContent=(rcMode==='stop'?T.rcStopFee:(cents>=0?T.rcDestUp:T.rcDestDown)).replace('{a}',fmt$(cents));
+      if(qb)qb.hidden=false;
+    }).catch(function(){rcBar(false);toast(T.rcFail,'err');});
+  }
+  function rcCommit(){
+    if(!rcPicked||rcCents===null||rcBusy)return;
+    var msg=(rcMode==='stop'?T.rcStopFee:(rcCents>=0?T.rcDestUp:T.rcDestDown)).replace('{a}',fmt$(rcCents));
+    if(!confirm(T.rcSure+'\n\n'+rcPicked.label+'\n'+msg))return;
+    rcBusy=true;
+    var btn=rcEl('[data-vrtrip-rc-confirm]');if(btn)btn.disabled=true;
+    var done=function(okTxt){
+      rcBusy=false;if(btn)btn.disabled=false;
+      toast(okTxt,'ok');openSupport();setPane('trip');
+    };
+    var viaChat=function(){
+      var line=(rcMode==='stop'
+        ?(es?'El pasajero agregó una parada: ':'The rider added a stop: ')
+        :(es?'El pasajero cambió el destino a: ':'The rider changed the destination to: '))
+        +rcPicked.label+' ('+(es?'ajuste estimado ':'estimated adjustment ')+fmt$(rcCents)+')';
+      return Promise.resolve(sendMsg(line)).then(function(){
+        done((rcMode==='stop'?T.rcStopChat:T.rcDestChat).replace('{a}',fmt$(rcCents)));
+      });
+    };
+    /* primero el endpoint web (si el backend ya lo tiene); si no existe, la
+       parada viaja al chofer por el chat, el único canal web real hoy */
+    var url=api+'/bookings/web/'+bid+'/'+(rcMode==='stop'?'stops':'destination');
+    fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({lat:rcPicked.lat,lng:rcPicked.lng,label:rcPicked.label,extra_cents:rcCents})})
+    .then(function(r){
+      if(!r.ok)throw new Error('http '+r.status);
+      if(rcMode!=='stop'){
+        drAddr=rcPicked.label;
+        try{var b=JSON.parse(localStorage.getItem('vr_active_booking')||'{}');b.dropoff=rcPicked.label;localStorage.setItem('vr_active_booking',JSON.stringify(b));}catch(_){}
+      }
+      done(rcMode==='stop'?T.rcStopOk:T.rcDestOk);
+    })
+    .catch(function(){viaChat().catch(function(){rcBusy=false;if(btn)btn.disabled=false;toast(T.rcFail,'err');});});
   }
   function doCancel(){
     if(!confirm(T.cancelAsk))return;
@@ -3744,20 +3943,27 @@ window.__VR_AIRPORTS = [
     on('[data-vrtrip-chat]','click',openChat);
     on('[data-vrtrip-chat-back]','click',function(e){e.preventDefault();closeChat();});
     on('[data-vrtrip-share]','click',doShare);
-    on('[data-vrtrip-support]','click',doSupport);
+    on('[data-vrtrip-support]','click',openSupport);
     on('[data-vrtrip-cancel]','click',doCancel);
-    on('[data-vrtrip-addstop]','click',function(){
-      var form=r.querySelector('[data-vrtrip-stop-form]');if(!form)return;
-      form.hidden=!form.hidden;
-      if(!form.hidden){var i=form.querySelector('input');if(i)setTimeout(function(){try{i.focus();}catch(_){}},120);}
+    on('[data-vrtrip-addstop]','click',function(){rcOpen('stop');});
+    /* panel de soporte */
+    on('[data-vrtrip-sup-close]','click',function(){setPane('trip');});
+    on('[data-vrtrip-sup-problem]','click',function(){setPane('trip');doSupport();});
+    on('[data-vrtrip-sup-contact]','click',function(){setPane('trip');doSupport();});
+    on('[data-vrtrip-sup-stop]','click',function(){rcOpen('stop');});
+    on('[data-vrtrip-sup-dest]','click',function(){rcOpen('dest');});
+    on('[data-vrtrip-sup-911]','click',function(){
+      /* confirma primero: está a un toque de Contactar soporte y un 911
+         marcado por error no es poca cosa (igual que en la app) */
+      if(confirm(T.ask911))location.href='tel:911';
     });
-    var sform=r.querySelector('[data-vrtrip-stop-form]');
-    if(sform)sform.addEventListener('submit',function(e){
-      e.preventDefault();
-      var i=sform.querySelector('input'),v=i?(i.value||'').trim():'';
-      if(!v)return;
-      if(i)i.value='';sform.hidden=true;
-      addStop(v);
+    on('[data-vrtrip-rc-back]','click',openSupport);
+    on('[data-vrtrip-rc-confirm]','click',rcCommit);
+    var rcInp=r.querySelector('[data-vrtrip-rc-input]');
+    if(rcInp)rcInp.addEventListener('input',function(){
+      clearTimeout(rcT);
+      var v=rcInp.value.trim();
+      rcT=setTimeout(function(){rcSuggest(v);},420);
     });
     var cform=r.querySelector('[data-vrtrip-chat-form]');
     if(cform)cform.addEventListener('submit',function(e){
@@ -3772,9 +3978,12 @@ window.__VR_AIRPORTS = [
              ['[data-vrtrip-support] b',T.support],['[data-vrtrip-addstop]',T.addStop],['[data-vrtrip-cancel]',T.cancel],
              ['[data-vrtrip-step="enroute"] b',T.s1],['[data-vrtrip-step="arrived"] b',T.s2],
              ['[data-vrtrip-step="intrip"] b',T.s3],['[data-vrtrip-step="done"] b',T.s4],
-             ['[data-vrtrip-eta-lbl]',T.minAway],['[data-vrtrip-pill-txt]',T.enroute],['[data-vrtrip-name]',T.yourDriver]];
+             ['[data-vrtrip-eta-lbl]',T.minAway],['[data-vrtrip-pill-txt]',T.enroute],['[data-vrtrip-name]',T.yourDriver],
+             ['[data-vrtrip-sup-title]',T.supTitle],['[data-vrtrip-sup-problem-lbl]',T.problem],
+             ['[data-vrtrip-sup-stop-lbl]',T.supStop],['[data-vrtrip-sup-dest-lbl]',T.supDest],
+             ['[data-vrtrip-sup-911-lbl]',T.sup911],['[data-vrtrip-sup-contact-lbl]',T.supContact],
+             ['[data-vrtrip-rc-confirm]',T.rcConfirm]];
     lbl.forEach(function(p){var el=r.querySelector(p[0]);if(el)el.textContent=p[1];});
-    var ph=r.querySelector('[data-vrtrip-stop-input]');if(ph)ph.placeholder=T.stopPh;
     var pm=r.querySelector('[data-vrtrip-chat-input]');if(pm)pm.placeholder=T.msgPh;
   }
 
@@ -3839,8 +4048,9 @@ window.__VR_AIRPORTS = [
       var pu=(d&&(d.pickup_address||d.pickup))||'',dr=(d&&(d.dropoff_address||d.dropoff))||'';
       var was='';try{was=sessionStorage.getItem('vr_trip_pane')||'';}catch(_){}
       var ok=window.__vrTripShow(d,bookingId,apiBase,webKey,pu,dr);
-      /* si estaba en el chat, se recarga en el chat */
+      /* si estaba en el chat o en soporte, se recarga en ese mismo panel */
       if(ok&&was==='chat')setTimeout(openChat,60);
+      if(ok&&was==='support')setTimeout(openSupport,60);
       return ok;
     }catch(_){return false;}
   };
@@ -4971,7 +5181,13 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__testCancelBtn:active{color:rgba(255,255,255,.8)}
 .vipRide__testConfirm__phase2{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:0 14px clamp(20px,5vw,32px);opacity:0;pointer-events:none;transition:opacity 600ms ease}
 .vipRide__testConfirm__phase2.is-visible{opacity:1;pointer-events:auto}
-.vipRide__testSheet{position:relative;overflow:hidden;background:radial-gradient(130% 100% at 50% 0%,rgba(212,175,55,.12),rgba(212,175,55,0) 62%),#000;border-radius:20px;padding:16px 18px clamp(18px,5vw,24px);display:flex;flex-direction:column;gap:16px;transform:translateY(40px);transition:transform 650ms cubic-bezier(.2,.8,.2,1);box-shadow:0 8px 48px rgba(0,0,0,.65),inset 0 0 0 1px rgba(212,175,55,.18)}
+.vipRide__testSheet{position:relative;overflow:hidden;background:#000;border-radius:20px;padding:16px 18px clamp(18px,5vw,24px);display:flex;flex-direction:column;gap:16px;transform:translateY(40px);transition:transform 650ms cubic-bezier(.2,.8,.2,1),background-color .7s cubic-bezier(.22,1,.36,1),box-shadow .7s cubic-bezier(.22,1,.36,1);box-shadow:0 8px 48px rgba(0,0,0,.65),inset 0 0 0 1px rgba(212,175,55,.18)}
+/* el brillo dorado va en su propia capa para poder fundirlo al mutar de modo */
+.vipRide__testSheet::before{content:'';position:absolute;inset:0;border-radius:inherit;background:radial-gradient(130% 100% at 50% 0%,rgba(212,175,55,.12),rgba(212,175,55,0) 62%);opacity:1;transition:opacity .7s cubic-bezier(.22,1,.36,1);pointer-events:none;z-index:0}
+/* con chofer asignado la tarjeta pasa al gris neumórfico del sitio */
+.vipRide__testSheet.is-neu{background:rgba(32,36,45,.96);box-shadow:inset 2px 2px 5px rgba(255,255,255,.09),inset -6px -6px 12px rgba(0,0,0,.38),10px 14px 28px rgba(0,0,0,.42)}
+.vipRide__testSheet.is-neu::before{opacity:0}
+.vipRide__testSheet.is-neu .vipRide__testStars{opacity:0;transition:opacity .6s ease}
 .vipRide__testSheet>*:not(.vipRide__testStars){position:relative;z-index:1}
 .vipRide__testSheet .vipRide__testStars{border-radius:inherit;z-index:0}
 .vipRide__testSheet .vipRide__testStar{background:#d4af37;box-shadow:0 0 7px rgba(212,175,55,.6);animation-name:vipSheetDrift;animation-timing-function:linear}
@@ -5033,16 +5249,46 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vrTrip__unread{position:absolute;top:6px;right:8px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#e8474b;color:#fff;font:800 10px/17px 'Inter',sans-serif;text-align:center}
 .vrTrip__unread[hidden]{display:none!important}
 
-.vrTrip__route{display:flex;flex-direction:column;gap:0;padding:12px 13px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
-.vrTrip__rRow{position:relative;display:flex;align-items:center;gap:11px;min-height:26px;font:500 12.5px/1.3 'Inter',sans-serif;color:rgba(255,255,255,.72)}
-.vrTrip__rRow span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.vrTrip__rRow+.vrTrip__rRow::before{content:'';position:absolute;left:4px;top:-13px;width:1.5px;height:26px;background:rgba(212,175,55,.4)}
-.vrTrip__rDot{width:9px;height:9px;flex-shrink:0;border-radius:50%;border:2px solid #d4af37;background:transparent}
-.vrTrip__rDot--stop{border-color:#f5d77a;background:#f5d77a}
-.vrTrip__rDot--end{border-radius:2px;background:#d4af37}
+/* ── Seguridad y soporte (réplica del panel de la app) ── */
+.vrTrip__sup{gap:2px}
+.vrTrip__supHead{display:flex;align-items:center;gap:10px;padding:2px 0 10px}
+.vrTrip__supHeadIco{width:22px;height:22px;flex-shrink:0;display:flex}
+.vrTrip__supHeadIco svg{width:100%;height:100%}
+.vrTrip__supTitle{flex:1;min-width:0;font:800 16px/1.2 'Poppins','Inter',sans-serif;color:#fff;letter-spacing:-.01em}
+.vrTrip__supClose{-webkit-appearance:none;appearance:none;width:34px;height:34px;flex-shrink:0;border:none;border-radius:50%;background:#17191f;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 3px 3px 6px rgba(0,0,0,.45),inset -2px -2px 4px rgba(255,255,255,.05);transition:filter .2s}
+.vrTrip__supClose svg{width:17px;height:17px}
+.vrTrip__supClose:hover{filter:brightness(1.25)}
+.vrTrip__supItem{-webkit-appearance:none;appearance:none;display:flex;align-items:center;gap:13px;width:100%;padding:14px 4px;border:none;background:none;color:#fff;font:600 14.5px/1.25 'Inter',sans-serif;font-family:inherit;text-align:left;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05);transition:background .18s;border-radius:10px}
+.vrTrip__supItem:last-child{border-bottom:none}
+.vrTrip__supItem:hover{background:rgba(255,255,255,.04)}
+.vrTrip__supItem i{width:21px;height:21px;flex-shrink:0;display:flex}
+.vrTrip__supItem i svg{width:100%;height:100%}
+.vrTrip__supItem--danger{color:#ef6b6b}
+/* ── página de parada / cambio de destino ── */
+.vrTrip__rc{display:flex;flex-direction:column;gap:11px}
+.vrTrip__rc[hidden]{display:none!important}
+.vrTrip__rcBack svg{width:17px;height:17px}
+.vrTrip__rcSearch{display:flex;align-items:center;gap:10px;padding:0 13px;height:48px;border-radius:14px;background:#17191f;box-shadow:inset 3px 3px 7px rgba(0,0,0,.45),inset -2px -2px 4px rgba(255,255,255,.05)}
+.vrTrip__rcSearch svg{width:18px;height:18px;flex-shrink:0}
+.vrTrip__rcInput{flex:1;min-width:0;background:none;border:none;outline:none;color:#fff;font:500 14px/1.3 'Inter',sans-serif;font-family:inherit}
+.vrTrip__rcInput::placeholder{color:rgba(255,255,255,.33)}
+.vrTrip__rcBar{height:2px;border-radius:2px;overflow:hidden;background:rgba(255,255,255,.07)}
+.vrTrip__rcBar[hidden]{display:none!important}
+.vrTrip__rcBar i{display:block;height:100%;width:40%;border-radius:2px;background:#E8C547;animation:vrTripRcBar 1s linear infinite}
+@keyframes vrTripRcBar{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+.vrTrip__rcList{display:flex;flex-direction:column}
+.vrTrip__rcItem{-webkit-appearance:none;appearance:none;display:flex;align-items:center;gap:10px;width:100%;padding:11px 4px;border:none;background:none;color:#fff;font:500 13.5px/1.3 'Inter',sans-serif;font-family:inherit;text-align:left;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05)}
+.vrTrip__rcItem:hover{background:rgba(255,255,255,.04)}
+.vrTrip__rcItem svg{width:17px;height:17px;flex-shrink:0}
+.vrTrip__rcItem span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.vrTrip__rcQuote{display:flex;flex-direction:column;gap:7px;padding:14px;border-radius:14px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.45)}
+.vrTrip__rcQuote[hidden]{display:none!important}
+.vrTrip__rcQuote b{font:600 13.5px/1.35 'Inter',sans-serif;color:#fff}
+.vrTrip__rcQuote span{font:600 12.5px/1.35 'Inter',sans-serif;color:#E8C547}
+.vrTrip__rcConfirm{-webkit-appearance:none;appearance:none;margin-top:6px;height:46px;border:none;border-radius:12px;background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);color:#241c05;font:800 14.5px/1 'Inter',sans-serif;font-family:inherit;cursor:pointer;transition:filter .2s}
+.vrTrip__rcConfirm:hover{filter:brightness(1.06)}
+.vrTrip__rcConfirm[disabled]{opacity:.45;cursor:not-allowed}
 
-.vrTrip__stopForm{display:flex;align-items:center;gap:9px}
-.vrTrip__stopForm[hidden]{display:none!important}
 .vrTrip__more{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:2px}
 .vrTrip__link{-webkit-appearance:none;appearance:none;background:none;border:none;padding:9px 4px;font:600 13px/1 'Inter',sans-serif;color:rgba(255,255,255,.6);cursor:pointer;font-family:inherit;transition:color .2s}
 .vrTrip__link:hover{color:#fff}
@@ -6453,8 +6699,9 @@ setTimeout(_vrPfKick,1200);
             function fin(){
               pend--;
               if(pend>0)return;
-              /* si Directions falla, puntos aleatorios del anillo como respaldo */
-              if(!pool.length)for(var i=0;i<40;i++)pool.push({p:fRing(center,5,9),brg:Math.random()*360});
+              /* si Directions falla NO hay respaldo aleatorio: un punto al azar
+                 cae en el monte y un coche fuera de la calle rompe la ilusión.
+                 Sin banco, simplemente no salen coches. */
               if(gen===fGen)fPool=pool;
               if(done)done();
             }
@@ -6468,7 +6715,11 @@ setTimeout(_vrPfKick,1200);
                     var pts=(g&&g.coordinates)||[];
                     for(var i=0;i<pts.length-1;i++){
                       var dm=fDist(pts[i],center);
-                      if(dm>4000&&dm<9500)pool.push({p:pts[i],brg:fBrg(pts[i],pts[i+1])});
+                      /* se guarda casi toda la ruta (todo punto de Directions
+                         está SOBRE una calle): así con el zoom cerrado también
+                         hay puntos de calle a la vista, y no hace falta
+                         inventar posiciones */
+                      if(dm>700&&dm<9500)pool.push({p:pts[i],brg:fBrg(pts[i],pts[i+1])});
                     }
                     fin();
                   }).catch(fin);
@@ -6510,17 +6761,27 @@ setTimeout(_vrPfKick,1200);
               var cand2=avail[Math.floor(Math.random()*avail.length)];
               if(farEnough(cand2,false))chosen.push(cand2);
             }
-            /* si el mapa está muy acercado y el anillo queda fuera, colocarlos
-               dentro del encuadre, igual de separados entre sí */
-            if(b&&chosen.length<n){
-              var hw=(b.getEast()-b.getWest())/2,hh=(b.getNorth()-b.getSouth())/2;
-              var guard=0;
-              while(chosen.length<n&&guard<200){
-                guard++;
-                var a2=Math.random()*Math.PI*2,r2=0.35+0.45*Math.random();
-                var cand3={p:[cc[0]+Math.cos(a2)*hw*r2,cc[1]+Math.sin(a2)*hh*r2],brg:Math.random()*360};
-                if(guard>120||farEnough(cand3,true))chosen.push(cand3);
-              }
+            /* si con el zoom cerrado no hay suficientes puntos de calle a la
+               vista, salen MENOS coches (o ninguno): jamás se inventa una
+               posición al azar, porque caería fuera de las calles. Además se
+               pide UNA ruta dentro del encuadre para nutrir el banco local
+               (sus puntos vienen pegados a la calle), con freno de 30 s. */
+            if(b&&chosen.length<n&&!window.__vrFleetTopUp&&(!fCycle._lastTopUp||performance.now()-fCycle._lastTopUp>30000)){
+              window.__vrFleetTopUp=true;fCycle._lastTopUp=performance.now();
+              (function(gen2){
+                var w=b.getWest(),e2=b.getEast(),s2=b.getSouth(),nn=b.getNorth();
+                var rp=function(){return [w+(e2-w)*(0.15+0.7*Math.random()),s2+(nn-s2)*(0.15+0.7*Math.random())];};
+                var A=rp(),B=rp();
+                fetch('https://api.mapbox.com/directions/v5/mapbox/driving/'+A[0]+','+A[1]+';'+B[0]+','+B[1]+'?geometries=geojson&overview=full&access_token='+encodeURIComponent(mapboxgl.accessToken))
+                  .then(function(r){return r.json();})
+                  .then(function(d){
+                    window.__vrFleetTopUp=false;
+                    if(gen2!==fGen)return;
+                    var g=d&&d.routes&&d.routes[0]&&d.routes[0].geometry;
+                    var pts=(g&&g.coordinates)||[];
+                    for(var i=0;i<pts.length-1;i++)fPool.push({p:pts[i],brg:fBrg(pts[i],pts[i+1])});
+                  }).catch(function(){window.__vrFleetTopUp=false;});
+              })(gen);
             }
             chosen.forEach(function(x,i){
               var type=Math.random()<0.6?'sub':'sedan';
@@ -7579,6 +7840,8 @@ setTimeout(_vrPfKick,1200);
       var _mapBack=root.querySelector('[data-vipride-map-back]');
       if(_mapBack)_mapBack.hidden=true;
       window.__vrLastPickup=pickupEl?pickupEl.value:'';window.__vrLastDropoff=dropoffEl?dropoffEl.value:'';
+      /* coordenadas para cotizar paradas/cambios de destino sin regeocodificar */
+      try{if(pickupPlace&&dropoffPlace)window.__vrTripCoords={pu:{lat:pickupPlace.lat,lng:pickupPlace.lng},dr:{lat:dropoffPlace.lat,lng:dropoffPlace.lng}};}catch(_){}
       /* la misma tarjeta donde se buscaba chofer pasa a mostrar el viaje:
          estado, minutos, ficha del chofer, llamar/chat/compartir/soporte,
          la ruta y las opciones de parada y cancelar */
