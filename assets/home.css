@@ -705,12 +705,37 @@ a.h-store { text-decoration: none; }
 .h-store b { font-size: 16px; font-weight: 700; }
 .h-store--soon { cursor: default; }
 .h-store--soon b { color: var(--ink-soft); }
+/* cinta dorada "Próximamente" cruzando en diagonal el botón de Google Play */
+.h-store--soon { position: relative; overflow: hidden; }
+.h-store--soon .hs-icon,
+.h-store--soon > span { opacity: .4; }
+.h-store__ribbon {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 130%;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  text-align: center;
+  padding: 4px 0;
+  background: linear-gradient(145deg, #f2d577, #d4af37 55%, #b8922c);
+  color: #241c05;
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .4);
+  pointer-events: none;
+}
 
 @media (max-width: 900px) {
   .hero { padding-top: 120px; }
   .hero-inner { flex-direction: column; align-items: flex-start; gap: 44px; }
   .h-col--right { align-items: flex-start; }
   .h-badges { align-items: flex-start; }
+  /* tiendas de apps centradas */
+  .h-col--right .h-stores { width: 100%; text-align: center; }
+  .h-col--right .h-store-row { justify-content: center; }
 }
 
 /* teléfonos: el video sigue de fondo tras el contenido, pero con menos zoom:
@@ -724,11 +749,17 @@ a.h-store { text-decoration: none; }
     -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent);
             mask-image: linear-gradient(to bottom, #000 58%, transparent);
   }
-  /* insignias y botones compactos y en horizontal */
+  /* insignias en UNA sola fila y botones compactos en horizontal */
   .h-col--right { width: 100%; }
-  .h-badges { justify-content: flex-start; gap: 8px; }
-  .h-badge { padding: 8px 12px; font-size: 11px; gap: 6px; }
-  .h-badge svg { width: 13px; height: 13px; flex: 0 0 13px; }
+  .h-badges { flex-wrap: nowrap; justify-content: center; gap: 6px; }
+  .h-badge {
+    padding: 7px clamp(6px, 1.8vw, 10px);
+    font-size: clamp(8.5px, 2.55vw, 10px);
+    gap: 4px;
+    white-space: nowrap;
+    letter-spacing: 0;
+  }
+  .h-badge svg { width: 12px; height: 12px; flex: 0 0 12px; }
   .h-buttons { width: 100%; flex-wrap: nowrap; gap: 10px; }
   .h-buttons .btn-gold,
   .h-buttons .btn-ghost {
