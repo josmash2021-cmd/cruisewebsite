@@ -327,16 +327,6 @@ img,video{-webkit-user-drag:none}
               <div class="vipRide__rideDetail__price" data-vipride-detail-price>--</div>
             </div>
           </div>
-          <div class="vipRide__actionBtns" data-vipride-action-btns hidden role="group" aria-label="Ride actions">
-            <button type="button" class="vipRide__paymentBtn" data-vipride-payment-btn aria-label="Select payment method">
-              <span class="vipRide__payBtnIcon" aria-hidden="true" style="width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,255,255,.1)">
-                <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="1" y="1" width="16" height="10" rx="2" stroke="#fff" stroke-width="1.2"/><path d="M1 4.5h16" stroke="#fff" stroke-width="1.2"/></svg>
-              </span>
-              <span class="vipRide__payBtnLabel" data-vipride-rc-heading>Payment Method</span>
-              <svg aria-hidden="true" width="7" height="12" viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.4"><path d="M1 1l5 5-5 5"/></svg>
-            </button>
-            <button type="button" class="vipRide__requestBtn" data-vipride-request-btn aria-label="Request ride"><span data-vipride-request-text>Request Ride</span></button>
-          </div>
           <form class="vipRide__ctaForm" data-vipride-form style="display:none">
             <input type="hidden" name="id" value="" data-vipride-booking-variant>
             <input type="hidden" name="quantity" value="1">
@@ -350,6 +340,16 @@ img,video{-webkit-user-drag:none}
             <input type="hidden" name="properties[Estimated Price]" value="" data-vipride-prop="price">
           </form>
         </div>
+      </div>
+      <div class="vipRide__actionBtns" data-vipride-action-btns hidden role="group" aria-label="Ride actions">
+        <button type="button" class="vipRide__paymentBtn" data-vipride-payment-btn aria-label="Select payment method">
+          <span class="vipRide__payBtnIcon" aria-hidden="true" style="width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,255,255,.1)">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="1" y="1" width="16" height="10" rx="2" stroke="#fff" stroke-width="1.2"/><path d="M1 4.5h16" stroke="#fff" stroke-width="1.2"/></svg>
+          </span>
+          <span class="vipRide__payBtnLabel" data-vipride-rc-heading>Payment Method</span>
+          <svg aria-hidden="true" width="7" height="12" viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.4"><path d="M1 1l5 5-5 5"/></svg>
+        </button>
+        <button type="button" class="vipRide__requestBtn" data-vipride-request-btn aria-label="Request ride"><span data-vipride-request-text>Request Ride</span></button>
       </div>
       <div class="vipRide__payOverlay" data-vipride-pay-overlay hidden>
         <div class="vipRide__payOverlay__list">
@@ -373,6 +373,21 @@ img,video{-webkit-user-drag:none}
               <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09A6.97 6.97 0 015.5 12c0-.72.12-1.42.34-2.09V7.07H2.18A11.96 11.96 0 001 12c0 1.94.46 3.77 1.18 5.42l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
             </span>
             <span class="vipRide__payLabel" data-vipride-pay-google>Google Pay</span>
+            <span class="vipRide__payCheck" aria-hidden="true"></span>
+          </button>
+          <!-- PROVISIONAL — quitar cuando terminen las pruebas.
+               Salta el cobro y crea la reserva igualmente, así que se despacha
+               un chófer de verdad. Oculto salvo que se active a propósito
+               (ver _vrTestMode más abajo): en la web pública sería viaje gratis
+               para cualquiera. -->
+          <button type="button" class="vipRide__payOption vipRide__payOption--test" data-vipride-pay-option="test_mode" data-vipride-pay-test hidden>
+            <span class="vipRide__payIcon" style="background:#2a2f3a;display:flex;align-items:center;justify-content:center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f5d77a" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6.5L5.6 18a2 2 0 0 0 1.7 3h9.4a2 2 0 0 0 1.7-3L14 9.5V3"/></svg>
+            </span>
+            <span class="vipRide__payLabel">
+              <span data-vipride-pay-test-label>Test Mode</span>
+              <small style="display:block;font-size:12px;opacity:.55" data-vipride-pay-test-sub>Simulate payment</small>
+            </span>
             <span class="vipRide__payCheck" aria-hidden="true"></span>
           </button>
         </div>
@@ -7431,6 +7446,21 @@ setTimeout(_vrPfKick,1200);
     afterInputChange=function(){_origAfterInput();updateCompactArrow()};
     updateCompactArrow();
     var _payOverlay = document.querySelector('[data-vipride-pay-overlay]');
+    /* PROVISIONAL — modo de prueba. Salta el cobro y crea la reserva igual, así
+       que despacha un chófer real: no puede quedar a la vista del público.
+       Se enciende con ?test=1 (queda recordado) y se apaga con ?test=0. */
+    var _vrTestMode=(function(){
+      try{
+        var q=new URLSearchParams(location.search).get('test');
+        if(q==='1'){localStorage.setItem('vr_test_pay','1');return true;}
+        if(q==='0'){localStorage.removeItem('vr_test_pay');return false;}
+        return localStorage.getItem('vr_test_pay')==='1';
+      }catch(_){return false;}
+    })();
+    if(_vrTestMode){
+      var _tb=document.querySelector('[data-vipride-pay-test]');
+      if(_tb)_tb.removeAttribute('hidden');
+    }
     var _payOptions = document.querySelectorAll('[data-vipride-pay-option]');
     var _payList=_payOverlay?_payOverlay.querySelector('.vipRide__payOverlay__list'):null;
     var _cardForm=document.querySelector('[data-vipride-cardform]');
@@ -9481,9 +9511,10 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
        ocupa todo el ancho del sheet, pegada al fondo, y el listado pasa por
        debajo — como en la referencia. ─── */
 html body .vipRide .vipRide__actionBtns{
-  margin:8px calc(var(--pad) * -1) 0!important;
+  /* hija directa del sheet: sticky sí puede llegar al fondo del panel */
+  position:sticky!important; bottom:0!important; z-index:8!important;
+  margin:8px calc(var(--pad) * -1) calc(env(safe-area-inset-bottom,0px) * -1 - 10px)!important;
   padding:12px var(--pad) calc(12px + env(safe-area-inset-bottom,0px))!important;
-  bottom:0!important;
   border:none!important; border-top:1px solid rgba(255,255,255,.1)!important;
   border-radius:0!important;
   background:#0c0c10!important;
