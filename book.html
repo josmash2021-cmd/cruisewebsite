@@ -7147,11 +7147,15 @@ setTimeout(_vrPfKick,1200);
           function fBrg(a,b){var toR=Math.PI/180,la1=a[1]*toR,la2=b[1]*toR,dLn=(b[0]-a[0])*toR;var y=Math.sin(dLn)*Math.cos(la2);var x=Math.cos(la1)*Math.sin(la2)-Math.sin(la1)*Math.cos(la2)*Math.cos(dLn);return Math.atan2(y,x)*180/Math.PI;}
           /* anillo a 5-9 km ≈ 12-18 min de viaje en ciudad */
           function fRing(c,kmMin,kmMax){var a=Math.random()*Math.PI*2,r=kmMin+Math.random()*(kmMax-kmMin);return [c[0]+Math.cos(a)*r/(111.32*Math.cos(c[1]*Math.PI/180)),c[1]+Math.sin(a)*r/110.57];}
-          /* movimiento lento y FLUIDO: el marcador se queda fijo (Mapbox lo
-             redondea a píxeles enteros y a esta velocidad se vería a saltitos)
-             y lo que se desliza con GPU es un div interior, en fracciones de
-             píxel. Como el marcador va rotado a su rumbo, "adelante" es
-             translateY negativo. */
+          /* movimiento lento y FLUIDO **siguiendo la calle**: el coche viaja
+             sobre la polilínea real de Directions, tramo a tramo. Dentro de
+             cada tramo el marcador NO se mueve (Mapbox redondea su posición a
+             píxeles enteros y a esta velocidad se vería a saltitos): lo que se
+             desliza con GPU es un div interior, en fracciones de píxel, y como
+             el marcador va rotado al rumbo del tramo, "adelante" es translateY
+             negativo. Al llegar al vértice siguiente el marcador se re-ancla
+             ahí y gira al rumbo del tramo nuevo — así toma la curva en vez de
+             seguir recto y acabar fuera del asfalto. */
           function fDrive(){
             if(!fAnim.length){fRafOn=false;return;}
             var now=performance.now(),ppm=0;
@@ -7159,7 +7163,19 @@ setTimeout(_vrPfKick,1200);
             fAnim.forEach(function(a){
               var dt=(now-a.t)/1000;a.t=now;
               if(dt<=0||dt>1)return;
+              if(a.dead)return;
               a.d+=a.v*dt;
+              var guard=0;
+              while(a.d>=a.seg&&guard++<50){
+                a.d-=a.seg;
+                a.i+=a.dir;
+                var nx=a.i+a.dir;
+                /* fin de la ruta: da la vuelta y sigue por la misma calle */
+                if(nx<0||nx>=a.path.length){a.dir=-a.dir;nx=a.i+a.dir;}
+                if(nx<0||nx>=a.path.length){a.dead=true;a.d=0;break;}
+                a.seg=Math.max(0.5,fDist(a.path[a.i],a.path[nx]));
+                try{a.m.setLngLat(a.path[a.i]).setRotation(fBrg(a.path[a.i],a.path[nx]));}catch(_){}
+              }
               if(ppm&&a.el)a.el.style.transform='translateY('+(-a.d*ppm).toFixed(2)+'px)';
             });
             requestAnimationFrame(fDrive);
@@ -7214,7 +7230,10 @@ setTimeout(_vrPfKick,1200);
                          está SOBRE una calle): así con el zoom cerrado también
                          hay puntos de calle a la vista, y no hace falta
                          inventar posiciones */
-                      if(dm>700&&dm<9500)pool.push({p:pts[i],brg:fBrg(pts[i],pts[i+1])});
+                      /* se guarda la polilínea entera con el índice: el coche
+                         viaja POR ELLA, que es lo único que garantiza que no
+                         se salga de la calle en las curvas */
+                      if(dm>700&&dm<9500)pool.push({p:pts[i],brg:fBrg(pts[i],pts[i+1]),path:pts,i:i});
                     }
                     fin();
                   }).catch(fin);
@@ -7278,18 +7297,26 @@ setTimeout(_vrPfKick,1200);
                     if(gen2!==fGen)return;
                     var g=d&&d.routes&&d.routes[0]&&d.routes[0].geometry;
                     var pts=(g&&g.coordinates)||[];
-                    for(var i=0;i<pts.length-1;i++)fPool.push({p:pts[i],brg:fBrg(pts[i],pts[i+1])});
+                    for(var i=0;i<pts.length-1;i++)fPool.push({p:pts[i],brg:fBrg(pts[i],pts[i+1]),path:pts,i:i});
                   }).catch(function(){window.__vrFleetTopUp=false;});
               })(gen);
             }
             chosen.forEach(function(x,i){
               var type=Math.random()<0.6?'sub':'sedan';
-              var h=x.brg+(Math.random()<0.5?180:0); /* rumbo real del coche (con su volteo) */
+              /* cada coche recorre su calle en un sentido u otro; el rumbo sale
+                 del tramo por el que va, no de un volteo al azar */
+              var path=x.path,ix=x.i,dir=(Math.random()<0.5?1:-1),nx=ix+dir;
+              if(!path)return;
+              if(nx<0||nx>=path.length){dir=-dir;nx=ix+dir;}
+              if(nx<0||nx>=path.length)return;
               var m=new mapboxgl.Marker({element:fCarEl(type),rotationAlignment:'map',pitchAlignment:'map',anchor:'center'})
-                .setLngLat(x.p).setRotation(h).addTo(map);
+                .setLngLat(path[ix]).setRotation(fBrg(path[ix],path[nx])).addTo(map);
               fMarkers.push(m);
               var el=m.getElement();
-              fAnim.push({el:el._drift,v:8+Math.random()*4,d:0,t:performance.now()});
+              /* ~20-29 km/h, la velocidad que dice el comentario de arriba */
+              fAnim.push({m:m,el:el._drift,path:path,i:ix,dir:dir,
+                          seg:Math.max(0.5,fDist(path[ix],path[nx])),
+                          v:5.5+Math.random()*2.5,d:0,t:performance.now()});
               setTimeout(function(){el.style.opacity='1';},80+i*140);
             });
             if(fAnim.length&&!fRafOn){fRafOn=true;requestAnimationFrame(fDrive);}
