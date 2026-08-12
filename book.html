@@ -6747,7 +6747,17 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
          ruta llena la parte visible del mapa sin meterse debajo de la tarjeta. */
       var sP=Math.max(24,Math.min(48,Math.round(_cw*0.08)));
       var _topBase=document.body.classList.contains('vrm-nohdr')?26:(nH+26);
-      pad={top:_topBase+30,right:sP,bottom:Math.max(sH,240)+24,left:sP};
+      /* ¿la hoja TAPA el mapa o vive debajo de él? En el paso 3 el mapa es una
+         franja que termina justo donde empieza la hoja, así que reservarle el
+         alto entero de la hoja dejaba el encuadre en 120 px y la ruta se salía.
+         Se mide el solape de verdad: lo que la hoja le come al mapa. */
+      var _overlap=0;
+      try{
+        var _sEl=root.querySelector('[data-vipride-sheet]');
+        var _mR=_ct?_ct.getBoundingClientRect():null,_sR=(_sEl&&_sEl.offsetHeight>0&&!_sEl.classList.contains('is-test-hidden'))?_sEl.getBoundingClientRect():null;
+        if(_mR&&_sR&&_sR.top<_mR.bottom)_overlap=Math.round(_mR.bottom-Math.max(_sR.top,_mR.top));
+      }catch(_){}
+      pad={top:_topBase+30,right:sP,bottom:Math.max(34,_overlap+24),left:sP};
     }
     /* el acolchado nunca debe superar el lienzo: si lo hace, Mapbox no puede
        encuadrar. Se recortan lados y parte de arriba, y al de abajo se le respeta
