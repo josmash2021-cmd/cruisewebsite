@@ -8744,6 +8744,11 @@ html body #vipMpFooterSugs{
   /* con el panel abierto, el resto del cuadro primero se funde y luego se retira del flujo */
   html body .vipRide .vipRide__sheet.vrd-when-fade>*:not(.vrd-when-panel){opacity:0!important;transition:opacity .22s ease!important}
   html body .vipRide .vipRide__sheet.vrd-when-open>*:not(.vrd-when-panel){display:none!important}
+  /* en el paso 3 hay una regla más específica que mantiene el formulario a la
+     vista (display:flex); sin este contrapeso el formulario invisible seguía
+     ocupando sitio y empujaba el panel de horario hacia abajo */
+  html body .vipRide .vipRide__sheet.vrd-when-open[data-vipride-step="3"] .vipRide__step[data-vipride-step-panel="1"]{display:none!important}
+  html body .vipRide .vipRide__sheet.vrd-when-fade[data-vipride-step="3"] .vipRide__step[data-vipride-step-panel="1"]{opacity:0!important;transition:opacity .22s ease!important}
   /* tarjeta "Beneficios de reservar" bajo el cuadro cuando hay viaje programado */
   html body .vrd-benefits{
     position:fixed;left:var(--vrd-gap);width:var(--vrd-col);z-index:55;
