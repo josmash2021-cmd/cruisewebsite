@@ -6739,13 +6739,24 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       var pS=Math.max(40,Math.min(80,Math.round(Math.min(_cw,_ch)*.12)));
       pad={top:pS+30,right:pS,bottom:pS,left:pS};
     }else{
-      var sP=d<.05?150:170;
-      pad={top:nH+95,right:sP,bottom:Math.max(sH,280)+70,left:sP};
+      /* Teléfono: la ruta salía diminuta porque el margen lateral era de 150-170 px
+         sobre una pantalla de ~390 (le dejaba 80 px de ancho útil) y arriba se
+         sumaba la cabecera que en el paso 3 ni siquiera está. Ahora los lados son
+         proporcionales (8% del ancho, entre 24 y 48 px), arriba solo el hueco del
+         rótulo del pin —más la cabecera si se ve— y abajo lo que mide la hoja: la
+         ruta llena la parte visible del mapa sin meterse debajo de la tarjeta. */
+      var sP=Math.max(24,Math.min(48,Math.round(_cw*0.08)));
+      var _topBase=document.body.classList.contains('vrm-nohdr')?26:(nH+26);
+      pad={top:_topBase+30,right:sP,bottom:Math.max(sH,240)+24,left:sP};
     }
-    /* el acolchado nunca debe superar el lienzo: si lo hace, Mapbox no puede encuadrar */
-    var _mxW=Math.max(24,Math.floor((_cw-80)/2)),_mxH=Math.max(24,Math.floor((_ch-80)/2));
+    /* el acolchado nunca debe superar el lienzo: si lo hace, Mapbox no puede
+       encuadrar. Se recortan lados y parte de arriba, y al de abajo se le respeta
+       lo que pueda: perder un trozo de ruta detrás de la hoja es peor que verla
+       un pelín más pequeña. Siempre quedan al menos 120 px de alto útil. */
+    var _mxW=Math.max(24,Math.floor((_cw-80)/2));
     pad.left=Math.min(pad.left,_mxW);pad.right=Math.min(pad.right,_mxW);
-    pad.top=Math.min(pad.top,_mxH);pad.bottom=Math.min(pad.bottom,_mxH);
+    pad.top=Math.min(pad.top,Math.max(24,Math.floor(_ch*0.22)));
+    pad.bottom=Math.min(pad.bottom,Math.max(24,_ch-pad.top-120));
     var c=map.cameraForBounds(b,{padding:pad,maxZoom:mZ,pitch:0,bearing:0});
     if(!c){_fR=setTimeout(fitRouteBounds,300);return;}
     window.__vrFlying=true;
