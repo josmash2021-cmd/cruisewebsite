@@ -207,15 +207,15 @@
       initRideMap();
     };
     var checkPhase = function () {
-      if (!phase2Done && heroVideo.currentTime >= 6) goPhase2();
+      if (!phase2Done && heroVideo.currentTime >= 15) goPhase2();
       if (heroVideo.currentTime >= 34.6) {
         heroVideo.currentTime = 0.1;   /* bucle: nunca mostramos la tarjeta negra */
       }
     };
     heroVideo.addEventListener('timeupdate', checkPhase);
     /* fallback: si el vídeo no llega a cargar/reproducir (ahorro de datos,
-       autoplay bloqueado, red lenta), el panel aparece igualmente a los 7.5s */
-    setTimeout(goPhase2, 7500);
+       autoplay bloqueado, red lenta), el panel aparece igualmente a los 16.5s */
+    setTimeout(goPhase2, 16500);
   }
 
   /* ---- mapa del panel "Solicita tu viaje" (fase 2 del hero):
