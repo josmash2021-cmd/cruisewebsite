@@ -85,7 +85,18 @@
     + '.cam-promo__apply{margin-top:14px;padding:12px 24px;background:#262b35;border:none;border-radius:999px;color:#eceef2;font:700 14px/1 Inter,system-ui,sans-serif;cursor:pointer;box-shadow:inset 1px 1px 3px rgba(255,255,255,.08),inset -3px -3px 7px rgba(0,0,0,.32)}'
     + '.cam-promo__go{display:block;width:100%;margin-top:18px;padding:16px;border:none;border-radius:18px;background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);color:#241c05;font:800 15px/1 Inter,system-ui,sans-serif;text-align:center;text-decoration:none;cursor:pointer;box-shadow:8px 8px 18px rgba(0,0,0,.42),-6px -6px 14px rgba(255,255,255,.09)}'
     + '.cam-promo__close{display:block;width:100%;margin-top:10px;padding:12px;background:none;border:none;color:rgba(255,255,255,.6);font:600 13px/1 Inter,system-ui,sans-serif;text-decoration:underline;cursor:pointer}'
-    + '@media (max-width:520px){.cam-panel{position:fixed;top:auto;bottom:0;right:0;left:0;width:auto;max-width:none;border-radius:26px 26px 0 0;transform:translateY(16px)}.cam-panel.is-open{transform:none}}';
+    + '@media (max-width:520px){.cam-panel{position:fixed;top:auto;bottom:0;right:0;left:0;width:auto;max-width:none;border-radius:26px 26px 0 0;transform:translateY(16px)}.cam-panel.is-open{transform:none}}'
+    /* pastilla Actividad + flechita junto al avatar (como la referencia, solo escritorio) */
+    + '.cam-activity{display:inline-flex;align-items:center;gap:8px;margin-right:12px;padding:10px 18px;border-radius:999px;background:#262b35;color:#eceef2;font:700 14px/1 Inter,system-ui,sans-serif;text-decoration:none;transition:color 160ms}'
+    + '.cam-activity:hover{color:#f5d77a}'
+    + '.cam-activity svg{color:#f5d77a}'
+    + '.cam-chevbtn{display:flex;align-items:center;background:none;border:none;color:#eceef2;cursor:pointer;padding:4px 2px;margin-left:2px}'
+    + '.cam-chevbtn:hover{color:#f5d77a}'
+    + '@media (max-width:768px){.cam-activity,.cam-chevbtn{display:none}}'
+    /* panel a pantalla completa (menú de las 3 rayitas en reservar) */
+    + '.cam-panel.is-full{position:fixed;inset:0;top:0;bottom:0;left:0;right:0;width:auto;max-width:none;height:100dvh;border-radius:0;transform:none;overflow-y:auto;z-index:99999;padding:26px 22px 34px}'
+    + '.cam-close{position:absolute;top:18px;right:18px;width:42px;height:42px;border-radius:50%;background:#262b35;border:none;color:#fff;font:700 17px/1 Inter,system-ui,sans-serif;cursor:pointer;display:none;align-items:center;justify-content:center}'
+    + '.cam-panel.is-full .cam-close{display:flex}';
 
   function injectCSS() {
     if (document.getElementById('cam-style')) return;
@@ -167,9 +178,13 @@
     wrap.className = 'cam-wrap';
     var photo = u && (u.photo_url || u.avatar_url || u.photo);
     wrap.innerHTML = ''
+      /* pastilla Actividad (escritorio), como la referencia */
+      + '<a class="cam-activity" href="' + BASE + 'profile.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z"/></svg>' + T.activity + '</a>'
       + '<button type="button" class="cam-avatar" data-cam-toggle aria-haspopup="true" aria-expanded="false" aria-label="' + T.account + '">'
       + (photo ? '<img src="' + photo + '" alt="">' : initial(u))
       + '</button>'
+      /* flechita que también abre el panel */
+      + '<button type="button" class="cam-chevbtn" data-cam-chev aria-label="' + T.account + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>'
       + buildPanel(u);
 
     var burger = actions.querySelector('.ch-burger');
@@ -183,6 +198,7 @@
 
     function open(v) {
       panel.classList.toggle('is-open', v);
+      if (!v) panel.classList.remove('is-full');
       toggle.setAttribute('aria-expanded', v ? 'true' : 'false');
     }
 
@@ -190,6 +206,29 @@
       e.stopPropagation();
       open(!panel.classList.contains('is-open'));
     });
+    var chev = wrap.querySelector('[data-cam-chev]');
+    if (chev) chev.addEventListener('click', function (e) {
+      e.stopPropagation();
+      open(!panel.classList.contains('is-open'));
+    });
+    /* ✕ para el modo pantalla completa */
+    var closeX = document.createElement('button');
+    closeX.type = 'button'; closeX.className = 'cam-close'; closeX.textContent = '✕';
+    closeX.setAttribute('aria-label', T.close);
+    closeX.addEventListener('click', function () { open(false); });
+    panel.appendChild(closeX);
+    /* en la página de reservar, las 3 rayitas abren este panel a pantalla
+       completa (como la referencia) en vez del menú normal */
+    var isBook = /\/book(\.html)?$/.test(location.pathname.replace(/\/(pickup|dropoff)$/, ''));
+    if (isBook && burger) {
+      burger.onclick = null; burger.removeAttribute('onclick');
+      burger.addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        document.body.classList.remove('ch-open');
+        panel.classList.add('is-full');
+        open(true);
+      });
+    }
     document.addEventListener('click', function (e) {
       if (!wrap.contains(e.target)) open(false);
     });
