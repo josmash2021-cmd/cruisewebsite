@@ -137,13 +137,13 @@
       + '  </div>'
       + '  <div class="cam-tiles">'
       + '    <a class="cam-tile" href="' + WA + '" target="_blank" rel="noopener">' + ICO.help + T.help + '</a>'
-      + '    <a class="cam-tile" href="' + BASE + 'wallet.html">' + ICO.wallet + T.wallet + '</a>'
-      + '    <a class="cam-tile" href="' + BASE + 'profile.html">' + ICO.activity + T.activity + '</a>'
+      + '    <a class="cam-tile" href="' + BASE + 'wallet">' + ICO.wallet + T.wallet + '</a>'
+      + '    <a class="cam-tile" href="' + BASE + 'profile">' + ICO.activity + T.activity + '</a>'
       + '  </div>'
       + '  <div class="cam-cash"><span>' + T.cash + '</span><b data-cam-balance>$0.00</b></div>'
-      + '  <a class="cam-row" href="' + BASE + 'account.html">' + ICO.manage + T.manage + '</a>'
+      + '  <a class="cam-row" href="' + BASE + 'account">' + ICO.manage + T.manage + '</a>'
       + '  <button type="button" class="cam-row" data-cam-promos>' + ICO.promos + T.promos + '</button>'
-      + '  <a class="cam-row" href="' + BASE + 'account.html#legal">' + ICO.legal + T.legal + '</a>'
+      + '  <a class="cam-row" href="' + BASE + 'account#legal">' + ICO.legal + T.legal + '</a>'
       + '  <button type="button" class="cam-out" data-cam-signout>' + T.signout + '</button>'
       + '</div>';
   }
@@ -188,7 +188,7 @@
     var photo = photoOf(u);
     wrap.innerHTML = ''
       /* pastilla Actividad (escritorio), como la referencia */
-      + '<a class="cam-activity" href="' + BASE + 'profile.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z"/></svg>' + T.activity + '</a>'
+      + '<a class="cam-activity" href="' + BASE + 'profile"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z"/></svg>' + T.activity + '</a>'
       + '<button type="button" class="cam-avatar" data-cam-toggle aria-haspopup="true" aria-expanded="false" aria-label="' + T.account + '">'
       + (photo ? '<img src="' + photo + '" alt="">' : initial(u))
       + '</button>'

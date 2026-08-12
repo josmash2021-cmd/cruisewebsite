@@ -10,7 +10,7 @@
 <meta property="og:site_name" content="CruiseInRide">
 <meta property="og:title" content="Wallet — CruiseInRide">
 <meta property="og:description" content="Premium Rideshare and Private Chauffeured transportation. Chevrolet Suburban fleet, available 24/7.">
-<meta property="og:url" content="https://cruiseinride.com/en/wallet.html">
+<meta property="og:url" content="https://cruiseinride.com/en/wallet">
 <meta property="og:image" content="https://cruiseinride.com/assets/media/og-cover.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -99,11 +99,11 @@
   <a class="ch-logo" href="../en/">
     <img src="../assets/media/logo.png" alt="CruiseInRide" height="41">
   </a>
-  <nav class="ch-nav"><a href="../en/">Home</a><a href="../en/book">Book</a><a href="../en/contact.html">Contact</a><a class="ch-nav__cta" href="../en/auth.html">Sign up</a></nav>
+  <nav class="ch-nav"><a href="../en/">Home</a><a href="../en/book">Book</a><a href="../en/contact">Contact</a><a class="ch-nav__cta" href="../en/auth">Sign up</a></nav>
   <div class="ch-actions">
-    <a class="ch-lang" href="../wallet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.3 9h17.4M3.3 15h17.4"/><path d="M12 3c2.6 2.4 4 5.4 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.4-4-9s1.4-6.6 4-9Z"/></svg>ES</a>
-    <a class="ch-login" href="../en/auth.html">Log in</a>
-    <a class="ch-signup" href="../en/auth.html">Sign up</a>
+    <a class="ch-lang" href="../wallet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.3 9h17.4M3.3 15h17.4"/><path d="M12 3c2.6 2.4 4 5.4 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.4-4-9s1.4-6.6 4-9Z"/></svg>ES</a>
+    <a class="ch-login" href="../en/auth">Log in</a>
+    <a class="ch-signup" href="../en/auth">Sign up</a>
     <button class="ch-burger" aria-label="Menu" onclick="document.body.classList.toggle('ch-open')">
       <span></span><span></span><span></span>
     </button>
@@ -174,7 +174,7 @@
       <nav class="cf-bottom__links">
         <a href="../en/">Home</a>
         <a href="../en/book">Book now</a>
-        <a href="../en/contact.html">Contact</a>
+        <a href="../en/contact">Contact</a>
         <a href="../en/">Terms</a>
       </nav>
       <div class="cf-bottom__social">
@@ -194,7 +194,7 @@
   var KEY='5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad';
   var PK='pk_live_51T4BXG4JZyaaA3VKQmdt1gQp3Mi4jGVSmYZ6aWl8ZEQ7k07gzzGzlOKde9n4zdLbhhmclJKysCdAVnNy5Uh8TeMf00YAldU9fo';
   function tok(){try{return localStorage.getItem('vr_at')||'';}catch(_){return'';}}
-  if(!tok()){location.replace('../en/auth.html');return;}
+  if(!tok()){location.replace('../en/auth');return;}
   var list=document.querySelector('[data-wal-list]');
   var CARD='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>';
   function api(path,opts){
@@ -285,6 +285,6 @@
 })();
 </script>
 
-<script src="../assets/account.js?v=20260815f" defer></script>
+<script src="../assets/account.js?v=20260815g" defer></script>
 </body>
 </html>
