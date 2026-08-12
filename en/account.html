@@ -286,13 +286,14 @@
   });
 
   /* datos */
+  function localPhoto(){try{return localStorage.getItem('vr_photo_local')||'';}catch(_){return'';}}
   function paint(u){
     if(!u) return;
     var name=[u.first_name,u.last_name].filter(Boolean).join(' ').trim()||u.name||u.email||'—';
     $('[data-acc-name]').textContent=name;
     $('[data-acc-mail]').textContent=u.email||u.phone||'';
     var f=$('[data-acc-face]');
-    var photo=u.photo_url||u.avatar_url||u.photo;
+    var photo=u.photo_url||u.avatar_url||u.photo||localPhoto();
     if(photo) f.innerHTML='<img src="'+photo+'" alt="">'; else f.textContent=(name||'C').charAt(0).toUpperCase();
     $('[data-acc-fn]').value=u.first_name||'';
     $('[data-acc-ln]').value=u.last_name||'';
@@ -308,19 +309,43 @@
   function pickPhoto(){if(phIn)phIn.click();}
   var fw=$('[data-acc-face-wrap]');if(fw)fw.addEventListener('click',pickPhoto);
   var pb=$('[data-acc-photo-btn]');if(pb)pb.addEventListener('click',pickPhoto);
+  /* /auth/photo es el endpoint de la app móvil: exige firma (x-signature) que la
+     web no puede generar, así que siempre devolvía error. Aquí recortamos la foto
+     a un cuadrado de 256px y la guardamos con PATCH /auth/web/profile. */
+  function shrinkPhoto(file,cb){
+    var rd=new FileReader();
+    rd.onerror=function(){cb('');};
+    rd.onload=function(){
+      var img=new Image();
+      img.onerror=function(){cb('');};
+      img.onload=function(){
+        var S=256,c=document.createElement('canvas');c.width=S;c.height=S;
+        var m=Math.min(img.width,img.height);
+        c.getContext('2d').drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,S,S);
+        try{cb(c.toDataURL('image/jpeg',0.75));}catch(_){cb('');}
+      };
+      img.src=String(rd.result);
+    };
+    rd.readAsDataURL(file);
+  }
+  function keepPhoto(src){
+    $('[data-acc-face]').innerHTML='<img src="'+src+'" alt="">';
+    try{localStorage.setItem('vr_photo_local',src);}catch(_){}
+    try{var u=JSON.parse(localStorage.getItem('vr_au')||'{}');u.photo_url=src;localStorage.setItem('vr_au',JSON.stringify(u));}catch(_){}
+  }
   if(phIn)phIn.addEventListener('change',function(){
     var file=phIn.files&&phIn.files[0];if(!file)return;
-    var reader=new FileReader();
-    reader.onload=function(){
-      var b64=String(reader.result).split(',')[1]||'';
-      api('/auth/photo',{method:'POST',body:{photo:b64}}).then(function(d){
-        if(d&&d.photo_url){
-          $('[data-acc-face]').innerHTML='<img src="'+d.photo_url+'" alt="">';
-          try{var u=JSON.parse(localStorage.getItem('vr_au')||'{}');u.photo_url=d.photo_url;localStorage.setItem('vr_au',JSON.stringify(u));}catch(_){}
-        }
-      }).catch(function(){alert('Could not upload the photo. Try again.');});
-    };
-    reader.readAsDataURL(file);
+    phIn.value='';
+    shrinkPhoto(file,function(durl){
+      if(!durl){alert('We could not read that image. Try another photo.');return;}
+      api('/auth/web/profile',{method:'PATCH',body:{photo_url:durl}}).then(function(d){
+        keepPhoto(durl);
+        if(!d||d.photo_url!==durl) alert('Your photo shows up now, but the server is not storing it yet: for now it only appears in this browser.');
+      }).catch(function(){
+        keepPhoto(durl);
+        alert('Your photo was saved in this browser, but it could not be sent to the server.');
+      });
+    });
   });
 
   var save=$('[data-acc-save]'),msg=$('[data-acc-msg]');
@@ -342,6 +367,6 @@
 })();
 </script>
 
-<script src="../assets/account.js?v=20260815c" defer></script>
+<script src="../assets/account.js?v=20260815d" defer></script>
 </body>
 </html>

@@ -34,6 +34,13 @@
   function user() {
     try { var u = localStorage.getItem('vr_au'); return u ? JSON.parse(u) : null; } catch (_) { return null; }
   }
+  /* La foto puede venir del backend o, si éste aún no la guarda, de la copia
+     local que deja account.html al subirla. */
+  function photoOf(u) {
+    var p = u && (u.photo_url || u.avatar_url || u.photo);
+    if (p) return p;
+    try { return localStorage.getItem('vr_photo_local') || ''; } catch (_) { return ''; }
+  }
   function token() {
     try { return localStorage.getItem('vr_at') || ''; } catch (_) { return ''; }
   }
@@ -118,7 +125,7 @@
 
   /* ─────────────────────────── panel ─────────────────────────── */
   function buildPanel(u) {
-    var photo = u && (u.photo_url || u.avatar_url || u.photo);
+    var photo = photoOf(u);
     var face = photo ? '<img src="' + photo + '" alt="">' : initial(u);
     return ''
       + '<div class="cam-panel" data-cam-panel role="menu">'
@@ -176,7 +183,7 @@
 
     var wrap = document.createElement('div');
     wrap.className = 'cam-wrap';
-    var photo = u && (u.photo_url || u.avatar_url || u.photo);
+    var photo = photoOf(u);
     wrap.innerHTML = ''
       /* pastilla Actividad (escritorio), como la referencia */
       + '<a class="cam-activity" href="' + BASE + 'profile.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z"/></svg>' + T.activity + '</a>'
