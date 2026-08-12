@@ -793,9 +793,29 @@ img,video{-webkit-user-drag:none}
             <button type="button" class="vrTrip__star" data-vrtrip-star="5" aria-label="5"><svg viewBox="0 0 24 24"><path d="M12 2l2.95 6.37L22 9.42l-5 4.94L18.18 22 12 18.5 5.82 22 7 14.36 2 9.42l7.05-1.05z"/></svg></button>
           </div>
           <div class="vrTrip__starLbl" data-vrtrip-star-lbl></div>
+          <!-- ═══ Propina: réplica de rider_rating_screen.dart (15/20/25% + otro monto) ═══ -->
+          <div class="vrTrip__tip" data-vrtrip-tip hidden>
+            <div class="vrTrip__tipHead">
+              <b data-vrtrip-tip-title>Tip your driver</b>
+              <span data-vrtrip-tip-sub>100% goes to your driver</span>
+            </div>
+            <div class="vrTrip__tipRow" data-vrtrip-tip-row hidden></div>
+            <button type="button" class="vrTrip__link vrTrip__tipCustom" data-vrtrip-tip-custom>Enter a custom amount</button>
+            <div class="vrTrip__tipCustomBox" data-vrtrip-tip-box hidden>
+              <span>$</span><input type="text" inputmode="decimal" maxlength="6" data-vrtrip-tip-input placeholder="0" aria-label="Tip">
+            </div>
+          </div>
           <textarea class="vrTrip__rateNote" data-vrtrip-rate-note maxlength="200" rows="2" placeholder="Leave a comment (optional)"></textarea>
           <button type="button" class="vrTrip__rateSend" data-vrtrip-rate-send disabled>Submit rating</button>
           <button type="button" class="vrTrip__link" data-vrtrip-rate-skip>Not now</button>
+          <!-- pasajero sin tarjeta guardada: Stripe cobra la propina aquí mismo -->
+          <div class="vrTrip__tipPay" data-vrtrip-tip-pay hidden>
+            <b class="vrTrip__tipPayTitle" data-vrtrip-tip-pay-title>Pay the tip</b>
+            <div class="vrTrip__tipPe" data-vrtrip-tip-pe></div>
+            <div class="vrTrip__tipErr" data-vrtrip-tip-err></div>
+            <button type="button" class="vrTrip__rateSend vrTrip__tipConfirm" data-vrtrip-tip-confirm>Pay</button>
+            <button type="button" class="vrTrip__link" data-vrtrip-tip-cancel>Not now</button>
+          </div>
         </div>
 
         <!-- ═══ Seguridad y soporte: la misma tarjeta muta al panel (réplica del
@@ -3525,6 +3545,12 @@ window.__VR_AIRPORTS = [
     rateTitle:'¿Qué tal tu viaje?',rateSub:'Califica tu viaje con {n}',
     ratePh:'Deja un comentario (opcional)',rateSend:'Enviar calificación',rateSkip:'Ahora no',
     rateOk:'¡Gracias por calificar!',rateFail:'No se pudo enviar la calificación.',
+    rateSendTip:'Enviar y dar {a}',
+    tipTitle:'Propina para {n}',tipSub:'El 100% es para tu chofer',
+    tipCustom:'Otro monto',tipCustomOff:'Quitar el monto',
+    tipPayTitle:'Paga la propina',tipPay:'Pagar {a}',tipPaying:'Cobrando…',
+    tipOk:'¡Gracias! {a} de propina para {n}.',
+    tipFail:'No se pudo cobrar la propina.',tipMin:'La propina mínima es $1.',
     st1:'Malo',st2:'Regular',st3:'Bien',st4:'Muy bien',st5:'¡Excelente!',
     mi:'mi'
   }:{
@@ -3561,12 +3587,21 @@ window.__VR_AIRPORTS = [
     rateTitle:'How was your ride?',rateSub:'Rate your ride with {n}',
     ratePh:'Leave a comment (optional)',rateSend:'Submit rating',rateSkip:'Not now',
     rateOk:'Thanks for rating!',rateFail:'Could not send the rating.',
+    rateSendTip:'Submit and tip {a}',
+    tipTitle:'Tip for {n}',tipSub:'100% goes to your driver',
+    tipCustom:'Enter a custom amount',tipCustomOff:'Remove the amount',
+    tipPayTitle:'Pay the tip',tipPay:'Pay {a}',tipPaying:'Charging…',
+    tipOk:'Thank you! {a} tip for {n}.',
+    tipFail:'Could not charge the tip.',tipMin:'The minimum tip is $1.',
     st1:'Poor',st2:'Below average',st3:'Average',st4:'Great',st5:'Excellent!',
     mi:'mi'
   };
   var SUPPORT_WA='16593052974';
   var api='',key='',bid=null,pollIv=null,chatIv=null;
   var phone='',photo='',name='',step='',driverId='',chatOpen=false,ended=false;
+  /* tarifa real del viaje y propina ya dada: los manda /status y con ellos la
+     pantalla de calificar arma los porcentajes de propina sin inventar nada */
+  var fare=0,tipAlready=false;
   var lastMsgId=0,lastSeen=0,unread=0,sending=false,started=false;
   var STEPS=['enroute','arrived','intrip','done'];
   /* ── tracking del chofer en el mapa ── */
@@ -3786,6 +3821,8 @@ window.__VR_AIRPORTS = [
   /* ── estado desde el servidor ── */
   function apply(d){
     if(!d||ended)return;
+    var _f=Number(d.fare);if(isFinite(_f)&&_f>0)fare=_f;
+    if(Number(d.tip_amount)>0)tipAlready=true;
     var raw=String(d.raw_status||d.status||'').toLowerCase();
     if(raw==='completed'||raw==='ended'){
       setStep('done');ended=true;stopPolls();
@@ -4113,6 +4150,143 @@ window.__VR_AIRPORTS = [
     var lb=q('[data-vrtrip-star-lbl]');
     if(lb){lb.textContent=T['st'+n]||'';lb.classList.toggle('is-on',n>0);}
     var sb=q('[data-vrtrip-rate-send]');if(sb)sb.disabled=n<1;
+    syncSend();
+  }
+
+  /* ── Propina ────────────────────────────────────────────────────────────
+     Misma pantalla que la app (rider_rating_screen.dart): 15/20/25% de la
+     tarifa real + monto libre, y el 100% va al chofer. Cobro: si el pasajero
+     tiene sesión y tarjeta guardada el servidor la cobra solo (un toque, como
+     la app); si no, el servidor devuelve un PaymentIntent y se cobra aquí con
+     Stripe. El chofer solo recibe el dinero cuando Stripe confirma. */
+  var tipCents=0,tipCustom=false,tipPI=null,tipEls=null,tipBusy=false,tipDoneFlag=false;
+  var TIP_MIN=100,TIP_MAX=10000;
+  function money(c){return '$'+(c/100).toFixed(2);}
+  function firstName(){var n=String(name||'').trim();return n?n.split(/\s+/)[0]:'';}
+  function tipToken(){
+    try{if(typeof __vipAuthToken==='function')return __vipAuthToken()||'';}catch(_){}
+    try{return localStorage.getItem('vr_at')||'';}catch(_){}
+    return '';
+  }
+  function syncSend(){
+    var sb=q('[data-vrtrip-rate-send]');
+    if(sb)sb.textContent=tipCents>=TIP_MIN?T.rateSendTip.replace('{a}',money(tipCents)):T.rateSend;
+  }
+  function setTip(c){
+    tipCents=Math.max(0,Math.min(TIP_MAX,Math.round(c||0)));
+    var row=q('[data-vrtrip-tip-row]');
+    if(row)row.querySelectorAll('[data-vrtrip-tip-opt]').forEach(function(b){
+      b.classList.toggle('is-on',!tipCustom&&Number(b.getAttribute('data-vrtrip-tip-opt'))===tipCents&&tipCents>0);
+    });
+    syncSend();
+  }
+  function buildTip(){
+    var box=q('[data-vrtrip-tip]');if(!box)return;
+    tipCents=0;tipCustom=false;tipPI=null;tipEls=null;tipBusy=false;tipDoneFlag=false;
+    var ti=q('[data-vrtrip-tip-title]');if(ti)ti.textContent=T.tipTitle.replace('{n}',firstName()||T.yourDriver);
+    var su=q('[data-vrtrip-tip-sub]');if(su)su.textContent=T.tipSub;
+    var cu=q('[data-vrtrip-tip-custom]');if(cu)cu.textContent=T.tipCustom;
+    var bx=q('[data-vrtrip-tip-box]');if(bx)bx.hidden=true;
+    var inp=q('[data-vrtrip-tip-input]');if(inp)inp.value='';
+    var row=q('[data-vrtrip-tip-row]');
+    if(row){
+      row.innerHTML='';
+      /* sin tarifa conocida no se inventan porcentajes (el monto libre sigue) */
+      if(fare>0){
+        [15,20,25].forEach(function(p){
+          var c=Math.min(TIP_MAX,Math.max(TIP_MIN,Math.round(fare*p)));
+          var b=document.createElement('button');
+          b.type='button';b.className='vrTrip__tipOpt';
+          b.setAttribute('data-vrtrip-tip-opt',String(c));
+          b.innerHTML='<i>'+p+'%</i><s>'+money(c)+'</s>';
+          b.addEventListener('click',function(){
+            var was=(!tipCustom&&tipCents===c);
+            tipCustom=false;
+            var bx2=q('[data-vrtrip-tip-box]');if(bx2)bx2.hidden=true;
+            var cu2=q('[data-vrtrip-tip-custom]');if(cu2)cu2.textContent=T.tipCustom;
+            var i2=q('[data-vrtrip-tip-input]');if(i2)i2.value='';
+            setTip(was?0:c);
+          });
+          row.appendChild(b);
+        });
+        row.hidden=false;
+      }else row.hidden=true;
+    }
+    box.hidden=!(name||driverId)||tipAlready;
+    setTip(0);
+  }
+  function tipErr(m){
+    var e=q('[data-vrtrip-tip-err]');if(!e)return;
+    e.textContent=m||'';e.classList.toggle('is-on',!!m);
+  }
+  function finishRate(){forget();close();}
+  function tipOk(c){
+    tipDoneFlag=true;
+    toast(T.tipOk.replace('{a}',money(c)).replace('{n}',firstName()||T.yourDriver),'ok');
+    finishRate();
+  }
+  function tipPost(payload){
+    return fetch(api+'/bookings/web/'+bid+'/tip',{method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify(payload)})
+      .then(function(r){return r.json().catch(function(){return {};}).then(function(j){
+        if(!r.ok)throw new Error((j&&j.detail)||('http '+r.status));
+        return j;});});
+  }
+  /* pide el cobro: o lo resuelve el servidor con la tarjeta guardada, o nos
+     devuelve el PaymentIntent para cobrar en el navegador */
+  function payTip(){
+    var amt=tipCents;
+    tipPost({amount_cents:amt,user_token:tipToken()})
+      .then(function(d){
+        if(d&&d.paid){tipOk(Number(d.tip_cents)||amt);return;}
+        if(d&&d.status==='requires_payment'&&d.client_secret){openTipPay(d,amt);return;}
+        throw new Error('tip');
+      })
+      .catch(function(){toast(T.tipFail,'err');finishRate();});
+  }
+  function openTipPay(d,amt){
+    var st=null;try{st=window.__vrStripe||null;}catch(_){}
+    var pane=q('[data-vrtrip-tip-pay]'),box=q('[data-vrtrip-tip-pe]'),rate=q('[data-vrtrip-pane="rate"]');
+    if(!st||!pane||!box){toast(T.tipFail,'err');finishRate();return;}
+    tipPI=d.payment_intent_id||null;
+    var ti=q('[data-vrtrip-tip-pay-title]');if(ti)ti.textContent=T.tipPayTitle;
+    var cf=q('[data-vrtrip-tip-confirm]');if(cf){cf.textContent=T.tipPay.replace('{a}',money(amt));cf.disabled=false;}
+    var cc=q('[data-vrtrip-tip-cancel]');if(cc)cc.textContent=T.rateSkip;
+    tipErr('');
+    try{
+      tipEls=st.elements({clientSecret:d.client_secret,appearance:{theme:'night',variables:{
+        colorPrimary:'#d4af37',colorBackground:'#181c23',colorText:'#eceef2',
+        colorDanger:'#ff6b6b',borderRadius:'12px',fontFamily:'Inter, system-ui, sans-serif'}}});
+      box.innerHTML='';
+      tipEls.create('payment',{layout:'tabs'}).mount(box);
+    }catch(_){toast(T.tipFail,'err');finishRate();return;}
+    if(rate)rate.classList.add('is-paying');
+    pane.hidden=false;
+  }
+  function confirmTip(){
+    var st=null;try{st=window.__vrStripe||null;}catch(_){}
+    if(tipBusy||!tipEls||!st)return;
+    tipBusy=true;tipErr('');
+    var amt=tipCents,cf=q('[data-vrtrip-tip-confirm]');
+    if(cf){cf.disabled=true;cf.textContent=T.tipPaying;}
+    var back=function(msg){
+      tipBusy=false;
+      if(cf){cf.disabled=false;cf.textContent=T.tipPay.replace('{a}',money(amt));}
+      tipErr(msg||T.tipFail);
+    };
+    st.confirmPayment({elements:tipEls,confirmParams:{return_url:location.href},redirect:'if_required'})
+      .then(function(res){
+        if(res&&res.error){back(res.error.message);return;}
+        /* cobrado: el servidor lo verifica contra Stripe y se lo acredita al
+           chofer. Si esa llamada fallara el dinero ya salió, así que al
+           pasajero se le confirma igual (el importe queda en Stripe con el
+           id del viaje y se puede acreditar después) */
+        return tipPost({amount_cents:amt,payment_intent_id:tipPI})
+          .then(function(){tipOk(amt);})
+          .catch(function(e){try{console.warn('[Cruise tip] credit failed',e);}catch(_){}tipOk(amt);});
+      })
+      .catch(function(){back(null);});
   }
   function openRate(){
     if(rateSent)return;
@@ -4122,19 +4296,26 @@ window.__VR_AIRPORTS = [
     var su=q('[data-vrtrip-rate-sub]');if(su)su.textContent=T.rateSub.replace('{n}',name||T.yourDriver);
     var sb=q('[data-vrtrip-rate-send]');if(sb){sb.textContent=T.rateSend;sb.disabled=true;}
     var sk=q('[data-vrtrip-rate-skip]');if(sk)sk.textContent=T.rateSkip;
+    var pay=q('[data-vrtrip-tip-pay]');if(pay)pay.hidden=true;
+    var rate=q('[data-vrtrip-pane="rate"]');if(rate)rate.classList.remove('is-paying');
+    buildTip();
     /* la foto del chofer, la misma que ya se cargó en la ficha */
     if(photo){var ph=q('[data-vrtrip-rate-photo]');if(ph){var im=document.createElement('img');im.src=photo;im.alt='';ph.innerHTML='';ph.appendChild(im);}}
     setPane('rate');
   }
   function sendRate(){
     if(rateStars<1||rateSent||!bid||!api)return;
+    /* propina escrita a mano por debajo del mínimo: se avisa antes de cobrar */
+    if(tipCents>0&&tipCents<TIP_MIN){toast(T.tipMin,'err');return;}
     var note=q('[data-vrtrip-rate-note]'),txt=note?(note.value||'').trim():'';
     var sb=q('[data-vrtrip-rate-send]');if(sb)sb.disabled=true;
     fetch(api+'/bookings/web/'+bid+'/rate',{method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
       body:JSON.stringify({stars:rateStars,comment:txt})})
       .then(function(r){if(!r.ok)throw new Error('http '+r.status);
-        rateSent=true;toast(T.rateOk,'ok');forget();close();})
+        rateSent=true;toast(T.rateOk,'ok');
+        if(tipCents>=TIP_MIN){payTip();return;}
+        finishRate();})
       .catch(function(){if(sb)sb.disabled=false;toast(T.rateFail,'err');});
   }
   /* el pasajero confirma que ya está con el chofer. El servidor escribe la
@@ -4190,6 +4371,25 @@ window.__VR_AIRPORTS = [
     on('[data-vrtrip-meet]','click',meetDriver);
     on('[data-vrtrip-rate-send]','click',sendRate);
     on('[data-vrtrip-rate-skip]','click',function(){forget();close();});
+    /* propina */
+    on('[data-vrtrip-tip-custom]','click',function(){
+      tipCustom=!tipCustom;
+      var bx=q('[data-vrtrip-tip-box]'),cu=q('[data-vrtrip-tip-custom]'),inp=q('[data-vrtrip-tip-input]');
+      if(bx)bx.hidden=!tipCustom;
+      if(cu)cu.textContent=tipCustom?T.tipCustomOff:T.tipCustom;
+      if(inp)inp.value='';
+      setTip(0);
+      if(tipCustom&&inp)setTimeout(function(){try{inp.focus();}catch(_){}},60);
+    });
+    var tinp=r.querySelector('[data-vrtrip-tip-input]');
+    if(tinp)tinp.addEventListener('input',function(){
+      var v=parseFloat(String(tinp.value).replace(/[^0-9.]/g,''))||0;
+      var c=Math.round(v*100);
+      if(c>TIP_MAX){c=TIP_MAX;tinp.value=(TIP_MAX/100).toFixed(0);}
+      tipCustom=true;setTip(c);
+    });
+    on('[data-vrtrip-tip-confirm]','click',confirmTip);
+    on('[data-vrtrip-tip-cancel]','click',function(){forget();close();});
     r.querySelectorAll('[data-vrtrip-star]').forEach(function(b){
       b.addEventListener('click',function(){setStars(Number(b.getAttribute('data-vrtrip-star'))||0);});
     });
@@ -4244,6 +4444,8 @@ window.__VR_AIRPORTS = [
     bid=bookingId||window.__vrActiveBookingId||null;
     api=apiBase||'';key=webKey||'';
     ended=false;chatOpen=false;unread=0;lastMsgId=0;lastSeen=0;step='';hadDriver=true;
+    /* viaje nuevo: la tarifa y la propina del anterior no valen aquí */
+    fare=0;tipAlready=false;
     wire();
     setRoute(pickup||window.__vrLastPickup||'',dropoff||window.__vrLastDropoff||'');
     setDriver(driverData||{});
@@ -5551,6 +5753,34 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vrTrip__rateSend{-webkit-appearance:none;appearance:none;width:100%;height:54px;margin-top:18px;border:none;border-radius:16px;background:#E8C547;color:#0a0a0a;font:800 15px/1 'Inter',sans-serif;font-family:inherit;cursor:pointer;transition:filter .2s}
 .vrTrip__rateSend:hover{filter:brightness(1.06)}
 .vrTrip__rateSend[disabled]{opacity:.35;cursor:not-allowed}
+/* ── propina: las mismas tarjetas de porcentaje de la app ── */
+.vrTrip__tip{width:100%;margin-top:22px;text-align:left}
+.vrTrip__tip[hidden]{display:none}
+.vrTrip__tipHead{display:flex;flex-direction:column;gap:2px;margin-bottom:12px}
+.vrTrip__tipHead b{font:800 17px/1.2 'Poppins','Inter',sans-serif;color:#fff}
+.vrTrip__tipHead span{font:500 12.5px/1.35 'Inter',sans-serif;color:rgba(255,255,255,.45)}
+.vrTrip__tipRow{display:flex;gap:10px}
+.vrTrip__tipRow[hidden]{display:none}
+.vrTrip__tipOpt{flex:1;-webkit-appearance:none;appearance:none;height:64px;padding:0;border-radius:14px;background:#1A1A1F;border:1px solid rgba(212,175,55,.15);font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:border-color .2s,background .2s,box-shadow .2s}
+.vrTrip__tipOpt i{font:800 16px/1 'Inter',sans-serif;font-style:normal;color:rgba(255,255,255,.8)}
+.vrTrip__tipOpt s{font:500 12.5px/1 'Inter',sans-serif;text-decoration:none;color:rgba(255,255,255,.4)}
+.vrTrip__tipOpt.is-on{background:rgba(212,175,55,.1);border-color:#d4af37;border-width:2px;box-shadow:0 0 10px rgba(212,175,55,.15)}
+.vrTrip__tipOpt.is-on i{color:#d4af37}
+.vrTrip__tipOpt.is-on s{color:rgba(212,175,55,.8)}
+.vrTrip__tipCustom{display:block;margin:10px auto 0;color:rgba(212,175,55,.7)}
+.vrTrip__tipCustom:hover{color:#d4af37}
+.vrTrip__tipCustomBox{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px}
+.vrTrip__tipCustomBox[hidden]{display:none}
+.vrTrip__tipCustomBox span{font:700 20px/1 'Inter',sans-serif;color:rgba(255,255,255,.5)}
+.vrTrip__tipCustomBox input{width:130px;height:50px;border-radius:14px;border:1px solid #d4af37;background:#1A1A1F;color:#fff;font:700 20px/1 'Inter',sans-serif;font-family:inherit;text-align:center;outline:none}
+.vrTrip__tipPay{width:100%;text-align:left}
+.vrTrip__tipPay[hidden]{display:none}
+.vrTrip__tipPayTitle{display:block;margin:6px 0 14px;font:800 18px/1.2 'Poppins','Inter',sans-serif;color:#fff;text-align:center}
+.vrTrip__tipPe{min-height:60px}
+.vrTrip__tipErr{margin-top:8px;font:600 12.5px/1.4 'Inter',sans-serif;color:#ff6b6b;display:none}
+.vrTrip__tipErr.is-on{display:block}
+/* cobrando la propina: la tarjeta deja solo el chofer y el pago */
+.vrTrip__rate.is-paying .vrTrip__stars,.vrTrip__rate.is-paying .vrTrip__starLbl,.vrTrip__rate.is-paying .vrTrip__tip,.vrTrip__rate.is-paying .vrTrip__rateNote,.vrTrip__rate.is-paying .vrTrip__rateSend:not(.vrTrip__tipConfirm),.vrTrip__rate.is-paying [data-vrtrip-rate-skip]{display:none!important}
 .vrTrip__more{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:2px}
 .vrTrip__link{-webkit-appearance:none;appearance:none;background:none;border:none;padding:9px 4px;font:600 13px/1 'Inter',sans-serif;color:rgba(255,255,255,.6);cursor:pointer;font-family:inherit;transition:color .2s}
 .vrTrip__link:hover{color:#fff}
@@ -7820,6 +8050,8 @@ setTimeout(_vrPfKick,1200);
     var _stripe=window.Stripe?Stripe('pk_live_51T4BXG4JZyaaA3VKQmdt1gQp3Mi4jGVSmYZ6aWl8ZEQ7k07gzzGzlOKde9n4zdLbhhmclJKysCdAVnNy5Uh8TeMf00YAldU9fo'):null;
     var _webKey='5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad',_apiBase='https://cruise-api-proxy.cruise-api.workers.dev',_payReq=null,_payReqAvailable=false,_payClientSecret=null,_pendingPaymentIntentId=null;
     try{window.__vrWebKey=_webKey;}catch(_){}
+    /* la tarjeta de calificar cobra la propina con esta misma instancia */
+    try{window.__vrStripe=_stripe;}catch(_){}
     function _payFailed(err){
       if(_requestBtn){_requestBtn.disabled=false;_requestBtn.textContent=t('requestRide')}
       _payClientSecret=null;_pendingPaymentIntentId=null;
