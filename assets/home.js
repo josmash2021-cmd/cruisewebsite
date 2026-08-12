@@ -2096,21 +2096,29 @@
     var base = { cx: b.left + b.width / 2, cy: b.top + b.height / 2, w: b.width };
     var state = 0; /* 0 en su esquina · 1 volando · 2 acoplado */
     var timer = 0;
-    function flyIn() {
-      if (state) return;
-      state = 1;
+    /* apuntar al centro actual del círculo destino; si el usuario sigue
+       haciendo scroll durante el vuelo, onScroll re-apunta y la transición
+       CSS redirige el viaje suavemente */
+    function place() {
       var r = target.getBoundingClientRect();
       var s = r.width / base.w;
       var tx = (r.left + r.width / 2) - base.cx;
       var ty = (r.top + r.height / 2) - base.cy;
-      fab.classList.add('wa-fab--docked');
       fab.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
-      timer = setTimeout(function () {
-        if (state !== 1) return;
-        state = 2;
-        fab.style.visibility = 'hidden';
-        target.classList.add('is-in');
-      }, 530);
+    }
+    /* aterrizó: el botón cede el sitio al círculo real de la fila */
+    function land() {
+      if (state !== 1) return;
+      state = 2;
+      fab.style.visibility = 'hidden';
+      target.classList.add('is-in');
+    }
+    function flyIn() {
+      if (state) return;
+      state = 1;
+      fab.classList.add('wa-fab--docked');
+      place();
+      timer = setTimeout(land, 600);
     }
     function flyOut() {
       if (!state) return;
@@ -2121,9 +2129,16 @@
       fab.style.transform = '';
       state = 0;
     }
+    window.addEventListener('scroll', function () {
+      if (state !== 1) return;
+      place();
+      /* aterrizar solo cuando el scroll lleve un momento quieto */
+      clearTimeout(timer);
+      timer = setTimeout(land, 600);
+    }, { passive: true });
     new IntersectionObserver(function (es) {
       if (es[es.length - 1].isIntersecting) flyIn(); else flyOut();
-    }, { rootMargin: '0px 0px -6px 0px' }).observe(target);
+    }, { rootMargin: '0px 0px -24px 0px' }).observe(target);
     window.addEventListener('resize', function () {
       if (state) return;
       var r = fab.getBoundingClientRect();
