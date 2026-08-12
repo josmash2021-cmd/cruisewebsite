@@ -6537,6 +6537,12 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     });
   }
   if(step1NextBtn)step1NextBtn.addEventListener('click',function(){
+    /* sin destino no hay nada que continuar: se abre el buscador de direcciones
+       en lugar de dejar el botón muerto */
+    if(currentMode!=='hourly'&&!(dropoffEl&&dropoffEl.value.trim())){
+      var _op=root.querySelector('[data-vipride-open-locpicker]');
+      if(_op){_op.click();return;}
+    }
     goToStep(3,'forward');
   });
   if(stepBackBtn)stepBackBtn.addEventListener('click',function(){goToStep(1,'back');});
@@ -7859,6 +7865,10 @@ setTimeout(_vrPfKick,1200);
           if(s1){s1.hidden=false;s1.classList.remove('is-entering','is-entering-back','is-exiting','is-exiting-back')}
           var mb=root.querySelector('[data-vipride-map-back]');if(mb)mb.hidden=true;
         }
+        /* al salir del buscador se borra el destino: hay que refrescar el estado
+           o el botón dorado de "Continuar" se queda puesto —encendido y sin
+           llevar a ninguna parte— porque nadie volvió a mirar los campos */
+        try{afterInputChange();}catch(_){}
         updateCompactArrow();
       };
       if(window.__vrMorphClose)window.__vrMorphClose(locPicker,_dC);else{locPicker.classList.add('is-closing');setTimeout(_dC,280);}
