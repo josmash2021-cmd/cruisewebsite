@@ -986,7 +986,7 @@
               }
             }
             _socialAuth('apple',t);
-          }).catch(function(e){_toast((e&&e.error)||'Apple cancelled','err');});
+          }).catch(function(e){var c=(e&&e.error)||'';if(c==='popup_closed_by_user'||c==='user_cancelled_authorize'||c==='user_trigger_new_signin_flow')return;/* user closed the popup: not an error */_toast('Could not sign in with Apple','err');});
         }catch(e){_toast('Apple error: '+(e.message||e),'err');}
       }
       if(!window.AppleID){

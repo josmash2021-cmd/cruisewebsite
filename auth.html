@@ -921,7 +921,7 @@
       window.AppleID.auth.signIn().then(function(resp){
         var t=resp.authorization&&resp.authorization.id_token;
         if(t) _socialAuth('apple',t); else _toast('Error de autenticación con Apple','err');
-      }).catch(function(e){_toast(e.error||'Apple cancelado','err');});
+      }).catch(function(e){var c=(e&&e.error)||'';if(c==='popup_closed_by_user'||c==='user_cancelled_authorize'||c==='user_trigger_new_signin_flow')return;/* cerró la ventana: no es error */_toast('No se pudo iniciar sesión con Apple','err');});
     }
     if(!window.AppleID){var s=document.createElement('script');s.src='https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js';s.onload=doApple;document.head.appendChild(s);}else{doApple();}
   }

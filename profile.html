@@ -986,7 +986,7 @@
               }
             }
             _socialAuth('apple',t);
-          }).catch(function(e){_toast((e&&e.error)||'Apple cancelado','err');});
+          }).catch(function(e){var c=(e&&e.error)||'';if(c==='popup_closed_by_user'||c==='user_cancelled_authorize'||c==='user_trigger_new_signin_flow')return;/* cerró la ventana: no es error */_toast('No se pudo iniciar sesión con Apple','err');});
         }catch(e){_toast('Error de Apple: '+(e.message||e),'err');}
       }
       if(!window.AppleID){
