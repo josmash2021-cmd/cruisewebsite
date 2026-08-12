@@ -8605,6 +8605,23 @@ setTimeout(_vrPfKick,1200);
         routeEl.textContent=(_pu?_short(_pu):'Pickup')+' → '+(_dr?_short(_dr):'Dropoff');
       }
       _vrSeedStars(overlay);
+      /* margen del encuadre mientras se busca chofer: en el teléfono la tarjeta
+         tapa la parte de abajo del mapa, así que su ALTO REAL es el margen
+         inferior; si aún no está pintada se usa un tercio de la pantalla */
+      function _vrSearchPad(){
+        var pad={top:80,right:36,bottom:220,left:36};
+        try{
+          if(window.innerWidth<900){
+            var s=document.querySelector('.vipRide__testConfirm__phase2 .vipRide__testSheet');
+            var r=s?s.getBoundingClientRect():null;
+            var h=(r&&r.height>60)?r.height:window.innerHeight*0.32;
+            pad.bottom=Math.round(Math.min(h+30,window.innerHeight*0.62));
+            pad.top=Math.round(Math.max(70,window.innerHeight*0.09));
+            pad.left=pad.right=30;
+          }
+        }catch(_){}
+        return pad;
+      }
       /* al arrancar una reserva la tarjeta vuelve siempre al panel de busqueda */
       try{if(window.__vrTripStop)window.__vrTripStop();overlay.querySelectorAll('[data-vrtrip-pane]').forEach(function(p){p.hidden=p.getAttribute('data-vrtrip-pane')!=='searching';});}catch(_){}
       if(sheet)sheet.classList.add('is-test-hidden');
@@ -8615,8 +8632,19 @@ setTimeout(_vrPfKick,1200);
         if(p2&&!_isRes)p2.classList.add('is-visible');
         if(map&&pickupPlace&&dropoffPlace){
           var _b=new mapboxgl.LngLatBounds();_b.extend([pickupPlace.lng,pickupPlace.lat]);_b.extend([dropoffPlace.lng,dropoffPlace.lat]);
-          var _cam=map.cameraForBounds(_b,{padding:{top:80,right:36,bottom:220,left:36},maxZoom:15.5,pitch:0,bearing:0});
+          var _cam=map.cameraForBounds(_b,{padding:_vrSearchPad(),maxZoom:15.5,pitch:0,bearing:0});
           if(_cam)map.flyTo({center:_cam.center,zoom:_cam.zoom,pitch:0,bearing:0,duration:1400,essential:true,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2}});
+          /* segundo encuadre cuando la tarjeta ya está pintada: solo entonces se
+             puede medir su alto de verdad y garantizar que la ruta ENTERA queda
+             por encima de ella (antes se le daba un margen fijo de 220 px y el
+             final de la ruta se quedaba detrás de la tarjeta) */
+          setTimeout(function(){
+            try{
+              var _b2=new mapboxgl.LngLatBounds();
+              _b2.extend([pickupPlace.lng,pickupPlace.lat]);_b2.extend([dropoffPlace.lng,dropoffPlace.lat]);
+              map.fitBounds(_b2,{padding:_vrSearchPad(),maxZoom:15.5,duration:700,essential:true});
+            }catch(_){}
+          },1550);
         }
         if(typeof showMarkerLabels==='function')setTimeout(showMarkerLabels,600);
         if(bar2)bar2.style.width='100%';
