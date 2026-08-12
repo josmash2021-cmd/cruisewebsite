@@ -8892,6 +8892,39 @@ html body #vipMpFooterSugs{
     background:transparent; color:#fff; font-family:inherit; font-size:14.5px; text-align:left;
   }
   html body .vipRide .vrm-menu__item:active{ background:rgba(255,255,255,.08) }
+
+  /* método de pago: hoja inferior a todo el ancho con filas separadas,
+     igual colocación que en la app; el mapa sigue viéndose arriba */
+  /* el overlay venía con relleno, centrado y desenfoque de escritorio: en el
+     teléfono la hoja va pegada abajo y el mapa se sigue viendo arriba */
+  html body .vipRide__payOverlay:not([hidden]){
+    padding:0!important; align-items:stretch!important; justify-content:flex-end!important;
+    background:rgba(0,0,0,.45)!important;
+    backdrop-filter:none!important; -webkit-backdrop-filter:none!important;
+  }
+  /* el bloque de escritorio pone max-width y margin:0 auto con !important
+     sobre los hijos del overlay: hay que ganarle en especificidad */
+  html body .vipRide__payOverlay:not([hidden]) > .vipRide__payOverlay__list,
+  html body .vipRide__payOverlay:not([hidden]) > .vipRide__cardForm{
+    margin:auto 0 0!important; width:100%!important; max-width:none!important;
+    border:none!important; border-top:1px solid rgba(255,255,255,.08)!important;
+    border-radius:26px 26px 0 0!important;
+    padding:10px 20px calc(18px + env(safe-area-inset-bottom,0px))!important;
+    max-height:80svh!important; overflow-y:auto!important;
+  }
+  /* asa de la hoja */
+  html body .vipRide__payOverlay:not([hidden]) > .vipRide__payOverlay__list::before,
+  html body .vipRide__payOverlay:not([hidden]) > .vipRide__cardForm::before{
+    content:''; display:block; flex:0 0 auto; width:40px; height:4px; margin:0 auto 14px;
+    border-radius:2px; background:rgba(255,255,255,.18);
+  }
+  html body .vipRide__payOverlay__title{
+    margin:0 0 4px!important; padding:0 0 14px!important;
+    font-size:19px!important; text-align:center!important;
+    border-bottom:1px solid rgba(255,255,255,.1)!important;
+  }
+  html body .vipRide__payOption{ padding:18px 2px!important; gap:16px!important }
+  html body .vipRide__payOption+.vipRide__payOption{ border-top:1px solid rgba(255,255,255,.1)!important }
 }
 @media(min-width:900px){ html body .vrm-pills{ display:none!important } }
 </style>
