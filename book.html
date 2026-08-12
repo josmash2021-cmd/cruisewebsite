@@ -8822,14 +8822,28 @@ html body #vipMpFooterSugs{
   html body .vipRide .vipRide__compactCard{ display:none!important }
   html body .vipRide .vipRide__step1Full{ display:block!important }
 
-  /* la hoja del paso 1 sube: panel opaco arriba, mapa despejado debajo */
+  /* el paso 1 deja de ser una tarjeta flotante sobre el mapa: es la cabecera
+     de la página — campos, píldoras y, debajo, el mapa como tarjeta aparte */
   html body .vipRide .vipRide__sheet[data-vipride-step="1"]{
-    top:calc(var(--vip-nav-h,64px) + 10px)!important; bottom:auto!important;
-    left:10px!important; right:10px!important;
-    padding:14px 14px 16px!important; border-radius:22px!important;
-    max-height:calc(100dvh - var(--vip-nav-h,64px) - 24px)!important;
-    overflow-y:auto!important;
+    top:var(--vip-nav-h,64px)!important; bottom:auto!important;
+    left:0!important; right:0!important;
+    padding:12px 12px 14px!important;
+    background:transparent!important; border:none!important; border-radius:0!important;
+    box-shadow:none!important;
+    backdrop-filter:none!important; -webkit-backdrop-filter:none!important;
+    max-height:calc(100dvh - var(--vip-nav-h,64px))!important;
+    overflow:visible!important;
   }
+  /* el mapa baja a su propia tarjeta con márgenes (MOBILE_JS calcula el alto
+     del cuadro y lo pasa en --vrm-map-top); en el paso 3 vuelve a pantalla
+     completa con la hoja de vehículos encima */
+  html body .vipRide.vrm-step1 .vipRide__map{
+    top:var(--vrm-map-top,300px)!important;
+    left:12px!important; right:12px!important; bottom:12px!important;
+    border-radius:18px!important; overflow:hidden!important;
+  }
+  html body .vipRide.vrm-step1 .vipRide__mapInner,
+  html body .vipRide.vrm-step1 .vipRide__mapSkeleton{ border-radius:18px; overflow:hidden }
 
   /* sin título ni etiquetas: los campos hablan solos */
   html body .vipRide .vipRide__sheet .vipRide__titleRow,
@@ -8865,33 +8879,59 @@ html body #vipMpFooterSugs{
   }
 
   /* píldoras de horario y pasajero (las crea MOBILE_JS) */
-  html body .vipRide .vrm-pills{ position:relative; display:flex; align-items:center; gap:10px; margin:2px 0 0 }
+  html body .vrm-pills{ position:relative; display:flex; align-items:center; gap:10px; margin:2px 0 0 }
   html body .vipRide .vipRide__prices .vrm-pills{ margin:0 0 12px }
-  html body .vipRide .vrm-pill{
-    display:inline-flex; align-items:center; gap:8px; min-width:0; max-width:100%;
-    height:40px; padding:0 14px; border:none; border-radius:999px; cursor:pointer;
-    background:rgba(255,255,255,.09); color:#fff;
-    font-family:inherit; font-size:13.5px; font-weight:600;
+  /* el buscador vive fuera de .vipRide y trae sus propios estilos de botón e
+     icono: de ahí los !important en tamaños y colores */
+  html body .vrm-pill{
+    display:inline-flex!important; align-items:center!important; gap:8px!important;
+    min-width:0!important; max-width:100%!important; width:auto!important;
+    height:40px!important; padding:0 14px!important; margin:0!important;
+    border:none!important; border-radius:999px!important; cursor:pointer;
+    background:rgba(255,255,255,.09)!important; color:#fff!important; box-shadow:none!important;
+    font-family:inherit!important; font-size:13.5px!important; font-weight:600!important;
+    line-height:1!important; text-align:left!important;
     touch-action:manipulation; transition:background .18s ease;
   }
-  html body .vipRide .vrm-pill:active{ background:rgba(255,255,255,.16) }
-  html body .vipRide .vrm-pill.is-set{
-    background:rgba(212,175,55,.16); box-shadow:inset 0 0 0 1px rgba(212,175,55,.45);
+  html body .vrm-pill:active{ background:rgba(255,255,255,.16)!important }
+  html body .vrm-pill.is-set{
+    background:rgba(212,175,55,.16)!important; box-shadow:inset 0 0 0 1px rgba(212,175,55,.45)!important;
   }
-  html body .vipRide .vrm-pill__ico{ display:inline-flex; flex:0 0 17px; width:17px; height:17px; color:#f5d77a }
-  html body .vipRide .vrm-pill__ico svg{ width:100%; height:100% }
-  html body .vipRide .vrm-pill__label{ flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-  html body .vipRide .vrm-chev{ flex:0 0 14px; width:14px; height:14px; opacity:.7 }
-  html body .vipRide .vrm-menu{
+  html body .vrm-pill__ico{
+    display:inline-flex!important; flex:0 0 17px!important;
+    width:17px!important; height:17px!important; margin:0!important; padding:0!important;
+    background:none!important; border-radius:0!important; box-shadow:none!important;
+    color:#f5d77a!important;
+  }
+  html body .vrm-pill__ico svg{ width:17px!important; height:17px!important; display:block!important }
+  html body .vrm-pill__label{
+    flex:0 1 auto!important; min-width:0!important; margin:0!important;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    font-size:13.5px!important; font-weight:600!important; color:#fff!important;
+  }
+  html body .vrm-chev{ flex:0 0 14px!important; width:14px!important; height:14px!important; opacity:.7 }
+  html body .vrm-menu{
     position:absolute; left:0; top:calc(100% + 8px); z-index:40;
     min-width:220px; max-width:100%; background:#232833; border-radius:14px; overflow:hidden;
     box-shadow:0 14px 32px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.08);
   }
-  html body .vipRide .vrm-menu__item{
+  html body .vrm-menu__item{
     display:block; width:100%; padding:13px 16px; border:none; cursor:pointer;
     background:transparent; color:#fff; font-family:inherit; font-size:14.5px; text-align:left;
   }
-  html body .vipRide .vrm-menu__item:active{ background:rgba(255,255,255,.08) }
+  html body .vrm-menu__item:active{ background:rgba(255,255,255,.08) }
+
+  /* buscador de direcciones: cabecera con atrás + título y las píldoras
+     encima de los campos, igual que en la app */
+  html body .vrm-lpHead{
+    display:flex; align-items:center; gap:12px; padding:12px 16px 4px; flex:0 0 auto;
+  }
+  html body .vrm-lpHead__title{
+    flex:1 1 auto; margin-right:38px; text-align:center;
+    font-family:'Poppins','Inter',sans-serif; font-size:17px; font-weight:700; color:#fff;
+  }
+  html body .vipRide__locPicker .vrm-pills{ margin:8px 16px 2px }
+  html body .vipRide__locPicker .vrm-menu{ z-index:60 }
 
   /* método de pago: hoja inferior a todo el ancho con filas separadas,
      igual colocación que en la app; el mapa sigue viéndose arriba */
@@ -9419,8 +9459,8 @@ html body #vipMpFooterSugs{
   var mq = window.matchMedia('(max-width:899px)');
   var ES = (document.documentElement.lang || 'en').slice(0, 2) === 'es';
   var T = ES
-    ? { now: 'Recoger ahora', forMe: 'Para mí', forOther: 'Para otra persona' }
-    : { now: 'Pickup now', forMe: 'For me', forOther: 'For someone else' };
+    ? { now: 'Recoger ahora', forMe: 'Para mí', forOther: 'Para otra persona', plan: 'Planifica tu viaje' }
+    : { now: 'Pickup now', forMe: 'For me', forOther: 'For someone else', plan: 'Plan your ride' };
 
   var ICO_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 1.9"/></svg>';
   var ICO_USER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg>';
@@ -9538,10 +9578,36 @@ html body #vipMpFooterSugs{
     if (b) b.classList.toggle('is-set', !!txt);
   }
 
-  /* las píldoras acompañan al paso: bajo los campos en el 1, bajo el
-     título "Elige un viaje" en el 3 */
+  /* cabecera del buscador: el botón de atrás sube a una fila con el título,
+     como en la app (se mueve el botón, así conserva su listener) */
+  function lpHead() {
+    var lp = q('[data-vipride-locpicker]');
+    if (!lp) return null;
+    var h = lp.querySelector('.vrm-lpHead');
+    if (h) return h;
+    h = document.createElement('div');
+    h.className = 'vrm-lpHead';
+    lp.insertBefore(h, lp.firstChild);
+    var back = lp.querySelector('[data-vipride-close-locpicker]');
+    if (back) h.appendChild(back);
+    var t = document.createElement('span');
+    t.className = 'vrm-lpHead__title';
+    t.textContent = T.plan;
+    h.appendChild(t);
+    return h;
+  }
+
+  /* las píldoras acompañan al paso: bajo los campos en el 1, encima de los
+     campos en el buscador, y bajo "Elige un vehículo" en el 3 */
   function place() {
     if (!pills) return;
+    var lp = q('[data-vipride-locpicker]');
+    if (lp && !lp.hasAttribute('hidden')) {
+      lpHead();
+      var row = lp.querySelector('.vipRide__locPicker__topRow');
+      if (row && row.parentNode && pills.nextElementSibling !== row) row.parentNode.insertBefore(pills, row);
+      return;
+    }
     var sheet = q('[data-vipride-sheet]');
     var step = sheet ? sheet.getAttribute('data-vipride-step') : '1';
     var host = step === '3'
@@ -9549,6 +9615,31 @@ html body #vipMpFooterSugs{
       : q('[data-vipride-step1-next]');
     if (!host || !host.parentNode || pills.nextElementSibling === host) return;
     host.parentNode.insertBefore(pills, host);
+  }
+
+  /* en el paso 1 el mapa es una tarjeta bajo el cuadro: hay que decirle dónde
+     empieza. Mapbox se reencuadra solo al oír un resize. */
+  var _nudge = null;
+  function nudgeMap() {
+    clearTimeout(_nudge);
+    _nudge = setTimeout(function () { try { window.dispatchEvent(new Event('resize')); } catch (_) {} }, 60);
+  }
+  function mapCard() {
+    var sec = q('.vipRide'), sheet = q('[data-vipride-sheet]');
+    if (!sec || !sheet) return;
+    var one = sheet.getAttribute('data-vipride-step') === '1';
+    /* con un overlay abierto la hoja se desplaza y se apaga: su medida no sirve */
+    if (one && !sheet.classList.contains('is-test-hidden')) {
+      var top = Math.round(sheet.getBoundingClientRect().bottom) + 4;
+      if (top > 80 && sec.style.getPropertyValue('--vrm-map-top') !== top + 'px') {
+        sec.style.setProperty('--vrm-map-top', top + 'px');
+        nudgeMap();
+      }
+    }
+    if (sec.classList.contains('vrm-step1') !== one) {
+      sec.classList.toggle('vrm-step1', one);
+      nudgeMap();
+    }
   }
 
   function buildPills() {
@@ -9588,12 +9679,16 @@ html body #vipMpFooterSugs{
     buildPills();
     place();
     syncWhen();
+    mapCard();
   }
   function toDesktop() {
     unwireFields();
     closeMenu();
     if (pills && pills.parentNode) pills.parentNode.removeChild(pills);
     pills = null;
+    var sec = q('.vipRide');
+    if (sec) { sec.classList.remove('vrm-step1'); sec.style.removeProperty('--vrm-map-top'); }
+    nudgeMap();
   }
 
   tick();
