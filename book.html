@@ -9403,6 +9403,13 @@ html body #vipMpFooterSugs{
   html body .vipRide__testConfirm__phase2 .vipRide__testSheet:has([data-vrtrip-pane="trip"]:not([hidden])){
     justify-content:flex-start!important; padding:24px 20px!important; overflow:hidden auto!important;
   }
+  /* ...y se apoya ABAJO de la columna, como la hoja de la app, en vez de
+     dejar todo el hueco debajo. Va con margin-top:auto y no con
+     justify-content:flex-end porque, cuando el contenido crece más que la
+     columna, flex-end corta la parte de arriba y ya no se puede desplazar. */
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet>[data-vrtrip-pane="trip"]:not([hidden]){
+    margin-top:auto!important;
+  }
   html body .vipRide__testConfirm__phase2 .vipRide__testSheet:has([data-vrtrip-pane="chat"]:not([hidden])){
     justify-content:flex-start!important; padding:20px!important;
   }
