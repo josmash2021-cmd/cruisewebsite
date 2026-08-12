@@ -1746,12 +1746,42 @@ img,video{-webkit-user-drag:none}
     },100);
   });
 
+  /* ═══ persistencia: recargar NO reinicia el asistente ═══
+     Lo escrito (correo/teléfono, nombre, contraseña, método) y la pantalla
+     actual se guardan en sessionStorage (solo esta pestaña; caduca a los
+     30 min o al cerrarla). Las pantallas con código temporal (otp/clave)
+     vuelven al paso seguro anterior con los datos ya puestos:
+     se actualiza, no se pierde. */
+  var _CA_ST='ca_auth_state';
+  function _caSave(){try{
+    sessionStorage.setItem(_CA_ST,JSON.stringify({s:_currentScreen,id:_identifier,it:_idType,
+      iv:idInput?idInput.value:'',fn:regFn?regFn.value:'',ln:regLn?regLn.value:'',
+      pw:regPw?regPw.value:'',sm:_secMethod,ts:Date.now()}));
+  }catch(_){}}
+  function _caClear(){try{sessionStorage.removeItem(_CA_ST);}catch(_){}}
+  var _goBase=_go;
+  _go=function(n){_goBase(n);if(n==='profile')_caClear();else _caSave();};
+  [idInput,regFn,regLn,regPw].forEach(function(el){if(el)el.addEventListener('input',_caSave);});
+  function _caRestore(){try{
+    var raw=sessionStorage.getItem(_CA_ST);if(!raw)return;
+    var st=JSON.parse(raw)||{};
+    if(!st.ts||Date.now()-st.ts>1800000){_caClear();return;}
+    [[idInput,st.iv],[regFn,st.fn],[regLn,st.ln],[regPw,st.pw]].forEach(function(p){
+      if(p[0]&&p[1]){p[0].value=p[1];try{p[0].dispatchEvent(new Event('input',{bubbles:true}));}catch(_){}}
+    });
+    if(st.id){_identifier=st.id;_idType=st.it||_getIdType(st.id);}
+    if(st.sm){_secMethod=st.sm;secOpts.forEach(function(x){x.classList.toggle('is-selected',x.getAttribute('data-ca-sec-opt')===_secMethod);});}
+    var safe={register:1,terms:1,security:1,phone:1};
+    if(safe[st.s]&&st.id)_go(st.s);
+  }catch(_){}}
+
   /* Init */
   if(_token()){
     var cached=_user();
     if(cached) _renderHome(cached);
     _go('profile');
   }
+  else _caRestore();
 })();
 </script>
 
