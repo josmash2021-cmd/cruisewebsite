@@ -3777,6 +3777,21 @@ window.__VR_AIRPORTS = [
     trackReset();
     setPane('searching');
     toast(T.driverBailed,'ok');
+    /* el mapa venía siguiendo al chofer, así que quedaba pegado a la recogida:
+       al volver a buscar se abre otra vez, con calma, hasta enseñar la ruta
+       entera por encima de la tarjeta */
+    setTimeout(function(){
+      try{
+        var mm=mapRef(),cc=window.__vrTripCoords;
+        if(mm&&cc&&cc.pu&&cc.dr){
+          var bb=new mapboxgl.LngLatBounds([cc.pu.lng,cc.pu.lat],[cc.pu.lng,cc.pu.lat]);
+          bb.extend([cc.dr.lng,cc.dr.lat]);
+          mm.fitBounds(bb,{padding:camPad(),maxZoom:15.5,duration:1300,essential:true,
+            easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+          camAt=performance.now();
+        }
+      }catch(_){}
+    },380);
     try{
       var r=root();
       var msg=r&&r.querySelector('[data-vipride-test-msg]');
