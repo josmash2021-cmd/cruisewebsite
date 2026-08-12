@@ -713,13 +713,17 @@ a.h-store { text-decoration: none; }
   .h-badges { align-items: flex-start; }
 }
 
-/* teléfonos: el video del hero se ve COMPLETO (banda 16:9 pegada arriba, bajo el
-   header transparente) en vez del recorte con zoom de object-fit cover a pantalla
-   completa; el contenido continúa debajo, sobre el fondo negro */
+/* teléfonos: el video sigue de fondo tras el contenido, pero con menos zoom:
+   en vez de estirarse a toda la pantalla (recorte enorme en vertical) ocupa
+   ~3/4 de alto, así el encuadre muestra bastante más y se funde en negro por
+   abajo con una máscara — el contenido del hero no se mueve */
 @media (max-width: 640px) {
-  .hero { padding-top: calc(56.25vw + 34px); align-items: flex-start; }
-  .hero-video { inset: 0 0 auto 0; height: 56.25vw; }
-  .hero::before { bottom: auto; height: 56.25vw; background: rgba(0, 0, 0, .18); }
+  .hero-video {
+    inset: 0 0 auto 0;
+    height: min(78svh, 128vw);
+    -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent);
+            mask-image: linear-gradient(to bottom, #000 58%, transparent);
+  }
 }
 
 /* ============================================================
