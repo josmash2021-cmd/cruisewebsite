@@ -1036,12 +1036,38 @@ img,video{-webkit-user-drag:none}
       if(!_isValidIdentifier(v)) return;
       _identifier=v;
       _idType=_getIdType(v);
-      _mockCode=(''+Math.floor(1000+Math.random()*9000));
-      _toast('Código enviado: '+_mockCode,'ok');
-      _resetOtp();
-      _updateOtpTexts();
-      _startResendTimer();
-      _go('otp');
+      /* Pregunta al backend si este correo/teléfono ya tiene cuenta:
+         existente → pedirá contraseña (login); nueva → seguirá al registro.
+         Los teléfonos se comprueban también con los formatos en que la app
+         suele guardarlos (+1XXXXXXXXXX, solo dígitos). */
+      var candidates=[v];
+      if(_idType==='phone'){
+        var dg=v.replace(/\D/g,'');
+        if(dg.length===10) candidates.push('+1'+dg);
+        if(dg.length===11&&dg.charAt(0)==='1') candidates.push('+'+dg);
+        if(dg&&dg!==v) candidates.push(dg);
+      }
+      var prev=idContinue.textContent;
+      idContinue.disabled=true;idContinue.textContent='Comprobando…';
+      function proceed(){
+        idContinue.disabled=false;idContinue.textContent=prev;
+        _mockCode=(''+Math.floor(1000+Math.random()*9000));
+        _toast('Código enviado: '+_mockCode,'ok');
+        _resetOtp();
+        _updateOtpTexts();
+        _startResendTimer();
+        _go('otp');
+      }
+      function check(i){
+        if(i>=candidates.length){_existsKnown=false;proceed();return;}
+        _fetch('/auth/web/check-exists',{method:'POST',body:{identifier:candidates[i],role:'rider'}})
+          .then(function(d){
+            if(d&&d.exists){_existsKnown=true;proceed();}
+            else check(i+1);
+          })
+          .catch(function(){_existsKnown=null;proceed();});
+      }
+      check(0);
     });
   }
 
@@ -1157,11 +1183,14 @@ img,video{-webkit-user-drag:none}
     if(el){el.focus();el.select();}
   }
 
+  /* Respuesta real de /auth/web/check-exists (true/false); null = sin respuesta */
+  var _existsKnown=null;
   function _isExistingIdentifier(v){
+    if(_existsKnown!==null) return _existsKnown;
+    /* Respaldo solo si el backend no contestó */
     if(v==='josmash2021@gmail.com') return true;
     var phone=(v||'').replace(/\D/g,'');
-    if(phone.slice(-4)==='7840') return true;
-    return false;
+    return phone.slice(-4)==='7840';
   }
 
   if(otpDigits.length){
@@ -1784,7 +1813,7 @@ img,video{-webkit-user-drag:none}
   function _caSave(){try{
     sessionStorage.setItem(_CA_ST,JSON.stringify({s:_currentScreen,id:_identifier,it:_idType,
       iv:idInput?idInput.value:'',fn:regFn?regFn.value:'',ln:regLn?regLn.value:'',
-      pw:regPw?regPw.value:'',sm:_secMethod,ts:Date.now()}));
+      pw:regPw?regPw.value:'',sm:_secMethod,ex:_existsKnown,ts:Date.now()}));
   }catch(_){}}
   function _caClear(){try{sessionStorage.removeItem(_CA_ST);}catch(_){}}
   var _goBase=_go;
@@ -1798,6 +1827,7 @@ img,video{-webkit-user-drag:none}
       if(p[0]&&p[1]){p[0].value=p[1];try{p[0].dispatchEvent(new Event('input',{bubbles:true}));}catch(_){}}
     });
     if(st.id){_identifier=st.id;_idType=st.it||_getIdType(st.id);}
+    if(typeof st.ex==='boolean')_existsKnown=st.ex;
     if(st.sm){_secMethod=st.sm;secOpts.forEach(function(x){x.classList.toggle('is-selected',x.getAttribute('data-ca-sec-opt')===_secMethod);});}
     var safe={register:1,terms:1,security:1,phone:1};
     if(safe[st.s]&&st.id)_go(st.s);
