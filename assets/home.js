@@ -2074,3 +2074,44 @@
   window.addEventListener('resize', onScroll, { passive: true });
   update();
 })();
+
+/* ---- botón WhatsApp: al llegar al footer vuela y se acopla junto a las
+   redes sociales (mismo aro que fb/ig); al subir vuelve a su esquina ---- */
+(function () {
+  var fab = document.querySelector('.wa-fab');
+  var slot = document.querySelector('.cf-wa-slot');
+  if (!fab || !slot || !('IntersectionObserver' in window)) return;
+  var base = null, docked = false, raf = 0;
+  function measureBase() {
+    var t = fab.style.transform;
+    fab.style.transform = 'none';
+    var r = fab.getBoundingClientRect();
+    fab.style.transform = t;
+    base = { cx: r.left + r.width / 2, cy: r.top + r.height / 2, w: r.width };
+  }
+  function sync() {
+    raf = 0;
+    if (!docked) return;
+    if (!base) measureBase();
+    var r = slot.getBoundingClientRect();
+    if (r.width > 1) {
+      var s = r.width / base.w;
+      var tx = (r.left + r.width / 2) - base.cx;
+      var ty = (r.top + r.height / 2) - base.cy;
+      fab.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
+    }
+    raf = requestAnimationFrame(sync);
+  }
+  function setDocked(on) {
+    if (docked === on) return;
+    docked = on;
+    fab.classList.toggle('wa-fab--docked', on);
+    slot.classList.toggle('is-on', on);
+    if (on) { if (!raf) raf = requestAnimationFrame(sync); }
+    else { fab.style.transform = ''; }
+  }
+  new IntersectionObserver(function (es) {
+    setDocked(es[0].isIntersecting);
+  }, { rootMargin: '0px 0px -6px 0px' }).observe(slot.parentNode);
+  window.addEventListener('resize', function () { base = null; }, { passive: true });
+})();
