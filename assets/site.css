@@ -448,14 +448,20 @@ body:not(.has-hero) main, body:not(.has-hero) > section:first-of-type {
 
 @media (max-width: 960px) {
   .cf-hero { flex-direction: column; align-items: flex-start; padding: 56px 24px 40px; }
-  .cf-route__stops { grid-template-columns: 1fr 1fr; gap: 36px 24px; }
-  .cf-route__line { display: none; }
   .cf-bottom__inner { flex-wrap: wrap; justify-content: center; text-align: center; }
   .cf-bottom__copy { width: 100%; order: 3; }
 }
+/* la "ruta" de contacto se queda horizontal con su línea dorada también en
+   teléfonos, igual que en escritorio, solo que en miniatura */
 @media (max-width: 640px) {
-  .cf-route__stops { grid-template-columns: 1fr; gap: 28px; }
-  .cf-stop { flex-direction: row; align-items: center; text-align: left; }
+  .cf-route { padding: 0 12px 46px; }
+  .cf-route__line { left: 12px; right: 12px; top: -1px; }
+  .cf-route__stops { gap: 12px 6px; }
+  .cf-stop { gap: 7px; }
+  .cf-stop__dot { width: 38px; height: 38px; }
+  .cf-stop__dot svg { width: 16px; height: 16px; }
+  .cf-stop small { font-size: 7.5px; letter-spacing: .08em; }
+  .cf-stop strong { font-size: 10px; overflow-wrap: anywhere; }
   .cf-bottom__links { flex-wrap: wrap; justify-content: center; gap: 18px 24px; }
 }
 

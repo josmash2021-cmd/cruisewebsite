@@ -744,12 +744,18 @@ a.h-store { text-decoration: none; }
    ~3/4 de alto, así el encuadre muestra bastante más y se funde en negro por
    abajo con una máscara — el contenido del hero no se mueve */
 @media (max-width: 640px) {
+  /* el video arranca un poco más abajo, con degradado negro arriba y abajo */
   .hero-video {
-    inset: 0 0 auto 0;
-    height: min(78svh, 128vw);
-    -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent);
-            mask-image: linear-gradient(to bottom, #000 58%, transparent);
+    inset: 56px 0 auto 0;
+    height: min(74svh, 124vw);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 58%, transparent);
+            mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 58%, transparent);
   }
+  /* orden en teléfono: CTAs → botones de descarga juntos → badges al final, centrados */
+  .h-col--right { gap: 16px; }
+  .h-buttons { order: 1; }
+  .h-col--right .h-stores { order: 2; }
+  .h-badges { order: 3; margin-top: 10px; justify-content: center; }
   /* insignias en UNA sola fila y botones compactos en horizontal */
   .h-col--right { width: 100%; }
   .h-badges { flex-wrap: nowrap; justify-content: center; gap: 6px; }
@@ -1327,18 +1333,10 @@ a.h-store { text-decoration: none; }
   .rv-card { padding: 22px; }
   .rv-card--featured .rv-text { -webkit-line-clamp: 4; font-size: 15.5px; }
   .rv-quote-mark { font-size: 80px; }
-  .rv-stats { grid-template-columns: 1fr; }
-  .rs-item { padding: 26px 20px; }
-  .rs-item + .rs-item::before {
-    left: 12%;
-    right: 12%;
-    top: 0;
-    bottom: auto;
-    width: auto;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, .28), transparent);
-  }
-  .rs-num { font-size: 34px; }
+  /* las 3 cifras se quedan en horizontal, como en escritorio */
+  .rv-stats { margin-top: 56px; }
+  .rs-item { padding: 8px 10px; }
+  .rs-num { font-size: 30px; }
 }
 
 /* ============================================================
@@ -2419,9 +2417,9 @@ body.h-city-lock { overflow: hidden; }
 
 /* ---- barra promocional (entre el hero y Experiencia de Lujo): píldora glass negra ---- */
 .promo-bar {
-  display: flex; align-items: center; gap: 16px;
+  display: flex; align-items: center; gap: 18px;
   width: fit-content; max-width: calc(100% - 32px);
-  margin: 26px auto; padding: 12px 16px 12px 14px;
+  margin: 26px auto; padding: 16px 22px 16px 18px;
   background: rgba(0, 0, 0, .48);
   border: 1px solid rgba(255, 255, 255, .13);
   border-radius: 14px;
@@ -2434,14 +2432,14 @@ body.h-city-lock { overflow: hidden; }
 @keyframes promoBarIn { to { opacity: 1; transform: none; } }
 .promo-bar.is-gone { display: none; }
 .promo-bar.is-hiding { animation: none; transition: opacity .35s ease, transform .35s ease; opacity: 0 !important; transform: translateY(-10px) scale(.97) !important; pointer-events: none; }
-.promo-bar__logo { width: 38px; height: 38px; flex: 0 0 38px; object-fit: contain; display: block; filter: drop-shadow(0 0 10px rgba(212, 175, 55, .35)); animation: promoBadgeGlow 3.2s ease-in-out 2.4s infinite; }
+.promo-bar__logo { width: 46px; height: 46px; flex: 0 0 46px; object-fit: contain; display: block; filter: drop-shadow(0 0 10px rgba(212, 175, 55, .35)); animation: promoBadgeGlow 3.2s ease-in-out 2.4s infinite; }
 @keyframes promoBadgeGlow {
   0%, 100% { filter: drop-shadow(0 0 8px rgba(212, 175, 55, .28)); }
   50% { filter: drop-shadow(0 0 15px rgba(212, 175, 55, .55)); }
 }
 .promo-bar__txt {
   flex: 0 1 auto; text-align: center;
-  color: var(--ink); font-size: 14.5px; line-height: 1.4;
+  color: var(--ink); font-size: 16.5px; line-height: 1.4;
   text-decoration: none; transition: color .2s ease;
 }
 .promo-bar__txt b { color: var(--gold); font-weight: 700; }
@@ -2457,8 +2455,8 @@ body.h-city-lock { overflow: hidden; }
 .promo-bar__close svg { width: 14px; height: 14px; }
 .promo-bar__close:hover { color: var(--gold); background: rgba(212, 175, 55, .14); transform: rotate(90deg); }
 @media (max-width: 640px) {
-  .promo-bar { gap: 11px; margin: 18px auto; padding: 10px 12px 10px 11px; border-radius: 12px; }
-  .promo-bar__logo { width: 30px; height: 30px; flex-basis: 30px; }
-  .promo-bar__txt { font-size: 12px; text-align: left; }
+  .promo-bar { gap: 12px; margin: 18px auto; padding: 12px 14px 12px 13px; border-radius: 12px; }
+  .promo-bar__logo { width: 36px; height: 36px; flex-basis: 36px; }
+  .promo-bar__txt { font-size: 13.5px; text-align: left; }
 }
 }
