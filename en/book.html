@@ -6751,6 +6751,33 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       }catch(_){}
     },420);
   }
+  /* VIGILANTE PERMANENTE, ya no dependemos de eventos que llegan tarde: cada
+     1,2 s, si el mapa está quieto en el paso 3 (teléfono, sin viaje), se mira
+     si la ruta entera cabe en pantalla y, si no, se reencuadra con las medidas
+     de ese instante. Cubre el caso del refresco, donde el orden de carga
+     (restaurar estado → crear el mapa → medir la franja) cambia cada vez.
+     El contador de intentos se reinicia cuando el lienzo cambia de tamaño o
+     cuando la ruta por fin cabe; el mapa del teléfono no es interactivo, así
+     que ningún reencuadre puede pisar un gesto del usuario. */
+  var _vwTries=0,_vwSig='';
+  setInterval(function(){
+    try{
+      if(!map||innerWidth>=900||currentStep!==3||window.__vrTripLive)return;
+      if(!pickupPlace||!dropoffPlace||document.hidden)return;
+      if(map.isMoving&&map.isMoving())return;
+      var ct=map.getContainer(),sig=(ct?ct.clientWidth:0)+'x'+(ct?ct.clientHeight:0);
+      if(sig!==_vwSig){_vwSig=sig;_vwTries=0;}
+      var vb=map.getBounds();
+      var pts=[[pickupPlace.lng,pickupPlace.lat],[dropoffPlace.lng,dropoffPlace.lat]];
+      try{(window.__vrRouteCoords||[]).forEach(function(cc){pts.push(cc);});}catch(_){}
+      var out=false;
+      for(var i=0;i<pts.length;i++){if(!vb.contains(pts[i])){out=true;break;}}
+      if(!out){_vwTries=0;return;}
+      if(_vwTries>=4)return;
+      _vwTries++;
+      fitRouteBounds();
+    }catch(_){}
+  },1200);
   function fitRouteBounds(){
     if(!map||!pickupPlace||!dropoffPlace)return;
     clearTimeout(_fR);_fR=null;
@@ -11241,6 +11268,10 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     /* en el paso 3 la barra del sitio se esconde: el mapa llega arriba del
        todo y la flecha flota sobre él, como en la app */
     document.body.classList.toggle('vrm-nohdr', !one);
+    /* tras un refresco la flecha de volver llega con hidden puesto (la
+       restauración no siempre pasa por goToStep): en el paso 3 debe verse
+       siempre — cuando hay overlay o viaje, el CSS ya la esconde por su lado */
+    if (three) { var _mb = q('[data-vipride-map-back]'); if (_mb && _mb.hidden) _mb.hidden = false; }
     if (sec.classList.contains('vrm-step1') !== one || sec.classList.contains('vrm-step3') !== three) {
       sec.classList.toggle('vrm-step1', one);
       sec.classList.toggle('vrm-step3', three);
