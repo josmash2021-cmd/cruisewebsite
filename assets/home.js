@@ -2002,7 +2002,7 @@
       return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
     };
     var step = function () {
-      current += (target - current) * 0.1;   /* lerp .1 = el que trae Lenis por defecto */
+      current += (target - current) * 0.3;   /* suavizado ligero: casi nativo, solo un toque sedoso */
       if (Math.abs(target - current) < 0.5) {
         current = target;
         rafId = null;
