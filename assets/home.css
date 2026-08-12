@@ -724,6 +724,21 @@ a.h-store { text-decoration: none; }
     -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent);
             mask-image: linear-gradient(to bottom, #000 58%, transparent);
   }
+  /* insignias y botones compactos y en horizontal */
+  .h-col--right { width: 100%; }
+  .h-badges { justify-content: flex-start; gap: 8px; }
+  .h-badge { padding: 8px 12px; font-size: 11px; gap: 6px; }
+  .h-badge svg { width: 13px; height: 13px; flex: 0 0 13px; }
+  .h-buttons { width: 100%; flex-wrap: nowrap; gap: 10px; }
+  .h-buttons .btn-gold,
+  .h-buttons .btn-ghost {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 14px 8px;
+    font-size: 10.5px;
+    letter-spacing: .08em;
+    white-space: nowrap;
+  }
 }
 
 /* ============================================================
