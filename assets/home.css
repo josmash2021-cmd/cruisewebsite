@@ -447,9 +447,14 @@
   .h-ride { grid-template-columns: 1fr; }
   .h-ride::after { content: none; }
   .h-ride__map { min-height: 340px; grid-column: auto; grid-row: auto; }
+  /* fase 2 sin scroll interno: el panel entra al flujo del documento, centrado,
+     y es la página la que crece (el hero deja de recortarlo) */
+  .h-phase2 { flex-direction: column; align-items: stretch; padding: 0; }
+  .h-phase2-col--right { min-width: 0; align-self: center; }
+  .hero--phase2 .h-phase2 { position: static; width: 100%; }
+  .hero--phase2 .hero-inner { display: none; }
 }
 @media (max-width: 640px) {
-  .h-phase2 { overflow-y: auto; align-items: flex-start; }
   .h-ride { grid-template-columns: 1fr; }
   .h-ride__map { min-height: 280px; grid-column: auto; grid-row: auto; }
   .h-ride__title { font-size: 28px; }
@@ -706,6 +711,15 @@ a.h-store { text-decoration: none; }
   .hero-inner { flex-direction: column; align-items: flex-start; gap: 44px; }
   .h-col--right { align-items: flex-start; }
   .h-badges { align-items: flex-start; }
+}
+
+/* teléfonos: el video del hero se ve COMPLETO (banda 16:9 pegada arriba, bajo el
+   header transparente) en vez del recorte con zoom de object-fit cover a pantalla
+   completa; el contenido continúa debajo, sobre el fondo negro */
+@media (max-width: 640px) {
+  .hero { padding-top: calc(56.25vw + 34px); align-items: flex-start; }
+  .hero-video { inset: 0 0 auto 0; height: 56.25vw; }
+  .hero::before { bottom: auto; height: 56.25vw; background: rgba(0, 0, 0, .18); }
 }
 
 /* ============================================================
