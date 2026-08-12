@@ -319,7 +319,8 @@ body:not(.has-hero) main, body:not(.has-hero) > section:first-of-type {
 .cf-route__line path { stroke-dasharray: 1000; stroke-dashoffset: 0; }
 .cf-route--anim .cf-route__line path { stroke-dashoffset: 1000; }
 .cf-route--anim.is-lit .cf-route__line path {
-  animation: cf-route-draw 2.4s cubic-bezier(.5, 0, .2, 1) forwards;
+  /* trazado pausado y elegante, sin arranque brusco */
+  animation: cf-route-draw 5.2s cubic-bezier(.33, .05, .2, 1) forwards;
 }
 @keyframes cf-route-draw {
   to { stroke-dashoffset: 0; }
