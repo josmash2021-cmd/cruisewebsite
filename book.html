@@ -7100,6 +7100,16 @@ setTimeout(_vrPfKick,1200);
               _acSessionToken=crypto.randomUUID?crypto.randomUUID():(Date.now()+''+Math.random()).replace('.','');
               var done=currentMode==='hourly'?pickupPlace:(pickupPlace&&dropoffPlace);
               if(currentStep===3&&done)setTimeout(function(){closeLocPicker(true);setTimeout(function(){try{computeRoute();fitRouteBounds();setTimeout(showMarkerLabels,2000)}catch(_){}},300)},150);
+              /* En el teléfono, elegir una dirección de la lista ya no abre la
+                 página de ajustar el pin: con las dos direcciones puestas se
+                 pasa directo a elegir vehículo, y si falta una, el buscador se
+                 queda abierto para escribirla. Ajustar el pin sigue disponible
+                 a mano desde "Elegir en el mapa". */
+              else if(innerWidth<900){
+                if(done)setTimeout(function(){closeLocPicker(true);setTimeout(function(){try{goToStep(3,'forward');computeRoute();setTimeout(fitRouteBounds,300);setTimeout(showMarkerLabels,2000)}catch(_){}},250)},150);
+                else if(forWhich==='pickup'&&lpDropoffEl&&!lpDropoffEl.value.trim())setTimeout(function(){try{lpDropoffEl.focus()}catch(_){}},150);
+                else if(forWhich==='dropoff'&&lpPickupEl&&!lpPickupEl.value.trim())setTimeout(function(){try{lpPickupEl.removeAttribute('readonly');lpPickupEl.focus()}catch(_){}},150);
+              }
               else{window.__vrAdjustFor=forWhich;setTimeout(function(){closeLocPicker(true);setTimeout(function(){if(typeof openMapPicker==='function')openMapPicker()},250)},150)}
             }).catch(function(){});
         };
@@ -8944,7 +8954,8 @@ html body #vipMpFooterSugs{
   /* con el buscador abierto la barra del menú se retira y la pantalla es
      suya entera: nada de cabecera del sitio asomando arriba */
   html body.vrm-full .cruise-header{ display:none!important }
-  html body.vrm-full .wa-fab{ display:none!important }
+  /* el globo de WhatsApp estorba encima del mapa: fuera de la página de reservas */
+  html body:has(#vipRide-ride_request_48wXbE) .wa-fab{ display:none!important }
   html body.vrm-full .vipRide__locPicker,
   html body.vrm-full [data-vipride-locpicker]:not([hidden]){
     top:0!important; padding-top:env(safe-area-inset-top,0px)!important;
@@ -9740,6 +9751,12 @@ html body #vipMpFooterSugs{
     var sync = function () {
       var on = mq.matches && !lp.hasAttribute('hidden');
       if (document.body.classList.contains('vrm-full') !== on) document.body.classList.toggle('vrm-full', on);
+      /* las píldoras vuelven a su sitio y el mapa se recoloca aquí mismo, no en
+         el repaso de cada medio segundo: si no, al cerrar el buscador se veía
+         medio segundo sin píldoras y con el mapa saltando, como si la página
+         se estuviera montando otra vez */
+      place();
+      mapCard();
     };
     new MutationObserver(sync).observe(lp, { attributes: true, attributeFilter: ['hidden'] });
     sync();
