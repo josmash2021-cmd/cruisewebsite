@@ -9866,8 +9866,11 @@ html body #vipMpFooterSugs{
     if (pills && pills.parentNode) pills.parentNode.removeChild(pills);
     pills = null;
     var sec = q('.vipRide');
-    if (sec) { sec.classList.remove('vrm-step1'); sec.style.removeProperty('--vrm-map-top'); }
-    nudgeMap();
+    if (sec) {
+      sec.classList.remove('vrm-step1');
+      sec.style.removeProperty('--vrm-map-top');
+      sec.style.removeProperty('--vrm-map-h');
+    }
   }
 
   tick();
