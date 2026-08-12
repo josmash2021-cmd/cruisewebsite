@@ -3570,7 +3570,7 @@ window.__VR_AIRPORTS = [
   /* ── tracking del chofer en el mapa ── */
   var carM=null,carFrom=null,carTo=null,carT0=0,carRafOn=false;
   var trkAt=0,trkPos=null,camAt=0,hadDriver=false;
-  var CAR_SRC=location.pathname.replace(/\/(pickup|dropoff)$/,'').replace(/[^/]*$/,'')+((document.documentElement.lang||'en').indexOf('es')===0?'assets/':'../assets/')+'media/car-suburban.png';
+  var CAR_SRC=location.pathname.replace(/\/(pickup|dropoff)$/,'').replace(/[^/]*$/,'')+((document.documentElement.lang||'en').indexOf('es')===0?'assets/':'../assets/')+'car-suburban.png';
   function mapRef(){return window.__vrMap||null;}
   function geoBrg(a,b){var toR=Math.PI/180,la1=a.lat*toR,la2=b.lat*toR,dLn=(b.lng-a.lng)*toR;var y=Math.sin(dLn)*Math.cos(la2);var x=Math.cos(la1)*Math.sin(la2)-Math.sin(la1)*Math.cos(la2)*Math.cos(dLn);return Math.atan2(y,x)*180/Math.PI;}
   function geoDistM(a,b){var toR=Math.PI/180;var dx=(b.lng-a.lng)*toR*Math.cos(((a.lat+b.lat)/2)*toR),dy=(b.lat-a.lat)*toR;return Math.sqrt(dx*dx+dy*dy)*6371000;}
