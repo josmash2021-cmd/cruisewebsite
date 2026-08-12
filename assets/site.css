@@ -278,7 +278,7 @@ body:not(.has-hero) main, body:not(.has-hero) > section:first-of-type {
   align-items: center;
   justify-content: center;
   padding: 16px 36px;
-  border-radius: 999px;
+  border-radius: 16px;
   background: linear-gradient(145deg, #f2d577, #d4af37 55%, #b8922c);
   color: #241c05;
   font-size: 12px;
