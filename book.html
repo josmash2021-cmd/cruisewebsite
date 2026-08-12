@@ -734,7 +734,7 @@ img,video{-webkit-user-drag:none}
             <div class="vrTrip__step is-on" data-vrtrip-step="enroute"><i></i><b>En route</b></div>
             <div class="vrTrip__step" data-vrtrip-step="arrived"><i></i><b>Arrived</b></div>
             <div class="vrTrip__step" data-vrtrip-step="intrip"><i></i><b>In trip</b></div>
-            <div class="vrTrip__step" data-vrtrip-step="done"><i></i><b>Done</b></div>
+            <div class="vrTrip__step" data-vrtrip-step="done"><i></i><b>Finish</b></div>
           </div>
 
           <div class="vrTrip__card">
@@ -872,6 +872,7 @@ img,video{-webkit-user-drag:none}
           <div class="vrTrip__chatHead">
             <button type="button" class="vrTrip__chatBack" data-vrtrip-chat-back aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
             <div class="vrTrip__chatWho"><div class="vrTrip__chatName" data-vrtrip-chat-name>Your driver</div><div class="vrTrip__chatSub" data-vrtrip-chat-sub>Online</div></div>
+            <button type="button" class="vrTrip__chatCall" data-vrtrip-chat-call aria-label="Call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></button>
             <div class="vrTrip__chatAvatar" data-vrtrip-chat-avatar aria-hidden="true"></div>
           </div>
           <div class="vrTrip__chatBody" data-vrtrip-chat-body></div>
@@ -3513,7 +3514,7 @@ window.__VR_AIRPORTS = [
   var es=(document.documentElement.lang||'').toLowerCase().indexOf('es')===0;
   var T=es?{
     enroute:'Tu chofer está en camino',arrived:'Tu chofer llegó',intrip:'En camino a tu destino',done:'Llegaste a tu destino',
-    s1:'En camino',s2:'Llegó',s3:'En viaje',s4:'Terminado',
+    s1:'En camino',s2:'Llegó',s3:'En viaje',s4:'Finalizado',
     minAway:'min para llegar',minTrip:'min de viaje',here:'te espera',arrivedNow:'ya está afuera',min:'min',hr:'h',
     yourDriver:'Tu chofer',call:'Llamar',chat:'Chat',share:'Compartir',support:'Soporte',
     addStop:'Agregar parada',cancel:'Cancelar viaje',
@@ -3555,7 +3556,7 @@ window.__VR_AIRPORTS = [
     mi:'mi'
   }:{
     enroute:'Your driver is on the way',arrived:'Your driver has arrived',intrip:'On the way to your destination',done:'You have arrived',
-    s1:'En route',s2:'Arrived',s3:'In trip',s4:'Done',
+    s1:'En route',s2:'Arrived',s3:'In trip',s4:'Finish',
     minAway:'min away',minTrip:'min of trip',here:'is waiting',arrivedNow:'is outside',min:'min',hr:'h',
     yourDriver:'Your driver',call:'Call',chat:'Chat',share:'Share',support:'Support',
     addStop:'Add a stop',cancel:'Cancel ride',
@@ -3602,10 +3603,11 @@ window.__VR_AIRPORTS = [
   /* tarifa real del viaje y propina ya dada: los manda /status y con ellos la
      pantalla de calificar arma los porcentajes de propina sin inventar nada */
   var fare=0,tipAlready=false;
-  var lastMsgId=0,lastSeen=0,unread=0,sending=false,started=false;
+  var lastMsgId=0,lastSeen=0,unread=0,sending=false,started=false,chatSig='';
   var STEPS=['enroute','arrived','intrip','done'];
   /* ── tracking del chofer en el mapa ── */
   var carM=null,carFrom=null,carTo=null,carT0=0,carRafOn=false;
+  var carDur=4200,carSeg=0,carLast=0,carDrift=null,carHdg=null;
   var trkAt=0,trkPos=null,camAt=0,hadDriver=false;
   var CAR_SRC=location.pathname.replace(/\/(pickup|dropoff)$/,'').replace(/[^/]*$/,'')+((document.documentElement.lang||'en').indexOf('es')===0?'assets/':'../assets/')+'car-suburban.png';
   function mapRef(){return window.__vrMap||null;}
@@ -3617,19 +3619,37 @@ window.__VR_AIRPORTS = [
     var img=document.createElement('img');
     img.src=CAR_SRC;img.alt='';img.draggable=false;
     img.style.cssText='display:block;height:38px;width:auto;filter:drop-shadow(0 1px 1px rgba(0,0,0,.7)) drop-shadow(0 4px 7px rgba(0,0,0,.55));pointer-events:none;user-select:none;';
-    var el=document.createElement('div');el.style.pointerEvents='none';el.appendChild(img);
-    try{carM=new mapboxgl.Marker({element:el,rotationAlignment:'map',pitchAlignment:'map',anchor:'center'}).setLngLat([pos.lng,pos.lat]).addTo(m);}catch(_){carM=null;}
+    /* capa interior que se desliza en fracciones de píxel: Mapbox redondea la
+       posición del marcador a píxeles enteros, y a la velocidad a la que se ve
+       un coche en el mapa eso son saltitos de 1 px varias veces por segundo.
+       El marcador se queda anclado en el punto del tramo y lo que se mueve es
+       este div (con GPU); como el marcador va rotado al rumbo, "adelante" es
+       translateY negativo. Igual que la flota decorativa. */
+    var drift=document.createElement('div');drift.style.cssText='will-change:transform;';
+    drift.appendChild(img);
+    var el=document.createElement('div');el.style.pointerEvents='none';el.appendChild(drift);
+    try{carM=new mapboxgl.Marker({element:el,rotationAlignment:'map',pitchAlignment:'map',anchor:'center'}).setLngLat([pos.lng,pos.lat]).addTo(m);carDrift=drift;}catch(_){carM=null;carDrift=null;}
     return carM;
   }
-  /* el coche se desliza suave entre dos lecturas del GPS (el sondeo es cada
-     4 s): interpolación con easing, y el morro apunta al rumbo real */
+  function carPPM(){
+    var m=mapRef();if(!m)return 0;
+    try{var c=m.getCenter(),pa=m.project([c.lng,c.lat]),pb=m.project([c.lng,c.lat+0.001]);return Math.abs(pa.y-pb.y)/111.32;}catch(_){return 0;}
+  }
+  /* el coche avanza a ritmo CONSTANTE entre dos lecturas del GPS. Antes usaba
+     easing y duraba 3,2 s con sondeos de 4 s: frenaba al final de cada tramo y
+     se quedaba 0,8 s parado, un arranque-parada cada 4 s. Ahora el tramo dura
+     un pelín más que el hueco real entre lecturas, así que el coche nunca se
+     queda quieto: va con un retraso fijo pequeño, que es lo que hace Uber. */
   function carStep(){
     if(!carM||!carTo){carRafOn=false;return;}
-    var t=(performance.now()-carT0)/3200;if(t>1)t=1;
-    var e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
-    var la=carFrom.lat+(carTo.lat-carFrom.lat)*e,ln=carFrom.lng+(carTo.lng-carFrom.lng)*e;
-    try{carM.setLngLat([ln,la]);}catch(_){}
+    var t=(performance.now()-carT0)/carDur;if(t>1)t=1;
+    var ppm=carPPM();
+    if(carDrift&&ppm)carDrift.style.transform='translateY('+(-carSeg*t*ppm).toFixed(2)+'px)';
     if(t<1)requestAnimationFrame(carStep);else carRafOn=false;
+  }
+  function carAt(t){
+    if(!carFrom||!carTo)return null;
+    return {lat:carFrom.lat+(carTo.lat-carFrom.lat)*t,lng:carFrom.lng+(carTo.lng-carFrom.lng)*t};
   }
   function trkTarget(){
     var c=window.__vrTripCoords;if(!c)return null;
@@ -3681,19 +3701,40 @@ window.__VR_AIRPORTS = [
   }
   function moveCar(fix){
     if(!ensureCar(fix))return;
-    var cur;try{var ll=carM.getLngLat();cur={lat:ll.lat,lng:ll.lng};}catch(_){cur=fix;}
+    var now=performance.now();
+    /* de dónde arranca el tramo nuevo: de donde el coche va AHORA (ancla del
+       tramo + lo deslizado), no del último punto del GPS */
+    var cur=null;
+    if(carFrom&&carTo){var tt=(now-carT0)/carDur;if(tt>1)tt=1;cur=carAt(tt);}
+    if(!cur){try{var ll=carM.getLngLat();cur={lat:ll.lat,lng:ll.lng};}catch(_){cur=fix;}}
     var d=geoDistM(cur,fix);
-    if(d>=3){
-      if(d>8){try{carM.setRotation(geoBrg(cur,fix));}catch(_){}}
-      carFrom=cur;carTo=fix;carT0=performance.now();
+    if(d>=6){
+      /* el hueco que importa es el que pasa entre DOS POSICIONES DISTINTAS del
+         chofer (su app manda GPS cada ~3 s), no entre sondeos: el tramo dura
+         un pelín más que ese hueco y así el coche nunca se queda parado */
+      var gap=carLast?now-carLast:4000;carLast=now;
+      carDur=Math.max(1500,Math.min(6000,gap*1.08));
+      /* el rumbo se fija al del tramo: es el eje por el que se desliza */
+      carHdg=geoBrg(cur,fix);
+      carFrom=cur;carTo=fix;carSeg=d;carT0=now;
+      try{carM.setLngLat([cur.lng,cur.lat]).setRotation(carHdg);}catch(_){}
+      if(carDrift)carDrift.style.transform='translateY(0px)';
       if(!carRafOn){carRafOn=true;requestAnimationFrame(carStep);}
+    }else if(d>0){
+      /* menos de 6 m: es temblor del GPS, no un movimiento. Se corrige la
+         posición sin animar ni girar el morro (girar con ese ruido hace que
+         el coche baile parado en un semáforo) */
+      carFrom=fix;carTo=fix;carSeg=0;carT0=now;
+      try{carM.setLngLat([fix.lng,fix.lat]);}catch(_){}
+      if(carDrift)carDrift.style.transform='translateY(0px)';
     }
     camFollow(fix);trkRoute(fix);
   }
   function trackReset(){
     trkClear();
     if(carM){try{carM.remove();}catch(_){}carM=null;}
-    carTo=null;carRafOn=false;camAt=0;
+    carFrom=null;carTo=null;carRafOn=false;camAt=0;
+    carDrift=null;carHdg=null;carSeg=0;carLast=0;
     window.__vrTripLive=false;
   }
   /* el chofer canceló: el backend devuelve el viaje a la cola y lo re-ofrece;
@@ -3892,16 +3933,37 @@ window.__VR_AIRPORTS = [
     }
     return b;
   }
+  /* El chat parpadeaba porque cada sondeo (1,5 s) borraba el hilo entero y lo
+     volvía a pintar: las burbujas se re-animaban, el scroll saltaba y no se
+     podía ni seleccionar texto. Ahora se compara una firma de la lista: si no
+     cambió NO se toca el DOM, y si solo llegaron mensajes nuevos se añaden al
+     final. Repintar entero queda para el caso raro de que el servidor devuelva
+     un historial distinto. */
+  function msgKey(m){return String(m.id||'')+'~'+String(m.created_at||'')+'~'+String(m.message||m.text||m.body||'');}
   function renderChat(list){
     var body=q('[data-vrtrip-chat-body]');if(!body)return;
     if(!list||!list.length){
       if(!body.querySelector('.vrTrip__chatEmpty')){
         body.innerHTML='<div class="vrTrip__chatEmpty">'+T.chatEmpty+'</div>';
+        chatSig='';
       }
       return;
     }
-    body.innerHTML='';
-    list.forEach(function(m){body.appendChild(bubble(m));});
+    var sig=list.map(msgKey).join('§');
+    if(sig===chatSig)return;
+    var empty=body.querySelector('.vrTrip__chatEmpty');if(empty)empty.remove();
+    var add=list;
+    if(chatSig&&sig.indexOf(chatSig+'§')===0)add=list.slice(chatSig.split('§').length);
+    else body.innerHTML='';
+    add.forEach(function(m){
+      /* la burbuja que se pintó al enviar ya vuelve del servidor: se cambia
+         una por otra en vez de dejar el mensaje repetido */
+      var txt=String(m.message||m.text||m.body||'');
+      var tmp=body.querySelectorAll('[data-vrtmp]');
+      for(var i=0;i<tmp.length;i++){if(tmp[i].getAttribute('data-vrtmp')===txt){tmp[i].remove();break;}}
+      body.appendChild(bubble(m));
+    });
+    chatSig=sig;
     body.scrollTop=body.scrollHeight;
   }
   function fetchChat(render){
@@ -3929,7 +3991,9 @@ window.__VR_AIRPORTS = [
     var body=q('[data-vrtrip-chat-body]');
     if(body){
       var empty=body.querySelector('.vrTrip__chatEmpty');if(empty)empty.remove();
-      body.appendChild(bubble({message:text},true));
+      var ob=bubble({message:text},true);
+      ob.setAttribute('data-vrtmp',text);   /* se reemplaza al volver del servidor */
+      body.appendChild(ob);
       body.scrollTop=body.scrollHeight;
     }
     return fetch(api+'/bookings/web/'+bid+'/chat',{
@@ -4347,10 +4411,12 @@ window.__VR_AIRPORTS = [
     if(started)return;started=true;
     var r=root();if(!r)return;
     var on=function(sel,ev,fn){var el=r.querySelector(sel);if(el)el.addEventListener(ev,fn);};
-    on('[data-vrtrip-call]','click',function(){
+    var doCall=function(){
       if(!phone){toast(T.noPhone,'err');return;}
       location.href='tel:'+String(phone).replace(/[^\d+]/g,'');
-    });
+    };
+    on('[data-vrtrip-call]','click',doCall);
+    on('[data-vrtrip-chat-call]','click',doCall);   /* llamar sin salir del chat */
     on('[data-vrtrip-chat]','click',openChat);
     on('[data-vrtrip-chat-back]','click',function(e){e.preventDefault();closeChat();});
     on('[data-vrtrip-share]','click',doShare);
@@ -4444,8 +4510,8 @@ window.__VR_AIRPORTS = [
     bid=bookingId||window.__vrActiveBookingId||null;
     api=apiBase||'';key=webKey||'';
     ended=false;chatOpen=false;unread=0;lastMsgId=0;lastSeen=0;step='';hadDriver=true;
-    /* viaje nuevo: la tarifa y la propina del anterior no valen aquí */
-    fare=0;tipAlready=false;
+    /* viaje nuevo: la tarifa, la propina y el hilo del anterior no valen aquí */
+    fare=0;tipAlready=false;chatSig='';
     wire();
     setRoute(pickup||window.__vrLastPickup||'',dropoff||window.__vrLastDropoff||'');
     setDriver(driverData||{});
@@ -4459,7 +4525,9 @@ window.__VR_AIRPORTS = [
     window.__vrTripLive=true;
     if(bid&&api){
       pollStatus();
-      pollIv=setInterval(pollStatus,4000);
+      /* el estado manda: a 1,5 s el pasajero ve el cambio de paso (en camino →
+         llegó → en viaje → fin) prácticamente al instante */
+      pollIv=setInterval(pollStatus,1500);
       fetchChat(false);
       chatIv=setInterval(function(){fetchChat(false);},6000);
     }
@@ -5789,7 +5857,7 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vrTrip__link[disabled]{opacity:.35;cursor:not-allowed}
 
 /* ── chat ── */
-.vrTrip__chat{gap:0;flex:1 1 auto;min-height:0}
+.vrTrip__chat{gap:0;flex:1 1 auto;min-height:0;position:relative}
 /* en móvil la hoja es un panel inferior: con chofer asignado crece mucho,
    así que se le pone tope y scroll propio */
 @media(max-width:1023px){
@@ -5803,8 +5871,15 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vrTrip__chatName{font:800 17px/1.2 'Poppins','Inter',sans-serif;color:#fff;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vrTrip__chatSub{display:flex;align-items:center;gap:6px;margin-top:3px;font:600 10.5px/1 'Inter',sans-serif;color:#22c55e;letter-spacing:.05em}
 .vrTrip__chatSub::before{content:'';width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.7)}
+.vrTrip__chatCall{-webkit-appearance:none;appearance:none;width:40px;height:40px;flex-shrink:0;border:1px solid rgba(34,197,94,.35);border-radius:50%;background:rgba(34,197,94,.1);color:#22c55e;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;transition:background .2s,transform .15s}
+.vrTrip__chatCall svg{width:18px;height:18px}
+.vrTrip__chatCall:hover{background:rgba(34,197,94,.18)}
+.vrTrip__chatCall:active{transform:scale(.94)}
 .vrTrip__chatAvatar{width:44px;height:44px;flex-shrink:0;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.07);border:1.5px solid rgba(212,175,55,.4)}
 .vrTrip__chatAvatar img{width:100%;height:100%;object-fit:cover}
+/* el logo de la marca, muy tenue, como fondo del chat */
+.vrTrip__chat::before{content:'';position:absolute;left:50%;top:50%;width:min(62%,240px);aspect-ratio:1/1;transform:translate(-50%,-50%);background:url('assets/media/logo-icon.png') center/contain no-repeat;opacity:.055;pointer-events:none;z-index:0}
+.vrTrip__chat>*{position:relative;z-index:1}
 .vrTrip__chatBody{flex:1;min-height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding:14px 2px;scroll-behavior:smooth}
 .vrTrip__chatBody::-webkit-scrollbar{width:4px}
 .vrTrip__chatBody::-webkit-scrollbar-thumb{background:rgba(212,175,55,.25);border-radius:4px}
@@ -9430,11 +9505,15 @@ html body #vipMpFooterSugs{
   html body .vipRide__testConfirm__phase2 .vipRide__testSheet:has([data-vrtrip-pane="trip"]:not([hidden])){
     justify-content:flex-start!important; padding:24px 20px!important; overflow:hidden auto!important;
   }
-  /* ...y se apoya ABAJO de la columna, como la hoja de la app, en vez de
-     dejar todo el hueco debajo. Va con margin-top:auto y no con
-     justify-content:flex-end porque, cuando el contenido crece más que la
-     columna, flex-end corta la parte de arriba y ya no se puede desplazar. */
+  /* ...repartido: el aviso ("Tu chofer va en camino" + minutos) y la barra de
+     pasos se quedan ARRIBA, y el chofer con sus botones baja al PIE de la
+     columna. El panel ocupa toda la altura y el empujón lo da margin-top:auto
+     en la ficha del chofer — no justify-content:flex-end, que al crecer el
+     contenido corta la parte de arriba y ya no deja desplazarse. */
   html body .vipRide__testConfirm__phase2 .vipRide__testSheet>[data-vrtrip-pane="trip"]:not([hidden]){
+    flex:1 1 auto!important;
+  }
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet>[data-vrtrip-pane="trip"]>.vrTrip__card{
     margin-top:auto!important;
   }
   html body .vipRide__testConfirm__phase2 .vipRide__testSheet:has([data-vrtrip-pane="chat"]:not([hidden])){
