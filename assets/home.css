@@ -456,7 +456,8 @@
 }
 @media (max-width: 640px) {
   .h-ride { grid-template-columns: 1fr; }
-  .h-ride__map { min-height: 280px; grid-column: auto; grid-row: auto; }
+  /* en teléfonos el panel va solo, sin el mapa decorativo */
+  .h-ride__map { display: none; }
   .h-ride__title { font-size: 28px; }
 }
 
@@ -816,6 +817,17 @@ a.h-store { text-decoration: none; }
   object-fit: cover;
   object-position: center;
   border-radius: 12px;
+}
+
+/* elevación: las fotos/videos de servicios "flotan" sobre el fondo negro.
+   Sobre negro una sombra oscura no se ve, así que la flotación la dan un
+   aro dorado fino y un resplandor cálido que cae hacia abajo */
+.sv-img,
+.sv-loop {
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, .25),
+    0 8px 22px rgba(212, 175, 55, .10),
+    0 24px 52px -12px rgba(212, 175, 55, .20);
 }
 
 /* vídeo en bucle: dos capas identicas que se funden en el punto de corte,
