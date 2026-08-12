@@ -159,7 +159,7 @@ img,video{-webkit-user-drag:none}
                 role="listitem" data-vipride-card
                 data-title="BLACK"
                 data-seats="7"
-                data-desc="Spacious • Leather • Snacks & Drinks"
+                data-desc="Amplio • Cuero • Snacks y bebidas"
                 data-price="From $50"
                 data-rate="170"
                 data-variant-id=""
@@ -196,7 +196,7 @@ img,video{-webkit-user-drag:none}
                 role="listitem" data-vipride-card
                 data-title="PREMIUM"
                 data-seats="4"
-                data-desc="Comfort • Climate • Charger"
+                data-desc="Confort • Clima • Cargador"
                 data-price="From $50"
                 data-rate="120"
                 data-variant-id=""
@@ -234,7 +234,7 @@ img,video{-webkit-user-drag:none}
                 role="listitem" data-vipride-card
                 data-title="COMPACT"
                 data-seats="4"
-                data-desc="Clean • Safe • Efficient"
+                data-desc="Limpio • Seguro • Eficiente"
                 data-price="From $50"
                 data-rate="110"
                 data-variant-id=""
@@ -271,7 +271,7 @@ img,video{-webkit-user-drag:none}
                 role="listitem" data-vipride-card
                 data-title="STANDARD"
                 data-seats="4"
-                data-desc="Clean • Safe • Efficient"
+                data-desc="Limpio • Seguro • Eficiente"
                 data-price="From $50"
                 data-rate="100"
                 data-variant-id=""
@@ -6555,6 +6555,13 @@ setTimeout(_vrPfKick,1200);
   cards.forEach(function(c){
     var bc=c.querySelector('.vipRide__rideBadgeCol');
     if(bc&&!c.querySelector('[data-vipride-card-price]')){var pe=document.createElement('div');pe.className='vipRide__cardPrice';pe.setAttribute('data-vipride-card-price','');pe.textContent='--';bc.appendChild(pe);}
+    /* tercera línea como en la referencia: el texto ya viaja en data-desc,
+       solo faltaba pintarlo (el clon de escritorio la oculta por CSS) */
+    var meta=c.querySelector('.vipRide__rideMeta'),desc=c.getAttribute('data-desc')||'';
+    if(meta&&desc&&!meta.querySelector('.vipRide__rideDesc')){
+      var de=document.createElement('div');de.className='vipRide__rideDesc';de.textContent=desc;
+      meta.appendChild(de);
+    }
   });
   try{cards.slice().reverse().forEach(function(c){if(c.parentNode)c.parentNode.appendChild(c);});}catch(_){}
   if(window.__vrTierInit)window.__vrTierInit(root);
@@ -9436,6 +9443,37 @@ html body #vipMpFooterSugs{
   html body .vipRide__payOption+.vipRide__payOption{ border-top:1px solid rgba(255,255,255,.1)!important }
 }
 @media(min-width:900px){ html body .vrm-pills{ display:none!important } }
+
+/* ─── "Choose a ride": la colocación de la referencia (Uber), con la marca
+       negra y dorada. Las filas iban a 132px de alto con separadores, así que
+       cabía poco más de un coche en pantalla; la referencia mete tres en el
+       mismo espacio y añade una tercera línea de descripción. ─── */
+html body .vipRide .vipRide__rideList{ gap:0!important }
+html body .vipRide .vipRide__rideCard{
+  min-height:0!important; padding:13px 12px!important; gap:12px!important;
+  align-items:center!important;
+  border:2px solid transparent!important; border-radius:14px!important;
+  box-shadow:none!important;
+}
+/* el recuadro del seleccionado sustituye a los separadores */
+html body .vipRide .vipRide__rideCard+.vipRide__rideCard{ border-top-color:transparent!important }
+html body .vipRide .vipRide__rideCard.is-active{
+  border-color:rgba(212,175,55,.9)!important; background:transparent!important;
+  box-shadow:none!important; outline:none!important;
+}
+html body .vipRide .vipRide__rideCard .vipRide__rideImg{ flex:0 0 96px!important; width:96px!important }
+html body .vipRide .vipRide__rideCard .vipRide__rideImgTag,
+html body .vipRide .vipRide__rideCard img{ max-height:58px!important }
+html body .vipRide .vipRide__rideCard .vipRide__rideMeta{ gap:1px!important }
+html body .vipRide .vipRide__rideCard .vipRide__rideName{ font-size:18px!important; line-height:1.2!important }
+html body .vipRide .vipRide__rideCard .vipRide__rideInfo{ margin-top:1px!important; font-size:13px!important }
+html body .vipRide .vipRide__rideCard .vipRide__cardPrice{ font-size:21px!important }
+/* tercera línea (data-desc), la inyecta el JS al arrancar */
+html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
+  display:block!important; max-width:100%;
+  font-size:13px; line-height:1.35; color:rgba(255,255,255,.42);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
 </style>
 
 <footer class="cruise-footer">
