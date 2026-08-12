@@ -2,9 +2,24 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<script>
+/* si se llega como /book.html (enlace viejo), la barra se limpia sola a /book */
+if(/\/book\.html$/.test(location.pathname))history.replaceState(null,"",location.pathname.replace(/\.html$/,"")+location.search+location.hash);
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Book a Ride with Cruise</title>
 <meta name="description" content="Reserva tu transporte privado premium con chofer: punto a punto, por horas o al aeropuerto.">
+<!-- vista previa al compartir el enlace: tarjeta con fondo negro -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CruiseInRide">
+<meta property="og:title" content="Book a Ride with Cruise">
+<meta property="og:description" content="Reserva tu transporte privado premium con chofer: punto a punto, por horas o al aeropuerto.">
+<meta property="og:url" content="https://cruiseinride.com/book">
+<meta property="og:image" content="https://cruiseinride.com/assets/media/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#000000">
 <link rel="icon" type="image/png" href="assets/media/logo-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
