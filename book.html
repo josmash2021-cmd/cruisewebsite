@@ -7625,6 +7625,12 @@ setTimeout(_vrPfKick,1200);
              negativo. Al llegar al vértice siguiente el marcador se re-ancla
              ahí y gira al rumbo del tramo nuevo — así toma la curva en vez de
              seguir recto y acabar fuera del asfalto. */
+          /* Un coche de verdad no cambia de rumbo de golpe al llegar a la
+             esquina: entra en la curva, gira y sale. El rumbo del tramo nuevo
+             pasa a ser el OBJETIVO y el rumbo visible lo persigue a ritmo
+             limitado (F_TURN grados por segundo, siempre por el lado corto),
+             mientras el coche afloja un poco al doblar y recupera al salir. */
+          var F_TURN=115;
           function fDrive(){
             if(!fAnim.length){fRafOn=false;return;}
             var now=performance.now(),ppm=0;
@@ -7633,7 +7639,13 @@ setTimeout(_vrPfKick,1200);
               var dt=(now-a.t)/1000;a.t=now;
               if(dt<=0||dt>1)return;
               if(a.dead)return;
-              a.d+=a.v*dt;
+              var diff=((a.brg-a.rot+540)%360)-180,ad=Math.abs(diff);
+              if(ad>0.25){
+                var step=F_TURN*dt;
+                a.rot=ad<=step?a.brg:a.rot+(diff>0?step:-step);
+                try{a.m.setRotation(a.rot);}catch(_){}
+              }
+              a.d+=a.v*(1-0.45*Math.min(1,ad/90))*dt;
               var guard=0;
               while(a.d>=a.seg&&guard++<50){
                 a.d-=a.seg;
@@ -7643,7 +7655,8 @@ setTimeout(_vrPfKick,1200);
                 if(nx<0||nx>=a.path.length){a.dir=-a.dir;nx=a.i+a.dir;}
                 if(nx<0||nx>=a.path.length){a.dead=true;a.d=0;break;}
                 a.seg=Math.max(0.5,fDist(a.path[a.i],a.path[nx]));
-                try{a.m.setLngLat(a.path[a.i]).setRotation(fBrg(a.path[a.i],a.path[nx]));}catch(_){}
+                a.brg=fBrg(a.path[a.i],a.path[nx]);
+                try{a.m.setLngLat(a.path[a.i]);}catch(_){}
               }
               if(ppm&&a.el)a.el.style.transform='translateY('+(-a.d*ppm).toFixed(2)+'px)';
             });
@@ -7778,14 +7791,17 @@ setTimeout(_vrPfKick,1200);
               if(!path)return;
               if(nx<0||nx>=path.length){dir=-dir;nx=ix+dir;}
               if(nx<0||nx>=path.length)return;
+              var brg0=fBrg(path[ix],path[nx]);
               var m=new mapboxgl.Marker({element:fCarEl(type),rotationAlignment:'map',pitchAlignment:'map',anchor:'center'})
-                .setLngLat(path[ix]).setRotation(fBrg(path[ix],path[nx])).addTo(map);
+                .setLngLat(path[ix]).setRotation(brg0).addTo(map);
               fMarkers.push(m);
               var el=m.getElement();
-              /* ~20-29 km/h, la velocidad que dice el comentario de arriba */
+              /* ~20-29 km/h, la velocidad que dice el comentario de arriba.
+                 rot = rumbo que se ve ahora; brg = rumbo al que va girando */
               fAnim.push({m:m,el:el._drift,path:path,i:ix,dir:dir,
                           seg:Math.max(0.5,fDist(path[ix],path[nx])),
-                          v:5.5+Math.random()*2.5,d:0,t:performance.now()});
+                          v:5.5+Math.random()*2.5,d:0,t:performance.now(),
+                          rot:brg0,brg:brg0});
               setTimeout(function(){el.style.opacity='1';},80+i*140);
             });
             if(fAnim.length&&!fRafOn){fRafOn=true;requestAnimationFrame(fDrive);}
