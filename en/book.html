@@ -5214,6 +5214,29 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
           +'#vrSchedCard:has(.vrSched__driver.is-active) .vrSched__driver{margin-top:8px;padding:8px 12px}'
           +'#vrSchedCard:has(.vrSched__driver.is-active) .vrSched__actions{margin-top:10px}'
           +'#vrSchedCard:has(.vrSched__driver.is-active) .vrSched__btnCancel{height:40px}'
+          /* ── la pastilla (tarjeta minimizada) deja de flotar sobre el mapa:
+                va dentro del cuadro, a la derecha del título, con el mismo
+                lenguaje que sus campos — rectángulo de esquinas redondas,
+                relleno translúcido, sin bordes dorados ni brillos ── */
+          +'html body .vipRide .vipRide__sheet .vipRide__titleRow{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;margin:0 0 18px!important}'
+          +'html body .vipRide .vipRide__sheet .vipRide__title{margin-bottom:0!important}'
+          +'#vrSchedPreview{position:static;left:auto;top:auto;transform:none;margin:0;'
+            +'height:38px;padding:0 12px;gap:9px;border:none;border-radius:12px;'
+            +'background:rgba(255,255,255,.06);box-shadow:none;animation:none;'
+            +'min-width:0;max-width:none;transition:background .18s ease}'
+          +'#vrSchedPreview::before{display:none}'
+          +'#vrSchedPreview:hover{transform:none;background:rgba(255,255,255,.1);border-color:transparent;box-shadow:none}'
+          +'#vrSchedPreview:active{transform:none}'
+          /* el icono pierde su círculo pero conserva el latido */
+          +'#vrSchedPreview .vrSchedPrv__ico{width:17px;height:17px;background:none;border:none;box-shadow:none}'
+          +'#vrSchedPreview .vrSchedPrv__ico svg{width:15px;height:15px}'
+          +'#vrSchedPreview .vrSchedPrv__ico::after{inset:-4px}'
+          +'#vrSchedPreview .vrSchedPrv__txt{min-width:0;gap:7px}'
+          +'#vrSchedPreview .vrSchedPrv__time{font-size:13px;text-shadow:none;color:#fff}'
+          /* al lado del título solo cabe el contador; la fecha completa ya se ve
+             al abrir la tarjeta, y cortada a "T..." quedaba peor */
+          +'#vrSchedPreview .vrSchedPrv__when,#vrSchedPreview .vrSchedPrv__sep{display:none}'
+          +'#vrSchedPreview .vrSchedPrv__arrow{width:14px;font-size:14px}'
         +'}'
       ;
       document.head.appendChild(s);
@@ -10893,6 +10916,19 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
   }
   addEventListener('resize', function () { setTimeout(function () { updateBenefits(); updateSchedDock(); }, 120); });
 
+  /* la pastilla del viaje programado (la tarjeta minimizada) se muda dentro del
+     cuadro, junto al título, en vez de flotar centrada sobre el mapa */
+  function dockPreview() {
+    var p = document.getElementById('vrSchedPreview');
+    if (!p) return;
+    if (mq.matches) {
+      var row = document.querySelector('[data-vipride-sheet] .vipRide__titleRow');
+      if (row && p.parentNode !== row) row.appendChild(p);
+    } else if (p.parentNode !== document.body) {
+      document.body.appendChild(p);
+    }
+  }
+
   /* la tarjeta de viaje programado (#vrSched) se acopla bajo el cuadro,
      en el mismo sitio que la tarjeta de beneficios */
   function updateSchedDock() {
@@ -11092,7 +11128,7 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     hideBars();
     if (busy) return;
     busy = true;
-    try { buildRows(); syncWhen(); updateBenefits(); updateSchedDock(); } finally {
+    try { buildRows(); syncWhen(); updateBenefits(); updateSchedDock(); dockPreview(); } finally {
       setTimeout(function () { busy = false; }, 0);
     }
   });
@@ -11103,7 +11139,7 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     patchMapbox(); hideBars(); buildRows(); setTimeout(nudgeMap, 250);
   });
   mq.addEventListener('change', function () {
-    hideBars(); buildRows(); updateBenefits(); nudgeMap();
+    hideBars(); buildRows(); updateBenefits(); dockPreview(); nudgeMap();
     if (!mq.matches) {
       var c = document.querySelector('[data-vipride-step1-next]');
       if (c && c.__vrOrigLbl) { var sp = c.querySelector('span') || c; if (sp.textContent.trim() !== c.__vrOrigLbl) sp.textContent = c.__vrOrigLbl; }
