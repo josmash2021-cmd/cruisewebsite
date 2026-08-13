@@ -9729,9 +9729,9 @@ html body #vipMpFooterSugs{
   html body .vipRide .vrd-wp__row:hover{background:rgba(255,255,255,.11)}
   html body .vipRide .vrd-wp__rowLabel{flex:1;text-align:left}
   html body .vipRide .vrd-wp__infos{margin:18px 0 0}
-  html body .vipRide .vrd-wp__info{display:flex;align-items:flex-start;gap:16px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:14.5px;line-height:1.45;color:rgba(255,255,255,.8)}
-  html body .vipRide .vrd-wp__info i{flex-shrink:0;width:20px;height:20px;color:#fff;display:flex;margin-top:2px}
-  html body .vipRide .vrd-wp__info i svg{width:20px;height:20px}
+  html body .vipRide .vrd-wp__info,html body .vrd-benefits .vrd-wp__info{display:flex;align-items:flex-start;gap:16px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:14.5px;line-height:1.45;color:rgba(255,255,255,.8)}
+  html body .vipRide .vrd-wp__info i,html body .vrd-benefits .vrd-wp__info i{flex-shrink:0;width:20px;height:20px;color:#fff;display:flex;margin-top:2px}
+  html body .vipRide .vrd-wp__info i svg,html body .vrd-benefits .vrd-wp__info i svg{width:20px;height:20px}
   html body .vipRide .vrd-wp__terms{display:inline-block;margin:14px 0 26px;color:#fff;font-size:14.5px;text-decoration:underline}
   html body .vipRide .vrd-wp__next{width:100%;height:54px;border:none;border-radius:12px;cursor:pointer;font-size:17px;font-weight:800;font-family:inherit;background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);color:#241c05;box-shadow:8px 8px 18px rgba(0,0,0,.42),-6px -6px 14px rgba(255,255,255,.09),inset 0 1px 0 rgba(255,255,255,.45);transition:filter .2s}
   html body .vipRide .vrd-wp__next:hover{filter:brightness(1.06)}
@@ -10446,7 +10446,11 @@ html body #vipMpFooterSugs{
   html body .vipRide__payOption{ padding:18px 2px!important; gap:16px!important }
   html body .vipRide__payOption+.vipRide__payOption{ border-top:1px solid rgba(255,255,255,.1)!important }
 }
-@media(min-width:900px){ html body .vrm-pills{ display:none!important } }
+@media(min-width:900px){ html body .vrm-pills,html body .vrm-when{ display:none!important } }
+/* las piezas que inyecta el script de escritorio (>=1024) no tienen estilos
+   por debajo de ese ancho: si la ventana se encoge quedaban botones blancos
+   con iconos gigantes en medio del formulario */
+@media(max-width:1023px){ html body .vipRide .vrd-rows,html body .vipRide .vrd-when-panel,html body .vipRide .vrd-menu,html body .vrd-benefits{ display:none!important } }
 
 /* ─── "Choose a ride": la colocación de la referencia (Uber), con la marca
        negra y dorada. Las filas iban a 132px de alto con separadores, así que
@@ -10788,7 +10792,11 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     return el;
   }
   function updateBenefits() {
-    if (!mq.matches) return;
+    if (!mq.matches) {
+      var off = document.querySelector('.vrd-benefits');
+      if (off) { off.hidden = true; off.classList.remove('is-in'); }
+      return;
+    }
     var sheet = document.querySelector('[data-vipride-sheet]');
     if (!sheet) return;
     var el = ensureBenefits();
@@ -10996,7 +11004,7 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
   window.addEventListener('load', function () {
     patchMapbox(); hideBars(); buildRows(); setTimeout(nudgeMap, 250);
   });
-  mq.addEventListener('change', function () { hideBars(); buildRows(); nudgeMap(); });
+  mq.addEventListener('change', function () { hideBars(); buildRows(); updateBenefits(); nudgeMap(); });
   /* red de seguridad: el booker reinyecta las barras en pasos posteriores
      (elegir dirección, volver atrás…) y no siempre vía mutación observable */
   setInterval(hideBars, 400);
