@@ -5109,7 +5109,9 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
         +'.vrSched__findingTxt{font:600 11px/1 sans-serif;color:#E8C547;letter-spacing:.12em;text-transform:uppercase}'
         /* ── Route ── */
         +'.vrSched__route{background:#141414;border:1px solid rgba(255,255,255,.04);border-radius:14px;padding:16px 18px;margin-bottom:14px;position:relative}'
-        +'.vrSched__route::before{content:"";position:absolute;left:24px;top:30px;bottom:22px;width:1px;background:linear-gradient(180deg,rgba(232,197,71,.6) 0%,rgba(255,255,255,.4) 100%)}'
+        /* la línea une los dos puntos: colgada de la fila de recogida, así las
+           millas/minutos de abajo no la estiran */
+        +'.vrSched__routeRow:first-child::after{content:"";position:absolute;left:4.5px;top:17px;bottom:-19px;width:1px;background:linear-gradient(180deg,rgba(232,197,71,.6) 0%,rgba(255,255,255,.4) 100%)}'
         +'.vrSched__routeRow{display:grid;grid-template-columns:10px 1fr;column-gap:14px;align-items:start;position:relative;z-index:1}'
         +'.vrSched__routeRow:first-child{margin-bottom:22px}'
         +'.vrSched__dot{width:10px;height:10px;border-radius:50%;justify-self:center;margin-top:3px}'
@@ -5156,18 +5158,62 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
         /* con la tarjeta abierta la píldora de arriba sobra */
         +'body:has(#vrSched:not([hidden])) #vrSchedPreview{display:none!important}'
         /* ── millas y minutos del viaje ── */
-        +'.vrSched__stats{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);font:700 12px/1 sans-serif;color:#E8C547;letter-spacing:.08em;text-align:center;text-transform:uppercase}'
+        +'.vrSched__stats{margin:0 0 22px;font:700 12px/1 sans-serif;color:#E8C547;letter-spacing:.08em;text-align:center;text-transform:uppercase}'
         +'.vrSched__stats[hidden]{display:none}'
+        +'.vrSched__when:has(+ .vrSched__stats:not([hidden])){margin-bottom:9px}'
         /* ── Escritorio: nada de modal a pantalla completa — la tarjeta vive en
-              la columna izquierda, bajo el cuadro "¿A dónde?", como la de
-              beneficios (el alto del cuadro lo mide DESK_JS en --vrd-sched-top) ── */
+              la columna izquierda, bajo el cuadro "¿A dónde?", con SU MISMO
+              diseño (fondo #1b1f27, radio 20, misma sombra) y todo el contenido
+              a la vista sin scroll: el anillo se encoge y se pone al lado de la
+              fecha, y la nota del correo se retira porque no cabe ni hace falta.
+              El alto del cuadro de arriba lo mide DESK_JS en --vrd-sched-top ── */
         +'@media(min-width:1024px){'
           +'#vrSched{position:fixed;inset:auto;left:var(--vrd-gap,22px);top:var(--vrd-sched-top,calc(var(--vip-nav-h,69px) + 96px));width:var(--vrd-col,420px);padding:0;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;display:block;z-index:60;animation:none}'
-          +'#vrSchedCard{width:100%;max-height:calc(100dvh - var(--vrd-sched-top,160px) - 22px);padding:20px 20px 18px;border-radius:20px}'
-          +'.vrSched__timerWrap{width:110px;height:110px;margin:0 auto 12px}'
-          +'.vrSched__timerVal{font-size:26px}'
-          +'.vrSched__head{margin-bottom:16px}'
-          +'.vrSched__when{margin-bottom:16px}'
+          /* rejilla: cabecera y bloques a todo el ancho, anillo y fecha en fila */
+          +'#vrSchedCard{width:100%;max-height:calc(100dvh - var(--vrd-sched-top,160px) - 22px);overflow:auto;'
+            +'background:#1b1f27;border:none;border-radius:20px;padding:18px 20px 16px;'
+            +'box-shadow:0 18px 44px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.07);'
+            +'display:grid;grid-template-columns:76px 1fr;column-gap:15px;animation:none;'
+            +'grid-template-areas:"head head" "ring when" "ring stats" "find find" "route route" "driver driver" "act act"}'
+          +'.vrSched__head{grid-area:head;margin-bottom:12px}'
+          /* el anillo se encoge y ocupa las dos filas: al lado van la fecha y,
+             debajo, las millas y los minutos del viaje */
+          +'.vrSched__timerWrap{grid-area:ring;width:76px;height:76px;margin:0}'
+          +'.vrSched__ring circle{stroke-width:5}'
+          +'.vrSched__timerVal{font-size:17px}'
+          +'.vrSched__timerSub{font-size:6px;letter-spacing:.12em;margin-top:3px}'
+          +'.vrSched__when{grid-area:when;align-self:end;text-align:left;margin:0!important;font-size:15px;line-height:1.3;color:rgba(255,255,255,.8)}'
+          +'.vrSched__stats{grid-area:stats;align-self:start;text-align:left;margin:5px 0 0;font-size:11.5px}'
+          +'.vrSched__finding{grid-area:find;padding:10px 0 0}'
+          /* los bloques interiores copian los campos del cuadro de arriba */
+          +'.vrSched__route{grid-area:route;margin:14px 0 0;background:rgba(255,255,255,.06);border:none;border-radius:12px;padding:13px 15px}'
+          /* sin etiquetas PICKUP/DROPOFF, igual que los campos del cuadro de
+             arriba: el punto dorado y el cuadrado blanco ya los distinguen */
+          +'.vrSched__rowLbl{display:none}'
+          +'.vrSched__routeRow{align-items:center}'
+          +'.vrSched__routeRow>div{min-width:0}'
+          +'.vrSched__dot{margin-top:0}'
+          +'.vrSched__routeRow:first-child{margin-bottom:12px}'
+          +'.vrSched__routeRow:first-child::after{top:14px;bottom:-15px}'
+          /* una sola línea por dirección: dos harían crecer la tarjeta */
+          +'.vrSched__rowTxt{font-size:12.5px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+          +'.vrSched__driver{grid-area:driver;margin:10px 0 0;background:rgba(255,255,255,.06);border-color:rgba(212,175,55,.3);border-radius:12px;padding:10px 14px}'
+          +'.vrSched__drPhoto{width:34px;height:34px}'
+          +'.vrSched__hint{display:none}'
+          +'.vrSched__actions{grid-area:act;margin-top:12px}'
+          +'.vrSched__btnCancel{height:44px;padding:0;border:none;border-radius:12px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);font-size:12.5px}'
+          +'.vrSched__btnCancel:hover{background:rgba(255,255,255,.1);color:#fff}'
+          /* con el chófer ya asignado entra un bloque más: el anillo cede sitio
+             para que siga cabiendo todo sin scroll */
+          +'#vrSchedCard:has(.vrSched__driver.is-active){grid-template-columns:60px 1fr;padding:16px 20px 14px}'
+          +'#vrSchedCard:has(.vrSched__driver.is-active) .vrSched__timerWrap{width:60px;height:60px}'
+          +'#vrSchedCard:has(.vrSched__driver.is-active) .vrSched__timerVal{font-size:14px}'
+          +'#vrSchedCard:has(.vrSched__driver.is-active) .vrSched__timerSub{display:none}'
+          +'#vrSchedCard:has(.vrSched__driver.is-active) .vrSched__head{margin-bottom:10px}'
+          +'#vrSchedCard:has(.vrSched__driver.is-active) .vrSched__route{margin-top:12px;padding:11px 15px}'
+          +'#vrSchedCard:has(.vrSched__driver.is-active) .vrSched__driver{margin-top:8px;padding:8px 12px}'
+          +'#vrSchedCard:has(.vrSched__driver.is-active) .vrSched__actions{margin-top:10px}'
+          +'#vrSchedCard:has(.vrSched__driver.is-active) .vrSched__btnCancel{height:40px}'
         +'}'
       ;
       document.head.appendChild(s);
@@ -5190,10 +5236,10 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
         +'</div>'
         +'<div class="vrSched__finding" data-vrsch-finding><div class="vrSched__spinner"></div><div class="vrSched__findingTxt" data-vrsch-finding-txt>Finding driver…</div></div>'
         +'<div class="vrSched__when" data-vrsch-when>—</div>'
+        +'<div class="vrSched__stats" data-vrsch-stats hidden></div>'
         +'<div class="vrSched__route">'
           +'<div class="vrSched__routeRow"><span class="vrSched__dot vrSched__dot--pu"></span><div><div class="vrSched__rowLbl" data-vrsch-lbl-pu>Pickup</div><div class="vrSched__rowTxt" data-vrsch-pu>—</div></div></div>'
           +'<div class="vrSched__routeRow"><span class="vrSched__dot vrSched__dot--dr"></span><div><div class="vrSched__rowLbl" data-vrsch-lbl-dr>Dropoff</div><div class="vrSched__rowTxt" data-vrsch-dr>—</div></div></div>'
-          +'<div class="vrSched__stats" data-vrsch-stats hidden></div>'
         +'</div>'
         +'<div class="vrSched__driver" data-vrsch-driver>'
           +'<div class="vrSched__drPhoto" data-vrsch-dr-photo>👤</div>'
