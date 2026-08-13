@@ -10231,8 +10231,8 @@ html body #vipMpFooterSugs{
     flex:0 0 auto; height:40px; padding:0 12px; gap:8px;
     min-width:0; max-width:none;
     border:none; border-radius:14px;
-    background:rgba(212,175,55,.16);
-    box-shadow:inset 0 0 0 1px rgba(212,175,55,.45);
+    background:rgba(255,255,255,.09);
+    box-shadow:none;
   }
   html body .vrm-pills > #vrSchedPreview::before{ display:none }
   html body .vrm-pills > #vrSchedPreview .vrSchedPrv__ico{
@@ -10241,10 +10241,15 @@ html body #vipMpFooterSugs{
   html body .vrm-pills > #vrSchedPreview .vrSchedPrv__ico svg{ width:15px; height:15px }
   html body .vrm-pills > #vrSchedPreview .vrSchedPrv__ico::after{ inset:-4px }
   html body .vrm-pills > #vrSchedPreview .vrSchedPrv__txt{ gap:6px }
-  html body .vrm-pills > #vrSchedPreview .vrSchedPrv__time{ font-size:13px; color:#f5d77a; text-shadow:none }
+  html body .vrm-pills > #vrSchedPreview .vrSchedPrv__time{
+    font-family:inherit; font-size:13.5px; font-weight:600; line-height:1;
+    color:#fff; text-shadow:none; letter-spacing:0;
+  }
   html body .vrm-pills > #vrSchedPreview .vrSchedPrv__when,
   html body .vrm-pills > #vrSchedPreview .vrSchedPrv__sep{ display:none }
-  html body .vrm-pills > #vrSchedPreview .vrSchedPrv__arrow{ width:14px; font-size:14px }
+  html body .vrm-pills > #vrSchedPreview .vrSchedPrv__arrow{
+    width:14px; font-size:14px; color:#fff; opacity:.7;
+  }
   html body .vrm-menu{
     position:absolute; left:0; top:calc(100% + 8px); z-index:40;
     min-width:220px; max-width:100%; background:#232833; border-radius:14px; overflow:hidden;
