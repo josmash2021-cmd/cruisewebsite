@@ -1367,7 +1367,7 @@ setTimeout(function(){window.__vrApplyI18n&&window.__vrApplyI18n()},600);
     addEventListener('scroll',function(){document.querySelectorAll('.vipRide__tierTip.is-shown').forEach(function(t){t.classList.remove('is-shown');setTimeout(function(){t.hidden=true},220);});},true);
   };
   window.__vrRotateMsg=function(el,iv){if(!el)return null;el.style.transition='opacity 600ms cubic-bezier(.33,1,.68,1),transform 600ms cubic-bezier(.33,1,.68,1)';var m=window.__vrSearchMsgs,i=0;return setInterval(function(){el.style.opacity='0';el.style.transform='translateY(-4px)';setTimeout(function(){i=(i+1)%m.length;el.textContent=m[i];el.style.transform='translateY(4px)';requestAnimationFrame(function(){requestAnimationFrame(function(){el.style.opacity='1';el.style.transform='translateY(0)';});});},650);},iv||3500);};
-  window.__vrCancelBooking=function(api,key){var b=window.__vrActiveBookingId;if(b){fetch(api+'/bookings/web/'+b+'/cancel',{method:'POST',headers:{'Authorization':'Bearer '+key}}).catch(function(){});window.__vrActiveBookingId=null;return true;}return false;};
+  window.__vrCancelBooking=function(api,key){var b=window.__vrActiveBookingId;if(b){fetch(api+'/bookings/web/'+b+'/cancel',{method:'POST',headers:{'Authorization':'Bearer '+key}}).catch(function(){});window.__vrActiveBookingId=null;try{localStorage.removeItem('vr_active_booking');localStorage.removeItem('vr_scheduled_ride');}catch(_){}return true;}return false;};
   window.__vrNoDriverShow=function(overlay,reason){
     try{if(overlay&&overlay.parentNode)overlay.parentNode.removeChild(overlay)}catch(_e){}
     window.__vrActiveBookingId=null;
@@ -5153,6 +5153,22 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
         /* Arrow */
         +'#vrSchedPreview .vrSchedPrv__arrow{width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;color:rgba(232,197,71,.85);font:800 16px/1 sans-serif;transition:transform .2s}'
         +'#vrSchedPreview:hover .vrSchedPrv__arrow{transform:translateX(3px);color:#E8C547}'
+        /* con la tarjeta abierta la píldora de arriba sobra */
+        +'body:has(#vrSched:not([hidden])) #vrSchedPreview{display:none!important}'
+        /* ── millas y minutos del viaje ── */
+        +'.vrSched__stats{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);font:700 12px/1 sans-serif;color:#E8C547;letter-spacing:.08em;text-align:center;text-transform:uppercase}'
+        +'.vrSched__stats[hidden]{display:none}'
+        /* ── Escritorio: nada de modal a pantalla completa — la tarjeta vive en
+              la columna izquierda, bajo el cuadro "¿A dónde?", como la de
+              beneficios (el alto del cuadro lo mide DESK_JS en --vrd-sched-top) ── */
+        +'@media(min-width:1024px){'
+          +'#vrSched{position:fixed;inset:auto;left:var(--vrd-gap,22px);top:var(--vrd-sched-top,calc(var(--vip-nav-h,69px) + 96px));width:var(--vrd-col,420px);padding:0;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;display:block;z-index:60;animation:none}'
+          +'#vrSchedCard{width:100%;max-height:calc(100dvh - var(--vrd-sched-top,160px) - 22px);padding:20px 20px 18px;border-radius:20px}'
+          +'.vrSched__timerWrap{width:110px;height:110px;margin:0 auto 12px}'
+          +'.vrSched__timerVal{font-size:26px}'
+          +'.vrSched__head{margin-bottom:16px}'
+          +'.vrSched__when{margin-bottom:16px}'
+        +'}'
       ;
       document.head.appendChild(s);
     }
@@ -5177,6 +5193,7 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
         +'<div class="vrSched__route">'
           +'<div class="vrSched__routeRow"><span class="vrSched__dot vrSched__dot--pu"></span><div><div class="vrSched__rowLbl" data-vrsch-lbl-pu>Pickup</div><div class="vrSched__rowTxt" data-vrsch-pu>—</div></div></div>'
           +'<div class="vrSched__routeRow"><span class="vrSched__dot vrSched__dot--dr"></span><div><div class="vrSched__rowLbl" data-vrsch-lbl-dr>Dropoff</div><div class="vrSched__rowTxt" data-vrsch-dr>—</div></div></div>'
+          +'<div class="vrSched__stats" data-vrsch-stats hidden></div>'
         +'</div>'
         +'<div class="vrSched__driver" data-vrsch-driver>'
           +'<div class="vrSched__drPhoto" data-vrsch-dr-photo>👤</div>'
@@ -5273,7 +5290,7 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
           meta=d;
           var st=(d.status||'').toLowerCase();
           /* Only clear when backend EXPLICITLY returns a terminal status */
-          if(st==='completed'||st==='cancelled'||st==='canceled'){localStorage.removeItem('vr_active_booking');hide();if(preveEl)preveEl.setAttribute('hidden','');if(pollIv){clearInterval(pollIv);pollIv=null;}if(tickIv){clearInterval(tickIv);tickIv=null;}return;}
+          if(st==='completed'||st==='cancelled'||st==='canceled'){localStorage.removeItem('vr_active_booking');hide();if(preveEl)preveEl.setAttribute('hidden','');if(pollIv){clearInterval(pollIv);pollIv=null;}if(tickIv){clearInterval(tickIv);tickIv=null;}if(st!=='completed'){try{window.__vrDeskWhen=null;window.__vrScheduleActive=false;}catch(_){}try{if(window.__vrCloseTestConfirm)window.__vrCloseTestConfirm();}catch(_){}}return;}
           /* Transition to Live Tracker when driver starts trip or arrives */
           if(st==='in_trip'||st==='in_progress'||st==='on_trip'||st==='arrived'){
             fadeToTracker(d);return;
@@ -5320,6 +5337,11 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
       if(pollIv){clearInterval(pollIv);pollIv=null;}
       if(tickIv){clearInterval(tickIv);tickIv=null;}
       hide();if(preveEl)preveEl.setAttribute('hidden','');
+      /* la tarjeta cubria el formulario: al quitarla hay que devolver el cuadro
+         al paso 1 (ruta, hoja y etiqueta de horario incluidas), si no queda el
+         panel vacio con la tarjeta de beneficios flotando */
+      try{window.__vrDeskWhen=null;window.__vrScheduleActive=false;}catch(_){}
+      try{if(window.__vrCloseTestConfirm)window.__vrCloseTestConfirm();}catch(_){}
     }
     function show(){
       injectCss();buildCard();
@@ -5329,6 +5351,15 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
       if(puEl)puEl.textContent=(meta&&meta.pickup&&(meta.pickup.address||meta.pickup))||(saved&&saved.pickup)||'—';
       if(drEl)drEl.textContent=(meta&&meta.dropoff&&(meta.dropoff.address||meta.dropoff))||(saved&&saved.dropoff)||'—';
       if(whEl&&schedAt)whEl.textContent=fmtWhen(new Date(schedAt));
+      var stEl=cardEl.querySelector('[data-vrsch-stats]');
+      if(stEl){
+        var _mi=(meta&&meta.distance_miles!=null)?meta.distance_miles:(saved&&saved.dist_mi!=null?saved.dist_mi:null);
+        var _mn=(meta&&meta.duration_minutes!=null)?meta.duration_minutes:(saved&&saved.dur_min!=null?saved.dur_min:null);
+        if(_mi!=null)_mi=Math.round(Number(_mi)*10)/10;
+        if(_mn!=null)_mn=Math.round(Number(_mn));
+        var _st=(_mi!=null?_mi+' mi':'')+(_mi!=null&&_mn!=null?' · ':'')+(_mn!=null?_mn+' min':'');
+        if(_st){stEl.textContent=_st;stEl.hidden=false;}else stEl.hidden=true;
+      }
       cardEl.removeAttribute('hidden');
       if(meta)renderDriver(meta);
       tick();if(tickIv)clearInterval(tickIv);tickIv=setInterval(tick,1000);
@@ -8940,7 +8971,7 @@ setTimeout(_vrPfKick,1200);
         if(typeof showMarkerLabels==='function')setTimeout(showMarkerLabels,600);
         if(bar2)bar2.style.width='100%';
         _postBookingToCruise(null,function(data){
-          if(data&&data.booking_id){window.__vrActiveBookingId=data.booking_id;try{var _schedAt=(window.__vrScheduleActive&&dateEl&&timeEl&&dateEl.value&&timeEl.value)?new Date(dateEl.value+'T'+timeEl.value).toISOString():null;localStorage.setItem('vr_active_booking',JSON.stringify({id:data.booking_id,ts:Date.now(),scheduled_at:_schedAt,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||''}));}catch(_){}}
+          if(data&&data.booking_id){window.__vrActiveBookingId=data.booking_id;try{var _schedAt=(window.__vrScheduleActive&&dateEl&&timeEl&&dateEl.value&&timeEl.value)?new Date(dateEl.value+'T'+timeEl.value).toISOString():null;localStorage.setItem('vr_active_booking',JSON.stringify({id:data.booking_id,ts:Date.now(),scheduled_at:_schedAt,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||'',dist_mi:(window.__vrRouteDistM?Math.round(window.__vrRouteDistM/1609.344*10)/10:null),dur_min:(routeDurationSec?Math.ceil(routeDurationSec/60):null)}));}catch(_){}}
           try{if(selectedRide&&selectedRide.tier==='vip')_vrCreateVipMenuReservation(data);}catch(_){}
           if(window.__vrScheduleActive){
             /* Email 1: scheduled ride confirmation (to rider) */
@@ -8949,7 +8980,7 @@ setTimeout(_vrPfKick,1200);
             try{
               var _sAtNow=(dateEl&&timeEl&&dateEl.value&&timeEl.value)?new Date(dateEl.value+'T'+timeEl.value).toISOString():null;
               var _bid=(data&&data.booking_id)||window.__vrActiveBookingId||'TEMP-'+Date.now();
-              var _lsData={id:_bid,ts:Date.now(),scheduled_at:_sAtNow,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||''};
+              var _lsData={id:_bid,ts:Date.now(),scheduled_at:_sAtNow,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||'',dist_mi:(window.__vrRouteDistM?Math.round(window.__vrRouteDistM/1609.344*10)/10:null),dur_min:(routeDurationSec?Math.ceil(routeDurationSec/60):null)};
               localStorage.setItem('vr_active_booking',JSON.stringify(_lsData));
               window.__vrActiveBookingId=_bid;
             }catch(_){}
@@ -9006,6 +9037,7 @@ setTimeout(_vrPfKick,1200);
       _vrSheetReset();
       var _mb=root.querySelector('[data-vipride-map-back]');if(_mb)_mb.hidden=true;
       selectedRide=null;_selectedPayment=null;currentMode='ride';
+      window.__vrDeskWhen=null;
       if(dropoffEl)dropoffEl.value='';
       if(dropoffMarker){try{dropoffMarker.remove();}catch(_){}dropoffMarker=null;}
       dropoffPlace=null;
@@ -9018,6 +9050,9 @@ setTimeout(_vrPfKick,1200);
       root.querySelectorAll('[data-vipride-pay-option]').forEach(function(o){o.classList.remove('is-active');});
       if(_requestBtn){_requestBtn.disabled=false;_requestBtn.textContent=t('requestRide');}
       try{validateCTA(null);}catch(_){}
+      /* validateCTA no toca el boton del paso 1: sin esto quedaba habilitado
+         (y visible en el telefono) con el destino ya vacio */
+      try{afterInputChange();}catch(_){}
       try{compactPills.forEach(function(b){b.classList.toggle('is-active',b.getAttribute('data-compact-mode')==='now');});if(segEl)segEl.classList.remove('is-later');}catch(_){}
       window.__vrAptActive=false;window.__vrAptSurchargeCents=0;
       try{_schedDate=null;}catch(_){}
@@ -10061,6 +10096,8 @@ html body #vipMpFooterSugs{
 
   /* el botón solo asoma cuando ya hay origen y destino */
   html body .vipRide .vipRide__sheet .vipRide__stepNext[disabled]{ display:none!important }
+  /* red de seguridad: aunque el JS lo dejara habilitado, sin destino no se muestra */
+  html body .vipRide .vipRide__sheet .vipRide__form[data-vipride-mode="ride"]:has([data-vipride-dropoff]:placeholder-shown) .vipRide__stepNext{ display:none!important }
   html body .vipRide .vipRide__sheet .vipRide__stepNext{
     height:52px!important; margin-top:12px!important; border-radius:12px!important;
     text-transform:none!important; font-size:15px!important; font-weight:700!important;
@@ -10799,14 +10836,27 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     var sheet = document.querySelector('[data-vipride-sheet]');
     if (!sheet) return;
     var el = ensureBenefits();
-    var on = !!(window.__vrDeskWhen && window.__vrDeskWhen.label) && !sheet.classList.contains('vrd-when-open');
+    var sc = document.getElementById('vrSched');
+    var on = !!(window.__vrDeskWhen && window.__vrDeskWhen.label) && !sheet.classList.contains('vrd-when-open') && !(sc && !sc.hasAttribute('hidden'));
     if (!on) { el.hidden = true; el.classList.remove('is-in'); return; }
     var r = sheet.getBoundingClientRect();
     var top = Math.round(r.bottom + 16);
     if (el.style.top !== top + 'px') el.style.top = top + 'px';
     if (el.hidden) { el.hidden = false; requestAnimationFrame(function () { el.classList.add('is-in'); }); }
   }
-  addEventListener('resize', function () { setTimeout(updateBenefits, 120); });
+  addEventListener('resize', function () { setTimeout(function () { updateBenefits(); updateSchedDock(); }, 120); });
+
+  /* la tarjeta de viaje programado (#vrSched) se acopla bajo el cuadro,
+     en el mismo sitio que la tarjeta de beneficios */
+  function updateSchedDock() {
+    if (!mq.matches) return;
+    var card = document.getElementById('vrSched');
+    if (!card || card.hasAttribute('hidden')) return;
+    var sheet = document.querySelector('[data-vipride-sheet]');
+    if (!sheet) return;
+    var top = Math.round(sheet.getBoundingClientRect().bottom + 16);
+    if (top > 40) document.documentElement.style.setProperty('--vrd-sched-top', top + 'px');
+  }
 
   function buildRows() {
     if (!mq.matches) return;
@@ -10828,8 +10878,10 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
       openWhenPanel();
     });
 
-    /* el botón principal se llama como en la referencia */
+    /* el botón principal se llama como en la referencia; se guarda el nombre
+       original para devolvérselo si la ventana baja del umbral */
     var span = cta.querySelector('span') || cta;
+    if (!cta.__vrOrigLbl) cta.__vrOrigLbl = span.textContent.trim();
     if (span.textContent.trim() !== T.search) span.textContent = T.search;
     syncWhen();
   }
@@ -10993,17 +11045,23 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     hideBars();
     if (busy) return;
     busy = true;
-    try { buildRows(); syncWhen(); updateBenefits(); } finally {
+    try { buildRows(); syncWhen(); updateBenefits(); updateSchedDock(); } finally {
       setTimeout(function () { busy = false; }, 0);
     }
   });
   mo.observe(document.body, {
-    childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class']
+    childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class', 'hidden']
   });
   window.addEventListener('load', function () {
     patchMapbox(); hideBars(); buildRows(); setTimeout(nudgeMap, 250);
   });
-  mq.addEventListener('change', function () { hideBars(); buildRows(); updateBenefits(); nudgeMap(); });
+  mq.addEventListener('change', function () {
+    hideBars(); buildRows(); updateBenefits(); nudgeMap();
+    if (!mq.matches) {
+      var c = document.querySelector('[data-vipride-step1-next]');
+      if (c && c.__vrOrigLbl) { var sp = c.querySelector('span') || c; if (sp.textContent.trim() !== c.__vrOrigLbl) sp.textContent = c.__vrOrigLbl; }
+    }
+  });
   /* red de seguridad: el booker reinyecta las barras en pasos posteriores
      (elegir dirección, volver atrás…) y no siempre vía mutación observable */
   setInterval(hideBars, 400);
