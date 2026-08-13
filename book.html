@@ -10198,7 +10198,7 @@ html body #vipMpFooterSugs{
     display:inline-flex!important; align-items:center!important; gap:8px!important;
     min-width:0!important; max-width:100%!important; width:auto!important;
     height:40px!important; padding:0 14px!important; margin:0!important;
-    border:none!important; border-radius:999px!important; cursor:pointer;
+    border:none!important; border-radius:14px!important; cursor:pointer;
     background:rgba(255,255,255,.09)!important; color:#fff!important; box-shadow:none!important;
     font-family:inherit!important; font-size:13.5px!important; font-weight:600!important;
     line-height:1!important; text-align:left!important;
@@ -10221,6 +10221,30 @@ html body #vipMpFooterSugs{
     font-size:13.5px!important; font-weight:600!important; color:#fff!important;
   }
   html body .vrm-chev{ flex:0 0 14px!important; width:14px!important; height:14px!important; opacity:.7 }
+  /* en el teléfono la pastilla del viaje programado deja de flotar arriba del
+     todo: se sienta junto a "Recoger ahora", con la misma forma de rectángulo
+     de esquinas redondas. Solo cabe el contador, así que la fecha se retira
+     (se lee entera al abrir la tarjeta). */
+  html body .vrm-pills > #vrSchedPreview{
+    position:static!important; left:auto!important; top:auto!important;
+    transform:none!important; margin:0!important; animation:none!important;
+    flex:0 0 auto; height:40px; padding:0 12px; gap:8px;
+    min-width:0; max-width:none;
+    border:none; border-radius:14px;
+    background:rgba(212,175,55,.16);
+    box-shadow:inset 0 0 0 1px rgba(212,175,55,.45);
+  }
+  html body .vrm-pills > #vrSchedPreview::before{ display:none }
+  html body .vrm-pills > #vrSchedPreview .vrSchedPrv__ico{
+    width:17px; height:17px; background:none; border:none; box-shadow:none;
+  }
+  html body .vrm-pills > #vrSchedPreview .vrSchedPrv__ico svg{ width:15px; height:15px }
+  html body .vrm-pills > #vrSchedPreview .vrSchedPrv__ico::after{ inset:-4px }
+  html body .vrm-pills > #vrSchedPreview .vrSchedPrv__txt{ gap:6px }
+  html body .vrm-pills > #vrSchedPreview .vrSchedPrv__time{ font-size:13px; color:#f5d77a; text-shadow:none }
+  html body .vrm-pills > #vrSchedPreview .vrSchedPrv__when,
+  html body .vrm-pills > #vrSchedPreview .vrSchedPrv__sep{ display:none }
+  html body .vrm-pills > #vrSchedPreview .vrSchedPrv__arrow{ width:14px; font-size:14px }
   html body .vrm-menu{
     position:absolute; left:0; top:calc(100% + 8px); z-index:40;
     min-width:220px; max-width:100%; background:#232833; border-radius:14px; overflow:hidden;
@@ -10939,7 +10963,9 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     if (mq.matches) {
       var row = document.querySelector('[data-vipride-sheet] .vipRide__titleRow');
       if (row && p.parentNode !== row) row.appendChild(p);
-    } else if (p.parentNode !== document.body) {
+    } else if (!window.matchMedia('(max-width:899px)').matches && p.parentNode !== document.body) {
+      /* por debajo de 900 la pastilla es del script móvil (va en la fila de
+         píldoras): aquí solo se recupera en la franja 900-1023 */
       document.body.appendChild(p);
     }
   }
@@ -11268,26 +11294,6 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     setTimeout(function () { document.addEventListener('click', onDocClick, true); }, 0);
   }
 
-  function setWho(txt, marked) {
-    if (!pills) return;
-    var l = pills.querySelector('[data-vrm-who-label]');
-    var b = pills.querySelector('[data-vrm-who]');
-    if (l && l.textContent !== txt) l.textContent = txt;
-    if (b) b.classList.toggle('is-set', !!marked);
-  }
-  function forMe() {
-    /* el viaje vuelve a ser mío: los datos del acompañante dejan de viajar con la reserva */
-    try { if (window.__vrGuestClear) window.__vrGuestClear(); } catch (_) {}
-    setWho(T.forMe, false);
-  }
-  function forOther() {
-    if (!window.__vrGuestCollect) return;
-    window.__vrGuestCollect(function (data) {
-      if (data && data.first_name) setWho(data.first_name, true);
-      else setWho(T.forMe, false);
-    });
-  }
-
   function scheduledLabel() {
     if (!window.__vrScheduleActive) return null;
     var d = q('[data-vipride-date]'), t = q('[data-vipride-time]');
@@ -11598,10 +11604,6 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
       '<button type="button" class="vrm-pill" data-vrm-when>' +
         '<i class="vrm-pill__ico">' + ICO_CLOCK + '</i>' +
         '<span class="vrm-pill__label" data-vrm-when-label>' + T.now + '</span>' + ICO_CHEV +
-      '</button>' +
-      '<button type="button" class="vrm-pill" data-vrm-who>' +
-        '<i class="vrm-pill__ico">' + ICO_USER + '</i>' +
-        '<span class="vrm-pill__label" data-vrm-who-label>' + T.forMe + '</span>' + ICO_CHEV +
       '</button>';
     place();
     /* la píldora del reloj abre la página "¿Cuándo te recogemos?", que
@@ -11610,13 +11612,16 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
       e.preventDefault();
       openWhen();
     });
-    pills.querySelector('[data-vrm-who]').addEventListener('click', function (e) {
-      e.preventDefault();
-      openMenu(this, [{ label: T.forMe, run: forMe }, { label: T.forOther, run: forOther }]);
-    });
-    var g = null;
-    try { g = window.__vrGuestGet ? window.__vrGuestGet() : null; } catch (_) {}
-    if (g && g.first_name) setWho(g.first_name, true);
+    dockPrv();
+  }
+
+  /* la pastilla del viaje programado (#vrSchedPreview, la creó el script de la
+     tarjeta) se muda a la fila de píldoras, a la derecha de "Recoger ahora".
+     El script de escritorio la devuelve al body cuando el ancho crece. */
+  function dockPrv() {
+    if (!pills) return;
+    var p = document.getElementById('vrSchedPreview');
+    if (p && mq.matches && p.parentNode !== pills) pills.appendChild(p);
   }
 
   function tick() {
@@ -11625,6 +11630,7 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     watchFull();
     buildPills();
     place();
+    dockPrv();
     syncWhen();
     mapCard();
   }
@@ -11633,6 +11639,9 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     closeMenu();
     document.body.classList.remove('vrm-full');
     document.body.classList.remove('vrm-nohdr');
+    /* la pastilla vuelve al body ANTES de tirar la fila: si no, se va con ella */
+    var p = document.getElementById('vrSchedPreview');
+    if (p && pills && p.parentNode === pills) document.body.appendChild(p);
     if (pills && pills.parentNode) pills.parentNode.removeChild(pills);
     pills = null;
     var sec = q('.vipRide');
