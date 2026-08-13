@@ -7401,7 +7401,7 @@ setTimeout(_vrPfKick,1200);
     if(!p||!isFinite(p.lat)||!isFinite(p.lng))return;
     if(Date.now()-_VR_NEAR.at<45000)return;   /* como mucho una consulta cada 45 s */
     _VR_NEAR.pending=true;
-    fetch(_VR_Q_API+'/drivers/web/nearby',{
+    fetch(_VR_Q_API+'/bookings/web/nearby-driver',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+_VR_Q_KEY},
       body:JSON.stringify({lat:p.lat,lng:p.lng})
