@@ -1357,7 +1357,7 @@ setTimeout(function(){window.__vrApplyI18n&&window.__vrApplyI18n()},600);
     addEventListener('scroll',function(){document.querySelectorAll('.vipRide__tierTip.is-shown').forEach(function(t){t.classList.remove('is-shown');setTimeout(function(){t.hidden=true},220);});},true);
   };
   window.__vrRotateMsg=function(el,iv){if(!el)return null;el.style.transition='opacity 600ms cubic-bezier(.33,1,.68,1),transform 600ms cubic-bezier(.33,1,.68,1)';var m=window.__vrSearchMsgs,i=0;return setInterval(function(){el.style.opacity='0';el.style.transform='translateY(-4px)';setTimeout(function(){i=(i+1)%m.length;el.textContent=m[i];el.style.transform='translateY(4px)';requestAnimationFrame(function(){requestAnimationFrame(function(){el.style.opacity='1';el.style.transform='translateY(0)';});});},650);},iv||3500);};
-  window.__vrCancelBooking=function(api,key){var b=window.__vrActiveBookingId;if(b){fetch(api+'/bookings/web/'+b+'/cancel',{method:'POST',headers:{'Authorization':'Bearer '+key}}).catch(function(){});window.__vrActiveBookingId=null;try{localStorage.removeItem('vr_active_booking');localStorage.removeItem('vr_scheduled_ride');}catch(_){}try{if(window.__vrClearBookState)window.__vrClearBookState();}catch(_){}return true;}return false;};
+  window.__vrCancelBooking=function(api,key){var b=window.__vrActiveBookingId;if(b){fetch(api+'/bookings/web/'+b+'/cancel',{method:'POST',headers:{'Authorization':'Bearer '+key}}).catch(function(){});window.__vrActiveBookingId=null;try{localStorage.removeItem('vr_active_booking');localStorage.removeItem('vr_scheduled_ride');}catch(_){}try{localStorage.setItem('vr_last_cancel',JSON.stringify({id:String(b),ts:Date.now()}));}catch(_){}try{if(window.__vrClearBookState)window.__vrClearBookState();}catch(_){}return true;}return false;};
   window.__vrNoDriverShow=function(overlay,reason){
     try{if(overlay&&overlay.parentNode)overlay.parentNode.removeChild(overlay)}catch(_e){}
     window.__vrActiveBookingId=null;
@@ -5415,8 +5415,9 @@ window.__VR_AIRPORTS = [
       if(typeof window.__vrSendSchedEnRoute==='function'){try{window.__vrSendSchedEnRoute(d);}catch(_){}}
     }
     function onCancel(){
-      if(!confirm('Cancel this reservation? The hold on your card will be released.'))return;
-      if(window.__vrCancelBooking)window.__vrCancelBooking(apiBase,webKey);
+      var _es=window.__vrLang==='es';
+      if(!confirm(_es?'¿Cancelar esta reserva? Se libera la retención de tu tarjeta.':'Cancel this reservation? The hold on your card will be released.'))return;
+      if(window.__vrCancelBooking){if(window.__vrCancelBooking(apiBase,webKey)){try{if(window.__vrToast)window.__vrToast(window.__vrT?window.__vrT('reservationCancelled'):'Reservation cancelled. Hold released.','ok');}catch(_){}}}
       try{localStorage.removeItem('vr_active_booking');}catch(_){}
       if(pollIv){clearInterval(pollIv);pollIv=null;}
       if(tickIv){clearInterval(tickIv);tickIv=null;}
@@ -6389,6 +6390,11 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     if(!trip||!trip.booking_id)return false;
     var tst=(trip.status||'').toLowerCase();
     if(tst==='completed'||tst==='cancelled'||tst==='canceled')return false;
+    /* lápida anti-fantasma: el pasajero canceló este viaje hace nada y el POST
+       de cancelación puede no haber llegado al servidor todavía (o la recarga
+       cayó en medio). Sin esto, el active-trip lo re-adoptaba y el tracker
+       reaparecía solo tras cancelar. */
+    try{var _lc=JSON.parse(localStorage.getItem('vr_last_cancel')||'null');if(_lc&&_lc.id&&String(_lc.id)===String(trip.booking_id)&&(Date.now()-(_lc.ts||0))<10*60*1000)return false;}catch(_){}
     try{
       localStorage.setItem('vr_active_booking',JSON.stringify({
         id:trip.booking_id,ts:Date.now(),scheduled_at:trip.scheduled_at||null,
@@ -9168,6 +9174,13 @@ setTimeout(_vrPfKick,1200);
         .then(function(r){return r.json()})
         .then(function(data){
           if(!data)return;
+          /* fetch en vuelo cuando el pasajero acaba de cancelar: __vrCancelBooking
+             ya puso __vrActiveBookingId en null, así que este estado llega tarde y
+             no manda. Sin este candado, un "cancelled" a destiempo abría el modal
+             de "sin chofer" ENCIMA del paso 1 ya restablecido (mensaje pegado en
+             medio de la pantalla), y un "accepted" a destiempo reabría el tracker
+             con una reserva muerta. */
+          try{if(String(window.__vrActiveBookingId||'')!==String(bookingId)){clearInterval(poll);window._vrActivePoll=null;return;}}catch(_){}
           var s=(data.status||'').toLowerCase();
           if(s==='accepted'||s==='driver_assigned'||s==='in_progress'||data.driver_name){clearInterval(poll);window._vrActivePoll=null;_showDriverFound(overlay,data);}
           else if(s==='cancelled'||s==='canceled'){clearInterval(poll);window._vrActivePoll=null;window.__vrNoDriverShow&&window.__vrNoDriverShow(overlay);}
@@ -9352,6 +9365,11 @@ setTimeout(_vrPfKick,1200);
         if(pickupMarker){try{pickupMarker.remove();}catch(_){}pickupMarker=null;}
         pickupPlace=null;pickupEl.value='';_pickupManuallySet=false;_gpsActive=false;
       }
+      /* El reset reescribe textos estáticos (placeholders, etiquetas, botones).
+         Se repasa el i18n de la página para que NADA quede en inglés en la
+         página en español (o al revés), venga de donde venga el reset. */
+      try{if(window.__vrApplyI18n)window.__vrApplyI18n();}catch(_){}
+      try{updateUIText();}catch(_){}
       setTimeout(function(){
         try{
           var tgt=pickupPlace?[pickupPlace.lng,pickupPlace.lat]:(_lastGeoLng!==null?[_lastGeoLng,_lastGeoLat]:null);
@@ -11716,7 +11734,13 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     var h = _vHist[name] || (_vHist[name] = []);
     var prev = h.length ? h[h.length - 1] : null;
     if (prev !== null && Math.abs(prev - px) < 10) return;
-    if (h.length >= 2 && Math.abs(h[h.length - 2] - px) < 10) { _vLock[name] = now + 1500; return; }
+    /* A→B→A es la firma del bucle: se frena un segundo y medio. Pero la medida
+       hay que ESCRIBIRLA igualmente, porque es la medida de ahora mismo — tras
+       cancelar un viaje la hoja cambia de alto una sola vez y se asienta. Si
+       no se escribe, el historial no cambia, el freno se reengancha en cada
+       repaso y el mapa queda congelado PARA SIEMPRE en la medida transitoria
+       (era el bug del mapa encogido tras cancelar). */
+    if (h.length >= 2 && Math.abs(h[h.length - 2] - px) < 10) _vLock[name] = now + 1500;
     h.push(px); if (h.length > 4) h.shift();
     var v = px + 'px';
     if (el.style.getPropertyValue(name) !== v) el.style.setProperty(name, v);
