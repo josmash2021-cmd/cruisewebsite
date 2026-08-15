@@ -1,3 +1,41 @@
+/* ── Escudo de contenido (pedido del dueño, 2026-08-14): sin zoom por
+   teclado/rueda/gestos, sin copiar/seleccionar fuera de los campos de
+   texto, sin clic derecho, sin arrastrar imágenes, y disuasión de
+   DevTools (F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+S). Los screenshots NO
+   se pueden bloquear desde una web; la consola solo se disuade. ── */
+(function () {
+  'use strict';
+  try {
+    var st = document.createElement('style');
+    st.textContent =
+      'body{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}' +
+      'input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;-moz-user-select:text;user-select:text}' +
+      'img,video{-webkit-user-drag:none}';
+    document.head.appendChild(st);
+  } catch (_) {}
+  function inField(e) { var t = e.target; return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable); }
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  document.addEventListener('dragstart', function (e) { e.preventDefault(); });
+  document.addEventListener('copy', function (e) { if (!inField(e)) e.preventDefault(); });
+  document.addEventListener('cut', function (e) { if (!inField(e)) e.preventDefault(); });
+  addEventListener('wheel', function (e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (n) {
+    document.addEventListener(n, function (e) { e.preventDefault(); });
+  });
+  document.addEventListener('keydown', function (e) {
+    var c = e.ctrlKey || e.metaKey;
+    if (c && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')) { e.preventDefault(); return; }
+    if (e.key === 'F12') { e.preventDefault(); return; }
+    if (c && e.shiftKey && ['I', 'J', 'C', 'K'].indexOf(e.key.toUpperCase()) >= 0) { e.preventDefault(); return; }
+    if (c && !e.shiftKey && ['u', 's'].indexOf(e.key.toLowerCase()) >= 0 && !inField(e)) { e.preventDefault(); }
+  });
+  try {
+    console.log('%cCruiseInRide', 'font-size:18px;font-weight:bold;color:#d4af37');
+    console.log('%cEsta consola es solo para desarrolladores. El contenido de este sitio está protegido; no pegues aquí código que no entiendas.',
+      'font-size:12px;color:#999');
+  } catch (_) {}
+})();
+
 /* ══════════════════════════════════════════════════════════════════
    CruiseInRide — menú de cuenta de la barra superior (estilo Uber)
    Compartido por index / book / contact / 404 / auth / profile (ES y EN).
