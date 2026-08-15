@@ -3970,6 +3970,13 @@ window.__VR_AIRPORTS = [
   /* ── estado desde el servidor ── */
   function apply(d){
     if(!d||ended)return;
+    /* el status ya manda las coordenadas del viaje: tras una recarga son lo
+       primero que hay para repintar la ruta dorada y encuadrar el mapa */
+    var _tc=window.__vrTripCoords;
+    if(!_tc||!_tc.pu||!_tc.dr){
+      var _pla=Number(d.pickup_lat),_pln=Number(d.pickup_lng),_dla=Number(d.dropoff_lat),_dln=Number(d.dropoff_lng);
+      if(_pla&&_dla&&isFinite(_pla)&&isFinite(_pln)&&isFinite(_dla)&&isFinite(_dln))window.__vrTripCoords={pu:{lat:_pla,lng:_pln},dr:{lat:_dla,lng:_dln}};
+    }
     var _f=Number(d.fare);if(isFinite(_f)&&_f>0)fare=_f;
     if(Number(d.tip_amount)>0)tipAlready=true;
     var raw=String(d.raw_status||d.status||'').toLowerCase();
@@ -4613,11 +4620,46 @@ window.__VR_AIRPORTS = [
     if(window.__vrCloseTestConfirm){try{window.__vrCloseTestConfirm();}catch(_){}}
   }
 
+  /* Reanudar tras recarga: la ruta dorada recogida→destino la pinta el script
+     del mapa (drawRoute), pero al recargar sus pickupPlace/dropoffPlace están
+     vacíos y la ruta nunca se dibuja. Aquí se le pasan las coordenadas del
+     viaje (del status, de vr_active_booking o de geocodificar las direcciones)
+     y se reintenta hasta que el mapa está cargado. */
+  var _routeRestored=false;
+  function _restoreTripRoute(){
+    if(_routeRestored)return;
+    var c0=window.__vrTripCoords;
+    var found=(c0&&c0.pu&&c0.dr)?c0:null;
+    if(!found){
+      try{
+        var b=JSON.parse(localStorage.getItem('vr_active_booking')||'{}');
+        var pla=Number(b.pickup_lat),pln=Number(b.pickup_lng),dla=Number(b.dropoff_lat),dln=Number(b.dropoff_lng);
+        if(pla&&dla&&isFinite(pla)&&isFinite(pln)&&isFinite(dla)&&isFinite(dln))found={pu:{lat:pla,lng:pln},dr:{lat:dla,lng:dln}};
+      }catch(_){}
+    }
+    var p=found?Promise.resolve(found):tripCoords().catch(function(){return null;});
+    p.then(function(c){
+      if(!c||_routeRestored)return;
+      window.__vrTripCoords=c;
+      [0,600,1400,2800,5000,8000].forEach(function(ms){
+        setTimeout(function(){
+          if(_routeRestored)return;
+          try{
+            if(window.__vrRestoreTripRoute&&window.__vrRestoreTripRoute(
+              {lat:c.pu.lat,lng:c.pu.lng,label:puAddr},
+              {lat:c.dr.lat,lng:c.dr.lng,label:drAddr}))_routeRestored=true;
+          }catch(_){}
+        },ms);
+      });
+    });
+  }
+
   window.__vrTripShow=function(driverData,bookingId,apiBase,webKey,pickup,dropoff){
     var r=root();if(!r)return false;
     bid=bookingId||window.__vrActiveBookingId||null;
     api=apiBase||'';key=webKey||'';
     ended=false;chatOpen=false;unread=0;lastMsgId=0;lastSeen=0;step='';hadDriver=true;
+    _routeRestored=false;
     /* viaje nuevo: la tarifa, la propina y el hilo del anterior no valen aquí */
     fare=0;tipAlready=false;chatSig='';
     wire();
@@ -4629,6 +4671,9 @@ window.__VR_AIRPORTS = [
     setStep('enroute');
     apply(d0);
     setPane('trip');
+    /* recarga: repinta la ruta dorada y encuadra (sin coords el mapa se quedaba
+       vacío, solo con el pin "Tú") */
+    _restoreTripRoute();
     /* encuadre de salida: la ruta entera arriba, nunca debajo de la tarjeta. Se
        espera un poco a que la tarjeta esté pintada para medir su alto real */
     setTimeout(function(){window.__vrFitRoute(900);},420);
@@ -6351,7 +6396,11 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
         pickup:trip.pickup_address||'',dropoff:trip.dropoff_address||'',
         vehicle:trip.vehicle||trip.vehicle_name||'',tier:trip.tier||'',
         dist_mi:(typeof trip.dist_mi==='number'?trip.dist_mi:null),
-        dur_min:(typeof trip.dur_min==='number'?trip.dur_min:null)
+        dur_min:(typeof trip.dur_min==='number'?trip.dur_min:null),
+        pickup_lat:(typeof trip.pickup_lat==='number'?trip.pickup_lat:null),
+        pickup_lng:(typeof trip.pickup_lng==='number'?trip.pickup_lng:null),
+        dropoff_lat:(typeof trip.dropoff_lat==='number'?trip.dropoff_lat:null),
+        dropoff_lng:(typeof trip.dropoff_lng==='number'?trip.dropoff_lng:null)
       }));
     }catch(_){return false;}
     /* Replay the SAME resume the page already uses for vr_active_booking,
@@ -7158,6 +7207,38 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     clearTimeout(window.__vrLblT);window.__vrLblT=setTimeout(function(){try{showMarkerLabels();}catch(_){}},450);
   }
   window.__vrSwapPlaces=function(){var x=pickupPlace;pickupPlace=dropoffPlace;dropoffPlace=x;if(pickupEl&&dropoffEl){var v=pickupEl.value;pickupEl.value=dropoffEl.value;dropoffEl.value=v}_pickupManuallySet=true;_gpsActive=false;if(pickupPlace)setMarker('pickup',pickupPlace.lat,pickupPlace.lng);if(dropoffPlace)setMarker('dropoff',dropoffPlace.lat,dropoffPlace.lng);try{afterInputChange();computeRoute();if(pickupPlace&&dropoffPlace){setTimeout(fitRouteBounds,400);setTimeout(showMarkerLabels,2200)}}catch(_){}};
+  /* Recarga con viaje en curso: el tracker manda las coordenadas del viaje y
+     aquí se reponen los pines y la ruta dorada, sin tocar precios ni el
+     formulario (el viaje ya está pedido). Devuelve false si el mapa aún no
+     está listo, y el tracker reintenta. */
+  window.__vrRestoreTripRoute=function(pu,dr){
+    try{
+      if(!map||!window.mapboxgl||!pu||!dr)return false;
+      if(!isFinite(pu.lat)||!isFinite(pu.lng)||!isFinite(dr.lat)||!isFinite(dr.lng))return false;
+      if(map.loaded&&!map.loaded())return false; /* el estilo aún carga: reintento */
+      if(!pickupPlace||pickupPlace.lat!==pu.lat||pickupPlace.lng!==pu.lng){
+        pickupPlace={label:pu.label||'',lat:pu.lat,lng:pu.lng};
+        setMarker('pickup',pu.lat,pu.lng);
+      }
+      if(!dropoffPlace||dropoffPlace.lat!==dr.lat||dropoffPlace.lng!==dr.lng){
+        dropoffPlace={label:dr.label||'',lat:dr.lat,lng:dr.lng};
+        setMarker('dropoff',dr.lat,dr.lng);
+      }
+      if(map.getSource('route'))return true; /* la ruta ya está pintada (flujo normal) */
+      fetch('https://api.mapbox.com/directions/v5/mapbox/driving/'+pu.lng+','+pu.lat+';'+dr.lng+','+dr.lat+'?geometries=geojson&overview=full&access_token='+encodeURIComponent(MAPBOX_TOKEN))
+        .then(function(r){return r.ok?r.json():null;})
+        .then(function(data){
+          var route=data&&data.routes&&data.routes[0];
+          if(!route||!route.geometry)return;
+          if(!routeDurationSec&&route.duration)routeDurationSec=route.duration;
+          if(!window.__vrRouteDistM&&route.distance)window.__vrRouteDistM=route.distance;
+          window.__vrRouteCoords=route.geometry.coordinates||null;
+          drawRoute(route.geometry);
+          try{if(window.__vrFitRoute)window.__vrFitRoute(900);}catch(_){}
+        }).catch(function(){});
+      return true;
+    }catch(_){return false;}
+  };
 window.__vrPrefillFromUrl=function(){try{
 if(window.__vrPrefilled)return;window.__vrPrefilled=true;
 var q=new URLSearchParams(window.location.search);
@@ -9175,7 +9256,7 @@ setTimeout(_vrPfKick,1200);
         if(typeof showMarkerLabels==='function')setTimeout(showMarkerLabels,600);
         if(bar2)bar2.style.width='100%';
         _postBookingToCruise(null,function(data){
-          if(data&&data.booking_id){window.__vrActiveBookingId=data.booking_id;try{var _schedAt=(window.__vrScheduleActive&&dateEl&&timeEl&&dateEl.value&&timeEl.value)?new Date(dateEl.value+'T'+timeEl.value).toISOString():null;localStorage.setItem('vr_active_booking',JSON.stringify({id:data.booking_id,ts:Date.now(),scheduled_at:_schedAt,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||'',dist_mi:(window.__vrRouteDistM?Math.round(window.__vrRouteDistM/1609.344*10)/10:null),dur_min:(routeDurationSec?Math.ceil(routeDurationSec/60):null)}));}catch(_){}}
+          if(data&&data.booking_id){window.__vrActiveBookingId=data.booking_id;try{var _schedAt=(window.__vrScheduleActive&&dateEl&&timeEl&&dateEl.value&&timeEl.value)?new Date(dateEl.value+'T'+timeEl.value).toISOString():null;localStorage.setItem('vr_active_booking',JSON.stringify({id:data.booking_id,ts:Date.now(),scheduled_at:_schedAt,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||'',dist_mi:(window.__vrRouteDistM?Math.round(window.__vrRouteDistM/1609.344*10)/10:null),dur_min:(routeDurationSec?Math.ceil(routeDurationSec/60):null),pickup_lat:(pickupPlace?pickupPlace.lat:null),pickup_lng:(pickupPlace?pickupPlace.lng:null),dropoff_lat:(dropoffPlace?dropoffPlace.lat:null),dropoff_lng:(dropoffPlace?dropoffPlace.lng:null)}));}catch(_){}}
           try{if(selectedRide&&selectedRide.tier==='vip')_vrCreateVipMenuReservation(data);}catch(_){}
           if(window.__vrScheduleActive){
             /* Email 1: scheduled ride confirmation (to rider) */
@@ -9184,7 +9265,7 @@ setTimeout(_vrPfKick,1200);
             try{
               var _sAtNow=(dateEl&&timeEl&&dateEl.value&&timeEl.value)?new Date(dateEl.value+'T'+timeEl.value).toISOString():null;
               var _bid=(data&&data.booking_id)||window.__vrActiveBookingId||'TEMP-'+Date.now();
-              var _lsData={id:_bid,ts:Date.now(),scheduled_at:_sAtNow,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||'',dist_mi:(window.__vrRouteDistM?Math.round(window.__vrRouteDistM/1609.344*10)/10:null),dur_min:(routeDurationSec?Math.ceil(routeDurationSec/60):null)};
+              var _lsData={id:_bid,ts:Date.now(),scheduled_at:_sAtNow,pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',vehicle:selectedRide&&selectedRide.title||'',tier:selectedRide&&selectedRide.tier||'',dist_mi:(window.__vrRouteDistM?Math.round(window.__vrRouteDistM/1609.344*10)/10:null),dur_min:(routeDurationSec?Math.ceil(routeDurationSec/60):null),pickup_lat:(pickupPlace?pickupPlace.lat:null),pickup_lng:(pickupPlace?pickupPlace.lng:null),dropoff_lat:(dropoffPlace?dropoffPlace.lat:null),dropoff_lng:(dropoffPlace?dropoffPlace.lng:null)};
               localStorage.setItem('vr_active_booking',JSON.stringify(_lsData));
               window.__vrActiveBookingId=_bid;
             }catch(_){}
