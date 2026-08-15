@@ -322,6 +322,11 @@
       if (e.target && e.target.nodeType === 1 && panel.contains(e.target)) return;
       open(false);
     }, { passive: true, capture: true });
+    /* la rueda/trackpad cierra también (el scroll suave estilo Zoox usa
+       scrollTo por frames; con 'wheel' se cierra al primer giro) */
+    addEventListener('wheel', function () {
+      if (panel.classList.contains('is-open')) open(false);
+    }, { passive: true, capture: true });
     addEventListener('resize', function () { open(false); }, { passive: true });
 
     var signout = panel.querySelector('[data-cam-signout]');
