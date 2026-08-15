@@ -78,6 +78,8 @@ button.help-card{font:inherit;cursor:pointer}
 .sc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;background:#0e1116;border-bottom:1px solid rgba(255,255,255,.08)}
 .sc-head__t{display:flex;align-items:center;gap:10px;font-family:Cinzel,serif;font-size:.98rem;font-weight:600;letter-spacing:.05em;color:#f5d77a}
 .sc-dot{width:8px;height:8px;border-radius:50%;background:#3ecf6e;flex:none}
+.sc-head__txt{display:flex;flex-direction:column;line-height:1.15}
+.sc-head__txt small{font-family:Inter,system-ui,sans-serif;font-size:.68rem;font-weight:500;letter-spacing:.06em;color:#8f96a3}
 .sc-close{background:none;border:0;color:#aab0bb;cursor:pointer;padding:6px;border-radius:8px}
 .sc-close:hover,.sc-close:focus-visible{color:#f5d77a;outline:none}
 .sc-close svg{width:18px;height:18px;display:block}
@@ -367,7 +369,7 @@ button.help-card{font:inherit;cursor:pointer}
 <!-- Chat de soporte en la web (solo usuarios con sesion) -->
 <div class="sc-panel" id="sc-panel" hidden role="dialog" aria-label="Chat de soporte">
   <div class="sc-head">
-    <span class="sc-head__t"><span class="sc-dot"></span> Soporte CruiseInRide · 24/7</span>
+    <span class="sc-head__t"><span class="sc-dot"></span><span class="sc-head__txt">Cruise Support<small>Powered by AI</small></span></span>
     <button class="sc-close" type="button" id="sc-close" aria-label="Cerrar chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
   <div class="sc-msgs" id="sc-msgs"></div>
@@ -533,8 +535,11 @@ button.help-card{font:inherit;cursor:pointer}
   function stopPoll(){if(pollTimer){clearInterval(pollTimer);pollTimer=null;}}
   function sessionExpired(){
     stopPoll();
-    note('Tu sesión expiró. Redirigiendo a iniciar sesión…');
+    note('Tu sesión expiró. Inicia sesión de nuevo…');
     try{sessionStorage.removeItem('vr_support_chat');}catch(_){}
+    /* token vencido: se limpia la sesión local para que auth no rebote a la cuenta
+       y el login pida los datos de nuevo */
+    try{['vr_at','vr_au','vr_photo_local'].forEach(function(k){localStorage.removeItem(k);});}catch(_){}
     setTimeout(goAuth,1600);
   }
   function loadMessages(initial){
