@@ -80,9 +80,15 @@ button.help-card{font:inherit;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.sc-panel{transition:none}}
 /* con el chat abierto el bubble de WhatsApp estorba: se oculta */
 body.sc-open .wa-fab{display:none}
+/* si hay un chat activo, el FAB del chat reemplaza al de WhatsApp */
+body.sc-has-chat .wa-fab{display:none!important}
+body.sc-has-chat:not(.sc-open) .sc-fab{display:flex}
 /* en movil ocultamos el footer del sitio para que no se asome detras del panel/teclado */
 body.sc-open{overflow:hidden}
 body.sc-open .cruise-footer{display:none}
+.sc-fab{position:fixed;right:20px;bottom:20px;z-index:1100;width:56px;height:56px;border-radius:50%;background:#d4af37;color:#14100a;display:none;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.4);border:0;cursor:pointer;transition:transform .2s ease,opacity .2s ease}
+.sc-fab:hover,.sc-fab:focus-visible{transform:scale(1.06);outline:none}
+.sc-fab svg{width:26px;height:26px}
 .sc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;background:#0e1116;border-bottom:1px solid rgba(255,255,255,.08)}
 .sc-head__t{display:flex;align-items:center;gap:10px;font-family:Cinzel,serif;font-size:.98rem;font-weight:600;letter-spacing:.05em;color:#f5d77a}
 .sc-head__t>svg{width:22px;height:22px;flex:none;color:#d4af37}
@@ -424,6 +430,7 @@ body.sc-open .cruise-footer{display:none}
     <button type="submit" id="sc-send" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
   </form>
 </div>
+<button class="sc-fab" type="button" id="sc-fab" aria-label="Abrir chat de soporte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-8.5 8.4c-1.4 0-2.7-.3-3.8-.9L3 20.5l1.6-5.2a8.3 8.3 0 01-1.1-3.8A8.4 8.4 0 0112 3.1a8.4 8.4 0 019 8.4z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></svg></button>
 
 </main><footer class="cruise-footer">
   <div class="cf-hero">
@@ -588,7 +595,8 @@ body.sc-open .cruise-footer{display:none}
       input=document.getElementById('sc-input'),sendBtn=document.getElementById('sc-send'),
       chips=document.getElementById('sc-chips'),endBtn=document.getElementById('sc-end'),
       attachBtn=document.getElementById('sc-attach'),fileInput=document.getElementById('sc-file'),
-      amenu=document.getElementById('sc-amenu');
+      amenu=document.getElementById('sc-amenu'),fab=document.getElementById('sc-fab'),
+      head=panel.querySelector('.sc-head');
   if(!panel)return;
   input.placeholder=t('placeholder')||'Escribe tu mensaje…';
   typing.textContent=t('typing');
@@ -603,6 +611,7 @@ body.sc-open .cruise-footer{display:none}
   function scrollEnd(){msgs.scrollTop=msgs.scrollHeight;}
   function isRateLimited(){return Date.now()<rateLimitUntil;}
   function setRateLimited(){rateLimitUntil=Date.now()+60000;}
+  function setHasChat(has){document.body.classList.toggle('sc-has-chat',!!has);}
 
   function addMsg(m){
     if(seen[m.id])return;
@@ -713,6 +722,7 @@ body.sc-open .cruise-footer{display:none}
         if(!d)return;
         chatId=d.chat_id;
         try{sessionStorage.setItem('vr_support_chat',String(chatId));}catch(_){}
+        setHasChat(true);
         loadMessages(true).then(maybeShowChips);startPoll();
       });
   }
@@ -722,7 +732,7 @@ body.sc-open .cruise-footer{display:none}
     panel.classList.add('is-open');
     document.body.classList.add('sc-open');
     input.focus();
-    if(chatId||opening){if(chatId){loadMessages(false);startPoll();}return;}
+    if(chatId||opening){if(chatId){setHasChat(true);loadMessages(false);startPoll();}return;}
     opening=true;
     var saved=null;
     try{saved=sessionStorage.getItem('vr_support_chat');}catch(_){}
@@ -780,6 +790,7 @@ body.sc-open .cruise-footer{display:none}
         chatId=null;msgs.innerHTML='';chips.innerHTML='';chips.hidden=true;
         seen={};hasUserMsg=false;awaitingReply=0;chatClosed=false;
         input.disabled=false;sendBtn.disabled=false;attachBtn.disabled=false;
+        setHasChat(false);
       })
       .catch(function(){})
       .then(function(){
@@ -846,6 +857,22 @@ body.sc-open .cruise-footer{display:none}
       .catch(function(){note(t('connError'),true);})
       .then(function(){sendBtn.disabled=false;input.focus();});
   });
+
+  /* burbuja del chat: si hay un chat guardado, reemplaza a WhatsApp */
+  (function initFab(){
+    if(!token())return;
+    var saved=null;
+    try{saved=sessionStorage.getItem('vr_support_chat');}catch(_){}
+    if(saved)setHasChat(true);
+  })();
+  if(fab)fab.addEventListener('click',openChat);
+
+  /* deslizar hacia abajo en la cabecera cierra el chat */
+  if(head){
+    var sy=0,sx=0,st=0;
+    head.addEventListener('touchstart',function(e){if(e.touches.length!==1)return;sy=e.touches[0].clientY;sx=e.touches[0].clientX;st=Date.now();},{passive:true});
+    head.addEventListener('touchend',function(e){if(!sy)return;var dy=e.changedTouches[0].clientY-sy,dx=e.changedTouches[0].clientX-sx,dt=Date.now()-st;if(dy>70 && Math.abs(dy)>Math.abs(dx)*1.5 && dt<500)closeChat();sy=0;sx=0;st=0;},{passive:true});
+  }
 })();
 </script>
 <script src="assets/home.js?v=20260816j"></script>
