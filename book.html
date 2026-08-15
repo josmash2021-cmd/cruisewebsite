@@ -6,7 +6,7 @@
 /* si se llega como /book.html (enlace viejo), la barra se limpia sola a /book */
 if(/\/book\.html$/.test(location.pathname))history.replaceState(null,"",location.pathname.replace(/\.html$/,"")+location.search+location.hash);
 </script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Book a Ride with Cruise</title>
 <meta name="description" content="Reserva tu transporte privado premium con chofer: punto a punto, por horas o al aeropuerto.">
 <!-- vista previa al compartir el enlace: tarjeta con fondo negro -->
@@ -26,24 +26,6 @@ if(/\/book\.html$/.test(location.pathname))history.replaceState(null,"",location
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css?v=20260815l">
 
-<!-- cir-shield: sin zoom, sin seleccionar/copiar texto ni imagenes (los campos de escribir siguen normales) -->
-<style>
-body{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
-input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;-moz-user-select:text;user-select:text}
-img,video{-webkit-user-drag:none}
-</style>
-<script>
-(function(){
-  function inField(e){var t=e.target;return t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)}
-  document.addEventListener('contextmenu',function(e){e.preventDefault()});
-  document.addEventListener('dragstart',function(e){e.preventDefault()});
-  document.addEventListener('copy',function(e){if(!inField(e))e.preventDefault()});
-  document.addEventListener('cut',function(e){if(!inField(e))e.preventDefault()});
-  addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault()},{passive:false});
-  addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&(e.key==='+'||e.key==='-'||e.key==='='||e.key==='0'))e.preventDefault()});
-  ['gesturestart','gesturechange','gestureend'].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault()})});
-})();
-</script>
 <!-- sesion: la cabecera no puede parpadear como "sin sesion" al refrescar -->
 <style>html.cir-authed .ch-login,html.cir-authed .ch-signup{display:none!important}</style>
 <script>try{if(localStorage.getItem('vr_at'))document.documentElement.classList.add('cir-authed')}catch(_){}</script>
@@ -120,7 +102,6 @@ html.vr-booting-out .cruise-header{animation:vrBootIn .4s cubic-bezier(.22,1,.36
       <div class="vipRide__handle" aria-hidden="true"></div>
       <div class="vipRide__stepDots" aria-hidden="true">
         <div class="vipRide__stepDot is-active"></div>
-        <div class="vipRide__stepDot"></div>
         <div class="vipRide__stepDot"></div>
       </div>
       <!-- STEP 1 -->
@@ -996,7 +977,7 @@ html.vr-booting-out .cruise-header{animation:vrBootIn .4s cubic-bezier(.22,1,.36
       <button type="button" class="vipRide__authBtn vipRide__authBtn--outline vipRide__authBtn--icon" data-vipride-reg-apple-btn data-vipride-su-apple>Continue with Apple</button>
       <div class="vipRide__authDivider"><span data-vipride-or-label>OR</span></div>
       <button type="button" class="vipRide__authBtn vipRide__authBtn--gold" data-vipride-auth-goto-signin2 data-vipride-su-signin>Sign in</button>
-      <p class="vipRide__authTerms" data-vipride-terms>By continuing, you agree to our <a href="/policies/terms-of-service" target="_blank">Terms</a> and <a href="/policies/privacy-policy" target="_blank">Privacy Policy</a></p>
+      <p class="vipRide__authTerms" data-vipride-terms>By continuing, you agree to our <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a></p>
     </div>
   </div>
   <div class="vipRide__authPage vipRide__wizard" data-vipride-wizard hidden>
@@ -1221,7 +1202,7 @@ window.__vrApplyI18n=function(){
     ['.vrApt__flightHint','driverTrack']
   ];
   var tEl=document.querySelector('[data-vipride-terms]');
-  if(tEl&&window.__vrLang==='es')tEl.innerHTML='Al continuar, aceptas nuestros <a href="/policies/terms-of-service" target="_blank">Términos</a> y <a href="/policies/privacy-policy" target="_blank">Política de Privacidad</a>';
+  if(tEl&&window.__vrLang==='es')tEl.innerHTML='Al continuar, aceptas nuestros <a href="terms.html" target="_blank">Términos</a> y <a href="privacy.html" target="_blank">Política de Privacidad</a>';
   map.forEach(function(e){var el=document.querySelector(e[0]);if(el)el.textContent=t(e[1]);});
   /* Placeholders */
   [['[data-vipride-pickup]','enterPickup'],['[data-vipride-dropoff]','whereto'],['[data-vipride-lp-pickup]','enterPickup'],['[data-vipride-lp-dropoff]','whereto'],['[data-vipride-su-email-input]','emailAddr'],['[data-vipride-si-user]','emailOrPhone'],['[data-vipride-si-pass]','password'],['[data-vrapt-search]','searchAirport']].forEach(function(e){var el=document.querySelector(e[0]);if(el)el.placeholder=t(e[1]);});
@@ -1411,7 +1392,7 @@ setTimeout(function(){window.__vrApplyI18n&&window.__vrApplyI18n()},600);
     document.body.appendChild(h);
     requestAnimationFrame(function(){h.style.opacity='1';var k=h.firstChild;if(k)k.style.transform='translateY(0) scale(1)'});
     function X(){h.style.opacity='0';var k=h.firstChild;if(k)k.style.transform='translateY(8px) scale(.97)';setTimeout(function(){try{h.parentNode.removeChild(h)}catch(_e){}document.body.style.transition='opacity .4s ease';document.body.style.opacity='0';setTimeout(function(){window.location.reload()},380)},320)}
-    function Support(){try{window.open('https://cruiseinride.com/pages/contact','_blank');}catch(_){}X();}
+    function Support(){try{window.open('contact.html','_blank');}catch(_){}X();}
     var rb=h.querySelector('[data-vr-nd-retry]'),cb=h.querySelector('[data-vr-nd-close]');
     if(rb)rb.addEventListener('click',showSupport?Support:X,{once:true});
     if(cb)cb.addEventListener('click',X,{once:true});
@@ -1444,7 +1425,7 @@ window.__vrPayFailedShow=function(err,lang){
     o.inp.addEventListener('input',function(){clearTimeout(deb);var q=o.inp.value.trim();if(q.length<2){o.sugs.hidden=true;o.sugs.innerHTML='';return;}deb=setTimeout(function(){var c=o.getCtr();function _esc(s){if(s==null)return'';var d=document.createElement('div');d.appendChild(document.createTextNode(String(s)));return d.innerHTML;}fetch('https://api.mapbox.com/search/searchbox/v1/suggest?q='+encodeURIComponent(q)+'&access_token='+encodeURIComponent(o.token)+'&session_token='+o.getSess()+'&language=en&limit=5&types=address,poi&country=us&proximity='+c.lng+','+c.lat).then(function(r){return r.json()}).then(function(d){var sugs=d.suggestions||[];if(!sugs.length){o.sugs.hidden=true;return}o.sugs.innerHTML=sugs.map(function(s){var nm=s.name||s.full_address||'',sb=(s.full_address||s.place_formatted||'').replace(nm,'').replace(/^[\s,]+/,'');return '<div class="vrMpSug" data-id="'+_esc(s.mapbox_id)+'"><div style="font-weight:600;font-size:13.5px;color:#fff">'+_esc(nm)+'</div>'+(sb?'<div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:1px">'+_esc(sb)+'</div>':'')+'</div>';}).join('');o.sugs.hidden=false;o.sugs.querySelectorAll('.vrMpSug').forEach(function(it){it.addEventListener('click',function(){fetch('https://api.mapbox.com/search/searchbox/v1/retrieve/'+encodeURIComponent(it.getAttribute('data-id'))+'?access_token='+encodeURIComponent(o.token)+'&session_token='+o.getSess()).then(function(r){return r.json()}).then(function(rd){var f=rd.features&&rd.features[0];if(!f)return;var co=f.geometry.coordinates,m=o.getMap();if(m)m.flyTo({center:[co[0],co[1]],zoom:16,duration:800,essential:true});exit();})})})})},300)});};
   window.__vrLpGet=function(){try{return JSON.parse(localStorage.getItem('vr_lp_recent')||'[]');}catch(_){return [];}};
   window.__vrLpAdd=function(n){if(!n)return;var l=window.__vrLpGet().filter(function(x){return x.toLowerCase()!==n.toLowerCase()});l.unshift(n);if(l.length>5)l.length=5;try{localStorage.setItem('vr_lp_recent',JSON.stringify(l));}catch(_){}};
-  window.__vrLpRenderRecent=function(lpD){var w=document.querySelector('[data-vipride-lp-recent]'),lst=document.querySelector('[data-vipride-lp-recent-list]');if(!w||!lst)return;var items=window.__vrLpGet();w.removeAttribute('hidden');if(!items.length){lst.innerHTML='<div class="vipRide__lpRecentEmpty" style="display:flex;align-items:center;gap:12px;padding:16px 8px;opacity:.55"><span style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.35);flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span style="font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.4">'+(window.__vrT?window.__vrT('recentEmpty'):'Your recent places will appear here')+'</span></div>';return;}lst.innerHTML=items.map(function(n){return '<button type="button" class="vipRide__lpRecentItem" data-vr-recent="'+n.replace(/"/g,'&quot;')+'"><span class="vipRide__lpRecentIcon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="vipRide__lpRecentText">'+n+'</span></button>';}).join('');lst.querySelectorAll('.vipRide__lpRecentItem').forEach(function(b){b.addEventListener('click',function(){try{if(navigator.vibrate)navigator.vibrate(10);}catch(_){}if(lpD){lpD.value=b.getAttribute('data-vr-recent');lpD.dispatchEvent(new Event('input',{bubbles:true}));lpD.focus();}});});};
+  window.__vrLpRenderRecent=function(lpD){var w=document.querySelector('[data-vipride-lp-recent]'),lst=document.querySelector('[data-vipride-lp-recent-list]');if(!w||!lst)return;var items=window.__vrLpGet();var _lpEsc=function(s){var d=document.createElement('div');d.appendChild(document.createTextNode(String(s)));return d.innerHTML;};w.removeAttribute('hidden');if(!items.length){lst.innerHTML='<div class="vipRide__lpRecentEmpty" style="display:flex;align-items:center;gap:12px;padding:16px 8px;opacity:.55"><span style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.35);flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span style="font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.4">'+(window.__vrT?window.__vrT('recentEmpty'):'Your recent places will appear here')+'</span></div>';return;}lst.innerHTML=items.map(function(n){return '<button type="button" class="vipRide__lpRecentItem" data-vr-recent="'+_lpEsc(n)+'"><span class="vipRide__lpRecentIcon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="vipRide__lpRecentText">'+_lpEsc(n)+'</span></button>';}).join('');lst.querySelectorAll('.vipRide__lpRecentItem').forEach(function(b){b.addEventListener('click',function(){try{if(navigator.vibrate)navigator.vibrate(10);}catch(_){}if(lpD){lpD.value=b.getAttribute('data-vr-recent');lpD.dispatchEvent(new Event('input',{bubbles:true}));lpD.focus();}});});};
   (function(){if(window.__vrLpBound)return;window.__vrLpBound=1;
     document.addEventListener('DOMContentLoaded',function(){
       var sr=document.querySelector('[data-vipride-lp-saved]');
@@ -4718,18 +4699,7 @@ window.__VR_AIRPORTS = [
 
 </section>
 <script>
-(function(){var e=document.querySelector('meta[name="theme-color"]');if(e)e.setAttribute('content','#080e20');else{var m=document.createElement('meta');m.name='theme-color';m.content='#080e20';document.head.appendChild(m);}var ab=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');if(!ab){var a=document.createElement('meta');a.name='apple-mobile-web-app-status-bar-style';a.content='black-translucent';document.head.appendChild(a);}var vp=document.querySelector('meta[name="viewport"]');if(vp){vp.content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover';}else{var v=document.createElement('meta');v.name='viewport';v.content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover';document.head.appendChild(v);}
-/* Block copy/select/context-menu globally EXCEPT map + inputs */
-var s=document.createElement('style');s.textContent='html,body{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}input,textarea,[contenteditable="true"],.mapboxgl-map,.mapboxgl-map *{-webkit-user-select:auto!important;-moz-user-select:auto!important;-ms-user-select:auto!important;user-select:auto!important;-webkit-touch-callout:default!important}';document.head.appendChild(s);
-document.addEventListener('contextmenu',function(ev){var t=ev.target;if(t&&t.closest&&(t.closest('input')||t.closest('textarea')||t.closest('[contenteditable="true"]')||t.closest('.mapboxgl-map')))return;ev.preventDefault();},{passive:false});
-document.addEventListener('copy',function(ev){var sel=document.getSelection&&document.getSelection();var a=document.activeElement;if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'||a.isContentEditable))return;ev.preventDefault();},{passive:false});
-/* Block pinch-zoom + double-tap-zoom on page (map handles its own gestures) */
-document.addEventListener('gesturestart',function(ev){var t=ev.target;if(t&&t.closest&&t.closest('.mapboxgl-map'))return;ev.preventDefault();},{passive:false});
-document.addEventListener('gesturechange',function(ev){var t=ev.target;if(t&&t.closest&&t.closest('.mapboxgl-map'))return;ev.preventDefault();},{passive:false});
-var _lastTouchEnd=0;document.addEventListener('touchend',function(ev){var now=Date.now();if(now-_lastTouchEnd<=350){var t=ev.target;if(!(t&&t.closest&&t.closest('.mapboxgl-map'))){ev.preventDefault();}}_lastTouchEnd=now;},{passive:false});
-document.addEventListener('wheel',function(ev){if(ev.ctrlKey){var t=ev.target;if(t&&t.closest&&t.closest('.mapboxgl-map'))return;ev.preventDefault();}},{passive:false});
-document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(ev.key==='+'||ev.key==='-'||ev.key==='='||ev.key==='0')){ev.preventDefault();}},{passive:false});
-})();
+(function(){var e=document.querySelector('meta[name="theme-color"]');if(e)e.setAttribute('content','#080e20');else{var m=document.createElement('meta');m.name='theme-color';m.content='#080e20';document.head.appendChild(m);}var ab=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');if(!ab){var a=document.createElement('meta');a.name='apple-mobile-web-app-status-bar-style';a.content='black-translucent';document.head.appendChild(a);}})();
 </script>
 <style id="vr-desktop-bottom-clone">
 @media(min-width:900px){
@@ -5390,6 +5360,7 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
         }).catch(function(){/* Network error — keep card visible, try again next poll */});
     }
     var _schedDriverEmailSent=false;
+    function _escHtml(s){if(s==null)return'';var d=document.createElement('div');d.appendChild(document.createTextNode(String(s)));return d.innerHTML;}
     function renderDriver(d){
       if(!cardEl||!d)return;
       var drEl=cardEl.querySelector('[data-vrsch-driver]');
@@ -5401,8 +5372,8 @@ document.addEventListener('keydown',function(ev){if((ev.ctrlKey||ev.metaKey)&&(e
         var rating=d.driver_rating?('★ '+Number(d.driver_rating).toFixed(1)):'';
         var vehicle=[d.vehicle_make,d.vehicle_model].filter(Boolean).join(' ')||'';
         var plate=d.vehicle_plate?(' · '+d.vehicle_plate):'';
-        if(mEl)mEl.innerHTML=(rating?'<b>'+rating+'</b>':'')+(rating&&vehicle?' · ':'')+(vehicle||'')+plate;
-        if(pEl){if(d.driver_photo_url)pEl.innerHTML='<img src="'+d.driver_photo_url+'" alt="">';else pEl.textContent=(d.driver_name||'?').charAt(0).toUpperCase();}
+        if(mEl)mEl.innerHTML=(rating?'<b>'+_escHtml(rating)+'</b>':'')+(rating&&vehicle?' · ':'')+_escHtml(vehicle)+_escHtml(plate);
+        if(pEl){var _photo=d.driver_photo_url;if(_photo&&/^(https:\/\/|data:image\/)/.test(_photo)){pEl.textContent='';var _im=document.createElement('img');_im.src=_photo;_im.alt='';pEl.appendChild(_im);}else pEl.textContent=(d.driver_name||'?').charAt(0).toUpperCase();}
         /* Update hint */
         var hint=cardEl.querySelector('[data-vrsch-hint]');
         if(hint)hint.textContent='Your driver is confirmed. We\'ll notify you when they\'re on the way.';
@@ -6444,7 +6415,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     setTimeout(function(){t.classList.remove('is-in');t.classList.add('is-out');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t)},400)},3200);
   }
   window.__vipToast=_vrToast;
-  function __vipCheckReturn(){if(_vrLS.get('vip_booking_sent')!=='1')return;_vrLS.del('vip_booking_sent');document.body.style.transition='opacity .4s ease';document.body.style.opacity='0';setTimeout(function(){window.location.href='/'},420);}
+  function __vipCheckReturn(){if(_vrLS.get('vip_booking_sent')!=='1')return;_vrLS.del('vip_booking_sent');document.body.style.transition='opacity .4s ease';document.body.style.opacity='0';setTimeout(function(){window.location.href='./'},420);}
   __vipCheckReturn();
   window.addEventListener('pageshow',function(e){if(e.persisted)__vipCheckReturn()});
   window.addEventListener('visibilitychange',function(){if(!document.hidden)__vipCheckReturn()});
@@ -6522,7 +6493,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
   var _vrGuest=false;
   var _searchAuthModal=root.querySelector('[data-vipride-search-auth-modal]');
   function _mbErr(es,en){var n=Date.now();if(n-_mbErrAt<8e3)return;_mbErrAt=n;_vrToast&&_vrToast(currentLang==='es'?es:en,'err');}
-  function _isLoggedIn(){return typeof __vipAuthCheck==='function'?__vipAuthCheck():(!!_vrLS.get('vr_at')||_vrGuest);}
+  function _isLoggedIn(){return typeof __vipAuthCheck==='function'?__vipAuthCheck():!!_vrLS.get('vr_at');}
   function _showAuthGate(){if(typeof __vipShowGate==='function')__vipShowGate();}
   function showSearchAuthModal(titleText,subText){
     if(!_searchAuthModal)return;
@@ -6687,9 +6658,10 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     removeAddressLabels();
   }
   function updateStepDots(){
+    var idx=currentStep===3?1:0;
     root.querySelectorAll('.vipRide__stepDot').forEach(function(d,i){
-      d.classList.toggle('is-active',i+1===currentStep);
-      d.classList.toggle('is-done',i+1<currentStep);
+      d.classList.toggle('is-active',i===idx);
+      d.classList.toggle('is-done',i<idx);
     });
   }
   if(step1NextBtn)step1NextBtn.addEventListener('click',function(){
@@ -7162,8 +7134,8 @@ pickupPlace={label:pName,lat:pLat,lng:pLng};
 dropoffPlace={label:dName,lat:dLat,lng:dLng};
 setMarker('pickup',pLat,pLng);
 setMarker('dropoff',dLat,dLng);
-if(_dtD&&/^\d{4}-\d{2}-\d{2}$/.test(_dtD)&&dateEl)dateEl.value=_dtD;
-if(_dtT&&/^\d{2}:\d{2}$/.test(_dtT)&&timeEl)timeEl.value=_dtT;
+if(_dtD&&/^\d{4}-\d{2}-\d{2}$/.test(_dtD)&&dateEl){var _nw0=new Date();var _tdy0=_nw0.getFullYear()+'-'+('0'+(_nw0.getMonth()+1)).slice(-2)+'-'+('0'+_nw0.getDate()).slice(-2);if(_dtD>=_tdy0)dateEl.value=_dtD;}
+if(_dtT&&/^\d{2}:\d{2}$/.test(_dtT)&&timeEl){var _nw1=new Date();var _tdy1=_nw1.getFullYear()+'-'+('0'+(_nw1.getMonth()+1)).slice(-2)+'-'+('0'+_nw1.getDate()).slice(-2);var _hm1=('0'+_nw1.getHours()).slice(-2)+':'+('0'+_nw1.getMinutes()).slice(-2);if(!((dateEl&&dateEl.value||_tdy1)===_tdy1&&_dtT<=_hm1))timeEl.value=_dtT;}
 if(typeof pad2==='function'){
 if(dateEl&&!dateEl.value){var _nw=new Date();dateEl.value=_nw.getFullYear()+'-'+pad2(_nw.getMonth()+1)+'-'+pad2(_nw.getDate());}
 if(timeEl&&!timeEl.value){var _nx=roundUpToStep(new Date(),15);_nx.setMinutes(_nx.getMinutes()+60);timeEl.value=pad2(_nx.getHours())+':'+pad2(_nx.getMinutes());}
@@ -7220,9 +7192,9 @@ setTimeout(_vrPfKick,1200);
       if(st.m==='hourly'&&st.h){currentHours=Math.max(MIN_HOURS,Math.min(MAX_HOURS,Number(st.h)||MIN_HOURS));updateHoursDisplay();}
       if(st.p&&isFinite(st.p.lat)&&isFinite(st.p.lng)){_pickupManuallySet=true;_gpsActive=false;pickupPlace=st.p;if(pickupEl)pickupEl.value=st.pv||st.p.label||'';setMarker('pickup',st.p.lat,st.p.lng);}
       if(st.d&&isFinite(st.d.lat)&&isFinite(st.d.lng)){dropoffPlace=st.d;if(dropoffEl)dropoffEl.value=st.dv||st.d.label||'';setMarker('dropoff',st.d.lat,st.d.lng);}
-      var _tdy=new Date(),_iso=_tdy.getFullYear()+'-'+pad2(_tdy.getMonth()+1)+'-'+pad2(_tdy.getDate());
+      var _tdy=new Date(),_iso=_tdy.getFullYear()+'-'+pad2(_tdy.getMonth()+1)+'-'+pad2(_tdy.getDate()),_hm=pad2(_tdy.getHours())+':'+pad2(_tdy.getMinutes());
       if(st.dt&&st.dt>=_iso&&dateEl)dateEl.value=st.dt;
-      if(st.tm&&timeEl)timeEl.value=st.tm;
+      if(st.tm&&timeEl&&!((dateEl&&dateEl.value||_iso)===_iso&&st.tm<=_hm))timeEl.value=st.tm;
       if(st.s===3&&pickupPlace&&(dropoffPlace||st.m==='hourly')&&currentStep===1)goToStep(3,'forward');
       afterInputChange();
       /* Al recargar con recogida pero SIN destino nadie movía la cámara: el mapa
@@ -7534,7 +7506,7 @@ setTimeout(_vrPfKick,1200);
       if(currentMode==='hourly'){props['Hours']=currentHours;props['Service Type']='Hourly Chauffeur Service'}else props.Dropoff=dropoff;
       var res=await fetch('/cart/add.js',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:variantId,quantity:quantity,properties:props})});
       if(!res.ok){var err=await res.json().catch(function(){return{}});throw new Error(err.description||'add to cart failed');}
-      window.location.href='/checkout';
+      window.location.href='book.html';
     }catch(err){console.error('[VIP Ride]',err);_vrToast(t('checkout')+': '+err.message,'err');triggerBtn.textContent=savedText;triggerBtn.disabled=false;if(ctaBtn)ctaBtn.disabled=false;if(checkoutBtn)checkoutBtn.disabled=false;validateCTA(selectedRide);}}
   dateEl.addEventListener('change',function(){
     var today=new Date(),ts=today.getFullYear()+'-'+pad2(today.getMonth()+1)+'-'+pad2(today.getDate());
@@ -7994,8 +7966,6 @@ setTimeout(_vrPfKick,1200);
       attachAutocomplete(pickupEl,'pickup');
       if(dropoffEl) attachAutocomplete(dropoffEl,'dropoff');
       setClearVisibility(); validateCTA(null);
-      var metaVP=document.querySelector('meta[name="viewport"]');
-      if(metaVP){var orig=metaVP.getAttribute('content')||'';metaVP.setAttribute('content',orig.replace(/,?\s*(maximum|minimum)-scale=[^,]*/gi,'').replace(/,?\s*user-scalable=[^,]*/gi,'').trim()+', maximum-scale=1.0, user-scalable=no');}
     }catch(err){console.error('[VIP Ride]',err);}
   }
   initMapbox();
@@ -8673,7 +8643,7 @@ setTimeout(_vrPfKick,1200);
       fetch(_apiBase+'/payments/web/create-intent',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+_webKey},
-        body:JSON.stringify({amount:d.cents,currency:'usd',description:'Cruise '+d.vehicle+' Ride',metadata:d.metadata,quote_token:d.quote_token})
+        body:JSON.stringify({amount:d.cents,currency:'usd',description:'Cruise '+d.vehicle+' Ride',metadata:d.metadata,quote_token:d.quote_token,user_token:(typeof __vipAuthToken==='function'?__vipAuthToken():null)||_vrLS.get('vr_at')||null})
       })
       .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
       .then(function(data){
@@ -8756,7 +8726,7 @@ setTimeout(_vrPfKick,1200);
       _payClientSecret=null;_pendingPaymentIntentId=null;
       var d=_getRideData();
       if(d.cents<=0){_vrToast(t('priceError'),'err');_payBusy=false;return;}
-      if(!_payReq||!_payReqAvailable){_payBusy=false;_payWithCheckout();return;}
+      if(!_payReq||!_payReqAvailable){_payBusy=false;if(_cardPm&&_stripe){_payWithCardElement();}else{_vrToast(currentLang==='es'?'No se pudo cargar el pago con tarjeta':'Card payment could not be loaded','err');}return;}
       _requestBtn.disabled=true;_requestBtn.textContent=t('processing');
       var _lbl='Cruise '+d.vehicle+' Ride',_dispItems=[];
       if(d.metadata.pickup){var _pu=d.metadata.pickup.length>34?d.metadata.pickup.substring(0,34)+'…':d.metadata.pickup;_dispItems.push({label:t('from')+_pu,amount:0});}
@@ -8772,39 +8742,14 @@ setTimeout(_vrPfKick,1200);
         total:{label:_lbl,amount:d.cents},
         displayItems:_dispItems
       });
-      try{_payReq.show();}catch(e){_payBusy=false;_payWithCheckout();return;}
       fetch(_apiBase+'/payments/web/create-intent',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+_webKey},
-        body:JSON.stringify({amount:d.cents,currency:'usd',description:'Cruise '+d.vehicle+' Ride',metadata:d.metadata,quote_token:d.quote_token})
+        body:JSON.stringify({amount:d.cents,currency:'usd',description:'Cruise '+d.vehicle+' Ride',metadata:d.metadata,quote_token:d.quote_token,user_token:(typeof __vipAuthToken==='function'?__vipAuthToken():null)||_vrLS.get('vr_at')||null})
       })
       .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-      .then(function(data){if(!data.client_secret)throw new Error(data.detail||'Intent error');_payClientSecret=data.client_secret;})
+      .then(function(data){if(!data.client_secret)throw new Error(data.detail||'Intent error');_payClientSecret=data.client_secret;try{_payReq.show();}catch(e){_payBusy=false;_payClientSecret=null;_payFailed({message:t('paymentError')});}})
       .catch(function(e){_payBusy=false;_payFailed(e||{message:t('paymentError')});_requestBtn.disabled=false;_requestBtn.textContent=t('requestRide');});
-    }
-    function _payWithCheckout(){
-      if(_payBusy)return;
-      _payBusy=true;
-      var d=_getRideData();
-      if(d.cents<=0){_vrToast(t('priceError'),'err');_payBusy=false;return;}
-      _requestBtn.disabled=true;_requestBtn.textContent=t('processing');
-      fetch(_apiBase+'/payments/web/checkout',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+_webKey},
-        body:JSON.stringify({
-          amount:d.cents,currency:'usd',
-          description:'Cruise '+d.vehicle+' Ride',
-          success_url:window.location.origin+'/pages/booking-confirmed?session_id={CHECKOUT_SESSION_ID}',
-          cancel_url:window.location.href,
-          metadata:d.metadata,quote_token:d.quote_token
-        })
-      })
-      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-      .then(function(data){
-        if(data.url)window.location.href=data.url;
-        else{_payBusy=false;_payFailed({message:data.detail||'Payment error',code:data.code||'decline'});_requestBtn.disabled=false;_requestBtn.textContent=t('requestRide');}
-      })
-      .catch(function(){_payBusy=false;_vrToast(t('connectionError'),'err');_requestBtn.disabled=false;_requestBtn.textContent=t('requestRide');});
     }
     var _VR_SB_URL='https://elvszwazwvpgqvnzxwnq.supabase.co';
     var _VR_SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsdnN6d2F6d3ZwZ3F2bnp4d25xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTEzMzMsImV4cCI6MjA5MDc2NzMzM30.EhrXsgSF7nK2jvebOgO4mvzJSqGXJ0Je6j2vi9ZvMX4';
@@ -9287,7 +9232,8 @@ setTimeout(_vrPfKick,1200);
         } else if((_selectedPayment==='apple_pay'||_selectedPayment==='google_pay') && _stripe){
           _payWithNativeSheet();
         } else {
-          _payWithCheckout();
+          if(_cardPm&&_stripe){_payWithCardElement();}
+          else{_vrToast(currentLang==='es'?'No se pudo cargar el pago con tarjeta':'Card payment could not be loaded','err');}
         }
       });
     }
@@ -9295,22 +9241,13 @@ setTimeout(_vrPfKick,1200);
     _vrLS.del('vr_guest');
     window.__vipAuth={apiBase:_apiBase,webKey:_webKey,root:root,step1NextBtn:step1NextBtn};
     var _vrPostAuth=null;
-    var _gb=document.querySelector('[data-vipride-auth-guest]');
-    if(_gb) _gb.addEventListener('click',function(e){
-      e.preventDefault();e.stopPropagation();
-      _vrGuest=true;
-      var g=document.querySelector('[data-vipride-auth-gate]');
-      if(g){g.removeAttribute('data-visible');setTimeout(function(){g.setAttribute('hidden','');},360);}
-      _vrTrack('guest_continue');
-      if(_vrPostAuth==='pay'){_vrPostAuth=null;setTimeout(_openPayOverlay,400);}
-    });
     document.addEventListener('click',function(e){
       var gate=document.querySelector('[data-vipride-auth-gate][data-visible]');
       if(!gate)return;
       var el=e.target.closest('a[href*="/account"],a[href*="/login"],a[href="/cart"],[aria-label*="account" i],[aria-label*="sign in" i],[aria-label*="cart" i]');
       if(!el||el.closest('.vipRide'))return;
       e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-      location.href='/cart';
+      location.href='book.html';
     },true);
     window.__vipAuthGoogleId='327489857657-k8kb26jbrj2kh33mmlbfogjmfm47cvqs.apps.googleusercontent.com';
     window.__vipAuthAppleId='com.cruiseinride.web';
@@ -11828,6 +11765,6 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
   window.addEventListener('load',function(){grow(400);setTimeout(function(){grow(300);},1200);});
 })();
 </script>
-<script src="assets/account.js?v=20260815g" defer></script>
+<script src="assets/account.js?v=20260816a" defer></script>
 </body>
 </html>

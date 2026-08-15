@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign in — CruiseInRide</title>
 <meta name="description" content="Sign in or create your CruiseInRide account to save your trips and unlock your discount.">
 <!-- vista previa al compartir el enlace: tarjeta con fondo negro -->
@@ -474,24 +474,6 @@
   .cruise-auth__avatar-edit{background:#17191f;border:2px solid #d4af37;}
 </style>
 
-<!-- cir-shield: sin zoom, sin seleccionar/copiar texto ni imagenes (los campos de escribir siguen normales) -->
-<style>
-body{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
-input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;-moz-user-select:text;user-select:text}
-img,video{-webkit-user-drag:none}
-</style>
-<script>
-(function(){
-  function inField(e){var t=e.target;return t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)}
-  document.addEventListener('contextmenu',function(e){e.preventDefault()});
-  document.addEventListener('dragstart',function(e){e.preventDefault()});
-  document.addEventListener('copy',function(e){if(!inField(e))e.preventDefault()});
-  document.addEventListener('cut',function(e){if(!inField(e))e.preventDefault()});
-  addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault()},{passive:false});
-  addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&(e.key==='+'||e.key==='-'||e.key==='='||e.key==='0'))e.preventDefault()});
-  ['gesturestart','gesturechange','gestureend'].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault()})});
-})();
-</script>
 <!-- sesion: la cabecera no puede parpadear como "sin sesion" al refrescar -->
 <style>html.cir-authed .ch-login,html.cir-authed .ch-signup{display:none!important}</style>
 <script>try{if(localStorage.getItem('vr_at'))document.documentElement.classList.add('cir-authed')}catch(_){}</script>
@@ -897,13 +879,27 @@ img,video{-webkit-user-drag:none}
   var $=function(s,c){return (c||root).querySelector(s);};
   var $$=function(s,c){return Array.from((c||root).querySelectorAll(s));};
 
+  /* escapa texto antes de meterlo en innerHTML (datos del backend o del usuario) */
+  function esc(s){return String(s==null?'':s).replace(/[<>&"']/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c];});}
+
   function _token(){try{return localStorage.getItem('vr_at')||'';}catch(_){return'';}}
   function _user(){try{var u=localStorage.getItem('vr_au');return u?JSON.parse(u):null;}catch(_){return null;}}
   function _save(t,u){try{localStorage.setItem('vr_at',t);localStorage.setItem('vr_au',JSON.stringify(u));localStorage.removeItem('vr_photo_local');}catch(_){}}
   function _clear(){try{localStorage.removeItem('vr_at');localStorage.removeItem('vr_au');localStorage.removeItem('vr_photo_local');}catch(_){}}
+  /* logout: barre TODAS las claves propias (vr_/ca_/cp_) de ambos storages */
+  function _wipeAll(){try{
+    [localStorage,sessionStorage].forEach(function(st){
+      var ks=[];for(var i=0;i<st.length;i++){var k=st.key(i);if(k&&/^(vr_|ca_|cp_)/.test(k))ks.push(k);}
+      ks.forEach(function(k){st.removeItem(k);});
+    });
+  }catch(_){}}
+  /* ?return= solo si es una ruta local segura (sin '://', sin '//' inicial) */
+  function _safeReturn(v){return (v&&v.indexOf('://')<0&&v.indexOf('//')!==0&&/^[A-Za-z0-9.\-_/?&=%]+$/.test(v))?v:'';}
   /* Con sesión iniciada esta página no muestra su perfil embebido (copia vieja
      que además deja el header con "Log in"): manda a la cuenta real. */
-  function _toAccount(){try{_caClear();}catch(_){}location.replace('account');}
+  function _toAccount(){try{_caClear();}catch(_){}
+    var r='';try{r=_safeReturn(new URLSearchParams(location.search).get('return')||'');}catch(_){}
+    location.replace(r||'account');}
 
   var toastEl=$('[data-ca-toast]'),toastT=null;
   function _toast(msg,type){
@@ -1142,8 +1138,7 @@ img,video{-webkit-user-drag:none}
   function _knownName(v){
     var u=_user();
     if(u&&(u.first_name||u.name)) return (u.first_name||u.name).split(' ')[0];
-    var NAMES={'josmash2021@gmail.com':'Jhon'};
-    return NAMES[(v||'').toLowerCase()]||'';
+    return '';
   }
 
   function _updateOtpTexts(){
@@ -1192,11 +1187,8 @@ img,video{-webkit-user-drag:none}
   /* Respuesta real de /auth/web/check-exists (true/false); null = sin respuesta */
   var _existsKnown=null;
   function _isExistingIdentifier(v){
-    if(_existsKnown!==null) return _existsKnown;
-    /* Respaldo solo si el backend no contestó */
-    if(v==='josmash2021@gmail.com') return true;
-    var phone=(v||'').replace(/\D/g,'');
-    return phone.slice(-4)==='7840';
+    /* Si el backend no contestó, comportamiento neutro: ir a registro sin saludo con nombre */
+    return _existsKnown===true;
   }
 
   if(otpDigits.length){
@@ -1332,7 +1324,7 @@ img,video{-webkit-user-drag:none}
     var fn=_firstNameFromId();
     var name=fn;
     if(pwTitle) pwTitle.textContent='Welcome back, '+fn+'.';
-    if(pwSub) pwSub.innerHTML='<button type="button" class="cruise-auth__link cruise-auth__link--text" data-ca-pw-switch>Not '+name+'?</button>';
+    if(pwSub) pwSub.innerHTML='<button type="button" class="cruise-auth__link cruise-auth__link--text" data-ca-pw-switch>Not '+esc(name)+'?</button>';
     var sw=$('[data-ca-pw-switch]');
     if(sw) sw.addEventListener('click',function(){_go('identifier');});
   }
@@ -1610,7 +1602,7 @@ img,video{-webkit-user-drag:none}
       var status=(t.status||'').replace(/_/g,' ');
       var statusClass=(t.status||'').replace(/_/g,'-');
       var time=d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
-      c.innerHTML='<div class="cruise-auth__trip-top"><span>'+ds+' · '+time+'</span><span class="cruise-auth__trip-fare">'+fare+'</span></div><div class="cruise-auth__trip-route"><span class="cruise-auth__trip-dot cruise-auth__trip-dot--g"></span><span>'+(t.pickup_address||'Pickup')+'</span></div><div class="cruise-auth__trip-route"><span class="cruise-auth__trip-dot cruise-auth__trip-dot--y"></span><span>'+(t.dropoff_address||'Dropoff')+'</span></div><div class="cruise-auth__trip-status cruise-auth__trip-status--'+statusClass+'">'+status+'</div>';
+      c.innerHTML='<div class="cruise-auth__trip-top"><span>'+ds+' · '+time+'</span><span class="cruise-auth__trip-fare">'+fare+'</span></div><div class="cruise-auth__trip-route"><span class="cruise-auth__trip-dot cruise-auth__trip-dot--g"></span><span>'+esc(t.pickup_address||'Pickup')+'</span></div><div class="cruise-auth__trip-route"><span class="cruise-auth__trip-dot cruise-auth__trip-dot--y"></span><span>'+esc(t.dropoff_address||'Dropoff')+'</span></div><div class="cruise-auth__trip-status cruise-auth__trip-status--'+esc(statusClass)+'">'+esc(status)+'</div>';
       el.appendChild(c);
       requestAnimationFrame(function(){requestAnimationFrame(function(){c.style.opacity='1';c.style.transform='translateY(0)';});});
     });
@@ -1796,7 +1788,7 @@ img,video{-webkit-user-drag:none}
   });
 
   $('[data-ca-signout]').addEventListener('click',function(){
-    _clear();_profile=null;_tripsCache=null;
+    _clear();_wipeAll();_profile=null;_tripsCache=null;
     _toast('Signed out','ok');
     _currentScreen='profile';
     setTimeout(function(){
@@ -1810,7 +1802,7 @@ img,video{-webkit-user-drag:none}
   });
 
   /* ═══ persistencia: recargar NO reinicia el asistente ═══
-     Lo escrito (correo/teléfono, nombre, contraseña, método) y la pantalla
+     Lo escrito (correo/teléfono, nombre, método) y la pantalla
      actual se guardan en sessionStorage (solo esta pestaña; caduca a los
      30 min o al cerrarla). Las pantallas con código temporal (otp/clave)
      vuelven al paso seguro anterior con los datos ya puestos:
@@ -1819,7 +1811,7 @@ img,video{-webkit-user-drag:none}
   function _caSave(){try{
     sessionStorage.setItem(_CA_ST,JSON.stringify({s:_currentScreen,id:_identifier,it:_idType,
       iv:idInput?idInput.value:'',fn:regFn?regFn.value:'',ln:regLn?regLn.value:'',
-      pw:regPw?regPw.value:'',sm:_secMethod,ex:_existsKnown,ts:Date.now()}));
+      sm:_secMethod,ex:_existsKnown,ts:Date.now()}));
   }catch(_){}}
   function _caClear(){try{sessionStorage.removeItem(_CA_ST);}catch(_){}}
   var _goBase=_go;
@@ -1829,7 +1821,7 @@ img,video{-webkit-user-drag:none}
     var raw=sessionStorage.getItem(_CA_ST);if(!raw)return;
     var st=JSON.parse(raw)||{};
     if(!st.ts||Date.now()-st.ts>1800000){_caClear();return;}
-    [[idInput,st.iv],[regFn,st.fn],[regLn,st.ln],[regPw,st.pw]].forEach(function(p){
+    [[idInput,st.iv],[regFn,st.fn],[regLn,st.ln]].forEach(function(p){
       if(p[0]&&p[1]){p[0].value=p[1];try{p[0].dispatchEvent(new Event('input',{bubbles:true}));}catch(_){}}
     });
     if(st.id){_identifier=st.id;_idType=st.it||_getIdType(st.id);}
@@ -2021,6 +2013,6 @@ main{overflow:hidden!important}
 })();
 </script>
 <a class="wa-fab" href="https://wa.me/16593052974" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
-<script src="../assets/account.js?v=20260815g" defer></script>
+<script src="../assets/account.js?v=20260816a" defer></script>
 </body>
 </html>

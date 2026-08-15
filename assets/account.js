@@ -37,9 +37,15 @@
   /* La copia local (vr_photo_local) manda: la deja la subida más reciente hecha
      en este navegador, con cache-buster, así el cambio se ve al instante aunque
      el backend devuelva siempre la misma URL (que el navegador cachea). */
+  /* Solo se aceptan URLs https:// o data:image/: cualquier otra cosa que llegue
+     del backend o de localStorage se descarta y se muestran las iniciales. */
+  function safePhoto(p) {
+    p = String(p || '');
+    return (/^https:\/\//i.test(p) || /^data:image\//i.test(p)) ? p : '';
+  }
   function photoOf(u) {
-    try { var l = localStorage.getItem('vr_photo_local'); if (l) return l; } catch (_) {}
-    return (u && (u.photo_url || u.avatar_url || u.photo)) || '';
+    try { var l = localStorage.getItem('vr_photo_local'); if (l) return safePhoto(l); } catch (_) {}
+    return safePhoto(u && (u.photo_url || u.avatar_url || u.photo));
   }
   function token() {
     try { return localStorage.getItem('vr_at') || ''; } catch (_) { return ''; }
@@ -128,7 +134,7 @@
   /* ─────────────────────────── panel ─────────────────────────── */
   function buildPanel(u) {
     var photo = photoOf(u);
-    var face = photo ? '<img src="' + photo + '" alt="">' : initial(u);
+    var face = photo ? '<img src="' + esc(photo) + '" alt="">' : initial(u);
     return ''
       + '<div class="cam-panel" data-cam-panel role="menu">'
       + '  <div class="cam-head">'
@@ -140,9 +146,7 @@
       + '    <a class="cam-tile" href="' + BASE + 'wallet">' + ICO.wallet + T.wallet + '</a>'
       + '    <a class="cam-tile" href="' + BASE + 'profile">' + ICO.activity + T.activity + '</a>'
       + '  </div>'
-      + '  <div class="cam-cash"><span>' + T.cash + '</span><b data-cam-balance>$0.00</b></div>'
       + '  <a class="cam-row" href="' + BASE + 'account">' + ICO.manage + T.manage + '</a>'
-      + '  <button type="button" class="cam-row" data-cam-promos>' + ICO.promos + T.promos + '</button>'
       + '  <a class="cam-row" href="' + BASE + 'account#legal">' + ICO.legal + T.legal + '</a>'
       + '  <button type="button" class="cam-out" data-cam-signout>' + T.signout + '</button>'
       + '</div>';
@@ -190,7 +194,7 @@
       /* pastilla Actividad (escritorio), como la referencia */
       + '<a class="cam-activity" href="' + BASE + 'profile"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z"/></svg>' + T.activity + '</a>'
       + '<button type="button" class="cam-avatar" data-cam-toggle aria-haspopup="true" aria-expanded="false" aria-label="' + T.account + '">'
-      + (photo ? '<img src="' + photo + '" alt="">' : initial(u))
+      + (photo ? '<img src="' + esc(photo) + '" alt="">' : initial(u))
       + '</button>'
       /* flechita que también abre el panel */
       + '<button type="button" class="cam-chevbtn" data-cam-chev aria-label="' + T.account + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>'
@@ -247,11 +251,15 @@
 
     var signout = panel.querySelector('[data-cam-signout]');
     if (signout) signout.addEventListener('click', function () {
+      /* cierra todo rastro de la sesión: cualquier clave vr_* (vr_at, vr_au,
+         vr_photo_local, vr_promo, vr_active_booking, etc.) */
       try {
-        localStorage.removeItem('vr_at');
-        localStorage.removeItem('vr_au');
-        localStorage.removeItem('vr_active_booking');
-        localStorage.removeItem('vr_photo_local');
+        var del = [];
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (k && k.indexOf('vr_') === 0) del.push(k);
+        }
+        del.forEach(function (k) { localStorage.removeItem(k); });
       } catch (_) {}
       location.href = BASE || './';
     });
