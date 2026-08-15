@@ -888,7 +888,7 @@
     });
   }catch(_){}}
   /* ?return= solo si es una ruta local segura (sin '://', sin '//' inicial) */
-  function _safeReturn(v){return (v&&v.indexOf('://')<0&&v.indexOf('//')!==0&&/^[A-Za-z0-9.\-_/?&=%]+$/.test(v))?v:'';}
+  function _safeReturn(v){return (v&&v.indexOf('://')<0&&v.indexOf('//')!==0&&/^[A-Za-z0-9.\-_/?&=%#]+$/.test(v))?v:'';}
   /* Con sesión iniciada esta página no muestra su perfil embebido (copia vieja
      que además deja el header con "Log in"): manda a la cuenta real. */
   function _toAccount(){try{_caClear();}catch(_){}
