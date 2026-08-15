@@ -114,7 +114,7 @@
     + '.cam-avatar:hover{border-color:rgba(212,175,55,.8)}'
     + '.cam-avatar img{width:100%;height:100%;object-fit:cover}'
     + '.cam-wrap{position:relative;display:flex;align-items:center}'
-    + '.cam-panel{position:absolute;top:calc(100% + 10px);right:0;width:300px;max-width:calc(100vw - 24px);background:#0e1116;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;z-index:9000;opacity:0;visibility:hidden;transform:translateY(-6px);transform-origin:top right;transition:opacity 160ms ease,transform 180ms ease,visibility 160ms;box-shadow:0 18px 44px rgba(0,0,0,.55);font-family:Inter,system-ui,sans-serif}'
+    + '.cam-panel{position:fixed;top:72px;right:12px;width:300px;max-width:calc(100vw - 24px);background:#0e1116;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;z-index:9000;opacity:0;visibility:hidden;transform:translateY(-10px);transform-origin:top right;transition:opacity 280ms ease,transform 300ms cubic-bezier(.22,.61,.36,1),visibility 300ms;box-shadow:0 18px 44px rgba(0,0,0,.55);font-family:Inter,system-ui,sans-serif}'
     + '.cam-panel.is-open{opacity:1;visibility:visible;transform:none}'
     + '.cam-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}'
     + '.cam-name{margin:0;font:700 18px/1.2 Cinzel,Georgia,serif;color:#fff;letter-spacing:.2px;word-break:break-word}'
@@ -156,7 +156,7 @@
     + '.cam-chevbtn:hover{color:#f5d77a}'
     + '@media (max-width:768px){.cam-activity,.cam-chevbtn{display:none}}'
     /* panel a pantalla completa (menú de las 3 rayitas en reservar) */
-    + '.cam-panel.is-full{position:fixed;inset:0;top:0;bottom:0;left:0;right:0;width:auto;max-width:none;height:100dvh;border-radius:0;transform:none;overflow-y:auto;z-index:99999;padding:26px 22px 34px}'
+    + '.cam-panel.is-full{position:fixed;inset:0;top:0;bottom:0;left:0;right:0;width:auto;max-width:none;height:100dvh;border-radius:0;transform:translateY(-10px);overflow-y:auto;z-index:99999;padding:26px 22px 34px}'
     + '.cam-close{position:absolute;top:18px;right:18px;width:40px;height:40px;border-radius:50%;background:none;border:1px solid rgba(255,255,255,.15);color:#fff;font:600 16px/1 Inter,system-ui,sans-serif;cursor:pointer;display:none;align-items:center;justify-content:center}'
     + '.cam-panel.is-full .cam-close{display:flex}';
 
@@ -257,6 +257,18 @@
     var promo = document.querySelector('[data-cam-promo]');
 
     function open(v) {
+      if (v) {
+        /* position:fixed anclado al avatar: se calcula una sola vez al abrir,
+           así el panel nunca "salta" si la página se mueve debajo; en móvil
+           (sábana inferior) y en pantalla completa manda el CSS */
+        if (panel.classList.contains('is-full') || window.innerWidth <= 520) {
+          panel.style.top = ''; panel.style.right = '';
+        } else {
+          var r = toggle.getBoundingClientRect();
+          panel.style.top = (r.bottom + 10) + 'px';
+          panel.style.right = Math.max(12, window.innerWidth - r.right) + 'px';
+        }
+      }
       panel.classList.toggle('is-open', v);
       if (!v) panel.classList.remove('is-full');
       toggle.setAttribute('aria-expanded', v ? 'true' : 'false');
@@ -295,6 +307,15 @@
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') { open(false); if (promo) promo.classList.remove('is-open'); }
     });
+    /* al scrollear la página el panel se cierra con su animación de salida;
+       el scroll dentro del propio panel (modo pantalla completa) no lo cierra,
+       y al redimensionar/girar se cierra para no quedar mal posicionado */
+    addEventListener('scroll', function (e) {
+      if (!panel.classList.contains('is-open')) return;
+      if (e.target && e.target.nodeType === 1 && panel.contains(e.target)) return;
+      open(false);
+    }, { passive: true, capture: true });
+    addEventListener('resize', function () { open(false); }, { passive: true });
 
     var signout = panel.querySelector('[data-cam-signout]');
     if (signout) signout.addEventListener('click', function () {
