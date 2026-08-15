@@ -1437,17 +1437,14 @@ window.__vrPayFailedShow=function(err,lang){
     });});
     setTimeout(function(){overlay.style.clipPath='';overlay.style.webkitClipPath='';overlay.style.transition='';},760);
   };
-  /* Reverse iris — circle contracts back to center */
+  /* Cierre con fundido propio de la hoja (lpOut/laterOut). El iris inverso
+     (clip-path circle) dibujaba un disco negro gigante sobre el mapa durante
+     la transición (el overlay es opaco a pantalla completa) y podía flashear
+     al limpiar el clip-path antes de ocultar. */
   window.__vrMorphClose=function(overlay,done){
-    var cx=innerWidth/2,cy=innerHeight/2,mR=Math.hypot(cx,cy);
-    overlay.style.clipPath='circle('+mR+'px at '+cx+'px '+cy+'px)';
-    overlay.style.webkitClipPath='circle('+mR+'px at '+cx+'px '+cy+'px)';
-    overlay.style.transition='clip-path 520ms cubic-bezier(.33,1,.68,1),-webkit-clip-path 520ms cubic-bezier(.33,1,.68,1)';
-    requestAnimationFrame(function(){requestAnimationFrame(function(){
-      overlay.style.clipPath='circle(0 at '+cx+'px '+cy+'px)';
-      overlay.style.webkitClipPath='circle(0 at '+cx+'px '+cy+'px)';
-    });});
-    setTimeout(function(){overlay.style.clipPath='';overlay.style.webkitClipPath='';overlay.style.transition='';if(done)done();},540);
+    overlay.style.clipPath='';overlay.style.webkitClipPath='';overlay.style.transition='';
+    overlay.classList.add('is-closing');
+    setTimeout(function(){overlay.classList.remove('is-closing');if(done)done();},380);
   };
 })();
 </script>
@@ -11705,6 +11702,6 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
   window.addEventListener('load',function(){grow(400);setTimeout(function(){grow(300);},1200);});
 })();
 </script>
-<script src="assets/account.js?v=20260816b" defer></script>
+<script src="assets/account.js?v=20260816c" defer></script>
 </body>
 </html>

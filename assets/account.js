@@ -22,6 +22,15 @@
   ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (n) {
     document.addEventListener(n, function (e) { e.preventDefault(); });
   });
+  /* Pinch-zoom en teléfonos: iOS ignora el user-scalable=no del viewport y
+     Android a veces deja pasar el primer toque — se corta cualquier gesto de
+     dos dedos (tocar y mover). Un dedo solo sigue funcionando normal. */
+  document.addEventListener('touchstart', function (e) {
+    if (e.touches && e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+  document.addEventListener('touchmove', function (e) {
+    if (e.touches && e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
   document.addEventListener('keydown', function (e) {
     var c = e.ctrlKey || e.metaKey;
     if (c && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')) { e.preventDefault(); return; }
