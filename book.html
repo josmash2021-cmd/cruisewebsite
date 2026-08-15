@@ -430,14 +430,14 @@ html.vr-booting-out .cruise-header{animation:vrBootIn .4s cubic-bezier(.22,1,.36
             <span class="vipRide__payLabel" data-vipride-pay-card>Credit or debit card</span>
             <span class="vipRide__payCheck" aria-hidden="true"></span>
           </button>
-          <button type="button" class="vipRide__payOption" data-vipride-pay-option="apple_pay">
+          <button type="button" class="vipRide__payOption" data-vipride-pay-option="apple_pay" hidden>
             <span class="vipRide__payIcon" style="background:#000;display:flex;align-items:center;justify-content:center">
               <svg viewBox="0 0 20 20" fill="#fff" preserveAspectRatio="xMidYMid meet"><path d="M14.54 10.94c-.02-1.7 1.39-2.52 1.45-2.56-.79-1.16-2.02-1.32-2.46-1.34-1.04-.1-2.04.62-2.57.62-.54 0-1.36-.6-2.23-.59-1.15.02-2.2.67-2.79 1.7-1.2 2.07-.31 5.13.85 6.81.57.82 1.24 1.74 2.13 1.71.86-.04 1.18-.55 2.21-.55s1.33.55 2.23.53c.92-.01 1.51-.84 2.07-1.67.65-.96.92-1.88.94-1.93-.02-.01-1.81-.69-1.83-2.73zM12.79 5.82c.47-.57.79-1.37.7-2.16-.68.03-1.5.45-1.99 1.03-.43.5-.82 1.31-.72 2.08.76.06 1.54-.39 2.01-.95z"/></svg>
             </span>
             <span class="vipRide__payLabel" data-vipride-pay-apple>Apple Pay</span>
             <span class="vipRide__payCheck" aria-hidden="true"></span>
           </button>
-          <button type="button" class="vipRide__payOption" data-vipride-pay-option="google_pay">
+          <button type="button" class="vipRide__payOption" data-vipride-pay-option="google_pay" hidden>
             <span class="vipRide__payIcon" style="background:#fff;border:1px solid #e4e4e4">
               <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09A6.97 6.97 0 015.5 12c0-.72.12-1.42.34-2.09V7.07H2.18A11.96 11.96 0 001 12c0 1.94.46 3.77 1.18 5.42l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
             </span>
@@ -446,8 +446,8 @@ html.vr-booting-out .cruise-header{animation:vrBootIn .4s cubic-bezier(.22,1,.36
           </button>
           <!-- PROVISIONAL — quitar cuando terminen las pruebas.
                Salta el cobro y crea la reserva igualmente, así que se despacha
-               un chófer de verdad. Oculto salvo que se active a propósito
-               (ver _vrTestMode más abajo): en la web pública sería viaje gratis
+               un chófer de verdad. Solo la ve la cuenta del dueño
+               (ver _vrTestAllowed más abajo): en la web pública sería viaje gratis
                para cualquiera. -->
           <button type="button" class="vipRide__payOption vipRide__payOption--test" data-vipride-pay-option="test_mode" data-vipride-pay-test hidden>
             <span class="vipRide__payIcon" style="background:#2a2f3a;display:flex;align-items:center;justify-content:center">
@@ -4818,8 +4818,6 @@ window.__VR_AIRPORTS = [
   html body:has(.vipRide__authPage[data-visible]) #vrDeskBar{display:none!important}
   html body .vipRide__payOverlay:not([hidden]),
   html body .vipRide__scheduleOverlay:not([hidden]){position:fixed!important;inset:0!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:40px 20px!important;background:rgba(0,0,0,.72)!important;backdrop-filter:blur(28px)!important;-webkit-backdrop-filter:blur(28px)!important;overflow-y:auto!important}
-  html body .vipRide__payOption[data-vipride-pay-option="apple_pay"],
-  html body .vipRide__payOption[data-vipride-pay-option="google_pay"]{display:none!important}
   html body .vipRide__laterOverlay:not([hidden]){position:fixed!important;inset:0!important;display:flex!important;flex-direction:column!important;padding:40px 20px!important;background:linear-gradient(135deg,#1e1e24,#0a0a10)!important;backdrop-filter:blur(20px)!important;-webkit-backdrop-filter:blur(20px)!important;overflow-y:auto!important;overflow-x:hidden!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.1)!important;isolation:isolate!important}
   html body .vipRide__laterOverlay:not([hidden]) > *{position:relative!important;z-index:2!important}
   @keyframes vrMirrorShift{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:0% 0%}}
@@ -5699,6 +5697,7 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__payOverlay__list::-webkit-scrollbar{display:none;width:0;height:0}
 .vipRide__payOption{width:100%;display:flex;align-items:center;gap:14px;padding:18px 6px;background:transparent;border:none;border-radius:0;color:#fff;font-size:16px;font-weight:500;cursor:pointer;touch-action:manipulation;transition:background 150ms;text-align:left;position:relative}
 .vipRide__payOption+.vipRide__payOption{border-top:1px solid rgba(255,255,255,.12)}
+.vipRide__payOption[hidden]{display:none!important}
 .vipRide__payOption:hover{background:rgba(255,255,255,.06)}
 .vipRide__payOption:active{background:rgba(255,255,255,.1)}
 .vipRide__payOption.is-selected{background:rgba(212,175,55,.12)}
@@ -8600,17 +8599,7 @@ setTimeout(_vrPfKick,1200);
     var _payOverlay = document.querySelector('[data-vipride-pay-overlay]');
     /* PROVISIONAL — modo de prueba. Salta el cobro y crea la reserva igual, así
        que despacha un chófer real: no puede quedar a la vista del público.
-       Se enciende con ?test=1 (queda recordado) y se apaga con ?test=0. */
-    var _vrTestMode=(function(){
-      try{
-        var q=new URLSearchParams(location.search).get('test');
-        if(q==='1'){localStorage.setItem('vr_test_pay','1');return true;}
-        if(q==='0'){localStorage.removeItem('vr_test_pay');return false;}
-        return localStorage.getItem('vr_test_pay')==='1';
-      }catch(_){return false;}
-    })();
-    /* el botón solo existe para la cuenta del dueño (josmash31@gmail.com):
-       cualquier otro usuario no lo ve, aunque traiga ?test=1 guardado */
+       Solo lo ve la cuenta del dueño; ningún parámetro de URL ni flag lo activa. */
     function _vrTestAllowed(){
       try{
         var u=JSON.parse(localStorage.getItem('vr_au')||'null')||{};
@@ -8620,12 +8609,27 @@ setTimeout(_vrPfKick,1200);
     function _vrSyncTestBtn(){
       var _tb=document.querySelector('[data-vipride-pay-test]');
       if(!_tb)return;
-      var on=_vrTestMode&&_vrTestAllowed();
+      var on=_vrTestAllowed();
       if(_tb.hasAttribute('hidden')!==on)return;
       if(on)_tb.removeAttribute('hidden');else _tb.setAttribute('hidden','');
     }
     _vrSyncTestBtn();
     setInterval(_vrSyncTestBtn,2000);   /* por si inicia/cierra sesión sin recargar */
+    /* Apple Pay / Google Pay: cada fila solo aparece donde el sistema puede
+       pagar de verdad — iOS con ApplePaySession, o Android/Chrome con
+       PaymentRequest; al elegirla se cobra con el sheet nativo (_payWithNativeSheet) */
+    (function(){
+      try{
+        var _ua=navigator.userAgent||'';
+        var _isIOS=/iPad|iPhone|iPod/.test(_ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+        var _appleOk=_isIOS&&!!(window.ApplePaySession&&ApplePaySession.canMakePayments&&ApplePaySession.canMakePayments());
+        var _googleOk=!_isIOS&&/Android/.test(_ua)&&!!window.PaymentRequest;
+        var _pa=document.querySelector('[data-vipride-pay-option="apple_pay"]');
+        var _pg=document.querySelector('[data-vipride-pay-option="google_pay"]');
+        if(_pa&&_appleOk)_pa.removeAttribute('hidden');
+        if(_pg&&_googleOk)_pg.removeAttribute('hidden');
+      }catch(_){}
+    })();
     var _payOptions = document.querySelectorAll('[data-vipride-pay-option]');
     var _payList=_payOverlay?_payOverlay.querySelector('.vipRide__payOverlay__list'):null;
     var _cardForm=document.querySelector('[data-vipride-cardform]');
@@ -9173,11 +9177,11 @@ setTimeout(_vrPfKick,1200);
       },2000);
       window._vrActivePoll=poll;
     }
-    /* ---- botón de PRUEBA (solo aparece con ?vrtest=1 en la URL): simula un
-       pago aprobado y dispara el flujo real post-pago sin cobrar la tarjeta ---- */
+    /* ---- botón de PRUEBA: simula un pago aprobado y dispara el flujo real
+       post-pago sin cobrar la tarjeta; solo existe para la cuenta del dueño ---- */
     (function(){
       try{
-        if(!/[?&#]vrtest=1/.test(location.search+location.hash))return;
+        if(!_vrTestAllowed())return;
         var host=root.querySelector('[data-vipride-action-btns]')||root.querySelector('.vipRide__actionBtns');
         if(!host||host.querySelector('[data-vr-testpay]'))return;
         var b=document.createElement('button');
