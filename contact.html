@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="assets/home.css?v=20260816j">
 
 <!-- sesion: la cabecera no puede parpadear como "sin sesion" al refrescar -->
-<style>html.cir-authed .ch-login,html.cir-authed .ch-signup{display:none!important}</style>
+<style>html.cir-authed .ch-login{display:none!important}</style>
 <style>
 /* Centro de Ayuda (estilo help center) */
 .help-view[hidden]{display:none}
@@ -143,7 +143,19 @@ body.sc-open .cruise-footer{display:none}
   .sc-form{padding-bottom:max(12px,env(safe-area-inset-bottom))}
 }
 </style>
-<script>try{if(localStorage.getItem('vr_at'))document.documentElement.classList.add('cir-authed')}catch(_){}</script>
+<script>
+try{
+  if(localStorage.getItem('vr_at')){
+    document.documentElement.classList.add('cir-authed');
+    var isEn=(document.documentElement.lang||'').indexOf('es')!==0;
+    var links=document.querySelectorAll('.ch-nav__cta,.ch-signup');
+    for(var i=0;i<links.length;i++){
+      links[i].textContent=isEn?'Profile':'Perfil';
+      links[i].setAttribute('href','account');
+    }
+  }
+}catch(_){}
+</script>
 </head>
 <body class="has-hero">
 <header class="cruise-header">
