@@ -629,17 +629,16 @@ body.sc-open .wa-fab{display:none}
     var saved=null;
     try{saved=sessionStorage.getItem('vr_support_chat');}catch(_){}
     function done(){opening=false;}
+    var _retried=false;
     function fail(){
+      /* silent single retry: the user should never have to do anything */
+      if(!_retried){_retried=true;setTimeout(function(){
+        if(chatId||opening){return;}
+        createChat().catch(fail).then(function(){if(chatId){loadMessages(true).then(maybeShowChips);startPoll();}});
+      },2500);return;}
       var n=document.createElement('div');
       n.className='sc-note';
-      n.appendChild(document.createTextNode("Couldn't reach support."));
-      var b=document.createElement('button');
-      b.type='button';b.className='sc-retry';b.textContent='Retry';
-      b.addEventListener('click',function(){
-        if(n.parentNode){n.parentNode.removeChild(n);}
-        openChat();
-      });
-      n.appendChild(b);
+      n.textContent="Couldn't reach support. Try again in a few seconds.";
       msgs.appendChild(n);scrollEnd();
     }
     if(saved){
