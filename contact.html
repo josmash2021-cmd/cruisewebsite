@@ -129,7 +129,10 @@ body.sc-open .wa-fab{display:none}
 .sc-att-doc{display:inline-flex;align-items:center;gap:7px;margin-top:6px;padding:7px 11px;border:1px solid rgba(212,175,55,.45);border-radius:10px;color:inherit;font-size:.82rem;text-decoration:none}
 .sc-att-doc svg{width:16px;height:16px;flex:none;color:#d4af37}
 /* pantalla completa en movil, sin tapar el header (76px arriba) */
-@media(max-width:640px){.sc-panel{top:76px;right:0;bottom:0;width:100%;max-width:100%;height:auto;max-height:none;border-radius:0;border:0}}
+@media(max-width:640px){
+  .sc-panel{top:76px;right:0;left:0;bottom:0;width:100%;max-width:100%;height:calc(100vh - 76px);max-height:calc(100vh - 76px);height:calc(100dvh - 76px);max-height:calc(100dvh - 76px);border-radius:0;border:0;overscroll-behavior:contain}
+  .sc-form{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+}
 </style>
 <script>try{if(localStorage.getItem('vr_at'))document.documentElement.classList.add('cir-authed')}catch(_){}</script>
 </head>
@@ -586,6 +589,7 @@ body.sc-open .wa-fab{display:none}
   if(!panel)return;
   input.placeholder=t('placeholder')||'Escribe tu mensaje…';
   typing.textContent=t('typing');
+  input.addEventListener('focus',function(){setTimeout(function(){scrollEnd();},120);});
 
   var chatId=null,pollTimer=null,seen={},opening=false,awaitingReply=0,hasUserMsg=false,chatClosed=false,ending=false,rateLimitUntil=0;
   function token(){try{return localStorage.getItem('vr_at');}catch(_){return null;}}
