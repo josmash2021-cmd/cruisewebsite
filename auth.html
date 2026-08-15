@@ -235,8 +235,8 @@
     .cruise-auth__actions{margin-bottom:12px;}
     .cruise-auth__perks{padding-top:10px;}
   }
-  .cruise-auth__otp{display:flex;gap:12px;justify-content:center;margin:18px 0;}
-  .cruise-auth__otp-digit{width:56px;height:64px;text-align:center;font-size:24px;border:1.5px solid rgba(255,255,255,.2);border-radius:12px;background:#17191f;color:#fff;}
+  .cruise-auth__otp{display:flex;gap:8px;justify-content:center;margin:18px 0;}
+  .cruise-auth__otp-digit{width:46px;height:56px;text-align:center;font-size:22px;border:1.5px solid rgba(255,255,255,.2);border-radius:12px;background:#17191f;color:#fff;}
   .cruise-auth__otp-digit:focus{border-color:#d4af37;outline:none;}
   .cruise-auth__otp-actions{display:flex;flex-direction:column;gap:10px;align-items:flex-start;margin-top:18px;}
   .cruise-auth__link--text{background:transparent;border:none;box-shadow:none;width:auto;text-align:left;margin-top:0;color:rgba(255,255,255,.7);font-size:13px;font-weight:600;padding:0;text-decoration:underline;cursor:pointer;font-family:inherit;}
@@ -538,7 +538,7 @@
         <button type="button" class="cruise-auth__back" data-ca-otp-back aria-label="Volver">
           <svg width="16" height="12" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
         </button>
-        <h1 class="cruise-auth__heading" data-ca-otp-title>Ingresa el código de 4 dígitos</h1>
+        <h1 class="cruise-auth__heading" data-ca-otp-title>Ingresa el código de 6 dígitos</h1>
         <p class="cruise-auth__heading-sub" data-ca-otp-sub></p>
         <div class="cruise-auth__otp-change">
           <button type="button" class="cruise-auth__link cruise-auth__link--text" data-ca-otp-change>¿Cambiaste tu número de móvil?</button>
@@ -549,6 +549,8 @@
           <input type="text" inputmode="numeric" maxlength="1" class="cruise-auth__otp-digit" data-ca-otp-digit aria-label="Digit 2">
           <input type="text" inputmode="numeric" maxlength="1" class="cruise-auth__otp-digit" data-ca-otp-digit aria-label="Digit 3">
           <input type="text" inputmode="numeric" maxlength="1" class="cruise-auth__otp-digit" data-ca-otp-digit aria-label="Digit 4">
+          <input type="text" inputmode="numeric" maxlength="1" class="cruise-auth__otp-digit" data-ca-otp-digit aria-label="Digit 5">
+          <input type="text" inputmode="numeric" maxlength="1" class="cruise-auth__otp-digit" data-ca-otp-digit aria-label="Digit 6">
         </div>
         <div class="cruise-auth__err" data-ca-otp-err></div>
         <div class="cruise-auth__otp-actions">
@@ -828,14 +830,6 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3.5-7.1"/><path d="M21 3v5h-5"/></svg>
             <span><span data-ca-otp-resend-text>Reenviar código por SMS</span> <span data-ca-otp-timer>(0:30)</span></span>
           </button>
-          <button type="button" class="ca-sheet__opt" data-ca-sheet-call>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/></svg>
-            <span>Llamada telefónica a <span data-ca-sheet-phone></span></span>
-          </button>
-          <button type="button" class="ca-sheet__opt" data-ca-sheet-wa>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.1.55 4.06 1.6 5.8L2 22l4.42-1.68a9.86 9.86 0 004.62 1.18h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0012.04 2zm5.8 14.13c-.25.69-1.43 1.32-1.97 1.4-.5.08-1.15.11-1.85-.12-.43-.13-.98-.32-1.69-.62-2.98-1.29-4.92-4.29-5.07-4.49-.15-.2-1.21-1.61-1.21-3.07 0-1.46.77-2.18 1.04-2.48.27-.3.59-.37.79-.37h.57c.18 0 .43-.7.67.51.25.6.84 2.06.91 2.21.7.15.12.32.02.52-.1.2-.15.32-.3.49l-.44.51c-.15.15-.3.31-.13.61.17.3.77 1.27 1.65 2.06 1.13 1.01 2.09 1.32 2.39 1.47.3.15.47.12.65-.07.17-.2.75-.87.95-1.17.2-.3.4-.25.67-.15.27.1 1.73.82 2.03.97.3.15.5.22.57.35.07.12.07.72-.18 1.41z"/></svg>
-            <span>Enviar código por WhatsApp</span>
-          </button>
           <button type="button" class="ca-sheet__opt" data-ca-sheet-password>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
             <span>Contraseña</span>
@@ -1013,7 +1007,8 @@
   var idContinue=$('[data-ca-id-continue]');
   var _identifier='';
   var _idType='';
-  var _mockCode='';
+  var _otpToken='';
+  var _otpMasked='';
   var _isExisting=false;
 
   function _isValidIdentifier(v){
@@ -1053,12 +1048,7 @@
       idContinue.disabled=true;idContinue.textContent='Comprobando…';
       function proceed(){
         idContinue.disabled=false;idContinue.textContent=prev;
-        _mockCode=(''+Math.floor(1000+Math.random()*9000));
-        _toast('Código enviado: '+_mockCode,'ok');
-        _resetOtp();
-        _updateOtpTexts();
-        _startResendTimer();
-        _go('otp');
+        _sendOtp();
       }
       function check(i){
         if(i>=candidates.length){_existsKnown=false;proceed();return;}
@@ -1114,7 +1104,6 @@
   var otpTimer=$('[data-ca-otp-timer]');
   var otpOptions=$('[data-ca-otp-options]');
   var sheet=$('[data-ca-sheet]');
-  var sheetPhone=$('[data-ca-sheet-phone]');
   var otpBack=$('[data-ca-otp-back]');
   var otpBack2=$('[data-ca-otp-back2]');
   var otpNext=$('[data-ca-otp-next]');
@@ -1141,26 +1130,43 @@
     return '';
   }
 
+  /* Envía el código real por email o SMS (el backend elige el canal según el identificador) */
+  function _sendOtp(){
+    var lang=(document.documentElement.lang||'es').indexOf('en')===0?'en':'es';
+    _otpToken='';
+    _fetch('/auth/web/send-otp',{method:'POST',body:{identifier:_identifier,lang:lang}})
+      .then(function(d){
+        if(d&&d.masked) _otpMasked=d.masked;
+        _resetOtp();
+        _updateOtpTexts();
+        _startResendTimer();
+        _go('otp');
+      })
+      .catch(function(e){
+        if(e&&e.status===429) _toast('Demasiados intentos, espera unos minutos','err');
+        else _toast('No se pudo enviar el código. Inténtalo de nuevo.','err');
+      });
+  }
+
   function _updateOtpTexts(){
     var existing=_isExistingIdentifier(_identifier);
     var name=existing?_knownName(_identifier):'';
     var greeting=existing?('Bienvenido de nuevo'+(name?', '+name:'')+'.'):'';
     if(_idType==='email'){
-      if(otpTitle) otpTitle.textContent=greeting||'Ingresa el código de 4 dígitos';
-      if(otpSub) otpSub.textContent='Ingresa el código de 4 dígitos que te enviamos a '+_identifier+'.';
+      if(otpTitle) otpTitle.textContent=greeting||'Ingresa el código de 6 dígitos';
+      if(otpSub) otpSub.textContent='Te enviamos un código a '+(_otpMasked||_identifier)+'.';
       if(otpTip) otpTip.textContent='Consejo: revisa tu bandeja de entrada y la carpeta de spam.';
       if(otpChange) otpChange.textContent='¿Cambiaste tu correo?';
       if(otpResendText) otpResendText.textContent='Reenviar código por correo';
     } else {
-      var masked=_maskIdentifier(_identifier);
-      if(otpTitle) otpTitle.textContent=greeting||'Ingresa el código de 4 dígitos';
-      if(otpSub) otpSub.textContent='Ingresa el código de 4 dígitos enviado por SMS al '+masked+'.';
+      var masked=_otpMasked||_maskIdentifier(_identifier);
+      if(otpTitle) otpTitle.textContent=greeting||'Ingresa el código de 6 dígitos';
+      if(otpSub) otpSub.textContent='Te enviamos un código por SMS al '+masked+'.';
       if(otpTip) otpTip.textContent='';
       if(otpChange) otpChange.textContent='¿Cambiaste tu número de móvil?';
       if(otpResendText) otpResendText.textContent='Reenviar código por SMS';
     }
     if(otpSub) otpSub.style.fontWeight='';
-    if(sheetPhone) sheetPhone.textContent=_idType==='email'?_identifier:_maskIdentifier(_identifier);
   }
 
   function _resetOtp(){
@@ -1207,10 +1213,10 @@
       });
       d.addEventListener('paste',function(e){
         e.preventDefault();
-        var paste=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,4);
+        var paste=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
         paste.split('').forEach(function(ch,i){if(otpDigits[i]) otpDigits[i].value=ch;});
-        if(paste.length<4) _focusOtpDigit(paste.length);
-        else if(otpDigits[3]) otpDigits[3].focus();
+        if(paste.length<6) _focusOtpDigit(paste.length);
+        else if(otpDigits[5]) otpDigits[5].focus();
         _checkOtpComplete();
       });
       d.addEventListener('focus',function(){d.select();});
@@ -1241,49 +1247,50 @@
       _focusOtpDigit(0);
       return;
     }
-    if(v!==_mockCode){
-      if(otpErr){otpErr.textContent='Código incorrecto. Inténtalo de nuevo.';otpErr.classList.add('is-visible');}
+    if(v.length<6){
+      if(otpErr){otpErr.textContent='Ingresa el código de 6 dígitos';otpErr.classList.add('is-visible');}
+      _focusOtpDigit(v.length);
       return;
     }
     if(otpErr){otpErr.textContent='';otpErr.classList.remove('is-visible');}
-    _isExisting=_isExistingIdentifier(_identifier);
-    if(_isExisting){
-      _updatePasswordTexts();
-      if(pwInput) pwInput.value='';
-      if(pwNext) pwNext.disabled=true;
-      if(pwErr){pwErr.textContent='';pwErr.classList.remove('is-visible');}
-      _go('password');
-    } else {
-      _go('register');
-    }
+    if(otpNext) otpNext.disabled=true;
+    _fetch('/auth/web/verify-otp',{method:'POST',body:{identifier:_identifier,code:v}})
+      .then(function(d){
+        if(d&&d.ok&&d.otp_token){
+          _otpToken=d.otp_token;
+          _isExisting=_isExistingIdentifier(_identifier);
+          if(_isExisting){
+            _updatePasswordTexts();
+            if(pwInput) pwInput.value='';
+            if(pwNext) pwNext.disabled=true;
+            if(pwErr){pwErr.textContent='';pwErr.classList.remove('is-visible');}
+            _go('password');
+          } else {
+            _go('register');
+          }
+        } else {
+          if(otpErr){otpErr.textContent='Código incorrecto o expirado. Inténtalo de nuevo.';otpErr.classList.add('is-visible');}
+        }
+      })
+      .catch(function(e){
+        if(otpErr){otpErr.textContent=(e&&e.status===429)?'Demasiados intentos, espera unos minutos':'No se pudo verificar el código. Inténtalo de nuevo.';otpErr.classList.add('is-visible');}
+      })
+      .then(function(){if(otpNext) otpNext.disabled=false;});
   }
 
   if(otpNext) otpNext.addEventListener('click',_handleOtpNext);
   if(otpChange) otpChange.addEventListener('click',function(){_go('identifier');});
   if(otpResend) otpResend.addEventListener('click',function(){
-    _mockCode=(''+Math.floor(1000+Math.random()*9000));
-    _toast('Código enviado: '+_mockCode,'ok');
-    _resetOtp();
-    _startResendTimer();
+    if(otpResend.disabled) return;
+    _sendOtp();
   });
   /* ── Hoja "Más opciones" ── */
   function _sheetOpen(){if(sheet) sheet.classList.add('is-open');}
   function _sheetClose(){if(sheet) sheet.classList.remove('is-open');}
-  function _reissueCode(msg){
-    _mockCode=(''+Math.floor(1000+Math.random()*9000));
-    _sheetClose();
-    _resetOtp();
-    _startResendTimer();
-    _toast(msg+': '+_mockCode,'ok');
-  }
   if(sheet){
     sheet.addEventListener('click',function(e){if(e.target===sheet) _sheetClose();});
     var shClose=$('[data-ca-sheet-close]');
     if(shClose) shClose.addEventListener('click',_sheetClose);
-    var shCall=$('[data-ca-sheet-call]');
-    if(shCall) shCall.addEventListener('click',function(){_reissueCode('Te llamamos con el código');});
-    var shWa=$('[data-ca-sheet-wa]');
-    if(shWa) shWa.addEventListener('click',function(){_reissueCode('Código enviado por WhatsApp');});
     var shPw=$('[data-ca-sheet-password]');
     if(shPw) shPw.addEventListener('click',function(){_sheetClose();_updatePasswordTexts();_go('password');});
     var shGoogle=$('[data-ca-sheet-google]');
@@ -1338,7 +1345,7 @@
       if(pwErr){pwErr.textContent='';pwErr.classList.remove('is-visible');}
       var chain=_fetch('/auth/web/login',{method:'POST',body:{identifier:_identifier,password:pw,role:'rider'}});
       chain=chain.then(function(d){
-        if(d.login_token){return _fetch('/auth/web/complete-login',{method:'POST',body:{login_token:d.login_token}});}
+        if(d.login_token){return _fetch('/auth/web/complete-login',{method:'POST',body:{login_token:d.login_token,otp_token:_otpToken}});}
         else if(d.access_token){return d;}
         throw new Error('Respuesta no válida');
       });
@@ -1346,7 +1353,10 @@
         if(d&&d.access_token){_save(d.access_token,d.user);_toAccount();}
         else throw new Error('No se recibió token');
       }).catch(function(e){
-        if(pwErr){pwErr.textContent=e.message||'Contraseña incorrecta';pwErr.classList.add('is-visible');}
+        if(e&&e.status===401&&e.data&&e.data.detail==='otp_required'){
+          _toast('Verifica tu código primero','err');
+          _sendOtp();
+        } else if(pwErr){pwErr.textContent=e.message||'Contraseña incorrecta';pwErr.classList.add('is-visible');}
         pwNext.disabled=false;
       });
     });
