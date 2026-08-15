@@ -73,7 +73,11 @@
 @media(max-width:820px){.help-tiles,.help-support{grid-template-columns:1fr;max-width:480px}}
 /* On-site support chat */
 button.help-card{font:inherit;cursor:pointer}
-.sc-panel{position:fixed;right:20px;bottom:20px;z-index:1200;width:380px;max-width:calc(100vw - 24px);height:560px;max-height:calc(100vh - 40px);display:flex;flex-direction:column;background:#181c23;border:1px solid rgba(212,175,55,.35);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.6);overflow:hidden}
+.sc-panel{position:fixed;right:20px;bottom:20px;z-index:1200;width:380px;max-width:calc(100vw - 24px);height:560px;max-height:calc(100dvh - 96px);display:flex;flex-direction:column;background:#181c23;border:1px solid rgba(212,175,55,.35);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.6);overflow:hidden;transform-origin:100% 100%;animation:sc-in .3s cubic-bezier(.22,1,.36,1)}
+@keyframes sc-in{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media (prefers-reduced-motion:reduce){.sc-panel{animation:none}}
+/* with the chat open the WhatsApp bubble gets in the way: hide it */
+body.sc-open .wa-fab{display:none}
 .sc-panel[hidden]{display:none}
 .sc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;background:#0e1116;border-bottom:1px solid rgba(255,255,255,.08)}
 .sc-head__t{display:flex;align-items:center;gap:10px;font-family:Cinzel,serif;font-size:.98rem;font-weight:600;letter-spacing:.05em;color:#f5d77a}
@@ -98,7 +102,14 @@ button.help-card{font:inherit;cursor:pointer}
 .sc-form button{flex:none;width:42px;height:42px;border:0;border-radius:50%;background:#d4af37;color:#14100a;display:grid;place-items:center;cursor:pointer}
 .sc-form button:disabled{opacity:.5;cursor:default}
 .sc-form button svg{width:18px;height:18px}
-@media(max-width:640px){.sc-panel{right:0;bottom:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:0}}
+.sc-chips{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;background:#0e1116}
+.sc-chips[hidden]{display:none}
+.sc-chip{background:none;border:1px solid rgba(212,175,55,.55);border-radius:18px;color:#f5d77a;font:inherit;font-size:.8rem;font-weight:500;padding:7px 13px;cursor:pointer;transition:border-color .2s ease,background .2s ease}
+.sc-chip:hover,.sc-chip:focus-visible{border-color:#d4af37;background:rgba(212,175,55,.12);outline:none}
+.sc-retry{background:none;border:1px solid rgba(212,175,55,.55);border-radius:14px;color:#f5d77a;font:inherit;font-size:.76rem;font-weight:600;padding:4px 12px;cursor:pointer;margin-left:8px}
+.sc-retry:hover,.sc-retry:focus-visible{border-color:#d4af37;outline:none}
+/* full screen on mobile, without covering the header (76px top) */
+@media(max-width:640px){.sc-panel{top:76px;right:0;bottom:0;width:100%;max-width:100%;height:auto;max-height:none;border-radius:0;border:0}}
 </style>
 <script>try{if(localStorage.getItem('vr_at'))document.documentElement.classList.add('cir-authed')}catch(_){}</script>
 </head>
@@ -373,6 +384,7 @@ button.help-card{font:inherit;cursor:pointer}
     <button class="sc-close" type="button" id="sc-close" aria-label="Close chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
   <div class="sc-msgs" id="sc-msgs"></div>
+  <div class="sc-chips" id="sc-chips" hidden></div>
   <div class="sc-typing" id="sc-typing" hidden>The assistant is typing…</div>
   <form class="sc-form" id="sc-form">
     <input type="text" id="sc-input" maxlength="1000" autocomplete="off" placeholder="Type your message…">
@@ -501,9 +513,10 @@ button.help-card{font:inherit;cursor:pointer}
   var AUTH='auth.html?return=contact%23support';
   var panel=document.getElementById('sc-panel'),msgs=document.getElementById('sc-msgs'),
       typing=document.getElementById('sc-typing'),form=document.getElementById('sc-form'),
-      input=document.getElementById('sc-input'),sendBtn=document.getElementById('sc-send');
+      input=document.getElementById('sc-input'),sendBtn=document.getElementById('sc-send'),
+      chips=document.getElementById('sc-chips');
   if(!panel){return;}
-  var chatId=null,pollTimer=null,seen={},opening=false,awaitingReply=0;
+  var chatId=null,pollTimer=null,seen={},opening=false,awaitingReply=0,hasUserMsg=false;
   function token(){try{return localStorage.getItem('vr_at');}catch(_){return null;}}
   /* igual que account.html: el backend espera la web key en X-API-Key
      ADEMAS del JWT del usuario en Authorization */
@@ -517,6 +530,7 @@ button.help-card{font:inherit;cursor:pointer}
     if(seen[m.id]){return;}
     seen[m.id]=1;
     var role=m.sender_role||'bot';
+    if(role==='rider'){hasUserMsg=true;}
     var div=document.createElement('div');
     div.className='sc-msg '+(role==='rider'?'sc-msg--out':(role==='system'?'sc-msg--sys':'sc-msg--in'));
     if(role==='bot'||role==='dispatch'){
@@ -547,7 +561,7 @@ button.help-card{font:inherit;cursor:pointer}
   }
   function loadMessages(initial){
     if(!chatId){return;}
-    fetch(API+'/auth/web/support/chat/'+chatId+'/messages',{headers:headers()})
+    return fetch(API+'/auth/web/support/chat/'+chatId+'/messages',{headers:headers()})
       .then(function(r){
         if(r.status===401){sessionExpired();return null;}
         if(!r.ok){throw new Error('http '+r.status);}
@@ -568,6 +582,31 @@ button.help-card{font:inherit;cursor:pointer}
       .catch(function(){/* network failure: next poll retries without touching the UI */});
   }
   function startPoll(){stopPoll();pollTimer=setInterval(function(){loadMessages(false);},4000);}
+  /* Lyft-style welcome chips: only on a brand-new chat (no user messages yet);
+     once used they disappear for good for this chat session */
+  var CHIPS=['Trip issue','Payment or billing','Lost and found','Safety','Ask anything'];
+  function chipsKey(){return 'vr_support_chips_'+chatId;}
+  function chipsDone(){try{return sessionStorage.getItem(chipsKey());}catch(_){return '1';}}
+  function hideChips(forever){
+    chips.hidden=true;
+    if(forever&&chatId){try{sessionStorage.setItem(chipsKey(),'1');}catch(_){}}
+  }
+  function maybeShowChips(){
+    if(!chatId||hasUserMsg||chipsDone()){return;}
+    if(!chips.children.length){
+      CHIPS.forEach(function(txt){
+        var b=document.createElement('button');
+        b.type='button';b.className='sc-chip';b.textContent=txt;
+        b.addEventListener('click',function(){
+          hideChips(true);
+          input.value=txt;
+          form.requestSubmit();
+        });
+        chips.appendChild(b);
+      });
+    }
+    chips.hidden=false;
+  }
   function createChat(){
     return fetch(API+'/auth/web/support/chat',{method:'POST',headers:headers()})
       .then(function(r){
@@ -576,20 +615,33 @@ button.help-card{font:inherit;cursor:pointer}
         return r.json().then(function(d){
           chatId=d.chat_id;
           try{sessionStorage.setItem('vr_support_chat',String(chatId));}catch(_){}
-          loadMessages(true);startPoll();
+          loadMessages(true).then(maybeShowChips);startPoll();
         });
       });
   }
   function openChat(){
     if(!token()){goAuth();return;}
     panel.hidden=false;
+    document.body.classList.add('sc-open');
     input.focus();
     if(chatId||opening){if(chatId){loadMessages(false);startPoll();}return;}
     opening=true;
     var saved=null;
     try{saved=sessionStorage.getItem('vr_support_chat');}catch(_){}
     function done(){opening=false;}
-    function fail(){note("Couldn't reach support. Please try again in a few seconds.");}
+    function fail(){
+      var n=document.createElement('div');
+      n.className='sc-note';
+      n.appendChild(document.createTextNode("Couldn't reach support."));
+      var b=document.createElement('button');
+      b.type='button';b.className='sc-retry';b.textContent='Retry';
+      b.addEventListener('click',function(){
+        if(n.parentNode){n.parentNode.removeChild(n);}
+        openChat();
+      });
+      n.appendChild(b);
+      msgs.appendChild(n);scrollEnd();
+    }
     if(saved){
       chatId=parseInt(saved,10)||null;
       if(!chatId){createChat().catch(fail).then(done);return;}
@@ -598,7 +650,7 @@ button.help-card{font:inherit;cursor:pointer}
         .then(function(r){
           if(r.status===401){sessionExpired();return;}
           if(!r.ok){throw new Error('http '+r.status);}
-          loadMessages(true);startPoll();
+          loadMessages(true).then(maybeShowChips);startPoll();
         })
         .catch(function(){
           chatId=null;
@@ -610,7 +662,7 @@ button.help-card{font:inherit;cursor:pointer}
       createChat().catch(fail).then(done);
     }
   }
-  function closeChat(){panel.hidden=true;stopPoll();typing.hidden=true;}
+  function closeChat(){panel.hidden=true;document.body.classList.remove('sc-open');stopPoll();typing.hidden=true;}
   document.querySelectorAll('[data-support-chat]').forEach(function(el){
     el.addEventListener('click',function(e){e.preventDefault();openChat();});
   });
@@ -627,6 +679,7 @@ button.help-card{font:inherit;cursor:pointer}
       if(r.status===429){note('Please wait a moment before sending more messages.');return;}
       if(!r.ok){throw new Error('http '+r.status);}
       input.value='';
+      hideChips(true);
       typing.hidden=false;
       var max=0;
       for(var id in seen){if(seen.hasOwnProperty(id)){id=+id;if(id>max){max=id;}}}
