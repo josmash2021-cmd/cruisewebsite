@@ -80,6 +80,9 @@ button.help-card{font:inherit;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.sc-panel{transition:none}}
 /* con el chat abierto el bubble de WhatsApp estorba: se oculta */
 body.sc-open .wa-fab{display:none}
+/* en movil ocultamos el footer del sitio para que no se asome detras del panel/teclado */
+body.sc-open{overflow:hidden}
+body.sc-open .cruise-footer{display:none}
 .sc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;background:#0e1116;border-bottom:1px solid rgba(255,255,255,.08)}
 .sc-head__t{display:flex;align-items:center;gap:10px;font-family:Cinzel,serif;font-size:.98rem;font-weight:600;letter-spacing:.05em;color:#f5d77a}
 .sc-head__t>svg{width:22px;height:22px;flex:none;color:#d4af37}
