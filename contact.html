@@ -650,7 +650,10 @@ body.sc-open .wa-fab{display:none}
     });
   }
   function createChat(){
-    return fetch(API+'/auth/web/support/chat',{method:'POST',headers:headers()})
+    /* idioma de la página como punto de partida; el bot luego sigue el
+       idioma de cada mensaje que escriba el cliente */
+    var _loc=(document.documentElement.lang||'en').indexOf('es')===0?'es':'en';
+    return fetch(API+'/auth/web/support/chat',{method:'POST',headers:headers(),body:JSON.stringify({locale:_loc})})
       .then(function(r){
         if(r.status===401){sessionExpired();return;}
         if(!r.ok){throw new Error('http '+r.status);}
