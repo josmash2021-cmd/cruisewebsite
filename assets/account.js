@@ -315,6 +315,13 @@
       if (e.target && e.target.nodeType === 1 && panel.contains(e.target)) return;
       open(false);
     }, { passive: true, capture: true });
+    /* en móvil el scroll con inercia a veces no dispara 'scroll' hasta el final:
+       el gesto táctil fuera del panel lo cierra al instante */
+    addEventListener('touchmove', function (e) {
+      if (!panel.classList.contains('is-open')) return;
+      if (e.target && e.target.nodeType === 1 && panel.contains(e.target)) return;
+      open(false);
+    }, { passive: true, capture: true });
     addEventListener('resize', function () { open(false); }, { passive: true });
 
     var signout = panel.querySelector('[data-cam-signout]');
