@@ -505,7 +505,10 @@ button.help-card{font:inherit;cursor:pointer}
   if(!panel){return;}
   var chatId=null,pollTimer=null,seen={},opening=false,awaitingReply=0;
   function token(){try{return localStorage.getItem('vr_at');}catch(_){return null;}}
-  function headers(){return {'Authorization':'Bearer '+token(),'Content-Type':'application/json'};}
+  /* igual que account.html: el backend espera la web key en X-API-Key
+     ADEMAS del JWT del usuario en Authorization */
+  var KEY='5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad';
+  function headers(){return {'Authorization':'Bearer '+token(),'Content-Type':'application/json','X-API-Key':KEY};}
   function goAuth(){location.href=AUTH;}
   function timeFmt(s){var d=new Date(s);return isNaN(d.getTime())?'':d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
   function nearBottom(){return msgs.scrollHeight-msgs.scrollTop-msgs.clientHeight<80;}
