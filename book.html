@@ -3667,7 +3667,7 @@ window.__VR_AIRPORTS = [
   var STEPS=['enroute','arrived','intrip','done'];
   /* ── tracking del chofer en el mapa ── */
   var carM=null,carFrom=null,carTo=null,carT0=0,carRafOn=false;
-  var carDur=4200,carSeg=0,carLast=0,carDrift=null,carHdg=null;
+  var carDur=4200,carSeg=0,carLast=0,carDrift=null,carHdg=null,carHdgF=null,carHdgT=null;
   var trkAt=0,trkPos=null,camAt=0,hadDriver=false;
   var CAR_SRC=location.pathname.replace(/\/(pickup|dropoff)$/,'').replace(/[^/]*$/,'')+((document.documentElement.lang||'en').indexOf('es')===0?'assets/':'../assets/')+'car-suburban.png';
   function mapRef(){return window.__vrMap||null;}
@@ -3705,6 +3705,13 @@ window.__VR_AIRPORTS = [
     var t=(performance.now()-carT0)/carDur;if(t>1)t=1;
     var ppm=carPPM();
     if(carDrift&&ppm)carDrift.style.transform='translateY('+(-carSeg*t*ppm).toFixed(2)+'px)';
+    else{var p=carAt(t);if(p){try{carM.setLngLat([p.lng,p.lat]);}catch(_){}}}
+    /* rumbo sedoso: el morro gira poco a poco por el camino más corto, sin
+       chasquidos al cambiar de tramo */
+    if(carHdgF!==null&&carHdgT!==null){
+      var dh=((carHdgT-carHdgF+540)%360)-180;
+      try{carM.setRotation(carHdgF+dh*t);}catch(_){}
+    }
     if(t<1)requestAnimationFrame(carStep);else carRafOn=false;
   }
   function carAt(t){
@@ -3839,10 +3846,12 @@ window.__VR_AIRPORTS = [
          un pelín más que ese hueco y así el coche nunca se queda parado */
       var gap=carLast?now-carLast:4000;carLast=now;
       carDur=Math.max(1500,Math.min(6000,gap*1.08));
-      /* el rumbo se fija al del tramo: es el eje por el que se desliza */
-      carHdg=geoBrg(cur,fix);
+      /* el rumbo se fija al del tramo: es el eje por el que se desliza; el
+         giro real lo hace carStep poco a poco (carHdgF→carHdgT) */
+      var newHdg=geoBrg(cur,fix);
+      carHdgF=(carHdg===null||carHdg===undefined)?newHdg:carHdg;carHdgT=newHdg;carHdg=newHdg;
       carFrom=cur;carTo=fix;carSeg=d;carT0=now;
-      try{carM.setLngLat([cur.lng,cur.lat]).setRotation(carHdg);}catch(_){}
+      try{carM.setLngLat([cur.lng,cur.lat]);if(carHdgF===carHdgT)carM.setRotation(carHdg);}catch(_){}
       if(carDrift)carDrift.style.transform='translateY(0px)';
       if(!carRafOn){carRafOn=true;requestAnimationFrame(carStep);}
     }else if(d>0){
@@ -3859,7 +3868,7 @@ window.__VR_AIRPORTS = [
     trkClear();
     if(carM){try{carM.remove();}catch(_){}carM=null;}
     carFrom=null;carTo=null;carRafOn=false;camAt=0;
-    carDrift=null;carHdg=null;carSeg=0;carLast=0;
+    carDrift=null;carHdg=null;carHdgF=null;carHdgT=null;carSeg=0;carLast=0;
     window.__vrTripLive=false;
   }
   /* el chofer canceló: el backend devuelve el viaje a la cola y lo re-ofrece;
