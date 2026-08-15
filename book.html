@@ -6337,6 +6337,69 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
   };
   /* Expose reset so back buttons can re-trigger */
   window.__vrResetResume=function(){_coreResumed=false;_cachedData=null;};
+  /* ── Account sync: recover the active trip across browsers/devices ──
+     If the user is logged in (vr_at) and there is no LIVE local booking,
+     ask the server for the account's active trip and adopt it locally so
+     the normal resume flow reopens the tracker. Fully silent on any error
+     (incl. 404 while the endpoint is not deployed yet). */
+  function _vrAdoptServerTrip(trip){
+    if(!trip||!trip.booking_id)return false;
+    var tst=(trip.status||'').toLowerCase();
+    if(tst==='completed'||tst==='cancelled'||tst==='canceled')return false;
+    try{
+      localStorage.setItem('vr_active_booking',JSON.stringify({
+        id:trip.booking_id,ts:Date.now(),scheduled_at:trip.scheduled_at||null,
+        pickup:trip.pickup_address||'',dropoff:trip.dropoff_address||'',
+        vehicle:trip.vehicle||trip.vehicle_name||'',tier:trip.tier||'',
+        dist_mi:(typeof trip.dist_mi==='number'?trip.dist_mi:null),
+        dur_min:(typeof trip.dur_min==='number'?trip.dur_min:null)
+      }));
+    }catch(_){return false;}
+    /* Replay the SAME resume the page already uses for vr_active_booking,
+       retried so it lands once __vrSchedShow/__vrTripResume are registered */
+    [50,600,1500,3000,5500,9000].forEach(function(ms){
+      setTimeout(function(){
+        try{if(window.__vrResetResume)window.__vrResetResume();if(window.__vrCoreResume)window.__vrCoreResume();}catch(_){}
+      },ms);
+    });
+    return true;
+  }
+  window.__vrSyncActiveTrip=function(){
+    try{
+      var at=null;
+      try{at=(typeof __vipAuthToken==='function'&&__vipAuthToken())||localStorage.getItem('vr_at');}catch(_){at=null;}
+      if(!at)return; /* guest: no account sync, expected */
+      var local=null;
+      try{var raw=localStorage.getItem('vr_active_booking');if(raw)local=JSON.parse(raw);}catch(_){local=null;}
+      fetch(_EARLY_API+'/auth/web/active-trip',{headers:{'Authorization':'Bearer '+at}})
+        .then(function(r){if(!r.ok)return null;return r.json().catch(function(){return null;});})
+        .then(function(d){
+          if(!d||d.active!==true||!d.trip||!d.trip.booking_id)return;
+          var sid=d.trip.booking_id;
+          if(local&&local.id&&String(local.id)===String(sid))return; /* same trip: local resume already covers it */
+          if(local&&local.id){
+            /* Local holds a DIFFERENT booking: server wins only if the local one is dead */
+            fetch(_EARLY_API+'/bookings/web/'+local.id+'/status',{headers:{'Authorization':'Bearer '+_EARLY_KEY}})
+              .then(function(r){
+                if(r.status===404){_vrAdoptServerTrip(d.trip);return null;}
+                if(!r.ok)return null; /* unknown → keep local */
+                return r.json().catch(function(){return null;});
+              })
+              .then(function(ld){
+                if(ld===null)return;
+                var lst=(ld&&ld.status||'').toLowerCase();
+                if(lst==='completed'||lst==='cancelled'||lst==='canceled')_vrAdoptServerTrip(d.trip);
+              })
+              .catch(function(){});
+            return;
+          }
+          _vrAdoptServerTrip(d.trip);
+        })
+        .catch(function(){});
+    }catch(_){}
+  };
+  window.__vrSyncActiveTrip();
+  setTimeout(window.__vrSyncActiveTrip,4000);
   /* Fire many times so one attempt succeeds once __vrSchedShow is registered */
   var _firings=[200,500,1000,1800,3000,5000,8000,12000];
   _firings.forEach(function(ms){setTimeout(window.__vrCoreResume,ms);});
