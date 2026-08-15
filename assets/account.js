@@ -147,7 +147,7 @@
     + '.cam-promo__go{display:block;width:100%;margin-top:16px;padding:14px;border:none;border-radius:12px;background:#d4af37;color:#1a1405;font:700 14px/1 Inter,system-ui,sans-serif;text-align:center;text-decoration:none;cursor:pointer;transition:background 160ms}'
     + '.cam-promo__go:hover{background:#f5d77a}'
     + '.cam-promo__close{display:block;width:100%;margin-top:10px;padding:12px;background:none;border:none;color:rgba(255,255,255,.6);font:600 13px/1 Inter,system-ui,sans-serif;text-decoration:underline;cursor:pointer}'
-    + '@media (max-width:520px){.cam-panel{position:fixed;top:auto;bottom:0;right:0;left:0;width:auto;max-width:none;border-radius:26px 26px 0 0;transform:translateY(16px)}.cam-panel.is-open{transform:none}}'
+    + '@media (max-width:520px){.cam-panel{position:fixed;top:0;bottom:auto;right:0;left:0;width:auto;max-width:none;border-radius:0 0 26px 26px;transform:translateY(-16px);transform-origin:top center}.cam-panel.is-open{transform:none}}'
     /* pastilla Actividad + flechita junto al avatar (como la referencia, solo escritorio) */
     + '.cam-activity{display:inline-flex;align-items:center;gap:8px;margin-right:12px;padding:9px 16px;border-radius:999px;background:none;border:1px solid rgba(255,255,255,.15);color:#eceef2;font:600 13px/1 Inter,system-ui,sans-serif;text-decoration:none;transition:border-color 160ms,color 160ms}'
     + '.cam-activity:hover{border-color:rgba(212,175,55,.5);color:#f5d77a}'
