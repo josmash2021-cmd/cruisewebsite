@@ -509,7 +509,10 @@ body.sc-open .wa-fab{display:none}
 <script>
 /* Chat de soporte en la web: crea/recupera chat via API, polling cada 4s mientras este abierto */
 (function(){
-  var API='https://cruise-api-proxy.cruise-api.workers.dev';
+  /* JWT del usuario: DIRECTO a Railway (como account/wallet). El proxy de
+     Cloudflare es solo para rutas con web key; por él los JWT endpoints
+     devolvían 401. */
+  var API='https://cruiseapp2-production.up.railway.app';
   var AUTH='auth.html?return=contact%23support';
   var panel=document.getElementById('sc-panel'),msgs=document.getElementById('sc-msgs'),
       typing=document.getElementById('sc-typing'),form=document.getElementById('sc-form'),

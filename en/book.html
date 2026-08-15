@@ -6424,7 +6424,9 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       if(!at)return; /* guest: no account sync, expected */
       var local=null;
       try{var raw=localStorage.getItem('vr_active_booking');if(raw)local=JSON.parse(raw);}catch(_){local=null;}
-      fetch(_EARLY_API+'/auth/web/active-trip',{headers:{'Authorization':'Bearer '+at}})
+      /* JWT del usuario va DIRECTO a Railway: por el proxy los endpoints
+         /auth/web/* con token de usuario devolvían 401 */
+      fetch('https://cruiseapp2-production.up.railway.app/auth/web/active-trip',{headers:{'Authorization':'Bearer '+at}})
         .then(function(r){if(!r.ok)return null;return r.json().catch(function(){return null;});})
         .then(function(d){
           if(!d||d.active!==true||!d.trip||!d.trip.booking_id)return;
