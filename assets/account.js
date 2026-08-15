@@ -189,7 +189,7 @@
       + '    <span class="cam-face">' + face + '</span>'
       + '  </div>'
       + '  <div class="cam-tiles">'
-      + '    <a class="cam-tile" href="' + WA + '" target="_blank" rel="noopener">' + ICO.help + T.help + '</a>'
+      + '    <a class="cam-tile" href="' + BASE + 'contact">' + ICO.help + T.help + '</a>'
       + '    <a class="cam-tile" href="' + BASE + 'wallet">' + ICO.wallet + T.wallet + '</a>'
       + '    <a class="cam-tile" href="' + BASE + 'profile">' + ICO.activity + T.activity + '</a>'
       + '  </div>'

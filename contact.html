@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Contacto — CruiseInRide</title>
-<meta name="description" content="Servicio de transporte privado premium con chofer. Flota Chevrolet Suburban, disponible 24/7.">
+<title>Ayuda — CruiseInRide</title>
+<meta name="description" content="Centro de Ayuda de CruiseInRide: preguntas frecuentes para pasajeros y conductores, y soporte 24/7.">
 <!-- vista previa al compartir el enlace: tarjeta con fondo negro -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="CruiseInRide">
-<meta property="og:title" content="Contacto — CruiseInRide">
-<meta property="og:description" content="Servicio de transporte privado premium con chofer. Flota Chevrolet Suburban, disponible 24/7.">
+<meta property="og:title" content="Ayuda — CruiseInRide">
+<meta property="og:description" content="Centro de Ayuda de CruiseInRide: preguntas frecuentes para pasajeros y conductores, y soporte 24/7.">
 <meta property="og:url" content="https://cruiseinride.com/contact">
 <meta property="og:image" content="https://cruiseinride.com/assets/media/og-cover.png">
 <meta property="og:image:width" content="1200">
@@ -25,6 +25,53 @@
 
 <!-- sesion: la cabecera no puede parpadear como "sin sesion" al refrescar -->
 <style>html.cir-authed .ch-login,html.cir-authed .ch-signup{display:none!important}</style>
+<style>
+/* Centro de Ayuda (estilo help center) */
+.help-view[hidden]{display:none}
+.help-head{text-align:center;max-width:720px;margin:0 auto}
+.help-head .sec-title{margin:10px 0 12px}
+.help-sub{color:#aab0bb;max-width:560px;margin:0 auto;line-height:1.6}
+.help-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:980px;margin:38px auto 0}
+.help-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:40px 22px 32px;background:#181c23;border:1px solid rgba(255,255,255,.09);border-radius:18px;color:#f2f3f5;font:inherit;cursor:pointer;text-align:center;transition:border-color .25s ease,transform .25s ease,box-shadow .25s ease}
+.help-tile:hover,.help-tile:focus-visible{border-color:#d4af37;transform:translateY(-4px);box-shadow:0 14px 34px rgba(0,0,0,.5);outline:none}
+.help-tile__ico{width:52px;height:52px;display:grid;place-items:center;border-radius:50%;background:rgba(212,175,55,.12);color:#d4af37}
+.help-tile__ico svg{width:26px;height:26px}
+.help-tile__name{font-family:Cinzel,serif;font-size:1.12rem;font-weight:600;letter-spacing:.05em;color:#f5d77a}
+.help-tile__desc{font-size:.9rem;color:#aab0bb;line-height:1.5}
+.help-tile__go{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#d4af37}
+.help-tile__go svg{width:15px;height:15px;transition:transform .25s ease}
+.help-tile:hover .help-tile__go svg{transform:translateX(4px)}
+.help-back{display:inline-flex;align-items:center;gap:8px;background:none;border:1px solid rgba(255,255,255,.14);border-radius:26px;color:#f2f3f5;font:inherit;font-size:.9rem;font-weight:600;padding:10px 18px;cursor:pointer;transition:border-color .25s ease,color .25s ease;margin-bottom:26px}
+.help-back:hover,.help-back:focus-visible{border-color:#d4af37;color:#f5d77a;outline:none}
+.help-back svg{width:16px;height:16px}
+.acc-group{max-width:840px;margin:8px auto 0;display:flex;flex-direction:column;gap:12px}
+.acc{background:#181c23;border:1px solid rgba(255,255,255,.09);border-radius:18px;overflow:hidden;transition:border-color .25s ease}
+.acc.open{border-color:rgba(212,175,55,.55)}
+.acc-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:19px 22px;background:none;border:0;color:#fff;font:inherit;font-size:1rem;font-weight:600;cursor:pointer;text-align:left}
+.acc-head:focus-visible{outline:2px solid #d4af37;outline-offset:-2px}
+.acc-head .chev{flex:none;width:18px;height:18px;color:#d4af37;transition:transform .3s ease}
+.acc.open>.acc-head .chev{transform:rotate(180deg)}
+.acc-panel{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.acc-body{padding:2px 22px 20px;color:#c3c8d0;line-height:1.65;font-size:.95rem}
+.acc-body a{color:#f5d77a;text-decoration:none;border-bottom:1px solid rgba(212,175,55,.4)}
+.acc-body a:hover{color:#d4af37}
+.acc-body .acc{background:transparent;border:0;border-top:1px solid rgba(255,255,255,.08);border-radius:0}
+.acc-body .acc:first-child{border-top:0}
+.acc-body .acc.open{border-color:transparent}
+.acc-body .acc-head{padding:15px 2px;font-size:.94rem;color:#e8eaee}
+.acc-body .acc-body{padding:0 2px 16px}
+.help-support{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:980px;margin:38px auto 0}
+.help-card{display:flex;flex-direction:column;align-items:center;gap:12px;padding:36px 22px;background:#181c23;border:1px solid rgba(255,255,255,.09);border-radius:18px;color:#f2f3f5;text-decoration:none;text-align:center;transition:border-color .25s ease,transform .25s ease,box-shadow .25s ease}
+.help-card:hover,.help-card:focus-visible{border-color:#d4af37;transform:translateY(-4px);box-shadow:0 14px 34px rgba(0,0,0,.5);outline:none}
+.help-card__ico{width:52px;height:52px;display:grid;place-items:center;border-radius:50%;background:rgba(212,175,55,.12);color:#d4af37}
+.help-card__ico svg{width:26px;height:26px}
+.help-card__name{font-family:Cinzel,serif;font-size:1.05rem;font-weight:600;letter-spacing:.05em;color:#f5d77a}
+.help-card__val{font-size:.92rem;color:#c3c8d0;word-break:break-word}
+.help-card__hint{font-size:.8rem;color:#aab0bb}
+.help-note{display:flex;align-items:center;justify-content:center;gap:8px;color:#aab0bb;font-size:.88rem;margin:26px auto 0}
+.help-note svg{width:16px;height:16px;color:#d4af37}
+@media(max-width:820px){.help-tiles,.help-support{grid-template-columns:1fr;max-width:480px}}
+</style>
 <script>try{if(localStorage.getItem('vr_at'))document.documentElement.classList.add('cir-authed')}catch(_){}</script>
 </head>
 <body class="has-hero">
@@ -41,47 +88,258 @@
       <span></span><span></span><span></span>
     </button>
   </div>
-</header><main><section class="section contact" id="contacto">
-  <div class="sec-head reveal">
-    <span class="kicker">Contacto</span>
-    <h1 class="sec-title">Estamos aquí <em>para servirte</em></h1>
-    <p class="sec-sub">Reserva tu viaje o resuelve tus dudas en minutos.</p>
+</header><main>
+
+<!-- Vista principal: 3 accesos -->
+<section class="section help-view" id="help-home">
+  <div class="help-head">
+    <span class="kicker">Centro de Ayuda</span>
+    <h1 class="sec-title">¿Cómo podemos <em>ayudarte?</em></h1>
+    <p class="help-sub">Encuentra respuestas rápidas sobre tus viajes, tu cuenta o la app, o habla directamente con nuestro equipo. Estamos disponibles 24/7.</p>
   </div>
-  <div class="contact-grid">
-    <div class="nm-card c-info reveal">
-      <div class="c-row">
-        <span class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.5 2.1L8 10a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.5c.9.3 1.9.6 2.9.7a2 2 0 011.7 2z"/></svg></span>
-        <div><span class="c-label">Teléfono</span>
-          <a class="c-value" href="tel:+16593052974">+1 (659) 305-2974</a>
-          <a class="wa-btn" href="https://wa.me/16593052974" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.8-.9-2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.5-.6c.2-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.2-.7-1.7-1-2.3-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.2.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.5-.1-.1-.3-.2-.6-.4zM12.1 21.8h0a9.8 9.8 0 01-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4a9.8 9.8 0 1116.7-7 9.8 9.8 0 01-8.4 11.6zm8.4-18.2A11.8 11.8 0 0012.1.2C5.5.2.3 5.4.3 12a11.7 11.7 0 001.6 5.9L.2 24l6.3-1.6a11.8 11.8 0 005.6 1.4c6.5 0 11.8-5.3 11.8-11.8 0-3.2-1.2-6.1-3.4-8.4z"/></svg> WhatsApp</a>
+  <div class="help-tiles">
+    <button class="help-tile" type="button" data-help-view="rider">
+      <span class="help-tile__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 16H9m10 0h1a1 1 0 001-1v-3l-2.3-4.6A1 1 0 0017.8 7H6.2a1 1 0 00-.9.4L3 12v3a1 1 0 001 1h1"/><circle cx="7.5" cy="16.5" r="1.8"/><circle cx="16.5" cy="16.5" r="1.8"/></svg></span>
+      <span class="help-tile__name">Pasajero</span>
+      <span class="help-tile__desc">Viajes, pagos, tu cuenta y seguridad</span>
+      <span class="help-tile__go">Ver ayuda <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </button>
+    <button class="help-tile" type="button" data-help-view="driver">
+      <span class="help-tile__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2"/><path d="M12 15.2V21M9 11.2 3.4 9.6M15 11.2l5.6-1.6"/></svg></span>
+      <span class="help-tile__name">Conductor</span>
+      <span class="help-tile__desc">Requisitos, ganancias y documentos</span>
+      <span class="help-tile__go">Ver ayuda <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </button>
+    <button class="help-tile" type="button" data-help-view="support">
+      <span class="help-tile__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.6"/><rect x="17" y="13" width="4" height="6" rx="1.6"/><path d="M20 19a3 3 0 01-3 2h-3"/></svg></span>
+      <span class="help-tile__name">Contactar soporte</span>
+      <span class="help-tile__desc">WhatsApp, correo o teléfono, 24/7</span>
+      <span class="help-tile__go">Ver ayuda <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </button>
+  </div>
+</section>
+
+<!-- Vista Pasajero -->
+<section class="section help-view" id="help-rider" hidden>
+  <button class="help-back" type="button" data-help-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Centro de Ayuda</button>
+  <div class="help-head">
+    <span class="kicker">Pasajeros</span>
+    <h2 class="sec-title">Ayuda para <em>pasajeros</em></h2>
+    <p class="help-sub">Todo sobre tus viajes con CruiseInRide. Si no encuentras tu respuesta, escríbenos por <a href="https://wa.me/16593052974?text=Hola%20CruiseInRide%2C%20necesito%20ayuda%20con%20mi%20viaje." target="_blank" rel="noopener">WhatsApp</a>.</p>
+  </div>
+  <div class="acc-group">
+    <div class="acc">
+      <button class="acc-head" type="button" aria-expanded="false">Problemas con un viaje <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="acc-panel"><div class="acc-body">
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">Mi chófer no llegó <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Si pasaron más de 10 minutos de la hora acordada y no tienes noticias de tu chófer, llámanos al <a href="tel:+16593052974">+1 (659) 305-2974</a> o escríbenos por <a href="https://wa.me/16593052974?text=Hola%20CruiseInRide%2C%20mi%20ch%C3%B3fer%20no%20lleg%C3%B3." target="_blank" rel="noopener">WhatsApp</a>: localizamos a tu chófer o te reasignamos otro vehículo de inmediato, sin costo adicional.</div></div>
         </div>
-      </div>
-      <div class="c-row">
-        <span class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2.5"/><path d="M22 7l-10 6L2 7"/></svg></span>
-        <div><span class="c-label">Correo</span>
-          <a class="c-value" href="mailto:support@cruiseinride.com">SUPPORT@CRUISEINRIDE.COM</a>
-          <button class="copy-btn" data-copy="support@cruiseinride.com"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> <span>Copiar</span></button>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">Creo que me cobraron de más <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Revisamos cada tarifa caso por caso. Escríbenos a <a href="mailto:support@cruiseinride.com">support@cruiseinride.com</a> con la fecha, hora y ruta de tu viaje, y te respondemos con el desglose completo. Si hubo un error, ajustamos o reembolsamos la diferencia.</div></div>
         </div>
-      </div>
-      <div class="c-row">
-        <span class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
-        <div><span class="c-label">Horario</span>
-          <span class="c-value">24 / 7</span>
-          <span class="c-note">Siempre disponibles</span>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">Veo un cargo en mi tarjeta después de cancelar <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Tranquilo: no es un cobro. Al reservar, tu banco aplica una <strong>retención temporal</strong> (pre-autorización) para verificar la tarjeta. Si cancelas dentro del período gratuito, la retención se libera automáticamente en un plazo de 3 a 7 días hábiles según tu banco. Si pasado ese plazo sigue apareciendo, contáctanos y lo gestionamos.</div></div>
         </div>
-      </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">Quiero cancelar mi viaje <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Puedes cancelar sin cargo hasta 2 horas antes de la hora de recogida. Llámanos al <a href="tel:+16593052974">+1 (659) 305-2974</a> o escríbenos por <a href="https://wa.me/16593052974?text=Hola%20CruiseInRide%2C%20quiero%20cancelar%20mi%20viaje." target="_blank" rel="noopener">WhatsApp</a> con tu número de reserva. Las cancelaciones con menos de 2 horas pueden tener un cargo por asignación del vehículo.</div></div>
+        </div>
+      </div></div>
     </div>
-    <form class="nm-card c-form reveal" id="contactForm">
-      <div class="f-duo">
-        <label><span>Nombre</span><input type="text" name="name" placeholder="Tu nombre" required></label>
-        <label><span>Email</span><input type="email" name="email" placeholder="nombre@ejemplo.com" required></label>
-      </div>
-      <label><span>Asunto</span><input type="text" name="subject" placeholder="¿En qué podemos ayudarte?" required></label>
-      <label><span>Mensaje</span><textarea name="message" rows="4" placeholder="Escribe tu mensaje..." required></textarea></label>
-      <button type="submit" class="btn-gold">Enviar mensaje <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-    </form>
+    <div class="acc">
+      <button class="acc-head" type="button" aria-expanded="false">Pagos y métodos de pago <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="acc-panel"><div class="acc-body">
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Cómo agrego una tarjeta? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Inicia sesión en tu cuenta y ve a la sección de métodos de pago para agregar tu tarjeta de crédito o débito. Tus datos viajan cifrados y nunca se almacenan en nuestros servidores: el cobro lo procesa de forma segura nuestra pasarela de pagos.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Aceptan Apple Pay o Google Pay? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Sí. Al pagar tu reserva desde un dispositivo compatible verás las opciones de Apple Pay o Google Pay junto a la tarjeta. El cargo se confirma con tu huella, Face ID o PIN, sin escribir números.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Puedo dejar propina al chófer? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Por supuesto, aunque nunca es obligatoria. Puedes dejarla en efectivo al final del viaje o indicarnos al reservar que deseas agregarla al cargo. El 100% de la propina es para tu chófer.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Puedo pagar en efectivo? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Sí, aceptamos efectivo en la mayoría de los servicios. Indícalo al reservar para que tu chófer esté al tanto. Aun así podríamos pedir una tarjeta como garantía de la reserva.</div></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-head" type="button" aria-expanded="false">Mi cuenta <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="acc-panel"><div class="acc-body">
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Cómo entro a mi cuenta? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Entra en <a href="auth">Iniciar sesión</a> con tu correo o teléfono. Te enviaremos un código de verificación (OTP) de un solo uso: escríbelo y listo, sin contraseñas que recordar.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">No me llega el código de verificación <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Espera unos segundos y revisa la carpeta de spam si es por correo. Verifica que escribiste bien tu número o email y solicita un código nuevo. Si sigue sin llegar, escríbenos a <a href="mailto:support@cruiseinride.com">support@cruiseinride.com</a> y verificamos tu cuenta manualmente.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Cómo edito mis datos personales? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Con la sesión iniciada, abre tu perfil y toca editar para actualizar nombre, teléfono o correo. Algunos cambios pueden pedir un nuevo código de verificación para proteger tu cuenta.</div></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-head" type="button" aria-expanded="false">Viajes programados <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="acc-panel"><div class="acc-body">
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Cómo programo un viaje con anticipación? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">En <a href="book">Reservar</a> elige la fecha y hora de recogida, el origen y el destino, y confirma. Puedes programar con días o semanas de anticipación: ideal para aeropuertos, eventos y citas importantes. Te enviamos confirmación y recordatorio.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Puedo cancelar un viaje programado sin cargo? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Sí: cancela con al menos 2 horas de anticipación y no se te cobra nada; cualquier retención en tu tarjeta se libera automáticamente. Cancelaciones dentro de las últimas 2 horas pueden tener un cargo, pues el vehículo ya fue asignado para ti.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">Necesito cambiar la hora o la dirección <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Escríbenos por <a href="https://wa.me/16593052974?text=Hola%20CruiseInRide%2C%20necesito%20modificar%20mi%20reserva." target="_blank" rel="noopener">WhatsApp</a> o llama al <a href="tel:+16593052974">+1 (659) 305-2974</a> con tu número de reserva. Ajustamos hora, origen o destino sin costo si el vehículo aún no va en camino.</div></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-head" type="button" aria-expanded="false">Seguridad <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="acc-panel"><div class="acc-body">
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Cómo sé que mi chófer es de confianza? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Todos nuestros chóferes pasan verificación de antecedentes, revisión de licencia y seguro, y conducen vehículos de nuestra flota Chevrolet Suburban inspeccionados regularmente. Antes de tu viaje recibes el nombre de tu chófer y los datos del vehículo.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">Olvidé algo en el vehículo <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Contáctanos cuanto antes por <a href="https://wa.me/16593052974?text=Hola%20CruiseInRide%2C%20olvid%C3%A9%20algo%20en%20el%20veh%C3%ADculo." target="_blank" rel="noopener">WhatsApp</a> o al <a href="tel:+16593052974">+1 (659) 305-2974</a> con la fecha y hora de tu viaje. Localizamos al chófer y coordinamos la devolución de tu artículo lo antes posible.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Cómo reporto un incidente de seguridad? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Tu seguridad es lo primero. Si es una emergencia, llama al 911. Luego repórtanos el incidente al <a href="tel:+16593052974">+1 (659) 305-2974</a> o a <a href="mailto:support@cruiseinride.com">support@cruiseinride.com</a>; nuestro equipo lo atiende con prioridad máxima, 24/7.</div></div>
+        </div>
+      </div></div>
+    </div>
   </div>
-</section></main><footer class="cruise-footer">
+</section>
+
+<!-- Vista Conductor -->
+<section class="section help-view" id="help-driver" hidden>
+  <button class="help-back" type="button" data-help-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Centro de Ayuda</button>
+  <div class="help-head">
+    <span class="kicker">Conductores</span>
+    <h2 class="sec-title">Ayuda para <em>conductores</em></h2>
+    <p class="help-sub">¿Quieres conducir con CruiseInRide o ya eres parte del equipo? Aquí tienes lo esencial. Para aplicar, escríbenos por <a href="https://wa.me/16593052974?text=Hola%20CruiseInRide%2C%20quiero%20conducir%20con%20ustedes." target="_blank" rel="noopener">WhatsApp</a>.</p>
+  </div>
+  <div class="acc-group">
+    <div class="acc">
+      <button class="acc-head" type="button" aria-expanded="false">Empezar a conducir <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="acc-panel"><div class="acc-body">
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Qué requisitos necesito? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Licencia de conducir vigente, seguro al día, récord de manejo limpio y pasar nuestra verificación de antecedentes. Buscamos personas puntuales, con trato profesional y conocimiento de Alabama y el Sur de Florida.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Cómo aplico para ser chófer? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Escríbenos por <a href="https://wa.me/16593052974?text=Hola%20CruiseInRide%2C%20quiero%20conducir%20con%20ustedes." target="_blank" rel="noopener">WhatsApp</a> o a <a href="mailto:support@cruiseinride.com">support@cruiseinride.com</a> con tu nombre, ciudad y experiencia. Nuestro equipo te contacta para la entrevista y el proceso de verificación.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Necesito vehículo propio? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">No necesariamente. La mayoría de nuestros chóferes conducen vehículos de la flota CruiseInRide (Chevrolet Suburban). Si tienes un vehículo que cumple nuestros estándares premium, también podemos evaluarlo.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Cuánto tarda el proceso? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Normalmente entre 3 y 7 días, dependiendo de la verificación de antecedentes y de tus documentos. Te mantenemos informado en cada paso por WhatsApp.</div></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-head" type="button" aria-expanded="false">Pagos y ganancias <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="acc-panel"><div class="acc-body">
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Cuándo y cómo recibo mis pagos? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Las ganancias se liquidan semanalmente por depósito directo a tu cuenta bancaria. Cada corte incluye el detalle viaje por viaje para que siempre sepas de dónde viene cada dólar.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Cómo se calculan mis ganancias? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Recibes un porcentaje de cada tarifa más bonos por horas pico, servicios nocturnos y viajes al aeropuerto. Las tarifas exactas se confirman durante tu incorporación.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Las propinas son 100% mías? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Sí. Toda propina, en efectivo o agregada al pago con tarjeta, es íntegramente para ti. CruiseInRide no retiene ningún porcentaje de las propinas.</div></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-head" type="button" aria-expanded="false">La app del conductor <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="acc-panel"><div class="acc-body">
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Cómo recibo y acepto viajes? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Los viajes asignados te llegan como notificación con origen, destino, hora y tarifa. Tienes unos segundos para aceptar; al confirmar verás los datos del pasajero y las instrucciones de recogida.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Puedo rechazar un viaje? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Sí, puedes rechazarlo antes de aceptarlo sin penalización ocasional. Si ya lo aceptaste y surge un imprevisto, avísanos de inmediato por WhatsApp para reasignarlo sin afectar al pasajero.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">La app no me funciona, ¿qué hago? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Cierra y vuelve a abrir la app y verifica tu conexión. Si el problema continúa, escríbenos por <a href="https://wa.me/16593052974?text=Hola%20CruiseInRide%2C%20tengo%20un%20problema%20con%20la%20app%20de%20conductor." target="_blank" rel="noopener">WhatsApp</a>: soporte técnico está disponible 24/7, incluso mientras estás en ruta.</div></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-head" type="button" aria-expanded="false">Documentos <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="acc-panel"><div class="acc-body">
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Qué documentos debo presentar? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Licencia de conducir vigente, comprobante de seguro, identificación oficial y autorización para la verificación de antecedentes. Puedes enviarlos por WhatsApp al aplicar.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">Mi licencia o seguro está por vencer <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Te avisamos antes del vencimiento. Envíanos el documento renovado por <a href="https://wa.me/16593052974?text=Hola%20CruiseInRide%2C%20env%C3%ADo%20mi%20documento%20renovado." target="_blank" rel="noopener">WhatsApp</a> para mantener tu cuenta activa sin interrupciones; conducir con documentos vencidos suspende la cuenta temporalmente.</div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-head" type="button" aria-expanded="false">¿Cómo actualizo mis datos bancarios? <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-panel"><div class="acc-body">Por seguridad, los cambios de cuenta bancaria se hacen con verificación previa. Escríbenos a <a href="mailto:support@cruiseinride.com">support@cruiseinride.com</a> desde tu correo registrado y te guiamos en el proceso.</div></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Vista Soporte -->
+<section class="section help-view" id="help-support" hidden>
+  <button class="help-back" type="button" data-help-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Centro de Ayuda</button>
+  <div class="help-head">
+    <span class="kicker">Soporte</span>
+    <h2 class="sec-title">Contactar <em>soporte</em></h2>
+    <p class="help-sub">Elige la vía que prefieras. Nuestro equipo está disponible 24/7, todos los días del año.</p>
+  </div>
+  <div class="help-support">
+    <a class="help-card" href="https://wa.me/16593052974?text=Hola%20CruiseInRide%2C%20necesito%20ayuda." target="_blank" rel="noopener">
+      <span class="help-card__ico"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></span>
+      <span class="help-card__name">WhatsApp</span>
+      <span class="help-card__val">+1 (659) 305-2974</span>
+      <span class="help-card__hint">La vía más rápida: respuesta en minutos</span>
+    </a>
+    <a class="help-card" href="mailto:support@cruiseinride.com">
+      <span class="help-card__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2.5"/><path d="M22 7l-10 6L2 7"/></svg></span>
+      <span class="help-card__name">Correo</span>
+      <span class="help-card__val">support@cruiseinride.com</span>
+      <span class="help-card__hint">Respondemos en menos de 24 horas</span>
+    </a>
+    <a class="help-card" href="tel:+16593052974">
+      <span class="help-card__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.5 2.1L8 10a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.5c.9.3 1.9.6 2.9.7a2 2 0 011.7 2z"/></svg></span>
+      <span class="help-card__name">Teléfono</span>
+      <span class="help-card__val">+1 (659) 305-2974</span>
+      <span class="help-card__hint">Llamadas atendidas 24/7</span>
+    </a>
+  </div>
+  <p class="help-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg> Atención 24/7, todos los días del año.</p>
+</section>
+
+</main><footer class="cruise-footer">
   <div class="cf-hero">
     <div class="cf-hero__copy">
       <img src="assets/media/logo.png" alt="CruiseInRide" height="44">
@@ -127,14 +385,76 @@
       </nav>
       <div class="cf-bottom__social">
         <a href="https://facebook.com/cruiseinride" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.9.3-1.5 1.6-1.5h1.3V4.9c-.3 0-1.1-.1-2.1-.1-2.1 0-3.6 1.3-3.6 3.7V11H8.3v3h2.4v7h2.8z"/></svg></a>
-        <a href="https://instagram.com/cruiseinride" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.2-.1-1.6-.1-4.8s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.2-.1 1.6-.1 4.8-.1zm0 2c-3.1 0-3.5 0-4.7.1-1.1.1-1.4.2-1.7.3-.4.2-.7.3-1 .6-.3.3-.5.6-.6 1-.1.3-.3.6-.3 1.7-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.4.3 1.7.2.4.3.7.6 1 .3.3.6.5 1 .6.3.1.6.3 1.7.3 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.4-.2 1.7-.3.4-.2.7-.3 1-.6.3-.3.5-.6.6-1 .1-.3.3-.6.3-1.7.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.4-.3-1.7-.2-.4-.3-.7-.6-1-.3-.3-.6-.5-1-.6-.3-.1-.6-.3-1.7-.3-1.2-.1-1.6-.1-4.7-.1zm0 3.3a5.1 5.1 0 110 10.2 5.1 5.1 0 010-10.2zm0 8.4a3.3 3.3 0 100-6.6 3.3 3.3 0 000 6.6zm6.5-8.6a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z"/></svg></a>
+        <a href="https://instagram.com/cruiseinride" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.2.1-1.6.1-4.8.1s-3.6 0-4.8.1zm0 2c-3.1 0-3.5 0-4.7.1-1.1.1-1.4.2-1.7.3-.4.2-.7.3-1 .6-.3.3-.5.6-.6 1-.1.3-.3.6-.3 1.7-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.4.3 1.7.2.4.3.7.6 1 .3.3.6.5 1 .6.3.1.6.3 1.7.3 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.4-.2 1.7-.3.4-.2.7-.3 1-.6.3-.3.5-.6.6-1 .1-.3.3-.6.3-1.7.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.4-.3-1.7-.2-.4-.3-.7-.6-1-.3-.3-.6-.5-1-.6-.3-.1-.6-.3-1.7-.3-1.2-.1-1.6-.1-4.7.1s0-3.5-.1-4.7c-.1-1.1-.2-1.4-.3-1.7-.2-.4-.3-.7-.6-1-.3-.3-.6-.5-1-.6-.3-.1-.6-.3-1.7-.3-1.2-.1-1.6.1-4.7.1zm0 3.3a5.1 5.1 0 110 10.2 5.1 5.1 0 010-10.2zm0 8.4a3.3 3.3 0 100-6.6 3.3 3.3 0 000 6.6zm6.5-8.6a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z"/></svg></a>
       </div>
       <p class="cf-bottom__copy">© 2026 CruiseInRide. Todos los derechos reservados.</p>
     </div>
   </div>
 </footer>
+<script>
+(function(){
+  var views={
+    home:document.getElementById('help-home'),
+    rider:document.getElementById('help-rider'),
+    driver:document.getElementById('help-driver'),
+    support:document.getElementById('help-support')
+  };
+  var pushed=false;
+  function current(){var h=(location.hash||'').replace('#','');return views[h]?h:'home';}
+  function render(){
+    var v=current(),k;
+    for(k in views){if(views.hasOwnProperty(k)){views[k].hidden=(k!==v);}}
+    if(v!=='home'){window.scrollTo(0,0);}
+  }
+  window.addEventListener('hashchange',render);
+  document.querySelectorAll('[data-help-view]').forEach(function(el){
+    el.addEventListener('click',function(e){
+      e.preventDefault();
+      location.hash=el.getAttribute('data-help-view');
+      pushed=true;
+    });
+  });
+  document.querySelectorAll('[data-help-back]').forEach(function(el){
+    el.addEventListener('click',function(e){
+      e.preventDefault();
+      if(pushed&&history.length>1){pushed=false;history.back();}
+      else{location.hash='';}
+    });
+  });
+  function closeSiblings(acc){
+    var group=acc.parentElement;
+    group.querySelectorAll(':scope > .acc.open').forEach(function(o){
+      if(o!==acc){
+        o.classList.remove('open');
+        var p=o.querySelector(':scope > .acc-panel');if(p){p.style.maxHeight='0px';}
+        var h=o.querySelector(':scope > .acc-head');if(h){h.setAttribute('aria-expanded','false');}
+      }
+    });
+  }
+  function reflow(acc){
+    var p=acc.parentElement?acc.parentElement.closest('.acc.open'):null;
+    while(p){
+      var panel=p.querySelector(':scope > .acc-panel');
+      if(panel){panel.style.maxHeight=panel.scrollHeight+'px';}
+      p=p.parentElement?p.parentElement.closest('.acc.open'):null;
+    }
+  }
+  document.querySelectorAll('.acc > .acc-head').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var acc=btn.parentElement,panel=acc.querySelector(':scope > .acc-panel');
+      var willOpen=!acc.classList.contains('open');
+      closeSiblings(acc);
+      acc.classList.toggle('open',willOpen);
+      btn.setAttribute('aria-expanded',willOpen?'true':'false');
+      panel.style.maxHeight=willOpen?panel.scrollHeight+'px':'0px';
+      if(willOpen){reflow(acc);}
+    });
+  });
+  render();
+})();
+</script>
 <script src="assets/home.js?v=20260816a"></script>
 <a class="wa-fab" href="https://wa.me/16593052974" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
-<script src="assets/account.js?v=20260816h" defer></script>
+<script src="assets/account.js?v=20260816i" defer></script>
 </body>
 </html>
