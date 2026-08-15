@@ -518,10 +518,11 @@ body.sc-open .wa-fab{display:none}
   if(!panel){return;}
   var chatId=null,pollTimer=null,seen={},opening=false,awaitingReply=0,hasUserMsg=false;
   function token(){try{return localStorage.getItem('vr_at');}catch(_){return null;}}
-  /* igual que account.html: el backend espera la web key en X-API-Key
-     ADEMAS del JWT del usuario en Authorization */
-  var KEY='5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad';
-  function headers(){return {'Authorization':'Bearer '+token(),'Content-Type':'application/json','X-API-Key':KEY};}
+  /* SOLO Authorization + Content-Type: el proxy de Cloudflare no permite
+     X-API-Key en su CORS (Access-Control-Allow-Headers) y el navegador
+     bloqueaba la llamada entera en el preflight. El backend solo necesita
+     el JWT del usuario. */
+  function headers(){return {'Authorization':'Bearer '+token(),'Content-Type':'application/json'};}
   function goAuth(){location.href=AUTH;}
   function timeFmt(s){var d=new Date(s);return isNaN(d.getTime())?'':d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
   function nearBottom(){return msgs.scrollHeight-msgs.scrollTop-msgs.clientHeight<80;}
