@@ -113,6 +113,16 @@ body.sc-open .wa-fab{display:none}
 .sc-chip:hover,.sc-chip:focus-visible{border-color:#d4af37;background:rgba(212,175,55,.12);outline:none}
 .sc-retry{background:none;border:1px solid rgba(212,175,55,.55);border-radius:14px;color:#f5d77a;font:inherit;font-size:.76rem;font-weight:600;padding:4px 12px;cursor:pointer;margin-left:8px}
 .sc-retry:hover,.sc-retry:focus-visible{border-color:#d4af37;outline:none}
+.sc-end{background:none;border:1px solid rgba(212,175,55,.5);border-radius:14px;color:#f5d77a;font:inherit;font-size:.74rem;font-weight:600;letter-spacing:.04em;padding:5px 12px;cursor:pointer;transition:border-color .2s ease,background .2s ease}
+.sc-end:hover,.sc-end:focus-visible{border-color:#d4af37;background:rgba(212,175,55,.12);outline:none}
+.sc-end:disabled{opacity:.5;cursor:default}
+.sc-attach{flex:none;width:42px;height:42px;border:1px solid rgba(212,175,55,.35);border-radius:50%;background:none;color:#d4af37;display:grid;place-items:center;cursor:pointer}
+.sc-attach:hover,.sc-attach:focus-visible{border-color:#d4af37;outline:none}
+.sc-attach:disabled{opacity:.5;cursor:default}
+.sc-attach svg{width:18px;height:18px}
+.sc-att-img{display:block;max-width:200px;border-radius:10px;margin-top:6px}
+.sc-att-doc{display:inline-flex;align-items:center;gap:7px;margin-top:6px;padding:7px 11px;border:1px solid rgba(212,175,55,.45);border-radius:10px;color:inherit;font-size:.82rem;text-decoration:none}
+.sc-att-doc svg{width:16px;height:16px;flex:none;color:#d4af37}
 /* pantalla completa en movil, sin tapar el header (76px arriba) */
 @media(max-width:640px){.sc-panel{top:76px;right:0;bottom:0;width:100%;max-width:100%;height:auto;max-height:none;border-radius:0;border:0}}
 </style>
@@ -386,12 +396,14 @@ body.sc-open .wa-fab{display:none}
 <div class="sc-panel" id="sc-panel" hidden role="dialog" aria-label="Chat de soporte">
   <div class="sc-head">
     <span class="sc-head__t"><span class="sc-dot"></span><span class="sc-head__txt">Cruise Support<small>Powered by AI</small></span></span>
-    <button class="sc-close" type="button" id="sc-close" aria-label="Cerrar chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="sc-end" type="button" id="sc-end">Terminar chat</button>
   </div>
   <div class="sc-msgs" id="sc-msgs"></div>
   <div class="sc-chips" id="sc-chips" hidden></div>
   <div class="sc-typing" id="sc-typing" hidden>El asistente está escribiendo…</div>
   <form class="sc-form" id="sc-form">
+    <button type="button" class="sc-attach" id="sc-attach" aria-label="Adjuntar foto o documento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.4 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 1 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+    <input type="file" id="sc-file" accept="image/*,.pdf" capture="environment" hidden>
     <input type="text" id="sc-input" maxlength="1000" autocomplete="off" placeholder="Escribe tu mensaje…">
     <button type="submit" id="sc-send" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
   </form>
@@ -442,8 +454,8 @@ body.sc-open .wa-fab{display:none}
         <a href="privacy.html">Privacidad</a>
       </nav>
       <div class="cf-bottom__social">
-        <a href="https://facebook.com/cruiseinride" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.9.3-1.5 1.6-1.5h1.3V4.9c-.3 0-1.1-.1-2.1-.1-2.1 0-3.6 1.3-3.6 3.7V11H8.3v3h2.4v7h2.8z"/></svg></a>
-        <a href="https://instagram.com/cruiseinride" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.2.1-1.6.1-4.8.1s-3.6 0-4.8.1zm0 2c-3.1 0-3.5 0-4.7.1-1.1.1-1.4.2-1.7.3-.4.2-.7.3-1 .6-.3.3-.5.6-.6 1-.1.3-.3.6-.3 1.7-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.4.3 1.7.2.4.3.7.6 1 .3.3.6.5 1 .6.3.1.6.3 1.7.3 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.4-.2 1.7-.3.4-.2.7-.3 1-.6.3-.3.5-.6.6-1 .1-.3.3-.6.3-1.7.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.4-.3-1.7-.2-.4-.3-.7-.6-1-.3-.3-.6-.5-1-.6-.3-.1-.6-.3-1.7-.3-1.2-.1-1.6-.1-4.7.1s0-3.5-.1-4.7c-.1-1.1-.2-1.4-.3-1.7-.2-.4-.3-.7-.6-1-.3-.3-.6-.5-1-.6-.3-.1-.6-.3-1.7-.3-1.2-.1-1.6.1-4.7.1zm0 3.3a5.1 5.1 0 110 10.2 5.1 5.1 0 010-10.2zm0 8.4a3.3 3.3 0 100-6.6 3.3 3.3 0 000 6.6zm6.5-8.6a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z"/></svg></a>
+        <a href="https://facebook.com/cruiseinride" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+        <a href="https://instagram.com/cruiseinride" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg></a>
       </div>
       <p class="cf-bottom__copy">© 2026 CruiseInRide. Todos los derechos reservados.</p>
     </div>
@@ -522,9 +534,10 @@ body.sc-open .wa-fab{display:none}
   var panel=document.getElementById('sc-panel'),msgs=document.getElementById('sc-msgs'),
       typing=document.getElementById('sc-typing'),form=document.getElementById('sc-form'),
       input=document.getElementById('sc-input'),sendBtn=document.getElementById('sc-send'),
-      chips=document.getElementById('sc-chips');
+      chips=document.getElementById('sc-chips'),endBtn=document.getElementById('sc-end'),
+      attachBtn=document.getElementById('sc-attach'),fileInput=document.getElementById('sc-file');
   if(!panel){return;}
-  var chatId=null,pollTimer=null,seen={},opening=false,awaitingReply=0,hasUserMsg=false;
+  var chatId=null,pollTimer=null,seen={},opening=false,awaitingReply=0,hasUserMsg=false,chatClosed=false,ending=false;
   function token(){try{return localStorage.getItem('vr_at');}catch(_){return null;}}
   /* SOLO Authorization + Content-Type: el proxy de Cloudflare no permite
      X-API-Key en su CORS (Access-Control-Allow-Headers) y el navegador
@@ -549,6 +562,20 @@ body.sc-open .wa-fab{display:none}
       div.appendChild(who);
     }
     div.appendChild(document.createTextNode(m.message||''));
+    if(m.attachment_url){
+      var a=document.createElement('a');
+      a.href=m.attachment_url;a.target='_blank';a.rel='noopener';
+      if(m.attachment_type&&m.attachment_type.indexOf('image/')===0){
+        var img=document.createElement('img');
+        img.className='sc-att-img';img.src=m.attachment_url;img.alt=m.message||'Imagen adjunta';
+        a.appendChild(img);
+      }else{
+        a.className='sc-att-doc';
+        a.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>';
+        a.appendChild(document.createTextNode('Documento'));
+      }
+      div.appendChild(a);
+    }
     var t=timeFmt(m.created_at);
     if(t&&role!=='system'){var sm=document.createElement('small');sm.textContent=t;div.appendChild(sm);}
     msgs.appendChild(div);
@@ -557,6 +584,7 @@ body.sc-open .wa-fab{display:none}
     var n=document.createElement('div');
     n.className='sc-note';n.textContent=txt;
     msgs.appendChild(n);scrollEnd();
+    return n;
   }
   function stopPoll(){if(pollTimer){clearInterval(pollTimer);pollTimer=null;}}
   function sessionExpired(){
@@ -586,6 +614,7 @@ body.sc-open .wa-fab{display:none}
           if(m.sender_role!=='rider'&&m.id>inMax){inMax=m.id;}
         }
         if(awaitingReply&&inMax>awaitingReply){typing.hidden=true;awaitingReply=0;}
+        if(!chatClosed&&(data.status==='closed'||data.closed===true)){lockChat();}
         if(stick){scrollEnd();}
       })
       .catch(function(){/* fallo de red: el siguiente poll reintenta sin tocar la UI */});
@@ -682,14 +711,76 @@ body.sc-open .wa-fab{display:none}
       .catch(function(){proceed();});
   }
   function closeChat(){panel.hidden=true;document.body.classList.remove('sc-open');stopPoll();typing.hidden=true;}
+  /* el servidor cerro el chat: se avisa y se bloquea la entrada */
+  function lockChat(){
+    chatClosed=true;
+    note('Este chat fue cerrado por soporte.');
+    input.disabled=true;sendBtn.disabled=true;attachBtn.disabled=true;
+  }
+  /* termina el chat en el servidor; si la llamada falla se cierra igual en
+     local pero se conserva el chat guardado para no perderlo */
+  function endChat(){
+    if(ending){return;}
+    if(!chatId){closeChat();return;}
+    ending=true;
+    endBtn.disabled=true;
+    endBtn.textContent='Terminando…';
+    var id=chatId;
+    fetch(API+'/auth/web/support/chat/'+id+'/end',{method:'POST',headers:headers()})
+      .then(function(r){
+        if(r.status===401){sessionExpired();return;}
+        if(!r.ok){throw new Error('http '+r.status);}
+        try{sessionStorage.removeItem('vr_support_chat');}catch(_){}
+        try{sessionStorage.removeItem('vr_support_chips_'+id);}catch(_){}
+        chatId=null;
+        /* el proximo chat es nuevo: se limpia el panel por completo */
+        msgs.innerHTML='';chips.innerHTML='';chips.hidden=true;
+        seen={};hasUserMsg=false;awaitingReply=0;chatClosed=false;
+        input.disabled=false;sendBtn.disabled=false;attachBtn.disabled=false;
+      })
+      .catch(function(){/* fallo de red: conservar chatId y sessionStorage */})
+      .then(function(){
+        ending=false;
+        endBtn.disabled=false;
+        endBtn.textContent='Terminar chat';
+        closeChat();
+      });
+  }
+  /* adjuntar foto o documento: FormData sin Content-Type manual (el navegador
+     pone el boundary); solo va el header Authorization */
+  attachBtn.addEventListener('click',function(){if(chatId&&!chatClosed){fileInput.click();}});
+  fileInput.addEventListener('change',function(){
+    var f=fileInput.files&&fileInput.files[0];
+    fileInput.value='';
+    if(!f||!chatId||chatClosed){return;}
+    var isOk=(f.type&&f.type.indexOf('image/')===0)||f.type==='application/pdf'||/\.pdf$/i.test(f.name||'');
+    if(!isOk||f.size>10*1024*1024){note('Solo imágenes o PDF hasta 10 MB.');return;}
+    var sending=note('Enviando…');
+    attachBtn.disabled=true;
+    var fd=new FormData();
+    fd.append('file',f);
+    fetch(API+'/auth/web/support/chat/'+chatId+'/attachments',{
+      method:'POST',headers:{'Authorization':'Bearer '+token()},body:fd
+    }).then(function(r){
+      if(r.status===401){sessionExpired();return;}
+      if(!r.ok){throw new Error('http '+r.status);}
+      hideChips(true);
+      loadMessages(false);
+    }).catch(function(){
+      note('No se pudo enviar el archivo. Inténtalo de nuevo.');
+    }).then(function(){
+      attachBtn.disabled=false;
+      if(sending&&sending.parentNode){sending.parentNode.removeChild(sending);}
+    });
+  });
   document.querySelectorAll('[data-support-chat]').forEach(function(el){
     el.addEventListener('click',function(e){e.preventDefault();openChat();});
   });
-  document.getElementById('sc-close').addEventListener('click',closeChat);
+  endBtn.addEventListener('click',endChat);
   form.addEventListener('submit',function(e){
     e.preventDefault();
     var text=(input.value||'').trim();
-    if(!text||!chatId){return;}
+    if(!text||!chatId||chatClosed){return;}
     sendBtn.disabled=true;
     fetch(API+'/auth/web/support/chat/'+chatId+'/messages',{
       method:'POST',headers:headers(),body:JSON.stringify({message:text})
