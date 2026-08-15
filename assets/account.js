@@ -8,7 +8,7 @@
   try {
     var st = document.createElement('style');
     st.textContent =
-      'body{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}' +
+      'html,body{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:pan-x pan-y}' +
       'input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;-moz-user-select:text;user-select:text}' +
       'img,video{-webkit-user-drag:none}';
     document.head.appendChild(st);
