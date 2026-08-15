@@ -58,6 +58,15 @@ if(/\/book\.html$/.test(location.pathname))history.replaceState(null,"",location
 (function(){
   try{
     var st=null;try{st=JSON.parse(sessionStorage.getItem('vr_book_state')||'null');}catch(_){}
+    /* Apertura limpia: si la URL NO trae ?pickup=…&dropoff=… (prefill del
+       comparador de portada), lo guardado de campos se descarta: la página
+       abre con recogida = GPS, destino vacío y "Recoger ahora", sin ruta
+       vieja en el mapa. Con parámetros, el prefill manda y el estado sigue
+       sirviendo para la recarga de la misma URL (vehículo elegido, etc.). */
+    if(!/[?&](pickup|dropoff)=/.test(location.search)){
+      try{sessionStorage.removeItem('vr_book_state');}catch(_){}
+      st=null;
+    }
     var trip=false;try{trip=!!localStorage.getItem('vr_active_booking');}catch(_){}
     var late=!!(st&&st.ts&&(Date.now()-st.ts)<=21600000&&st.u===location.search&&Number(st.s)===3);
     if(!late&&!trip)return;
@@ -1348,7 +1357,7 @@ setTimeout(function(){window.__vrApplyI18n&&window.__vrApplyI18n()},600);
     addEventListener('scroll',function(){document.querySelectorAll('.vipRide__tierTip.is-shown').forEach(function(t){t.classList.remove('is-shown');setTimeout(function(){t.hidden=true},220);});},true);
   };
   window.__vrRotateMsg=function(el,iv){if(!el)return null;el.style.transition='opacity 600ms cubic-bezier(.33,1,.68,1),transform 600ms cubic-bezier(.33,1,.68,1)';var m=window.__vrSearchMsgs,i=0;return setInterval(function(){el.style.opacity='0';el.style.transform='translateY(-4px)';setTimeout(function(){i=(i+1)%m.length;el.textContent=m[i];el.style.transform='translateY(4px)';requestAnimationFrame(function(){requestAnimationFrame(function(){el.style.opacity='1';el.style.transform='translateY(0)';});});},650);},iv||3500);};
-  window.__vrCancelBooking=function(api,key){var b=window.__vrActiveBookingId;if(b){fetch(api+'/bookings/web/'+b+'/cancel',{method:'POST',headers:{'Authorization':'Bearer '+key}}).catch(function(){});window.__vrActiveBookingId=null;try{localStorage.removeItem('vr_active_booking');localStorage.removeItem('vr_scheduled_ride');}catch(_){}return true;}return false;};
+  window.__vrCancelBooking=function(api,key){var b=window.__vrActiveBookingId;if(b){fetch(api+'/bookings/web/'+b+'/cancel',{method:'POST',headers:{'Authorization':'Bearer '+key}}).catch(function(){});window.__vrActiveBookingId=null;try{localStorage.removeItem('vr_active_booking');localStorage.removeItem('vr_scheduled_ride');}catch(_){}try{if(window.__vrClearBookState)window.__vrClearBookState();}catch(_){}return true;}return false;};
   window.__vrNoDriverShow=function(overlay,reason){
     try{if(overlay&&overlay.parentNode)overlay.parentNode.removeChild(overlay)}catch(_e){}
     window.__vrActiveBookingId=null;
@@ -5789,7 +5798,7 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__locPicker:not([hidden]) > *{position:relative;z-index:2}
 .vipRide__locPicker[hidden]{display:none!important}
 .vipRide__locPicker:not([hidden]){animation:lpIn 300ms ease both}
-.vipRide__locPicker.is-closing{animation:lpOut 250ms ease both}
+.vipRide__locPicker.is-closing{animation:lpOut 380ms ease both;pointer-events:none}
 .vipRide__locPicker__topRow{display:flex;align-items:flex-start;gap:10px;padding:12px 12px 0;flex-shrink:0}
 .vipRide__locPicker__back{width:38px;height:38px;border-radius:50%;background:rgba(12,12,18,.85);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;transition:background 150ms;flex-shrink:0;margin-top:8px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .vipRide__locPicker__back:active{background:rgba(255,255,255,.14)}
@@ -7123,7 +7132,11 @@ window.__vrPrefillFromUrl();
    que se llegó: manda el estado, porque si no se perdían el vehículo elegido y
    el resto del formulario. Con otra URL —búsqueda nueva desde la portada—
    sigue mandando la URL. */
-if(!window.__vrUrlPrefilled||_vrSameUrlState())_vrRestoreState();
+if(!window.__vrUrlPrefilled||_vrSameUrlState()){
+  /* doble candado de la apertura limpia: sin parámetros en la URL no se
+     restaura nada de campos (vr_book_state ya se descartó al arrancar) */
+  if(/[?&](pickup|dropoff)=/.test(location.search))_vrRestoreState();
+}
 /* ya está todo en su sitio: se destapa la pantalla (ver "Recarga sin parpadeo") */
 setTimeout(function(){try{if(window.__vrBootDone)window.__vrBootDone();}catch(_){}},520);
 }
@@ -8046,13 +8059,18 @@ setTimeout(_vrPfKick,1200);
       setTimeout(function(){if(lpDropoffEl&&!lpDropoffEl.value)lpDropoffEl.focus()},280);
       if(window.__vrLpRenderRecent)window.__vrLpRenderRecent(lpDropoffEl);
     }
-    function closeLocPicker(skipClean){
+    function closeLocPicker(skipClean,instant){
       if(skipClean&&currentStep===3)_vrUrlTrip();else _vrUrlSet(null,'');
       hideSuggestions();_locPickerPrev=null;_vrSheetShow('lp');
+      /* la cabecera recupera su estilo ANTES del fundido: vrm-full ya se quita
+         al empezar (watchFull reacciona a is-closing), así que la barra se ve
+         desde el primer frame transparente; si se esperaba a que acabara el
+         fundido, durante 380 ms quedaba negra y con z-index de overlay. En el
+         cierre con skipClean manda el overlay que entra (él pone su estilo). */
+      if(!skipClean)setNavBg(null);
       var _dC=function(){
         locPicker.setAttribute('hidden','');locPicker.classList.remove('is-closing');
         if(skipClean)return;
-        setNavBg(null);
         /* el destino elegido se conserva al salir del buscador (volver atrás no
            borra nada); solo se limpia la ruta si de verdad no hay destino */
         try{if(!dropoffPlace){clearRoute();routeDurationSec=null;hideMarkerLabels();if(dropoffMarker){dropoffMarker.remove();dropoffMarker=null}if(dropoffEl)dropoffEl.value='';if(lpDropoffEl)lpDropoffEl.value='';}}catch(e){}
@@ -8069,7 +8087,12 @@ setTimeout(_vrPfKick,1200);
         try{afterInputChange();}catch(_){}
         updateCompactArrow();
       };
-      if(window.__vrMorphClose)window.__vrMorphClose(locPicker,_dC);else{locPicker.classList.add('is-closing');setTimeout(_dC,280);}
+      /* instant: la hoja se oculta YA, sin fundido — la página de abajo se
+         recompone (watchFull quita vrm-full al ponerse hidden) cuando la hoja
+         ya no se ve, así que no hay fantasmas; lo que entre después (paso 3)
+         anima solo su entrada. El camino de "volver atrás" sigue con fundido. */
+      if(instant){_dC();}
+      else if(window.__vrMorphClose)window.__vrMorphClose(locPicker,_dC);else{locPicker.classList.add('is-closing');setTimeout(_dC,280);}
     }
     openBtn.addEventListener('click',openLocPicker);
     closeBtn&&closeBtn.addEventListener('click',function(){closeLocPicker()});
@@ -8241,9 +8264,14 @@ setTimeout(_vrPfKick,1200);
               else if(forWhich==='pickup'){_gpsActive=false;_pickupManuallySet=true;pickupPlace=obj;if(pickupEl)pickupEl.value=name;if(lpPickupEl){lpPickupEl.value=name;lpPickupEl.removeAttribute('readonly')}}
               afterInputChange();setMarker(forWhich,lat,lng);computeRoute();
               updateClearBtns();updateCompactArrow();
+              /* el mousedown de la sugerencia lleva preventDefault, así que el
+                 input nunca pierde el foco y se queda con el caret al final
+                 mostrando el texto cortado: se suelta el foco y se rebobina el
+                 scroll horizontal antes de cerrar la hoja */
+              try{[lpPickupEl,lpDropoffEl,pickupEl,dropoffEl].forEach(function(el){if(el){el.blur();el.scrollLeft=0;}});}catch(_){}
               _acSessionToken=crypto.randomUUID?crypto.randomUUID():(Date.now()+''+Math.random()).replace('.','');
               var done=currentMode==='hourly'?pickupPlace:(pickupPlace&&dropoffPlace);
-              if(currentStep===3&&done)setTimeout(function(){closeLocPicker(true);setTimeout(function(){try{computeRoute();fitRouteBounds();setTimeout(showMarkerLabels,2000)}catch(_){}},300)},150);
+              if(currentStep===3&&done)setTimeout(function(){closeLocPicker(true,true);setTimeout(function(){try{computeRoute();fitRouteBounds();setTimeout(showMarkerLabels,2000)}catch(_){}},300)},150);
               /* En el teléfono, elegir una dirección de la lista ya no abre la
                  página de ajustar el pin: con las dos direcciones puestas se
                  pasa directo a elegir vehículo, y si falta una, el buscador se
@@ -8252,7 +8280,12 @@ setTimeout(_vrPfKick,1200);
                 /* setNavBg(null) es imprescindible: la página del pin era quien
                    devolvía la barra a fixed; sin esto quedaba en relative y
                    empujaba toda la sección 65px hacia abajo */
-                if(done)setTimeout(function(){setNavBg(null);closeLocPicker(true);setTimeout(function(){try{goToStep(3,'forward');computeRoute();setTimeout(fitRouteBounds,300);setTimeout(showMarkerLabels,2000)}catch(_){}},250)},150);
+                /* cierre al instante (segundo argumento de closeLocPicker): la
+                   hoja se oculta de golpe y solo el paso 3 anima su entrada.
+                   Con el fundido la página de abajo se recomponía a través de
+                   la hoja semitransparente (fantasmas) al solaparse las
+                   animaciones. */
+                if(done)setTimeout(function(){setNavBg(null);closeLocPicker(true,true);try{goToStep(3,'forward');computeRoute();setTimeout(fitRouteBounds,300);setTimeout(showMarkerLabels,2000)}catch(_){}},150);
                 else if(forWhich==='pickup'&&lpDropoffEl&&!lpDropoffEl.value.trim())setTimeout(function(){try{lpDropoffEl.focus()}catch(_){}},150);
                 else if(forWhich==='dropoff'&&lpPickupEl&&!lpPickupEl.value.trim())setTimeout(function(){try{lpPickupEl.removeAttribute('readonly');lpPickupEl.focus()}catch(_){}},150);
               }
@@ -11314,8 +11347,26 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     if (!lp || lp.__vrmWatched) return;
     lp.__vrmWatched = 1;
     var sync = function () {
-      var on = mq.matches && !lp.hasAttribute('hidden');
-      if (document.body.classList.contains('vrm-full') !== on) document.body.classList.toggle('vrm-full', on);
+      /* El cierre empieza con la clase is-closing (fundido de 380 ms) y el
+         atributo hidden no se pone hasta que el fundido ACABA. Mirando solo
+         hidden, la página de abajo se quedaba en modo vrm-full —sin cabecera
+         y con el relleno de <main> a 0, o sea todo subido ~96 px— durante
+         todo el fundido, y al terminar "caía" a su sitio: el salto. Ahora se
+         reacciona a is-closing: la página vuelve entera y quieta ANTES del
+         primer frame transparente. */
+      var closing = lp.classList.contains('is-closing');
+      var on = mq.matches && !lp.hasAttribute('hidden') && !closing;
+      if (on && !document.body.classList.contains('vrm-full')) {
+        /* al ABRIR es al revés: la hoja entra con su propio fundido (lpIn) y
+           aún es translúcida; si la página sube en ese instante el tirón se
+           ve a través de ella. Se espera a que la hoja ya tape la pantalla. */
+        setTimeout(function () {
+          if (mq.matches && !lp.hasAttribute('hidden') && !lp.classList.contains('is-closing'))
+            document.body.classList.add('vrm-full');
+        }, 320);
+      } else if (!on) {
+        document.body.classList.remove('vrm-full');
+      }
       /* las píldoras vuelven a su sitio y el mapa se recoloca aquí mismo, no en
          el repaso de cada medio segundo: si no, al cerrar el buscador se veía
          medio segundo sin píldoras y con el mapa saltando, como si la página
@@ -11323,7 +11374,7 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
       place();
       mapCard();
     };
-    new MutationObserver(sync).observe(lp, { attributes: true, attributeFilter: ['hidden'] });
+    new MutationObserver(sync).observe(lp, { attributes: true, attributeFilter: ['hidden', 'class'] });
     sync();
   }
 
@@ -11474,7 +11525,9 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
   function place() {
     if (!pills) return;
     var lp = q('[data-vipride-locpicker]');
-    if (lp && !lp.hasAttribute('hidden')) {
+    /* con is-closing la hoja ya se está yendo: las píldoras vuelven a su sitio
+       en el primer frame del fundido, no cuando acaba */
+    if (lp && !lp.hasAttribute('hidden') && !lp.classList.contains('is-closing')) {
       lpHead();
       var row = lp.querySelector('.vipRide__locPicker__topRow');
       if (row && row.parentNode && pills.nextElementSibling !== row) row.parentNode.insertBefore(pills, row);
