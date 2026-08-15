@@ -487,15 +487,16 @@ body:not(.has-hero) main, body:not(.has-hero) > section:first-of-type {
 }
 .cf-bottom__social a {
   display: inline-flex;
-  width: 36px; height: 36px;
+  width: 38px; height: 38px;
   align-items: center; justify-content: center;
-  border: 1px solid rgba(212, 175, 55, .25);
+  border: 1px solid rgba(212, 175, 55, .35);
   border-radius: 50%;
-  color: var(--gold-light);
-  transition: color .2s ease, border-color .2s ease, transform .2s ease;
+  color: #fff;
+  background: rgba(212, 175, 55, .08);
+  transition: color .2s ease, border-color .2s ease, transform .2s ease, background .2s ease;
 }
-.cf-bottom__social a svg { width: 16px; height: 16px; }
-.cf-bottom__social a:hover { color: var(--gold); border-color: var(--gold); transform: translateY(-2px); }
+.cf-bottom__social a svg { width: 18px; height: 18px; }
+.cf-bottom__social a:hover { color: var(--gold-light); border-color: var(--gold); background: rgba(212, 175, 55, .18); transform: translateY(-2px); }
 .cf-bottom__copy {
   color: var(--ink-faint);
   font-size: 12px;

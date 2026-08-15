@@ -20,8 +20,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css?v=20260815l">
-<link rel="stylesheet" href="assets/home.css?v=20260816a">
+<link rel="stylesheet" href="assets/site.css?v=20260816j">
+<link rel="stylesheet" href="assets/home.css?v=20260816j">
 
 <!-- sesion: la cabecera no puede parpadear como "sin sesion" al refrescar -->
 <style>html.cir-authed .ch-login,html.cir-authed .ch-signup{display:none!important}</style>
@@ -73,56 +73,58 @@
 @media(max-width:820px){.help-tiles,.help-support{grid-template-columns:1fr;max-width:480px}}
 /* Chat de soporte en la web */
 button.help-card{font:inherit;cursor:pointer}
-.sc-panel{position:fixed;top:76px;right:20px;bottom:20px;z-index:1200;width:400px;max-width:calc(100vw - 24px);display:flex;flex-direction:column;background:#181c23;border:1px solid rgba(212,175,55,.35);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.6);overflow:hidden;transform-origin:100% 100%;animation:sc-in .3s cubic-bezier(.22,1,.36,1)}
-@keyframes sc-in{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+/* panel flotante: sube suavemente desde abajo a la derecha, nunca tapa el header */
+.sc-panel{position:fixed;top:76px;right:20px;bottom:20px;z-index:1200;width:400px;max-width:calc(100vw - 24px);display:flex;flex-direction:column;background:#181c23;border:1px solid rgba(212,175,55,.35);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.6);overflow:hidden;transform-origin:100% 100%;animation:sc-in .38s cubic-bezier(.22,1,.36,1)}
+@keyframes sc-in{from{transform:translateY(40px) scale(.96);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){.sc-panel{animation:none}}
 /* con el chat abierto el bubble de WhatsApp estorba: se oculta */
 body.sc-open .wa-fab{display:none}
 .sc-panel[hidden]{display:none}
 .sc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;background:#0e1116;border-bottom:1px solid rgba(255,255,255,.08)}
 .sc-head__t{display:flex;align-items:center;gap:10px;font-family:Cinzel,serif;font-size:.98rem;font-weight:600;letter-spacing:.05em;color:#f5d77a}
-.sc-dot{width:8px;height:8px;border-radius:50%;background:#3ecf6e;flex:none}
+.sc-head__t>svg{width:22px;height:22px;flex:none;color:#d4af37}
 .sc-head__txt{display:flex;flex-direction:column;line-height:1.15}
 .sc-head__txt small{font-family:Inter,system-ui,sans-serif;font-size:.68rem;font-weight:500;letter-spacing:.06em;color:#8f96a3}
-.sc-close{background:none;border:0;color:#aab0bb;cursor:pointer;padding:6px;border-radius:8px}
-.sc-close:hover,.sc-close:focus-visible{color:#f5d77a;outline:none}
-.sc-close svg{width:18px;height:18px;display:block}
-.sc-msgs{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:10px;background:#0e1116}
-.sc-msg{max-width:82%;padding:9px 12px;border-radius:14px;font-size:.9rem;line-height:1.5;word-break:break-word}
-.sc-msg small{display:block;font-size:.68rem;margin-top:4px;opacity:.7}
-.sc-msg__who{display:block;font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px;color:#d4af37}
-.sc-msg--in{align-self:flex-start;background:#232a34;color:#e8eaee;border-bottom-left-radius:4px}
-.sc-msg--out{align-self:flex-end;background:rgba(212,175,55,.92);color:#14100a;border-bottom-right-radius:4px}
-.sc-msg--sys{align-self:center;background:none;color:#8a919c;font-size:.78rem;text-align:center;padding:2px 10px}
-.sc-note{align-self:center;color:#e0a03a;font-size:.78rem;text-align:center;padding:2px 10px}
-.sc-typing{flex:none;color:#8a919c;font-size:.82rem;font-style:italic;padding:6px 16px;background:#0e1116}
-.sc-form{display:flex;gap:8px;padding:12px;background:#181c23;border-top:1px solid rgba(255,255,255,.08);position:relative}
-.sc-amenu{position:absolute;left:10px;bottom:62px;display:flex;flex-direction:column;gap:2px;min-width:190px;padding:6px;background:#0e1116;border:1px solid rgba(212,175,55,.35);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.55);z-index:5;animation:sc-msg-in .22s cubic-bezier(.22,1,.36,1) both}
-.sc-amenu button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:none;border:0;border-radius:10px;color:#eceef2;font:500 13.5px/1 Inter,system-ui,sans-serif;text-align:left;cursor:pointer}
-.sc-amenu button:hover{background:rgba(212,175,55,.1);color:#f5d77a}
-.sc-amenu button svg{width:17px;height:17px;color:#d4af37;flex:none}
-.sc-form input{flex:1;min-width:0;background:#0e1116;border:1px solid rgba(255,255,255,.12);border-radius:22px;color:#f2f3f5;font:inherit;font-size:.92rem;padding:10px 14px}
-.sc-form input:focus{outline:none;border-color:#d4af37}
-.sc-form button{flex:none;width:42px;height:42px;border:0;border-radius:50%;background:#d4af37;color:#14100a;display:grid;place-items:center;cursor:pointer}
-.sc-form button:disabled{opacity:.5;cursor:default}
-.sc-form button svg{width:18px;height:18px}
-.sc-chips{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;background:#0e1116}
-.sc-chips[hidden]{display:none}
-.sc-chip{background:none;border:1px solid rgba(212,175,55,.55);border-radius:18px;color:#f5d77a;font:inherit;font-size:.8rem;font-weight:500;padding:7px 13px;cursor:pointer;transition:border-color .2s ease,background .2s ease}
-/* entrada sedosa: cada mensaje y chip aparece deslizandose suave, nunca de golpe */
-@keyframes sc-msg-in{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
-.sc-msg{animation:sc-msg-in .28s cubic-bezier(.22,1,.36,1) both}
-.sc-chip{animation:sc-msg-in .28s cubic-bezier(.22,1,.36,1) both}
-@media (prefers-reduced-motion:reduce){.sc-msg,.sc-chip{animation:none}}
-.sc-chip:hover,.sc-chip:focus-visible{border-color:#d4af37;background:rgba(212,175,55,.12);outline:none}
-.sc-retry{background:none;border:1px solid rgba(212,175,55,.55);border-radius:14px;color:#f5d77a;font:inherit;font-size:.76rem;font-weight:600;padding:4px 12px;cursor:pointer;margin-left:8px}
-.sc-retry:hover,.sc-retry:focus-visible{border-color:#d4af37;outline:none}
 .sc-end{background:none;border:1px solid rgba(212,175,55,.5);border-radius:14px;color:#f5d77a;font:inherit;font-size:.74rem;font-weight:600;letter-spacing:.04em;padding:5px 12px;cursor:pointer;transition:border-color .2s ease,background .2s ease}
 .sc-end:hover,.sc-end:focus-visible{border-color:#d4af37;background:rgba(212,175,55,.12);outline:none}
 .sc-end:disabled{opacity:.5;cursor:default}
-.sc-attach{flex:none;width:42px;height:42px;border:1px solid rgba(212,175,55,.35);border-radius:50%;background:none;color:#d4af37;display:grid;place-items:center;cursor:pointer}
-.sc-attach:hover,.sc-attach:focus-visible{border-color:#d4af37;outline:none}
-.sc-attach:disabled{opacity:.5;cursor:default}
+.sc-msgs{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:10px;background:#0e1116}
+/* mensajes estilo Lyft: burbujas con sombra suave y entrada sedosa */
+.sc-msg{max-width:82%;padding:11px 14px;border-radius:18px;font-size:.92rem;line-height:1.5;word-break:break-word;box-shadow:0 2px 8px rgba(0,0,0,.18);animation:sc-msg-in .34s cubic-bezier(.22,1,.36,1) both}
+.sc-msg small{display:block;font-size:.68rem;margin-top:5px;opacity:.75}
+.sc-msg__who{display:block;font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;color:#d4af37}
+.sc-msg--in{align-self:flex-start;background:#232a34;color:#e8eaee;border-bottom-left-radius:5px}
+.sc-msg--out{align-self:flex-end;background:rgba(212,175,55,.92);color:#14100a;border-bottom-right-radius:5px}
+.sc-msg--sys{align-self:center;background:none;color:#8a919c;font-size:.78rem;text-align:center;padding:2px 10px;box-shadow:none}
+.sc-note{align-self:center;color:#e0a03a;font-size:.78rem;text-align:center;padding:2px 10px}
+.sc-note--err{color:#ff6b6b}
+.sc-typing{flex:none;color:#8a919c;font-size:.82rem;font-style:italic;padding:6px 16px;background:#0e1116}
+.sc-form{display:flex;gap:8px;padding:12px;background:#181c23;border-top:1px solid rgba(255,255,255,.08);position:relative}
+/* SOLO los botones hijos directos de .sc-form son redondos dorados.
+   Esto evita que los botones dentro de .sc-amenu hereden width:42px;height:42px. */
+.sc-form>button{flex:none;width:42px;height:42px;border:0;border-radius:50%;background:#d4af37;color:#14100a;display:grid;place-items:center;cursor:pointer;transition:transform .15s ease,opacity .15s ease}
+.sc-form>button:hover{transform:scale(1.05)}
+.sc-form>button:disabled{opacity:.5;cursor:default;transform:none}
+.sc-form>button svg{width:18px;height:18px}
+.sc-form input{flex:1;min-width:0;background:#0e1116;border:1px solid rgba(255,255,255,.12);border-radius:22px;color:#f2f3f5;font:inherit;font-size:.92rem;padding:10px 14px}
+.sc-form input:focus{outline:none;border-color:#d4af37}
+/* menu de adjuntos: ancho fijo, texto siempre visible, por encima de todo */
+.sc-amenu{position:absolute;left:10px;bottom:62px;display:flex;flex-direction:column;gap:4px;min-width:200px;max-width:calc(100% - 20px);padding:8px;background:#0e1116;border:1px solid rgba(212,175,55,.35);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.55);z-index:10;animation:sc-amenu-in .22s cubic-bezier(.22,1,.36,1) both}
+@keyframes sc-amenu-in{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+.sc-amenu button{display:flex!important;align-items:center;gap:10px;width:100%;min-height:40px;padding:10px 12px;background:none;border:0;border-radius:10px;color:#eceef2;font-family:Inter,system-ui,sans-serif;font-size:13.5px;font-weight:500;line-height:1.3;text-align:left;cursor:pointer;white-space:nowrap}
+.sc-amenu button:hover,.sc-amenu button:focus-visible{background:rgba(212,175,55,.1);color:#f5d77a;outline:none}
+.sc-amenu button svg{width:18px;height:18px;color:#d4af37;flex:none}
+.sc-amenu[hidden]{display:none!important}
+.sc-chips{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;background:#0e1116}
+.sc-chips[hidden]{display:none}
+.sc-chip{background:none;border:1px solid rgba(212,175,55,.55);border-radius:18px;color:#f5d77a;font:inherit;font-size:.8rem;font-weight:500;padding:7px 13px;cursor:pointer;transition:border-color .2s ease,background .2s ease,color .2s ease;animation:sc-chip-in .34s cubic-bezier(.22,1,.36,1) both}
+@keyframes sc-msg-in{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes sc-chip-in{from{transform:translateY(8px) scale(.96);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.sc-msg,.sc-chip,.sc-amenu{animation:none}}
+.sc-chip:hover,.sc-chip:focus-visible{border-color:#d4af37;background:rgba(212,175,55,.12);outline:none}
+.sc-attach{flex:none;width:42px;height:42px;border:1px solid rgba(212,175,55,.35);border-radius:50%;background:none;color:#d4af37;display:grid;place-items:center;cursor:pointer;transition:border-color .2s ease,transform .15s ease}
+.sc-attach:hover,.sc-attach:focus-visible{border-color:#d4af37;outline:none;transform:scale(1.05)}
+.sc-attach:disabled{opacity:.5;cursor:default;transform:none}
 .sc-attach svg{width:18px;height:18px}
 .sc-att-img{display:block;max-width:200px;border-radius:10px;margin-top:6px}
 .sc-att-doc{display:inline-flex;align-items:center;gap:7px;margin-top:6px;padding:7px 11px;border:1px solid rgba(212,175,55,.45);border-radius:10px;color:inherit;font-size:.82rem;text-decoration:none}
@@ -399,8 +401,8 @@ body.sc-open .wa-fab{display:none}
 <!-- Chat de soporte en la web (solo usuarios con sesion) -->
 <div class="sc-panel" id="sc-panel" hidden role="dialog" aria-label="Chat de soporte">
   <div class="sc-head">
-    <span class="sc-head__t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:22px;height:22px;flex:none"><path d="M4 13a8 8 0 0116 0"/><rect x="2.5" y="13" width="4.5" height="6.5" rx="2"/><rect x="17" y="13" width="4.5" height="6.5" rx="2"/><path d="M20.5 19.5a3 3 0 01-3 3H13"/></svg><span class="sc-head__txt">Cruise Support<small>Powered by AI</small></span></span>
-    <button class="sc-end" type="button" id="sc-end">Terminar chat</button>
+    <span class="sc-head__t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.3 13.3a7.7 7.7 0 0115.4 0"/><rect x="2.8" y="13.2" width="4.2" height="6.5" rx="2.1"/><rect x="17" y="13.2" width="4.2" height="6.5" rx="2.1"/><path d="M20.5 19.5a3 3 0 01-3 3h-3.6"/></svg><span class="sc-head__txt">Cruise Support<small>Powered by AI</small></span></span>
+    <button class="sc-end" type="button" id="sc-end" aria-label="Finalizar chat">Finalizar chat</button>
   </div>
   <div class="sc-msgs" id="sc-msgs"></div>
   <div class="sc-chips" id="sc-chips" hidden></div>
@@ -463,8 +465,8 @@ body.sc-open .wa-fab{display:none}
         <a href="privacy.html">Privacidad</a>
       </nav>
       <div class="cf-bottom__social">
-        <a href="https://facebook.com/cruiseinride" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
-        <a href="https://instagram.com/cruiseinride" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg></a>
+        <a class="cf-social__fb" href="https://facebook.com/cruiseinride" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+        <a class="cf-social__ig" href="https://instagram.com/cruiseinride" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.063 2.633.332 3.608 1.007.99.685 1.685 1.68 2.03 2.985.348 1.29.466 2.726.466 4.775 0 2.05-.118 3.485-.466 4.775-.345 1.305-1.04 2.3-2.03 2.985-.975.675-2.242.944-3.608 1.007-1.266.058-1.646.07-4.85.07-3.204 0-3.584-.012-4.85-.07-1.366-.063-2.633-.332-3.608-1.007-.99-.685-1.685-1.68-2.03-2.985C2.285 15.485 2.167 14.05 2.167 12c0-2.05.118-3.485.466-4.775.345-1.305 1.04-2.3 2.03-2.985.975-.675 2.242-.944 3.608-1.007 1.266-.058 1.646-.07 4.85-.07zM12 0C8.741 0 8.333.014 7.053.072 5.723.134 4.56.39 3.495 1.128c-1.08.75-1.84 1.82-2.22 3.22C1.01 5.412.903 6.818.903 8.756c0 1.938.107 3.344.372 4.408.38 1.4 1.14 2.47 2.22 3.22 1.065.738 2.228.994 3.558 1.056 1.28.058 1.688.072 4.947.072 3.259 0 3.667-.014 4.947-.072 1.33-.062 2.493-.318 3.558-1.056 1.08-.75 1.84-1.82 2.22-3.22.265-1.064.372-2.47.372-4.408 0-1.938-.107-3.344-.372-4.408-.38-1.4-1.14-2.47-2.22-3.22C19.44.39 18.277.134 16.947.072 15.667.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 6.162 6.162A6.21 6.21 0 0 0 12 5.838zm0 10.162A3.999 3.999 0 1 1 16 12a4.004 4.004 0 0 1-4 4zm6.406-8.845a1.27 1.27 0 1 1-1.27-1.27 1.27 1.27 0 0 1 1.27 1.27z"/></svg></a>
       </div>
       <p class="cf-bottom__copy">© 2026 CruiseInRide. Todos los derechos reservados.</p>
     </div>
@@ -535,39 +537,79 @@ body.sc-open .wa-fab{display:none}
 <script>
 /* Chat de soporte en la web: crea/recupera chat via API, polling cada 4s mientras este abierto */
 (function(){
-  /* JWT del usuario: DIRECTO a Railway (como account/wallet). El proxy de
-     Cloudflare es solo para rutas con web key; por él los JWT endpoints
-     devolvían 401. */
   var API='https://cruiseapp2-production.up.railway.app';
   var AUTH='auth.html?return=contact%23support';
+  var I18N={
+    es:{
+      placeholder:'Escribe tu mensaje…',
+      expired:'Tu sesión expiró. Inicia sesión de nuevo…',
+      rateLimit:'Has enviado muchos mensajes. Espera un minuto antes de continuar.',
+      connError:'No se pudo conectar con soporte. Revisa tu conexión e inténtalo de nuevo.',
+      fileError:'Solo imágenes o PDF hasta 10 MB.',
+      sending:'Enviando…',
+      closed:'Este chat fue cerrado por soporte.',
+      ended:'Chat finalizado.',
+      ending:'Finalizando…',
+      endChat:'Finalizar chat',
+      typing:'El asistente está escribiendo…',
+      assistant:'Asistente',
+      support:'Soporte',
+      doc:'Documento',
+      img:'Imagen adjunta'
+    },
+    en:{
+      placeholder:'Type your message…',
+      expired:'Your session expired. Please sign in again…',
+      rateLimit:'You sent too many messages. Wait a minute before continuing.',
+      connError:"Couldn't reach support. Check your connection and try again.",
+      fileError:'Only images or PDF up to 10 MB.',
+      sending:'Sending…',
+      closed:'This chat was closed by support.',
+      ended:'Chat ended.',
+      ending:'Ending…',
+      endChat:'End Chat',
+      typing:'The assistant is typing…',
+      assistant:'Assistant',
+      support:'Support',
+      doc:'Document',
+      img:'Attached image'
+    }
+  };
+  function loc(){return (document.documentElement.lang||'').indexOf('es')===0?'es':'en';}
+  function t(k){return (I18N[loc()]||I18N.en)[k]||I18N.en[k];}
+
   var panel=document.getElementById('sc-panel'),msgs=document.getElementById('sc-msgs'),
       typing=document.getElementById('sc-typing'),form=document.getElementById('sc-form'),
       input=document.getElementById('sc-input'),sendBtn=document.getElementById('sc-send'),
       chips=document.getElementById('sc-chips'),endBtn=document.getElementById('sc-end'),
-      attachBtn=document.getElementById('sc-attach'),fileInput=document.getElementById('sc-file');
-  if(!panel){return;}
-  var chatId=null,pollTimer=null,seen={},opening=false,awaitingReply=0,hasUserMsg=false,chatClosed=false,ending=false;
+      attachBtn=document.getElementById('sc-attach'),fileInput=document.getElementById('sc-file'),
+      amenu=document.getElementById('sc-amenu');
+  if(!panel)return;
+  input.placeholder=t('placeholder')||'Escribe tu mensaje…';
+  typing.textContent=t('typing');
+
+  var chatId=null,pollTimer=null,seen={},opening=false,awaitingReply=0,hasUserMsg=false,chatClosed=false,ending=false,rateLimitUntil=0;
   function token(){try{return localStorage.getItem('vr_at');}catch(_){return null;}}
-  /* SOLO Authorization + Content-Type: el proxy de Cloudflare no permite
-     X-API-Key en su CORS (Access-Control-Allow-Headers) y el navegador
-     bloqueaba la llamada entera en el preflight. El backend solo necesita
-     el JWT del usuario. */
   function headers(){return {'Authorization':'Bearer '+token(),'Content-Type':'application/json'};}
   function goAuth(){location.href=AUTH;}
   function timeFmt(s){var d=new Date(s);return isNaN(d.getTime())?'':d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
   function nearBottom(){return msgs.scrollHeight-msgs.scrollTop-msgs.clientHeight<80;}
   function scrollEnd(){msgs.scrollTop=msgs.scrollHeight;}
+  function isRateLimited(){return Date.now()<rateLimitUntil;}
+  function setRateLimited(){rateLimitUntil=Date.now()+60000;}
+
   function addMsg(m){
-    if(seen[m.id]){return;}
+    if(seen[m.id])return;
     seen[m.id]=1;
     var role=m.sender_role||'bot';
-    if(role==='rider'){hasUserMsg=true;}
+    if(role==='rider')hasUserMsg=true;
     var div=document.createElement('div');
     div.className='sc-msg '+(role==='rider'?'sc-msg--out':(role==='system'?'sc-msg--sys':'sc-msg--in'));
+    div.style.animationDelay=(Object.keys(seen).length*0.03)+'s';
     if(role==='bot'||role==='dispatch'){
       var who=document.createElement('span');
       who.className='sc-msg__who';
-      who.textContent=(role==='bot')?'Asistente':'Soporte';
+      who.textContent=(role==='bot')?t('assistant'):t('support');
       div.appendChild(who);
     }
     div.appendChild(document.createTextNode(m.message||''));
@@ -576,62 +618,62 @@ body.sc-open .wa-fab{display:none}
       a.href=m.attachment_url;a.target='_blank';a.rel='noopener';
       if(m.attachment_type&&m.attachment_type.indexOf('image/')===0){
         var img=document.createElement('img');
-        img.className='sc-att-img';img.src=m.attachment_url;img.alt=m.message||'Imagen adjunta';
+        img.className='sc-att-img';img.src=m.attachment_url;img.alt=m.message||t('img');
         a.appendChild(img);
       }else{
         a.className='sc-att-doc';
         a.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>';
-        a.appendChild(document.createTextNode('Documento'));
+        a.appendChild(document.createTextNode(t('doc')));
       }
       div.appendChild(a);
     }
-    var t=timeFmt(m.created_at);
-    if(t&&role!=='system'){var sm=document.createElement('small');sm.textContent=t;div.appendChild(sm);}
+    var tm=timeFmt(m.created_at);
+    if(tm&&role!=='system'){var sm=document.createElement('small');sm.textContent=tm;div.appendChild(sm);}
     msgs.appendChild(div);
   }
-  function note(txt){
+
+  function note(txt,isErr){
     var n=document.createElement('div');
-    n.className='sc-note';n.textContent=txt;
+    n.className=isErr?'sc-note sc-note--err':'sc-note';
+    n.textContent=txt;
     msgs.appendChild(n);scrollEnd();
     return n;
   }
   function stopPoll(){if(pollTimer){clearInterval(pollTimer);pollTimer=null;}}
   function sessionExpired(){
     stopPoll();
-    note('Tu sesión expiró. Inicia sesión de nuevo…');
+    note(t('expired'),true);
     try{sessionStorage.removeItem('vr_support_chat');}catch(_){}
-    /* token vencido: se limpia la sesión local para que auth no rebote a la cuenta
-       y el login pida los datos de nuevo */
     try{['vr_at','vr_au','vr_photo_local'].forEach(function(k){localStorage.removeItem(k);});}catch(_){}
-    setTimeout(goAuth,1600);
+    setTimeout(goAuth,1800);
   }
+  function handleResponse(r,on429){
+    if(r.status===401){sessionExpired();return null;}
+    if(r.status===429){setRateLimited();if(on429)on429();return null;}
+    if(!r.ok){throw new Error('http '+r.status);}
+    return r;
+  }
+
   function loadMessages(initial){
-    if(!chatId){return;}
-    return fetch(API+'/auth/web/support/chat/'+chatId+'/messages',{headers:headers()})
-      .then(function(r){
-        if(r.status===401){sessionExpired();return null;}
-        if(!r.ok){throw new Error('http '+r.status);}
-        return r.json();
-      })
+    if(!chatId)return Promise.resolve();
+    return fetch(API+'/auth/web/support/chat/'+chatId+'/messages',{headers:{'Authorization':'Bearer '+token()}})
+      .then(function(r){return handleResponse(r,function(){note(t('rateLimit'),true);});})
+      .then(function(r){return r?r.json():null;})
       .then(function(data){
-        if(!data){return;}
+        if(!data)return;
         var stick=initial||nearBottom();
         var list=data.messages||[],i,inMax=0;
-        for(i=0;i<list.length;i++){addMsg(list[i]);}
-        for(i=0;i<list.length;i++){
-          var m=list[i];
-          if(m.sender_role!=='rider'&&m.id>inMax){inMax=m.id;}
-        }
+        for(i=0;i<list.length;i++)addMsg(list[i]);
+        for(i=0;i<list.length;i++){var m=list[i];if(m.sender_role!=='rider'&&m.id>inMax)inMax=m.id;}
         if(awaitingReply&&inMax>awaitingReply){typing.hidden=true;awaitingReply=0;}
-        if(!chatClosed&&(data.status==='closed'||data.closed===true)){lockChat();}
-        if(stick){scrollEnd();}
+        if(!chatClosed&&(data.status==='closed'||data.closed===true))lockChat();
+        if(stick)scrollEnd();
       })
-      .catch(function(){/* fallo de red: el siguiente poll reintenta sin tocar la UI */});
+      .catch(function(){});
   }
   function startPoll(){stopPoll();pollTimer=setInterval(function(){loadMessages(false);},4000);}
-  /* chips de bienvenida estilo Lyft: solo en un chat nuevo (sin mensajes del
-     usuario); al usarse desaparecen para siempre en esta sesion de chat */
-  var CHIPS=['Problema con un viaje','Cobro o método de pago','Objetos olvidados','Seguridad','Pregunta lo que sea'];
+
+  var CHIPS={es:['Problema con un viaje','Cobro o método de pago','Objetos olvidados','Seguridad','Pregunta lo que sea'],en:['Trip issue','Payment or billing','Lost and found','Safety','Ask anything']};
   function chipsKey(){return 'vr_support_chips_'+chatId;}
   function chipsDone(){try{return sessionStorage.getItem(chipsKey());}catch(_){return '1';}}
   function hideChips(forever){
@@ -639,40 +681,36 @@ body.sc-open .wa-fab{display:none}
     if(forever&&chatId){try{sessionStorage.setItem(chipsKey(),'1');}catch(_){}}
   }
   function maybeShowChips(){
-    if(!chatId||hasUserMsg||chipsDone()){return;}
-    if(!chips.children.length){
-      CHIPS.forEach(function(txt){
-        var b=document.createElement('button');
-        b.type='button';b.className='sc-chip';b.textContent=txt;
-        b.addEventListener('click',function(){
-          hideChips(true);
-          input.value=txt;
-          form.requestSubmit();
-        });
-        chips.appendChild(b);
+    if(!chatId||hasUserMsg||chipsDone()){hideChips(false);return;}
+    chips.innerHTML='';
+    (CHIPS[loc()]||CHIPS.en).forEach(function(txt){
+      var b=document.createElement('button');
+      b.type='button';b.className='sc-chip';b.textContent=txt;
+      b.addEventListener('click',function(){
+        hideChips(true);
+        input.value=txt;
+        form.requestSubmit();
       });
-    }
-    /* primero la bienvenida; las opciones aparecen despues, una por una */
+      chips.appendChild(b);
+    });
     chips.hidden=false;
     Array.prototype.forEach.call(chips.children,function(b,i){
-      b.style.animationDelay=(0.45+i*0.07)+'s';
+      b.style.animationDelay=(0.55+i*0.08)+'s';
     });
   }
+
   function createChat(){
-    /* idioma de la página como punto de partida; el bot luego sigue el
-       idioma de cada mensaje que escriba el cliente */
-    var _loc=(document.documentElement.lang||'en').indexOf('es')===0?'es':'en';
-    return fetch(API+'/auth/web/support/chat',{method:'POST',headers:headers(),body:JSON.stringify({locale:_loc})})
-      .then(function(r){
-        if(r.status===401){sessionExpired();return;}
-        if(!r.ok){throw new Error('http '+r.status);}
-        return r.json().then(function(d){
-          chatId=d.chat_id;
-          try{sessionStorage.setItem('vr_support_chat',String(chatId));}catch(_){}
-          loadMessages(true).then(maybeShowChips);startPoll();
-        });
+    return fetch(API+'/auth/web/support/chat',{method:'POST',headers:headers(),body:JSON.stringify({locale:loc()})})
+      .then(function(r){return handleResponse(r,function(){note(t('rateLimit'),true);});})
+      .then(function(r){return r?r.json():null;})
+      .then(function(d){
+        if(!d)return;
+        chatId=d.chat_id;
+        try{sessionStorage.setItem('vr_support_chat',String(chatId));}catch(_){}
+        loadMessages(true).then(maybeShowChips);startPoll();
       });
   }
+
   function openChat(){
     if(!token()){goAuth();return;}
     panel.hidden=false;
@@ -683,91 +721,73 @@ body.sc-open .wa-fab{display:none}
     var saved=null;
     try{saved=sessionStorage.getItem('vr_support_chat');}catch(_){}
     function done(){opening=false;}
-    var _retried=false;
     function fail(e){
-      /* reintento silencioso una vez: el usuario no debe hacer nada */
-      if(!_retried){_retried=true;setTimeout(function(){
-        if(chatId||opening){return;}
-        createChat().catch(fail).then(function(){if(chatId){loadMessages(true).then(maybeShowChips);startPoll();}});
-      },2500);return;}
-      var n=document.createElement('div');
-      n.className='sc-note';
-      n.textContent='No se pudo conectar con soporte. Inténtalo en unos segundos.'+(e&&e.message?' ('+e.message+')':'');
-      msgs.appendChild(n);scrollEnd();
+      var is429=e&&e.message&&e.message.indexOf('429')!==-1;
+      note(is429?t('rateLimit'):t('connError'),true);
     }
     function proceed(){
       if(saved){
         chatId=parseInt(saved,10)||null;
-        if(!chatId){createChat().catch(fail).then(done);return;}
-        /* valida que el chat guardado siga vivo antes de reutilizarlo */
-        fetch(API+'/auth/web/support/chat/'+chatId+'/messages',{headers:headers()})
-          .then(function(r){
-            if(r.status===401){sessionExpired();return;}
-            if(!r.ok){throw new Error('http '+r.status);}
+        if(!chatId){createChat().then(done).catch(fail);return;}
+        fetch(API+'/auth/web/support/chat/'+chatId+'/messages',{headers:{'Authorization':'Bearer '+token()}})
+          .then(function(r){return handleResponse(r);})
+          .then(function(r){if(!r)return null;return r.json();})
+          .then(function(data){
+            if(!data)return;
             loadMessages(true).then(maybeShowChips);startPoll();
           })
-          .catch(function(){
+          .catch(function(e){
             chatId=null;
             try{sessionStorage.removeItem('vr_support_chat');}catch(_){}
-            createChat().catch(fail);
-          })
-          .then(done);
+            createChat().then(done).catch(fail);
+          });
       }else{
-        createChat().catch(fail).then(done);
+        createChat().then(done).catch(fail);
       }
     }
-    /* primero valida la sesión contra el servidor (como la página de cuenta):
-       token muerto → directo a login sin intentar abrir el chat */
-    fetch(API+'/auth/web/me',{headers:headers()})
-      .then(function(r){if(r.status===401){done();sessionExpired();return;}proceed();})
-      .catch(function(){proceed();});
+    fetch(API+'/auth/web/me',{headers:{'Authorization':'Bearer '+token()}})
+      .then(function(r){
+        if(r.status===401){done();sessionExpired();return;}
+        if(r.status===429){done();setRateLimited();note(t('rateLimit'),true);return;}
+        if(!r.ok){done();fail(new Error('http '+r.status));return;}
+        proceed();
+      })
+      .catch(function(e){done();proceed();});
   }
   function closeChat(){panel.hidden=true;document.body.classList.remove('sc-open');stopPoll();typing.hidden=true;}
-  /* el servidor cerro el chat: se avisa y se bloquea la entrada */
   function lockChat(){
     chatClosed=true;
-    note('Este chat fue cerrado por soporte.');
+    note(t('closed'),true);
     input.disabled=true;sendBtn.disabled=true;attachBtn.disabled=true;
   }
-  /* termina el chat en el servidor; si la llamada falla se cierra igual en
-     local pero se conserva el chat guardado para no perderlo */
   function endChat(){
-    if(ending){return;}
+    if(ending)return;
     if(!chatId){closeChat();return;}
-    ending=true;
-    endBtn.disabled=true;
-    endBtn.textContent='Terminando…';
+    ending=true;endBtn.disabled=true;endBtn.textContent=t('ending');
     var id=chatId;
     fetch(API+'/auth/web/support/chat/'+id+'/end',{method:'POST',headers:headers()})
-      .then(function(r){
-        if(r.status===401){sessionExpired();return;}
-        if(!r.ok){throw new Error('http '+r.status);}
+      .then(function(r){return handleResponse(r);})
+      .then(function(r){return r?r.json():null;})
+      .then(function(){
         try{sessionStorage.removeItem('vr_support_chat');}catch(_){}
         try{sessionStorage.removeItem('vr_support_chips_'+id);}catch(_){}
-        chatId=null;
-        /* el proximo chat es nuevo: se limpia el panel por completo */
-        msgs.innerHTML='';chips.innerHTML='';chips.hidden=true;
+        chatId=null;msgs.innerHTML='';chips.innerHTML='';chips.hidden=true;
         seen={};hasUserMsg=false;awaitingReply=0;chatClosed=false;
         input.disabled=false;sendBtn.disabled=false;attachBtn.disabled=false;
       })
-      .catch(function(){/* fallo de red: conservar chatId y sessionStorage */})
+      .catch(function(){})
       .then(function(){
-        ending=false;
-        endBtn.disabled=false;
-        endBtn.textContent='Terminar chat';
-        closeChat();
+        ending=false;endBtn.disabled=false;endBtn.textContent=t('endChat');closeChat();
       });
   }
-  /* adjuntar foto o documento: FormData sin Content-Type manual (el navegador
-     pone el boundary); solo va el header Authorization */
-  var amenu=document.getElementById('sc-amenu');
+
   function closeAmenu(){if(amenu)amenu.hidden=true;}
   attachBtn.addEventListener('click',function(e){
     e.stopPropagation();
-    if(!chatId||chatClosed){return;}
+    if(!chatId||chatClosed)return;
+    if(isRateLimited()){note(t('rateLimit'),true);return;}
     if(amenu)amenu.hidden=!amenu.hidden;
   });
-  /* cada opcion ajusta el selector de archivos: camara, galeria o documento */
   if(amenu)amenu.querySelectorAll('[data-sc-att]').forEach(function(b){
     b.addEventListener('click',function(){
       var m=b.getAttribute('data-sc-att');
@@ -781,27 +801,21 @@ body.sc-open .wa-fab{display:none}
   fileInput.addEventListener('change',function(){
     var f=fileInput.files&&fileInput.files[0];
     fileInput.value='';
-    if(!f||!chatId||chatClosed){return;}
+    if(!f||!chatId||chatClosed)return;
     var isOk=(f.type&&f.type.indexOf('image/')===0)||f.type==='application/pdf'||/\.pdf$/i.test(f.name||'');
-    if(!isOk||f.size>10*1024*1024){note('Solo imágenes o PDF hasta 10 MB.');return;}
-    var sending=note('Enviando…');
+    if(!isOk||f.size>10*1024*1024){note(t('fileError'),true);return;}
+    var sending=note(t('sending'));
     attachBtn.disabled=true;
-    var fd=new FormData();
-    fd.append('file',f);
+    var fd=new FormData();fd.append('file',f);
     fetch(API+'/auth/web/support/chat/'+chatId+'/attachments',{
       method:'POST',headers:{'Authorization':'Bearer '+token()},body:fd
-    }).then(function(r){
-      if(r.status===401){sessionExpired();return;}
-      if(!r.ok){throw new Error('http '+r.status);}
-      hideChips(true);
-      loadMessages(false);
-    }).catch(function(){
-      note('No se pudo enviar el archivo. Inténtalo de nuevo.');
-    }).then(function(){
-      attachBtn.disabled=false;
-      if(sending&&sending.parentNode){sending.parentNode.removeChild(sending);}
-    });
+    }).then(function(r){return handleResponse(r,function(){note(t('rateLimit'),true);});})
+      .then(function(r){return r?r.json():null;})
+      .then(function(){hideChips(true);loadMessages(false);})
+      .catch(function(){note(t('connError'),true);})
+      .then(function(){attachBtn.disabled=false;if(sending&&sending.parentNode)sending.parentNode.removeChild(sending);});
   });
+
   document.querySelectorAll('[data-support-chat]').forEach(function(el){
     el.addEventListener('click',function(e){e.preventDefault();openChat();});
   });
@@ -809,29 +823,27 @@ body.sc-open .wa-fab{display:none}
   form.addEventListener('submit',function(e){
     e.preventDefault();
     var text=(input.value||'').trim();
-    if(!text||!chatId||chatClosed){return;}
+    if(!text||!chatId||chatClosed)return;
+    if(isRateLimited()){note(t('rateLimit'),true);return;}
     sendBtn.disabled=true;
     fetch(API+'/auth/web/support/chat/'+chatId+'/messages',{
       method:'POST',headers:headers(),body:JSON.stringify({message:text})
-    }).then(function(r){
-      if(r.status===401){sessionExpired();return;}
-      if(r.status===429){note('Espera un momento antes de enviar más mensajes.');return;}
-      if(!r.ok){throw new Error('http '+r.status);}
-      input.value='';
-      hideChips(true);
-      typing.hidden=false;
-      var max=0;
-      for(var id in seen){if(seen.hasOwnProperty(id)){id=+id;if(id>max){max=id;}}}
-      awaitingReply=max||1;
-      loadMessages(false);
-    }).catch(function(){
-      note('No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.');
-    }).then(function(){sendBtn.disabled=false;input.focus();});
+    }).then(function(r){return handleResponse(r,function(){note(t('rateLimit'),true);});})
+      .then(function(r){return r?r.json():null;})
+      .then(function(){
+        input.value='';hideChips(true);typing.hidden=false;
+        var max=0;
+        for(var id in seen){if(seen.hasOwnProperty(id)){id=+id;if(id>max)max=id;}}
+        awaitingReply=max||1;
+        loadMessages(false);
+      })
+      .catch(function(){note(t('connError'),true);})
+      .then(function(){sendBtn.disabled=false;input.focus();});
   });
 })();
 </script>
-<script src="assets/home.js?v=20260816a"></script>
+<script src="assets/home.js?v=20260816j"></script>
 <a class="wa-fab" href="https://wa.me/16593052974" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
-<script src="assets/account.js?v=20260816i" defer></script>
+<script src="assets/account.js?v=20260816j" defer></script>
 </body>
 </html>
