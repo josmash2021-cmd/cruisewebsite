@@ -73,7 +73,7 @@
 @media(max-width:820px){.help-tiles,.help-support{grid-template-columns:1fr;max-width:480px}}
 /* Chat de soporte en la web */
 button.help-card{font:inherit;cursor:pointer}
-.sc-panel{position:fixed;right:20px;bottom:20px;z-index:1200;width:380px;max-width:calc(100vw - 24px);height:560px;max-height:calc(100dvh - 96px);display:flex;flex-direction:column;background:#181c23;border:1px solid rgba(212,175,55,.35);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.6);overflow:hidden;transform-origin:100% 100%;animation:sc-in .3s cubic-bezier(.22,1,.36,1)}
+.sc-panel{position:fixed;top:76px;right:20px;bottom:20px;z-index:1200;width:400px;max-width:calc(100vw - 24px);display:flex;flex-direction:column;background:#181c23;border:1px solid rgba(212,175,55,.35);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.6);overflow:hidden;transform-origin:100% 100%;animation:sc-in .3s cubic-bezier(.22,1,.36,1)}
 @keyframes sc-in{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
 @media (prefers-reduced-motion:reduce){.sc-panel{animation:none}}
 /* con el chat abierto el bubble de WhatsApp estorba: se oculta */
@@ -631,7 +631,7 @@ body.sc-open .wa-fab{display:none}
     try{saved=sessionStorage.getItem('vr_support_chat');}catch(_){}
     function done(){opening=false;}
     var _retried=false;
-    function fail(){
+    function fail(e){
       /* reintento silencioso una vez: el usuario no debe hacer nada */
       if(!_retried){_retried=true;setTimeout(function(){
         if(chatId||opening){return;}
@@ -639,28 +639,35 @@ body.sc-open .wa-fab{display:none}
       },2500);return;}
       var n=document.createElement('div');
       n.className='sc-note';
-      n.textContent='No se pudo conectar con soporte. Inténtalo en unos segundos.';
+      n.textContent='No se pudo conectar con soporte. Inténtalo en unos segundos.'+(e&&e.message?' ('+e.message+')':'');
       msgs.appendChild(n);scrollEnd();
     }
-    if(saved){
-      chatId=parseInt(saved,10)||null;
-      if(!chatId){createChat().catch(fail).then(done);return;}
-      /* valida que el chat guardado siga vivo antes de reutilizarlo */
-      fetch(API+'/auth/web/support/chat/'+chatId+'/messages',{headers:headers()})
-        .then(function(r){
-          if(r.status===401){sessionExpired();return;}
-          if(!r.ok){throw new Error('http '+r.status);}
-          loadMessages(true).then(maybeShowChips);startPoll();
-        })
-        .catch(function(){
-          chatId=null;
-          try{sessionStorage.removeItem('vr_support_chat');}catch(_){}
-          createChat().catch(fail);
-        })
-        .then(done);
-    }else{
-      createChat().catch(fail).then(done);
+    function proceed(){
+      if(saved){
+        chatId=parseInt(saved,10)||null;
+        if(!chatId){createChat().catch(fail).then(done);return;}
+        /* valida que el chat guardado siga vivo antes de reutilizarlo */
+        fetch(API+'/auth/web/support/chat/'+chatId+'/messages',{headers:headers()})
+          .then(function(r){
+            if(r.status===401){sessionExpired();return;}
+            if(!r.ok){throw new Error('http '+r.status);}
+            loadMessages(true).then(maybeShowChips);startPoll();
+          })
+          .catch(function(){
+            chatId=null;
+            try{sessionStorage.removeItem('vr_support_chat');}catch(_){}
+            createChat().catch(fail);
+          })
+          .then(done);
+      }else{
+        createChat().catch(fail).then(done);
+      }
     }
+    /* primero valida la sesión contra el servidor (como la página de cuenta):
+       token muerto → directo a login sin intentar abrir el chat */
+    fetch(API+'/auth/web/me',{headers:headers()})
+      .then(function(r){if(r.status===401){done();sessionExpired();return;}proceed();})
+      .catch(function(){proceed();});
   }
   function closeChat(){panel.hidden=true;document.body.classList.remove('sc-open');stopPoll();typing.hidden=true;}
   document.querySelectorAll('[data-support-chat]').forEach(function(el){
