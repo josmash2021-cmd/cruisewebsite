@@ -105,6 +105,11 @@ body.sc-open .wa-fab{display:none}
 .sc-chips{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;background:#0e1116}
 .sc-chips[hidden]{display:none}
 .sc-chip{background:none;border:1px solid rgba(212,175,55,.55);border-radius:18px;color:#f5d77a;font:inherit;font-size:.8rem;font-weight:500;padding:7px 13px;cursor:pointer;transition:border-color .2s ease,background .2s ease}
+/* entrada sedosa: cada mensaje y chip aparece deslizandose suave, nunca de golpe */
+@keyframes sc-msg-in{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.sc-msg{animation:sc-msg-in .28s cubic-bezier(.22,1,.36,1) both}
+.sc-chip{animation:sc-msg-in .28s cubic-bezier(.22,1,.36,1) both}
+@media (prefers-reduced-motion:reduce){.sc-msg,.sc-chip{animation:none}}
 .sc-chip:hover,.sc-chip:focus-visible{border-color:#d4af37;background:rgba(212,175,55,.12);outline:none}
 .sc-retry{background:none;border:1px solid rgba(212,175,55,.55);border-radius:14px;color:#f5d77a;font:inherit;font-size:.76rem;font-weight:600;padding:4px 12px;cursor:pointer;margin-left:8px}
 .sc-retry:hover,.sc-retry:focus-visible{border-color:#d4af37;outline:none}
@@ -609,7 +614,11 @@ body.sc-open .wa-fab{display:none}
         chips.appendChild(b);
       });
     }
+    /* primero la bienvenida; las opciones aparecen despues, una por una */
     chips.hidden=false;
+    Array.prototype.forEach.call(chips.children,function(b,i){
+      b.style.animationDelay=(0.45+i*0.07)+'s';
+    });
   }
   function createChat(){
     return fetch(API+'/auth/web/support/chat',{method:'POST',headers:headers()})
