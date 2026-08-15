@@ -146,22 +146,27 @@ body.sc-open .cruise-footer{display:none}
 }
 </style>
 <script>
-try{
-  if(localStorage.getItem('vr_at')){
-    document.documentElement.classList.add('cir-authed');
-    function setProfile(){
-      var links=document.querySelectorAll('.ch-nav__cta,.ch-signup');
-      for(var i=0;i<links.length;i++){
-        if(/^(Sign up|Registrarse)$/i.test(links[i].textContent.trim())){
-          links[i].textContent='Profile';
-          links[i].setAttribute('href','../en/account');
-        }
+(function(){
+  function hasSession(){
+    try{ return !!localStorage.getItem('vr_at'); }catch(_){ return false; }
+  }
+  function setProfile(){
+    if(!hasSession() && !document.querySelector('.cam-avatar'))return;
+    try{ document.documentElement.classList.add('cir-authed'); }catch(_){}
+    var links=document.querySelectorAll('.ch-nav__cta,.ch-signup');
+    for(var i=0;i<links.length;i++){
+      if(/^(Sign up|Registrarse|Profile|Perfil)$/i.test(links[i].textContent.trim())){
+        links[i].textContent='Profile';
+        links[i].setAttribute('href','../en/account');
       }
     }
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setProfile);
-    else setProfile();
   }
-}catch(_){}
+  function run(){setProfile();setTimeout(setProfile,50);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);
+  else run();
+  var tries=0;
+  var iv=setInterval(function(){if(++tries>15)clearInterval(iv);setProfile();},120);
+})();
 </script>
 </head>
 <body class="has-hero">
