@@ -493,7 +493,7 @@
 /* ════════════════════════════════════════════════════════════════════
    Popup de descuento primer viaje (30% OFF)
    Solo en la página de inicio, una vez por sesión.
-   Al dar "Continuar" guarda el código promocional y redirige a registro.
+   Al dar "Obtener 30% OFF" guarda el código promocional y redirige a registro.
    ════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -508,40 +508,44 @@
 
   var EN = (document.documentElement.lang || 'es').toLowerCase().indexOf('en') === 0;
   var T = EN ? {
-    title: 'Get 30% OFF',
-    subtitle: 'on your first ride',
+    pretitle: 'Get',
+    title: '30% OFF',
+    subtitle: 'your first ride',
     text: 'Sign up and the discount will be applied automatically to your first booking.',
     email: 'Your email address',
-    cta: 'Continue',
+    cta: 'Get 30% OFF',
     no: 'No, thanks'
   } : {
-    title: 'Obtén 30% OFF',
+    pretitle: 'Obtén',
+    title: '30% OFF',
     subtitle: 'en tu primer viaje',
     text: 'Regístrate y aplica el descuento automáticamente en tu primera reserva.',
     email: 'Tu correo electrónico',
-    cta: 'Continuar',
+    cta: 'Obtener 30% OFF',
     no: 'No, gracias'
   };
 
-  var logoSrc = EN ? '../assets/media/logo.png' : 'assets/media/logo.png';
+  var logoSrc = EN ? '../assets/media/logo-icon.png' : 'assets/media/logo-icon.png';
 
   var CSS = ''
     + '.cir-promo-overlay{position:fixed;inset:0;z-index:20000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);opacity:0;transition:opacity .35s ease;}'
     + '.cir-promo-overlay.is-open{opacity:1;}'
-    + '.cir-promo{position:relative;width:100%;max-width:420px;background:#0e1116;border-radius:24px;padding:40px 32px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);color:#eceef2;font-family:Inter,system-ui,sans-serif;transform:translateY(20px) scale(.96);transition:transform .4s cubic-bezier(.22,1,.36,1);}'
+    + '.cir-promo{position:relative;width:100%;max-width:460px;background:#fff;border-radius:24px;padding:52px 36px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.35);color:#111;font-family:Inter,system-ui,sans-serif;transform:translateY(20px) scale(.96);transition:transform .4s cubic-bezier(.22,1,.36,1);}'
     + '.cir-promo-overlay.is-open .cir-promo{transform:translateY(0) scale(1);}'
-    + '.cir-promo__close{position:absolute;top:12px;right:16px;width:36px;height:36px;border:none;background:none;color:rgba(236,238,242,.55);font-size:24px;line-height:1;cursor:pointer;transition:color .15s;}'
-    + '.cir-promo__close:hover{color:#fff;}'
-    + '.cir-promo__logo{height:44px;width:auto;margin:0 auto 18px;display:block;}'
-    + '.cir-promo__title{margin:0;font:800 34px/1 Cinzel,Georgia,serif;color:#fff;letter-spacing:-.5px;}'
-    + '.cir-promo__subtitle{margin:6px 0 0;font:700 15px/1 Inter,system-ui,sans-serif;color:#f5d77a;text-transform:uppercase;letter-spacing:1px;}'
-    + '.cir-promo__text{margin:18px 0 22px;font-size:14px;line-height:1.5;color:rgba(236,238,242,.75);}'
-    + '.cir-promo__input{width:100%;padding:14px 16px;margin-bottom:14px;background:#17191f;border:none;border-radius:14px;color:#fff;font:500 14px/1 Inter,system-ui,sans-serif;outline:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);}'
-    + '.cir-promo__input:focus{box-shadow:inset 0 0 0 1px rgba(212,175,55,.5);}'
-    + '.cir-promo__cta{display:block;width:100%;padding:15px 20px;border:none;border-radius:16px;background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);color:#241c05;font:800 15px/1 Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 6px 18px rgba(212,175,55,.25);transition:filter .15s;}'
+    + '.cir-promo__close{position:absolute;top:14px;right:18px;width:36px;height:36px;border:none;background:none;color:#999;font-size:24px;line-height:1;cursor:pointer;transition:color .15s;}'
+    + '.cir-promo__close:hover{color:#111;}'
+    + '.cir-promo__logo{height:56px;width:auto;margin:0 auto 22px;display:block;}'
+    + '.cir-promo__pretitle{margin:0 0 2px;font:600 13px/1 Inter,system-ui,sans-serif;color:#666;text-transform:uppercase;letter-spacing:1.5px;}'
+    + '.cir-promo__title{margin:0;font:800 50px/1 Cinzel,Georgia,serif;color:#000;letter-spacing:-1px;}'
+    + '.cir-promo__subtitle{margin:8px 0 0;font:700 16px/1 Inter,system-ui,sans-serif;color:#b8922c;text-transform:uppercase;letter-spacing:.5px;}'
+    + '.cir-promo__text{margin:18px 0 24px;font-size:14px;line-height:1.5;color:#555;}'
+    + '.cir-promo__input{width:100%;padding:14px 16px;margin-bottom:16px;background:#f7f7f8;border:none;border-radius:14px;color:#111;font:500 14px/1 Inter,system-ui,sans-serif;outline:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}'
+    + '.cir-promo__input:focus{box-shadow:inset 0 0 0 1px rgba(212,175,55,.7);}'
+    + '.cir-promo__cta{display:block;width:100%;padding:16px 20px;border:none;border-radius:16px;background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);color:#241c05;font:800 16px/1 Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 6px 18px rgba(212,175,55,.25);transition:filter .15s;}'
     + '.cir-promo__cta:hover{filter:brightness(1.08);}'
-    + '.cir-promo__no{display:block;width:100%;margin-top:14px;padding:8px;border:none;background:none;color:rgba(236,238,242,.55);font:500 13px/1 Inter,system-ui,sans-serif;cursor:pointer;transition:color .15s;}'
-    + '.cir-promo__no:hover{color:#fff;}';
+    + '.cir-promo__no{display:block;width:100%;margin-top:16px;padding:8px;border:none;background:none;color:#888;font:500 13px/1 Inter,system-ui,sans-serif;cursor:pointer;transition:color .15s;}'
+    + '.cir-promo__no:hover{color:#111;}'
+    + '@media(max-width:480px){.cir-promo{padding:44px 24px;border-radius:20px;}.cir-promo__title{font-size:42px;}.cir-promo__logo{height:48px;}}';
 
   var st = document.createElement('style');
   st.textContent = CSS;
@@ -553,6 +557,7 @@
     + '<div class="cir-promo">'
     + '  <button type="button" class="cir-promo__close" aria-label="Cerrar">×</button>'
     + '  <img src="' + logoSrc + '" alt="CruiseInRide" class="cir-promo__logo">'
+    + '  <p class="cir-promo__pretitle">' + T.pretitle + '</p>'
     + '  <h2 class="cir-promo__title">' + T.title + '</h2>'
     + '  <p class="cir-promo__subtitle">' + T.subtitle + '</p>'
     + '  <p class="cir-promo__text">' + T.text + '</p>'
