@@ -611,7 +611,7 @@
     /* Forzar reflow para que la transición de entrada sí se ejecute */
     void overlay.offsetWidth;
     overlay.classList.add('is-open');
-  }, 3000);
+  }, 4000);
 
   var cta = overlay.querySelector('.cir-promo__cta');
   var no = overlay.querySelector('.cir-promo__no');
