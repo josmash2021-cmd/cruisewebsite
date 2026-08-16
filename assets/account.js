@@ -450,7 +450,7 @@
   st.textContent = CSS;
   document.head.appendChild(st);
 
-  var iconSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/><circle cx="9" cy="10" r="1.2" fill="currentColor" stroke="none"/><circle cx="10.5" cy="14.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="15" r="1.2" fill="currentColor" stroke="none"/></svg>';
+  var iconSVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21c4.97 0 9-4.03 9-9 0-.55-.45-1-1-1h-.5c-.83 0-1.5-.67-1.5-1.5v-.5c0-.83-.67-1.5-1.5-1.5h-.5c-.55 0-1-.45-1-1v-.5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.5c0 .55-.45 1-1 1h-.5c-.83 0-1.5.67-1.5 1.5v.5c0 .55-.45 1-1 1h-.5c-.55 0-1 .45-1 1 0 4.97 4.03 9 9 9z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="10" r="1.1" fill="currentColor"/><circle cx="15" cy="11" r="1.1" fill="currentColor"/><circle cx="12" cy="15" r="1.1" fill="currentColor"/><circle cx="16" cy="16" r="1.1" fill="currentColor"/></svg>';
   var title = EN ? 'Your privacy matters' : 'Tu privacidad importa';
 
   var wrap = document.createElement('div');
