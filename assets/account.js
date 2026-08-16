@@ -403,3 +403,69 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
+
+/* ════════════════════════════════════════════════════════════════════
+   Banner de cookies / consentimiento (ES/EN)
+   Aparece una sola vez; guarda la decisión en localStorage. Si el usuario
+   acepta, los scripts no esenciales (analytics, publicidad) pueden leer
+   'cir_cookie_consent' antes de cargarse. Las cookies esenciales (sesión,
+   seguridad, preferencias) no requieren consentimiento.
+   ════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  var KEY = 'cir_cookie_consent';
+  try { if (localStorage.getItem(KEY)) return; } catch (_) { return; }
+
+  var EN = (document.documentElement.lang || 'es').toLowerCase().indexOf('en') === 0;
+  var T = EN ? {
+    msg: 'We use cookies to keep you signed in and improve your experience. You can accept or reject non-essential ones.',
+    accept: 'Accept',
+    reject: 'Reject',
+    more: 'Privacy'
+  } : {
+    msg: 'Usamos cookies para mantener tu sesión y mejorar tu experiencia. Puedes aceptar o rechazar las no esenciales.',
+    accept: 'Aceptar',
+    reject: 'Rechazar',
+    more: 'Privacidad'
+  };
+
+  var CSS = ''
+    + '.cir-cookie{position:fixed;left:0;right:0;bottom:0;z-index:10000;padding:18px 22px;background:#0e1116;border-top:1px solid rgba(212,175,55,.35);box-shadow:0 -8px 30px rgba(0,0,0,.55);font-family:Inter,system-ui,sans-serif;color:#eceef2;}'
+    + '.cir-cookie__inner{max-width:1100px;margin:0 auto;display:flex;gap:18px;align-items:center;justify-content:space-between;}'
+    + '.cir-cookie__text{font-size:14px;line-height:1.5;margin:0;}'
+    + '.cir-cookie__text a{color:#f5d77a;text-decoration:underline;}'
+    + '.cir-cookie__text a:hover{color:#fff;}'
+    + '.cir-cookie__btns{display:flex;gap:10px;flex-wrap:wrap;}'
+    + '.cir-cookie__btn{padding:10px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:none;color:#eceef2;font:600 13px/1 Inter,system-ui,sans-serif;cursor:pointer;transition:all .18s;}'
+    + '.cir-cookie__btn:hover{border-color:rgba(212,175,55,.6);color:#f5d77a;}'
+    + '.cir-cookie__btn--gold{background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);color:#241c05;border:none;font-weight:700;}'
+    + '.cir-cookie__btn--gold:hover{color:#241c05;filter:brightness(1.08);}'
+    + '@media(max-width:640px){.cir-cookie__inner{flex-direction:column;align-items:flex-start;}.cir-cookie__btns{width:100%;justify-content:flex-end;}}';
+
+  var st = document.createElement('style');
+  st.textContent = CSS;
+  document.head.appendChild(st);
+
+  var wrap = document.createElement('div');
+  wrap.className = 'cir-cookie';
+  wrap.innerHTML = ''
+    + '<div class="cir-cookie__inner">'
+    + '  <p class="cir-cookie__text">' + T.msg + ' <a href="' + (EN ? 'en/privacy' : 'privacy') + '.html">' + T.more + '</a>.</p>'
+    + '  <div class="cir-cookie__btns">'
+    + '    <button type="button" class="cir-cookie__btn" data-cookie-reject>' + T.reject + '</button>'
+    + '    <button type="button" class="cir-cookie__btn cir-cookie__btn--gold" data-cookie-accept>' + T.accept + '</button>'
+    + '  </div>'
+    + '</div>';
+  document.body.appendChild(wrap);
+
+  function close(value) {
+    try { localStorage.setItem(KEY, value); } catch (_) {}
+    wrap.style.transition = 'transform .35s ease, opacity .35s ease';
+    wrap.style.transform = 'translateY(110%)';
+    wrap.style.opacity = '0';
+    setTimeout(function () { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 360);
+  }
+
+  wrap.querySelector('[data-cookie-accept]').addEventListener('click', function () { close('accepted'); });
+  wrap.querySelector('[data-cookie-reject]').addEventListener('click', function () { close('rejected'); });
+})();
