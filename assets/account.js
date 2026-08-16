@@ -589,7 +589,9 @@
   setTimeout(function () {
     lockScroll();
     document.body.appendChild(overlay);
-    requestAnimationFrame(function () { overlay.classList.add('is-open'); });
+    /* Forzar reflow para que la transición de entrada sí se ejecute */
+    void overlay.offsetWidth;
+    overlay.classList.add('is-open');
   }, 3000);
 
   var cta = overlay.querySelector('.cir-promo__cta');
