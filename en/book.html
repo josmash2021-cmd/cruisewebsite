@@ -8094,6 +8094,17 @@ setTimeout(_vrPfKick,1200);
           locateBtn.classList.add('is-locating');
           doGeo(function(){locateBtn.classList.remove('is-locating');},function(){locateBtn.classList.remove('is-locating');});
         });
+        /* Re-localizar a demanda. OJO: el botón físico (vipLocate-… /
+           [data-vipride-locate-btn]) NO existe en el DOM — locateBtn es null y
+           su listener nunca se ata. El reset de "volver al inicio" (flecha del
+           mapa, paso 3→1) dispara el GPS por aquí: el MISMO flujo del arranque
+           en frío (doGeo → updatePickupFromGeo → pin + reverse geocode → campo).
+           Se resetea _lastGeoLat/_lastGeoLng para que updatePickupFromGeo no
+           descarte el fix por "posición ya vista" al estar el teléfono quieto. */
+        window.__vrRelocate=function(){
+          _pickupManuallySet=false;_gpsActive=false;_lastGeoLat=null;_lastGeoLng=null;
+          doGeo();
+        };
       } else if(locateBtn){locateBtn.style.display='none';}
       attachAutocomplete(pickupEl,'pickup');
       if(dropoffEl) attachAutocomplete(dropoffEl,'dropoff');
@@ -8285,9 +8296,12 @@ setTimeout(_vrPfKick,1200);
         /* se pisa lo que acaban de guardar goToStep/afterInputChange: al volver
            al inicio SIN viaje no queda nada que restaurar en una recarga */
         _vrClearState();
-        /* re-dispara el GPS por el mismo flujo del botón de localizar */
-        var _lb=root.querySelector('[data-vipride-locate-btn]')||document.getElementById('vipLocate-ride_request_48wXbE');
-        if(_lb)_lb.click();
+        /* re-dispara el GPS por el mismo flujo del arranque en frío. El botón
+           de localizar NO existe en el DOM (_lb siempre era null y el click no
+           hacía nada: la recogida solo se rellenaba si watchPosition despertaba,
+           y mientras tanto quedaba la dirección vieja); __vrRelocate se define
+           junto a doGeo/updatePickupFromGeo en initMapbox */
+        try{if(window.__vrRelocate)window.__vrRelocate();}catch(_){}
       }catch(_){}
     });
     if(compactNext){
