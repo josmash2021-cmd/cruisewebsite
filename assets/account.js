@@ -545,7 +545,7 @@
     + '.cir-promo__cta:hover{filter:brightness(1.08);}'
     + '.cir-promo__no{display:block;width:100%;margin-top:16px;padding:8px;border:none;background:none;color:rgba(236,238,242,.55);font:500 13px/1 Inter,system-ui,sans-serif;cursor:pointer;transition:color .15s;}'
     + '.cir-promo__no:hover{color:#fff;}'
-    + '@media(max-width:480px){.cir-promo{max-width:290px;padding:30px 18px;border-radius:18px;}.cir-promo__title{font-size:28px;}.cir-promo__subtitle{font-size:12px;}.cir-promo__text{font-size:12px;margin:12px 0 16px;}.cir-promo__logo{height:52px;margin-bottom:14px;}.cir-promo__input{padding:11px 13px;margin-bottom:12px;font-size:13px;}.cir-promo__cta{padding:12px 14px;font-size:14px;}.cir-promo__pretitle{font-size:10px;}}';
+    + '@media(max-width:480px){.cir-promo{max-width:320px;padding:34px 20px;border-radius:18px;}.cir-promo__title{font-size:32px;}.cir-promo__subtitle{font-size:13px;}.cir-promo__text{font-size:13px;margin:14px 0 18px;}.cir-promo__logo{height:56px;margin-bottom:16px;}.cir-promo__input{padding:12px 14px;margin-bottom:12px;font-size:13px;}.cir-promo__cta{padding:13px 16px;font-size:14px;}.cir-promo__pretitle{font-size:11px;}}';
 
   var st = document.createElement('style');
   st.textContent = CSS;
