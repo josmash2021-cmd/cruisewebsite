@@ -234,6 +234,16 @@
     if (login) login.remove();
     if (signup) signup.remove();
 
+    /* En el menú móvil (.ch-nav) el botón CTA sigue diciendo Registrarse/Sign up;
+       si hay sesión debe llevar al perfil y decir Perfil/Profile. */
+    document.querySelectorAll('.ch-nav__cta').forEach(function (cta) {
+      var txt = (cta.textContent || '').trim();
+      if (/^(Registrarse|Sign up)$/i.test(txt)) {
+        cta.textContent = EN ? 'Profile' : 'Perfil';
+        cta.setAttribute('href', BASE + 'account');
+      }
+    });
+
     var wrap = document.createElement('div');
     wrap.className = 'cam-wrap';
     var photo = photoOf(u);
