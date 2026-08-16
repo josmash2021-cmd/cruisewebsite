@@ -444,7 +444,7 @@
     + '.cir-cookie__btn:hover{border-color:rgba(212,175,55,.7);color:#f5d77a;background:rgba(212,175,55,.08);}'
     + '.cir-cookie__btn--gold{background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);color:#241c05;border:none;font-weight:700;box-shadow:0 4px 14px rgba(212,175,55,.25);}'
     + '.cir-cookie__btn--gold:hover{color:#241c05;filter:brightness(1.08);background:linear-gradient(145deg,#f5d77a,#d4af37 55%,#b8922c);}'
-    + '@media(max-width:720px){.cir-cookie__box{flex-direction:column;align-items:flex-start;gap:14px;padding:18px;}.cir-cookie__btns{width:100%;justify-content:flex-end;}}';
+    + '@media(max-width:720px){.cir-cookie{padding:0;}.cir-cookie__box{flex-direction:column;align-items:flex-start;gap:14px;max-width:none;margin:0;border-radius:0;padding:18px;}.cir-cookie__btns{width:100%;justify-content:flex-end;}}';
 
   var st = document.createElement('style');
   st.textContent = CSS;
@@ -566,10 +566,20 @@
     + '  <button type="button" class="cir-promo__no">' + T.no + '</button>'
     + '</div>';
 
+  function lockScroll() {
+    try { document.body.style.overflow = 'hidden'; } catch (_) {}
+  }
+  function unlockScroll() {
+    try { document.body.style.overflow = ''; } catch (_) {}
+  }
+
   function hide() {
     try { sessionStorage.setItem(CLOSED, '1'); } catch (_) {}
     overlay.classList.remove('is-open');
-    setTimeout(function () { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 400);
+    setTimeout(function () {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      unlockScroll();
+    }, 400);
   }
 
   overlay.addEventListener('click', function (e) {
@@ -577,6 +587,7 @@
   });
 
   setTimeout(function () {
+    lockScroll();
     document.body.appendChild(overlay);
     requestAnimationFrame(function () { overlay.classList.add('is-open'); });
   }, 3000);
