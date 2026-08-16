@@ -567,10 +567,29 @@
     + '</div>';
 
   function lockScroll() {
-    try { document.body.style.overflow = 'hidden'; } catch (_) {}
+    try {
+      var y = window.scrollY || window.pageYOffset || 0;
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = '-' + y + 'px';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.setAttribute('data-cir-scroll-y', String(y));
+    } catch (_) {}
   }
   function unlockScroll() {
-    try { document.body.style.overflow = ''; } catch (_) {}
+    try {
+      var y = parseInt(document.body.getAttribute('data-cir-scroll-y') || '0', 10) || 0;
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.removeAttribute('data-cir-scroll-y');
+      window.scrollTo(0, y);
+    } catch (_) {}
   }
 
   function hide() {
