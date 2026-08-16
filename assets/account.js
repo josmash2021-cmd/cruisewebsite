@@ -430,33 +430,53 @@
   };
 
   var CSS = ''
-    + '.cir-cookie{position:fixed;left:0;right:0;bottom:0;z-index:10000;padding:18px 22px;background:#0e1116;border-top:1px solid rgba(212,175,55,.35);box-shadow:0 -8px 30px rgba(0,0,0,.55);font-family:Inter,system-ui,sans-serif;color:#eceef2;}'
-    + '.cir-cookie__inner{max-width:1100px;margin:0 auto;display:flex;gap:18px;align-items:center;justify-content:space-between;}'
-    + '.cir-cookie__text{font-size:14px;line-height:1.5;margin:0;}'
-    + '.cir-cookie__text a{color:#f5d77a;text-decoration:underline;}'
+    + '.cir-cookie{position:fixed;left:0;right:0;bottom:0;z-index:10000;padding:18px 20px 20px;font-family:Inter,system-ui,sans-serif;color:#eceef2;}'
+    + '.cir-cookie__box{max-width:900px;margin:0 auto;background:rgba(14,17,22,.92);border:1px solid rgba(212,175,55,.45);border-radius:20px;box-shadow:0 -10px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.04);padding:18px 20px;display:flex;gap:16px;align-items:center;justify-content:space-between;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}'
+    + '.cir-cookie__icon{flex:0 0 auto;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(212,175,55,.12);color:#f5d77a;}'
+    + '.cir-cookie__icon svg{width:22px;height:22px;}'
+    + '.cir-cookie__body{flex:1;min-width:0;}'
+    + '.cir-cookie__title{margin:0 0 4px;font:700 15px/1.3 Inter,system-ui,sans-serif;color:#fff;}'
+    + '.cir-cookie__text{margin:0;font-size:13px;line-height:1.5;color:rgba(236,238,242,.8);}'
+    + '.cir-cookie__text a{color:#f5d77a;text-decoration:underline;transition:color .15s;}'
     + '.cir-cookie__text a:hover{color:#fff;}'
-    + '.cir-cookie__btns{display:flex;gap:10px;flex-wrap:wrap;}'
-    + '.cir-cookie__btn{padding:10px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:none;color:#eceef2;font:600 13px/1 Inter,system-ui,sans-serif;cursor:pointer;transition:all .18s;}'
-    + '.cir-cookie__btn:hover{border-color:rgba(212,175,55,.6);color:#f5d77a;}'
-    + '.cir-cookie__btn--gold{background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);color:#241c05;border:none;font-weight:700;}'
-    + '.cir-cookie__btn--gold:hover{color:#241c05;filter:brightness(1.08);}'
-    + '@media(max-width:640px){.cir-cookie__inner{flex-direction:column;align-items:flex-start;}.cir-cookie__btns{width:100%;justify-content:flex-end;}}';
+    + '.cir-cookie__btns{flex:0 0 auto;display:flex;gap:10px;flex-wrap:wrap;}'
+    + '.cir-cookie__btn{padding:11px 20px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:transparent;color:#eceef2;font:600 13px/1 Inter,system-ui,sans-serif;cursor:pointer;transition:all .18s;}'
+    + '.cir-cookie__btn:hover{border-color:rgba(212,175,55,.7);color:#f5d77a;background:rgba(212,175,55,.08);}'
+    + '.cir-cookie__btn--gold{background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);color:#241c05;border:none;font-weight:700;box-shadow:0 4px 14px rgba(212,175,55,.25);}'
+    + '.cir-cookie__btn--gold:hover{color:#241c05;filter:brightness(1.08);background:linear-gradient(145deg,#f5d77a,#d4af37 55%,#b8922c);}'
+    + '@media(max-width:720px){.cir-cookie__box{flex-direction:column;align-items:flex-start;gap:14px;padding:18px;}.cir-cookie__btns{width:100%;justify-content:flex-end;}}';
 
   var st = document.createElement('style');
   st.textContent = CSS;
   document.head.appendChild(st);
 
+  var iconSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/><circle cx="9" cy="10" r="1.2" fill="currentColor" stroke="none"/><circle cx="10.5" cy="14.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="15" r="1.2" fill="currentColor" stroke="none"/></svg>';
+  var title = EN ? 'Your privacy matters' : 'Tu privacidad importa';
+
   var wrap = document.createElement('div');
   wrap.className = 'cir-cookie';
   wrap.innerHTML = ''
-    + '<div class="cir-cookie__inner">'
-    + '  <p class="cir-cookie__text">' + T.msg + ' <a href="' + (EN ? 'en/privacy' : 'privacy') + '.html">' + T.more + '</a>.</p>'
+    + '<div class="cir-cookie__box">'
+    + '  <div class="cir-cookie__icon">' + iconSVG + '</div>'
+    + '  <div class="cir-cookie__body">'
+    + '    <p class="cir-cookie__title">' + title + '</p>'
+    + '    <p class="cir-cookie__text">' + T.msg + ' <a href="' + (EN ? 'en/privacy' : 'privacy') + '.html">' + T.more + '</a>.</p>'
+    + '  </div>'
     + '  <div class="cir-cookie__btns">'
     + '    <button type="button" class="cir-cookie__btn" data-cookie-reject>' + T.reject + '</button>'
     + '    <button type="button" class="cir-cookie__btn cir-cookie__btn--gold" data-cookie-accept>' + T.accept + '</button>'
     + '  </div>'
     + '</div>';
   document.body.appendChild(wrap);
+
+  /* Animación de entrada */
+  wrap.style.opacity = '0';
+  wrap.style.transform = 'translateY(24px)';
+  requestAnimationFrame(function () {
+    wrap.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1), opacity .35s ease';
+    wrap.style.opacity = '1';
+    wrap.style.transform = 'translateY(0)';
+  });
 
   function close(value) {
     try { localStorage.setItem(KEY, value); } catch (_) {}
