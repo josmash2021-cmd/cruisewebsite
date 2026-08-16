@@ -8249,7 +8249,47 @@ setTimeout(_vrPfKick,1200);
     closeBtn&&closeBtn.addEventListener('click',function(){closeLocPicker()});
     var mapBackBtn=root.querySelector('[data-vipride-map-back]');
     if(mapBackBtn) mapBackBtn.addEventListener('click',function(){
-      if(currentStep===3){window.__vrFlying=false;_mpActive=false;try{clearRoute();hideMarkerLabels();}catch(_){}openLocPicker();}
+      if(currentStep!==3)return;
+      window.__vrFlying=false;_mpActive=false;
+      /* Con viaje ya pedido en ESTA sesión el mapa lo manda el tracker (pines y
+         ruta del viaje activo): ahí solo se vuelve al buscador, sin tocar nada. */
+      var _hasTrip=false;try{_hasTrip=!!localStorage.getItem('vr_active_booking');}catch(_){}
+      if(_hasTrip){try{clearRoute();hideMarkerLabels();}catch(_){}openLocPicker();return;}
+      /* Sin viaje: volver al inicio = página recién abierta. Se borra TODO lo
+         del intento (direcciones, pines, ruta, fecha/hora, vehículo, paso y lo
+         guardado en sessionStorage) y la recogida vuelve al GPS, igual que
+         cuando la página abre en frío sin ?pickup=/?dropoff= — se reusan las
+         mismas limpiezas de goToStep(1,'back') y del arranque. */
+      try{
+        clearRoute();hideMarkerLabels();routeDurationSec=null;
+        if(routeEstimate)routeEstimate.hidden=true;
+        if(dropoffEl)dropoffEl.value='';
+        if(lpDropoffEl)lpDropoffEl.value='';
+        dropoffPlace=null;
+        if(dropoffMarker){dropoffMarker.remove();dropoffMarker=null}
+        if(dropoffLabelMk){dropoffLabelMk.remove();dropoffLabelMk=0}
+        /* la recogida vuelve al GPS: se suelta lo elegido a mano y se borra la
+           última posición conocida para que updatePickupFromGeo no la descarte
+           por "ya vista" y vuelva a poner pin y dirección como al arrancar */
+        if(pickupMarker){pickupMarker.remove();pickupMarker=null}
+        if(pickupLabelMk){pickupLabelMk.remove();pickupLabelMk=0}
+        pickupPlace=null;if(pickupEl)pickupEl.value='';
+        _pickupManuallySet=false;_gpsActive=false;_lastGeoLat=null;_lastGeoLng=null;
+        selectedRide=null;
+        try{cards.forEach(function(c){c.classList.remove('is-active','is-hidden');});_cardsCollapsed=false;}catch(_){}
+        if(dateEl)dateEl.value='';
+        if(timeEl)timeEl.value='';
+        try{validateCTA(null);}catch(_){}
+        goToStep(1,'back');
+        try{afterInputChange();}catch(_){}
+        updateCompactArrow();
+        /* se pisa lo que acaban de guardar goToStep/afterInputChange: al volver
+           al inicio SIN viaje no queda nada que restaurar en una recarga */
+        _vrClearState();
+        /* re-dispara el GPS por el mismo flujo del botón de localizar */
+        var _lb=root.querySelector('[data-vipride-locate-btn]')||document.getElementById('vipLocate-ride_request_48wXbE');
+        if(_lb)_lb.click();
+      }catch(_){}
     });
     if(compactNext){
       compactNext.addEventListener('click',function(){
