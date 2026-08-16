@@ -489,3 +489,101 @@
   wrap.querySelector('[data-cookie-accept]').addEventListener('click', function () { close('accepted'); });
   wrap.querySelector('[data-cookie-reject]').addEventListener('click', function () { close('rejected'); });
 })();
+
+/* ════════════════════════════════════════════════════════════════════
+   Popup de descuento primer viaje (30% OFF)
+   Solo en la página de inicio, una vez por sesión.
+   Al dar "Continuar" guarda el código promocional y redirige a registro.
+   ════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  var CLOSED = 'cir_promo_popup_closed';
+  try {
+    if (sessionStorage.getItem(CLOSED) || localStorage.getItem(CLOSED) || localStorage.getItem('vr_at')) return;
+  } catch (_) { return; }
+
+  var path = location.pathname;
+  var isHome = /\/index\.html$/.test(path) || path === '/' || /\/cruisewebsite\/?$/.test(path) || /\/cruisewebsite\/index\.html$/.test(path);
+  if (!isHome) return;
+
+  var EN = (document.documentElement.lang || 'es').toLowerCase().indexOf('en') === 0;
+  var T = EN ? {
+    title: 'Get 30% OFF your first ride',
+    text: 'Sign up and the discount will be applied automatically to your first booking.',
+    email: 'Your email address',
+    cta: 'Continue',
+    no: 'No, thanks'
+  } : {
+    title: 'Obtén 30% OFF en tu primer viaje',
+    text: 'Regístrate y aplica el descuento automáticamente en tu primera reserva.',
+    email: 'Tu correo electrónico',
+    cta: 'Continuar',
+    no: 'No, gracias'
+  };
+
+  var CSS = ''
+    + '.cir-promo-overlay{position:fixed;inset:0;z-index:20000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);opacity:0;transition:opacity .35s ease;}'
+    + '.cir-promo-overlay.is-open{opacity:1;}'
+    + '.cir-promo{position:relative;width:100%;max-width:420px;background:#0e1116;border:1px solid rgba(212,175,55,.45);border-radius:24px;padding:34px 28px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);color:#eceef2;font-family:Inter,system-ui,sans-serif;transform:translateY(20px) scale(.96);transition:transform .4s cubic-bezier(.22,1,.36,1);}'
+    + '.cir-promo-overlay.is-open .cir-promo{transform:translateY(0) scale(1);}'
+    + '.cir-promo__close{position:absolute;top:12px;right:16px;width:36px;height:36px;border:none;background:none;color:rgba(236,238,242,.55);font-size:24px;line-height:1;cursor:pointer;transition:color .15s;}'
+    + '.cir-promo__close:hover{color:#fff;}'
+    + '.cir-promo__badge{display:inline-flex;align-items:center;justify-content:center;gap:6px;margin:0 0 14px;padding:8px 16px;border-radius:999px;background:rgba(212,175,55,.12);color:#f5d77a;font:700 13px/1 Inter,system-ui,sans-serif;}'
+    + '.cir-promo__title{margin:0 0 12px;font:800 26px/1.1 Cinzel,Georgia,serif;color:#fff;}'
+    + '.cir-promo__text{margin:0 0 22px;font-size:14px;line-height:1.5;color:rgba(236,238,242,.75);}'
+    + '.cir-promo__input{width:100%;padding:14px 16px;margin-bottom:14px;background:#17191f;border:none;border-radius:14px;color:#fff;font:500 14px/1 Inter,system-ui,sans-serif;outline:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);}'
+    + '.cir-promo__input:focus{box-shadow:inset 0 0 0 1px rgba(212,175,55,.5);}'
+    + '.cir-promo__cta{display:block;width:100%;padding:15px 20px;border:none;border-radius:16px;background:linear-gradient(145deg,#f2d577,#d4af37 55%,#b8922c);color:#241c05;font:800 15px/1 Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 6px 18px rgba(212,175,55,.25);transition:filter .15s;}'
+    + '.cir-promo__cta:hover{filter:brightness(1.08);}'
+    + '.cir-promo__no{display:block;width:100%;margin-top:14px;padding:8px;border:none;background:none;color:rgba(236,238,242,.55);font:500 13px/1 Inter,system-ui,sans-serif;cursor:pointer;transition:color .15s;}'
+    + '.cir-promo__no:hover{color:#fff;}';
+
+  var st = document.createElement('style');
+  st.textContent = CSS;
+  document.head.appendChild(st);
+
+  var overlay = document.createElement('div');
+  overlay.className = 'cir-promo-overlay';
+  overlay.innerHTML = ''
+    + '<div class="cir-promo">'
+    + '  <button type="button" class="cir-promo__close" aria-label="Cerrar">×</button>'
+    + '  <span class="cir-promo__badge">30% OFF</span>'
+    + '  <h2 class="cir-promo__title">' + T.title + '</h2>'
+    + '  <p class="cir-promo__text">' + T.text + '</p>'
+    + '  <input type="email" class="cir-promo__input" placeholder="' + T.email + '" autocomplete="email">'
+    + '  <button type="button" class="cir-promo__cta">' + T.cta + '</button>'
+    + '  <button type="button" class="cir-promo__no">' + T.no + '</button>'
+    + '</div>';
+
+  function hide() {
+    try { sessionStorage.setItem(CLOSED, '1'); } catch (_) {}
+    overlay.classList.remove('is-open');
+    setTimeout(function () { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 400);
+  }
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) hide();
+  });
+
+  setTimeout(function () {
+    document.body.appendChild(overlay);
+    requestAnimationFrame(function () { overlay.classList.add('is-open'); });
+  }, 3000);
+
+  var cta = overlay.querySelector('.cir-promo__cta');
+  var no = overlay.querySelector('.cir-promo__no');
+  var closeX = overlay.querySelector('.cir-promo__close');
+  var input = overlay.querySelector('.cir-promo__input');
+
+  cta.addEventListener('click', function () {
+    var email = input ? input.value.trim() : '';
+    try {
+      if (email) localStorage.setItem('vr_promo_email', email);
+      localStorage.setItem('vr_promo', 'FIRST30');
+    } catch (_) {}
+    location.href = EN ? 'en/auth' : 'auth';
+  });
+
+  no.addEventListener('click', hide);
+  closeX.addEventListener('click', hide);
+})();
