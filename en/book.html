@@ -973,7 +973,7 @@ html.vr-booting-out .cruise-header{animation:vrBootIn .4s cubic-bezier(.22,1,.36
       <button type="button" class="vipRide__authBtn vipRide__authBtn--outline vipRide__authBtn--icon" data-vipride-reg-apple-btn data-vipride-su-apple>Continue with Apple</button>
       <div class="vipRide__authDivider"><span data-vipride-or-label>OR</span></div>
       <button type="button" class="vipRide__authBtn vipRide__authBtn--gold" data-vipride-auth-goto-signin2 data-vipride-su-signin>Sign in</button>
-      <p class="vipRide__authTerms" data-vipride-terms>By continuing, you agree to our <a href="terms.html" target="_blank">Terms</a> and <a href="privacy.html" target="_blank">Privacy Policy</a></p>
+      <p class="vipRide__authTerms" data-vipride-terms>By continuing, you agree to our <a href="terms" target="_blank">Terms</a> and <a href="privacy" target="_blank">Privacy Policy</a></p>
     </div>
   </div>
   <div class="vipRide__authPage vipRide__wizard" data-vipride-wizard hidden>
@@ -1195,7 +1195,7 @@ window.__vrApplyI18n=function(){
     ['.vrApt__flightHint','driverTrack']
   ];
   var tEl=document.querySelector('[data-vipride-terms]');
-  if(tEl&&window.__vrLang==='es')tEl.innerHTML='Al continuar, aceptas nuestros <a href="terms.html" target="_blank">Términos</a> y <a href="privacy.html" target="_blank">Política de Privacidad</a>';
+  if(tEl&&window.__vrLang==='es')tEl.innerHTML='Al continuar, aceptas nuestros <a href="terms" target="_blank">Términos</a> y <a href="privacy" target="_blank">Política de Privacidad</a>';
   map.forEach(function(e){var el=document.querySelector(e[0]);if(el)el.textContent=t(e[1]);});
   /* Placeholders */
   [['[data-vipride-pickup]','enterPickup'],['[data-vipride-dropoff]','whereto'],['[data-vipride-lp-pickup]','enterPickup'],['[data-vipride-lp-dropoff]','whereto'],['[data-vipride-su-email-input]','emailAddr'],['[data-vipride-si-user]','emailOrPhone'],['[data-vipride-si-pass]','password'],['[data-vrapt-search]','searchAirport']].forEach(function(e){var el=document.querySelector(e[0]);if(el)el.placeholder=t(e[1]);});
