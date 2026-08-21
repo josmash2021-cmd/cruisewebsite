@@ -32,8 +32,8 @@ if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',locatio
   <nav class="ch-nav"><a href="../">Home</a><a href="../book">Book</a><a href="../contact">Contact</a><a href="store" aria-current="page">Store</a></nav>
   <div class="ch-actions">
     <a class="ch-lang" href="../store"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.3 9h17.4M3.3 15h17.4"/><path d="M12 3c2.6 2.4 4 5.4 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.4-4-9s1.4-6.6 4-9Z"/></svg>ES</a>
-    <a class="ch-login" href="../auth">Sign in</a>
-    <a class="ch-signup" href="../auth">Sign up</a>
+    <a class="ch-login" href="../auth?role=driver&return=en/store">Sign in</a>
+    <a class="ch-signup" href="../auth?role=driver&return=en/store">Sign up</a>
     <button class="ch-burger" aria-label="Menu" onclick="document.body.classList.toggle('ch-open')">
       <span></span><span></span><span></span>
     </button>
