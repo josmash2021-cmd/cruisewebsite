@@ -1,0 +1,194 @@
+/* ── Cruise Store (drivers only) — mismo lenguaje visual del sitio:
+      negro profundo, dorado Cruise (#D4AF37), Cinzel para títulos ── */
+:root {
+  --st-gold: #D4AF37;
+  --st-gold-soft: rgba(212, 175, 55, .35);
+  --st-ink: #0b0b0d;
+  --st-panel: #121316;
+  --st-line: rgba(255, 255, 255, .08);
+  --st-txt: #f5f3ec;
+  --st-muted: rgba(245, 243, 236, .55);
+}
+
+.store-hero { padding: 96px 24px 8px; text-align: center; }
+.store-hero .kicker { letter-spacing: .35em; }
+.store-hero p { color: var(--st-muted); max-width: 560px; margin: 14px auto 0; }
+
+.store-wrap {
+  max-width: 1160px; margin: 0 auto; padding: 32px 20px 96px;
+  display: grid; grid-template-columns: 1.35fr .9fr; gap: 28px;
+  align-items: start;
+}
+@media (max-width: 940px) { .store-wrap { grid-template-columns: 1fr; } }
+
+/* ── Catálogo ── */
+.store-grid { display: grid; gap: 22px; }
+
+.st-card {
+  background: var(--st-panel); border: 1px solid var(--st-line);
+  border-radius: 20px; overflow: hidden;
+  transition: border-color .2s, transform .2s;
+}
+.st-card:hover { border-color: var(--st-gold-soft); }
+.st-card__media {
+  background: #000; display: flex; align-items: center; justify-content: center;
+  padding: 26px; min-height: 200px;
+}
+.st-card__media img { max-width: 100%; max-height: 230px; object-fit: contain; }
+.st-card__body { padding: 20px 22px 22px; }
+.st-card__name { font-family: Cinzel, serif; font-size: 19px; font-weight: 700; color: var(--st-txt); }
+.st-card__desc { color: var(--st-muted); font-size: 13.5px; margin-top: 6px; line-height: 1.55; }
+.st-card__row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 16px; gap: 12px; flex-wrap: wrap;
+}
+.st-card__price { font-family: Cinzel, serif; font-size: 22px; font-weight: 700; color: var(--st-gold); }
+
+.st-qty {
+  display: inline-flex; align-items: center; gap: 0;
+  border: 1px solid var(--st-line); border-radius: 12px; overflow: hidden;
+}
+.st-qty button {
+  width: 38px; height: 38px; background: none; border: none; cursor: pointer;
+  color: var(--st-gold); font-size: 19px; font-weight: 600;
+}
+.st-qty button:hover { background: rgba(212, 175, 55, .08); }
+.st-qty span {
+  min-width: 34px; text-align: center; color: var(--st-txt);
+  font: 600 15px Inter, sans-serif;
+}
+
+/* ── Personalización + preview de la tarjeta ── */
+.st-custom {
+  margin-top: 18px; border-top: 1px dashed var(--st-line); padding-top: 18px;
+}
+.st-custom h4 {
+  font-family: Cinzel, serif; font-size: 13px; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--st-gold); margin: 0 0 12px;
+}
+.st-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.st-fields .full { grid-column: 1 / -1; }
+@media (max-width: 520px) { .st-fields { grid-template-columns: 1fr; } }
+
+.st-in {
+  width: 100%; box-sizing: border-box; background: #0d0e11;
+  border: 1px solid var(--st-line); border-radius: 12px;
+  padding: 12px 14px; color: var(--st-txt); font: 500 14px Inter, sans-serif;
+  transition: border-color .2s;
+}
+.st-in:focus { outline: none; border-color: var(--st-gold); }
+.st-in::placeholder { color: rgba(245, 243, 236, .3); }
+
+/* Preview de la tarjeta — dos caras con flip */
+.st-preview { margin-top: 18px; }
+.st-preview__tabs {
+  display: inline-flex; gap: 4px; background: #0d0e11; border: 1px solid var(--st-line);
+  border-radius: 999px; padding: 4px; margin-bottom: 14px;
+}
+.st-preview__tabs button {
+  border: none; background: none; cursor: pointer; border-radius: 999px;
+  padding: 7px 18px; color: var(--st-muted); font: 600 12.5px Inter, sans-serif;
+  letter-spacing: .06em;
+}
+.st-preview__tabs button.on { background: var(--st-gold); color: #000; }
+
+.st-cardface {
+  position: relative; width: 100%; aspect-ratio: 1050/600; border-radius: 14px;
+  overflow: hidden; background: #000; border: 1px solid var(--st-line);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .55);
+}
+.st-cardface > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* Dorso reconstruido en HTML para que el nombre/teléfono sean EN VIVO */
+.bc-back { position: absolute; inset: 0; display: flex; }
+.bc-back__left {
+  flex: 1.25; padding: 7.5% 0 6% 8%; display: flex; flex-direction: column;
+}
+.bc-back__name {
+  font-family: Cinzel, serif; font-weight: 700; color: var(--st-gold);
+  font-size: clamp(11px, 2.6cqw, 30px); letter-spacing: .08em;
+  margin-bottom: 6.5%; text-transform: uppercase;
+}
+.bc-back__row { display: flex; align-items: center; gap: 4.5%; margin-bottom: 4.6%; }
+.bc-back__ico { width: 7%; flex: none; }
+.bc-back__ico svg { display: block; width: 100%; height: auto; }
+.bc-back__lbl {
+  font-family: Cinzel, serif; font-weight: 600; color: var(--st-gold);
+  font-size: clamp(8px, 1.7cqw, 19px); letter-spacing: .28em;
+  text-decoration: underline; text-underline-offset: .22em;
+}
+.bc-back__val {
+  font-family: Cinzel, serif; font-weight: 600; color: #fff;
+  font-size: clamp(9px, 2.05cqw, 24px); letter-spacing: .05em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bc-back__right { flex: 1; display: flex; align-items: center; justify-content: center; padding: 4% 5% 4% 0; }
+.bc-back__right img { width: 100%; max-width: 92%; height: auto; }
+.bc-back__social { display: flex; gap: 7%; padding-left: 3%; margin-top: auto; }
+.bc-back__social svg { width: clamp(10px, 3.2cqw, 34px); height: auto; }
+.bc-back__bars { position: absolute; right: 0; bottom: 0; width: 42%; height: 16%; pointer-events: none; }
+.st-cardface { container-type: inline-size; }
+
+/* ── Panel del pedido (derecha) ── */
+.st-order {
+  position: sticky; top: 96px;
+  background: var(--st-panel); border: 1px solid var(--st-line);
+  border-radius: 20px; padding: 24px;
+}
+@media (max-width: 940px) { .st-order { position: static; } }
+.st-order h3 {
+  font-family: Cinzel, serif; font-size: 17px; letter-spacing: .12em;
+  color: var(--st-txt); margin: 0 0 16px; text-transform: uppercase;
+}
+.st-order__line {
+  display: flex; justify-content: space-between; gap: 10px;
+  padding: 8px 0; font-size: 14px; color: var(--st-muted);
+  border-bottom: 1px solid var(--st-line);
+}
+.st-order__line b { color: var(--st-txt); font-weight: 600; }
+.st-order__total {
+  display: flex; justify-content: space-between; padding: 14px 0 4px;
+  font-family: Cinzel, serif; font-size: 20px; font-weight: 700; color: var(--st-gold);
+}
+
+.st-ship { margin-top: 16px; display: grid; gap: 10px; }
+.st-ship .row2 { display: grid; grid-template-columns: 2fr 1fr 1.2fr; gap: 10px; }
+@media (max-width: 520px) { .st-ship .row2 { grid-template-columns: 1fr; } }
+
+.st-pay {
+  margin-top: 18px; width: 100%; border: none; cursor: pointer;
+  background: linear-gradient(135deg, #e5c558, #c9a227);
+  color: #0b0b0d; border-radius: 14px; padding: 15px;
+  font: 700 15px Inter, sans-serif; letter-spacing: .04em;
+  transition: transform .15s, box-shadow .2s;
+}
+.st-pay:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 26px rgba(212, 175, 55, .25); }
+.st-pay:disabled { opacity: .45; cursor: not-allowed; }
+
+.st-note { margin-top: 12px; font-size: 12px; color: var(--st-muted); text-align: center; }
+
+.st-msg {
+  display: none; margin-top: 12px; padding: 11px 14px; border-radius: 12px;
+  font-size: 13.5px; line-height: 1.5;
+}
+.st-msg.err { display: block; background: rgba(255, 80, 80, .1); border: 1px solid rgba(255, 80, 80, .35); color: #ff9c9c; }
+.st-msg.ok { display: block; background: rgba(90, 200, 120, .1); border: 1px solid rgba(90, 200, 120, .35); color: #9fe0b6; }
+
+/* ── Estados: login / no-driver / éxito ── */
+.store-gate { max-width: 520px; margin: 0 auto; padding: 110px 24px; text-align: center; }
+.store-gate h1 { font-family: Cinzel, serif; color: var(--st-txt); font-size: 26px; }
+.store-gate p { color: var(--st-muted); margin: 14px 0 26px; line-height: 1.6; }
+.store-gate .st-pay { width: auto; padding: 14px 34px; }
+
+.store-success { max-width: 620px; margin: 0 auto; padding: 110px 24px; text-align: center; }
+.store-success .big {
+  width: 74px; height: 74px; margin: 0 auto 22px; border-radius: 50%;
+  border: 2px solid var(--st-gold); display: flex; align-items: center; justify-content: center;
+}
+.store-success .big svg { width: 34px; height: 34px; stroke: var(--st-gold); }
+.store-success h1 { font-family: Cinzel, serif; color: var(--st-txt); }
+.store-success p { color: var(--st-muted); line-height: 1.65; }
+
+/* el EMAIL es el valor mas largo del dorso — un punto mas chico para que
+   nunca se corte contra el QR */
+.bc-back__val--sm { font-size: clamp(8px, 1.6cqw, 18px); }

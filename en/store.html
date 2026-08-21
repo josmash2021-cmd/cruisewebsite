@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>
+if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',location.pathname.replace(/index\.html$/,'')+location.search+location.hash);
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cruise Store — Drivers Only</title>
+<meta name="description" content="Official Cruise store for drivers: personalized business cards, car sign and stickers.">
+<meta name="robots" content="noindex">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CruiseInRide">
+<meta property="og:title" content="Cruise Store — Drivers Only">
+<meta property="og:url" content="https://cruiseinride.com/en/store">
+<meta property="og:image" content="https://cruiseinride.com/assets/media/og-cover.png">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" href="../assets/media/logo-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css?v=20260820a">
+<link rel="stylesheet" href="../assets/store.css?v=20260820a">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+</head>
+<body>
+
+<header class="cruise-header">
+  <a class="ch-logo" href="./">
+    <img src="../assets/media/logo.png" alt="CruiseInRide" height="41">
+  </a>
+  <nav class="ch-nav"><a href="../">Home</a><a href="../book">Book</a><a href="../contact">Contact</a><a href="store" aria-current="page">Store</a></nav>
+  <div class="ch-actions">
+    <a class="ch-lang" href="../store"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.3 9h17.4M3.3 15h17.4"/><path d="M12 3c2.6 2.4 4 5.4 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.4-4-9s1.4-6.6 4-9Z"/></svg>ES</a>
+    <a class="ch-login" href="../auth">Sign in</a>
+    <a class="ch-signup" href="../auth">Sign up</a>
+    <button class="ch-burger" aria-label="Menu" onclick="document.body.classList.toggle('ch-open')">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="cruise-store" data-lang="en"
+  data-api-base="https://cruiseapp2-production.up.railway.app"
+  data-api-key="5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad">
+
+  <!-- Sin sesión -->
+  <section class="store-gate" id="store-gate" hidden>
+    <h1>Drivers only</h1>
+    <p>The Cruise store is exclusive for registered drivers. Sign in with your driver account to continue.</p>
+    <button class="st-pay" id="store-gate-btn" type="button">Sign in</button>
+  </section>
+
+  <!-- Cuenta que no es driver -->
+  <section class="store-gate" id="store-blocked" hidden>
+    <h1>This account is not a driver</h1>
+    <p>You signed in with a rider account. The merch store is only for registered Cruise drivers.</p>
+  </section>
+
+  <!-- Pago exitoso -->
+  <section class="store-success" id="store-success" hidden>
+    <div class="big"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 6.5"/></svg></div>
+    <h1>Order confirmed!</h1>
+    <p>Your payment went through. We will produce your merch and ship it to the address you gave us. You will receive a confirmation email.</p>
+  </section>
+
+  <!-- Pago cancelado -->
+  <section class="store-success" id="store-cancelled" hidden>
+    <h1>Payment cancelled</h1>
+    <p>Your order was not charged. You can try again whenever you want.</p>
+  </section>
+
+  <!-- Tienda -->
+  <div id="store-shop" hidden>
+    <section class="store-hero">
+      <span class="kicker">Cruise Store · Drivers</span>
+      <h1 class="sec-title">Your brand on <em>the street</em></h1>
+      <p>Official Cruise merch for drivers. Personalize your cards, order your car sign and stickers — shipped to your door.</p>
+    </section>
+
+    <div class="store-wrap">
+      <div class="store-grid">
+
+        <!-- Tarjetas de presentación -->
+        <article class="st-card" data-product="business_card">
+          <div class="st-card__media">
+            <div class="st-cardface">
+              <img id="face-front" src="../assets/media/store-card-front.png" alt="Cruise card — front">
+              <div class="bc-back" id="face-back" hidden>
+                <div class="bc-back__left">
+                  <div class="bc-back__name" id="bc-pv-name">YOUR NAME</div>
+                  <div class="bc-back__row">
+                    <span class="bc-back__ico"><svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.6"><path d="M13.8 16.6a1 1 0 0 0 1.2-.3l.4-.5A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.5.4a1 1 0 0 0-.3 1.2 14 14 0 0 0 6.4 6.4z"/></svg></span>
+                    <span><span class="bc-back__lbl">PHONE</span><br><span class="bc-back__val" id="bc-pv-phone">(000) 000-0000</span></span>
+                  </div>
+                  <div class="bc-back__row">
+                    <span class="bc-back__ico"><svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3.3 9h17.4M3.3 15h17.4"/><path d="M12 3c2.6 2.4 4 5.4 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.4-4-9s1.4-6.6 4-9Z"/></svg></span>
+                    <span><span class="bc-back__lbl">WEBSITE</span><br><span class="bc-back__val">WWW.CRUISEINRIDE.COM</span></span>
+                  </div>
+                  <div class="bc-back__row">
+                    <span class="bc-back__ico"><svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.6"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m4.5 7 7.5 5 7.5-5"/></svg></span>
+                    <span><span class="bc-back__lbl">EMAIL</span><br><span class="bc-back__val bc-back__val--sm">SUPPORT@CRUISEINRIDE.COM</span></span>
+                  </div>
+                  <div class="bc-back__social">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="#D4AF37" stroke="none"/></svg>
+                    <svg viewBox="0 0 24 24" fill="#D4AF37"><path d="M16.6 3c.4 2.1 1.8 3.7 4 4v3.1c-1.5 0-2.9-.5-4-1.3v6.5c0 3.6-2.6 6.2-6 6.2-3.3 0-6-2.7-6-6.1 0-3.5 2.8-6.3 6.4-6.1v3.2c-1.9-.3-3.4 1-3.4 2.9 0 1.7 1.3 3 3 3 1.8 0 3-1.4 3-3.2V3z"/></svg>
+                    <svg viewBox="0 0 24 24" fill="#D4AF37"><path d="M24 12.1c0-6.6-5.4-12-12-12s-12 5.4-12 12c0 6 4.4 11 10.1 11.9v-8.4H7.1v-3.5h3v-2.6c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9v2.2h3.3l-.5 3.5h-2.8v8.4C19.6 23 24 18.1 24 12.1z"/></svg>
+                  </div>
+                </div>
+                <div class="bc-back__right">
+                  <img src="../assets/media/store-card-qr.png" alt="QR Cruise">
+                </div>
+                <svg class="bc-back__bars" viewBox="0 0 420 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="60,30 420,30 420,55 35,55" fill="#c9a227"/><polygon points="0,62 420,62 420,100 0,100" fill="#c9a227"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="st-card__body">
+            <div class="st-card__name">Business cards</div>
+            <div class="st-card__desc">Pack of 100 cards with the official Cruise design. The front is fixed; the back carries <b>your name and phone</b>. See the live preview before ordering.</div>
+
+            <div class="st-preview">
+              <div class="st-preview__tabs">
+                <button type="button" data-face="front" class="on">Front</button>
+                <button type="button" data-face="back">Back (personalized)</button>
+              </div>
+
+              <div class="st-custom" id="bc-custom" style="display:none">
+                <h4>Personalize the back</h4>
+                <div class="st-fields">
+                  <input class="st-in" id="bc-first" type="text" maxlength="40" placeholder="First name" autocomplete="given-name">
+                  <input class="st-in" id="bc-last" type="text" maxlength="40" placeholder="Last name" autocomplete="family-name">
+                  <input class="st-in full" id="bc-phone" type="tel" maxlength="20" placeholder="Your phone — e.g. (205) 555-0123" autocomplete="tel">
+                </div>
+              </div>
+            </div>
+
+            <div class="st-card__row">
+              <span class="st-card__price" data-price="business_card">$—</span>
+              <span class="st-qty">
+                <button type="button" data-qty-btn="minus" aria-label="Menos">−</button>
+                <span data-qty>0</span>
+                <button type="button" data-qty-btn="plus" aria-label="Más">+</button>
+              </span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Letrero para el carro -->
+        <article class="st-card" data-product="car_sign">
+          <div class="st-card__media">
+            <img src="../assets/media/store-car-sign.png" alt="Letrero Cruise para el carro">
+          </div>
+          <div class="st-card__body">
+            <div class="st-card__name">Cruise car sign</div>
+            <div class="st-card__desc">Official black &amp; gold sign for your vehicle — your passengers spot you instantly.</div>
+            <div class="st-card__row">
+              <span class="st-card__price" data-price="car_sign">$—</span>
+              <span class="st-qty">
+                <button type="button" data-qty-btn="minus" aria-label="Menos">−</button>
+                <span data-qty>0</span>
+                <button type="button" data-qty-btn="plus" aria-label="Más">+</button>
+              </span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Stickers -->
+        <article class="st-card" data-product="sticker_pack">
+          <div class="st-card__media">
+            <img src="../assets/media/store-sticker.png" alt="Stickers Cruise">
+          </div>
+          <div class="st-card__body">
+            <div class="st-card__name">Cruise sticker pack</div>
+            <div class="st-card__desc">5 round stickers with the gold logo — for your car, your gear or anywhere.</div>
+            <div class="st-card__row">
+              <span class="st-card__price" data-price="sticker_pack">$—</span>
+              <span class="st-qty">
+                <button type="button" data-qty-btn="minus" aria-label="Menos">−</button>
+                <span data-qty>0</span>
+                <button type="button" data-qty-btn="plus" aria-label="Más">+</button>
+              </span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Pedido -->
+      <aside class="st-order">
+        <h3>Your order</h3>
+        <div id="order-lines">
+          <div class="st-order__line"><span>—</span><b>$0.00</b></div>
+        </div>
+        <div class="st-order__total"><span>Total</span><span id="order-total">$0.00</span></div>
+
+        <div class="st-ship">
+          <h4 class="st-custom" style="border:none;padding:0;margin:0;font-family:Cinzel,serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--st-gold)">Shipping address</h4>
+          <input class="st-in" id="sh-name" type="text" maxlength="80" placeholder="Full name" autocomplete="name">
+          <input class="st-in" id="sh-a1" type="text" maxlength="120" placeholder="Street address" autocomplete="address-line1">
+          <input class="st-in" id="sh-a2" type="text" maxlength="120" placeholder="Apt / suite (optional)" autocomplete="address-line2">
+          <div class="row2">
+            <input class="st-in" id="sh-city" type="text" maxlength="60" placeholder="City" autocomplete="address-level2">
+            <input class="st-in" id="sh-state" type="text" maxlength="30" placeholder="State" autocomplete="address-level1">
+            <input class="st-in" id="sh-zip" type="text" maxlength="12" placeholder="ZIP" autocomplete="postal-code">
+          </div>
+        </div>
+
+        <button class="st-pay" id="store-pay" type="button">Pay with Stripe</button>
+        <div class="st-msg" id="store-msg"></div>
+        <div class="st-note">Secure payment processed by Stripe. The store is exclusive to registered drivers.</div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<footer class="cruise-footer">
+  <div class="cf-bottom">
+    <div class="cf-bottom__inner">
+      <nav class="cf-bottom__links">
+        <a href="../">Home</a>
+        <a href="../book">Book</a>
+        <a href="../contact">Contact</a>
+        <a href="../terms">Terms</a>
+        <a href="../privacy">Privacy</a>
+      </nav>
+      <p class="cf-bottom__copy">© 2026 CruiseInRide. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/account.js?v=20260820a"></script>
+<script src="../assets/store.js?v=20260820a"></script>
+</body>
+</html>
