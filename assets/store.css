@@ -22,7 +22,7 @@
 @media (max-width: 940px) { .store-wrap { grid-template-columns: 1fr; } }
 
 /* ── Catálogo ── */
-.store-grid { display: grid; gap: 22px; }
+.store-grid { display: grid; gap: 48px; }
 
 .st-card {
   border-radius: 20px;
