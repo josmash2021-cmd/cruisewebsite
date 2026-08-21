@@ -630,3 +630,17 @@
   no.addEventListener('click', hide);
   closeX.addEventListener('click', hide);
 })();
+
+/* Header como el de home: transparente arriba, glass sedoso al hacer scroll.
+   En las páginas de cuenta no se carga home.js, así que la clase ch-scrolled
+   nunca llegaba y el menú/header quedaba sin fondo. */
+(function () {
+  'use strict';
+  var header = document.querySelector('.cruise-header');
+  if (!header) return;
+  var onScroll = function () {
+    header.classList.toggle('ch-scrolled', window.scrollY > 50);
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
