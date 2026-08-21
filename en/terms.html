@@ -21,7 +21,7 @@
   <a class="ch-logo" href="../en/">
     <img src="../assets/media/logo.png" alt="CruiseInRide" height="41">
   </a>
-  <nav class="ch-nav"><a href="../en/">Home</a><a href="../en/book">Book</a><a href="../en/contact">Contact</a><a href="../en/store">Store</a><a class="ch-nav__cta" href="../en/auth">Sign up</a></nav>
+  <nav class="ch-nav"><a href="../en/">Home</a><a href="../en/book">Book</a><a href="../en/contact">Contact</a><a data-store-link href="../en/store">Store</a><a class="ch-nav__cta" href="../en/auth">Sign up</a></nav>
   <div class="ch-actions">
     <a class="ch-lang" href="../terms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.3 9h17.4M3.3 15h17.4"/><path d="M12 3c2.6 2.4 4 5.4 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.4-4-9s1.4-6.6 4-9Z"/></svg>ES</a>
     <a class="ch-login" href="../en/auth">Log in</a>
@@ -31,8 +31,12 @@
     </button>
   </div>
 </header>
+<style>
+/* sin caja: el texto legal va directo sobre el fondo de la pagina */
+.legal-plain{background:none!important;border:none!important;border-radius:0!important;box-shadow:none!important;padding:0!important;text-align:left;max-width:760px;}
+</style>
 <main class="nf-main">
-  <div class="nm-card nf-card reveal visible" style="text-align:left;max-width:760px">
+  <div class="legal-plain">
     <h1 class="sec-title">Terms of Service</h1>
     <p class="sec-sub">Last updated: August 2026</p>
     <p>CruiseInRide provides premium private chauffeured transportation in Alabama and South Florida. By booking or using our services, you accept these terms.</p>
@@ -61,5 +65,6 @@
 </footer>
 <script src="../assets/home.js?v=20260816a"></script>
 <script src="../assets/account.js?v=20260819q" defer></script>
+<script src="../assets/nav-role.js?v=20260821a" defer></script>
 </body>
 </html>

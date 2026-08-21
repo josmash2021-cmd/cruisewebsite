@@ -40,10 +40,14 @@
   .acc-faceWrap{position:relative;width:112px;margin:0 auto 16px;cursor:pointer;}
   .acc-faceWrap .acc-face{margin:0;}
   .acc-face__edit{position:absolute;right:0;bottom:4px;width:30px;height:30px;border-radius:50%;background:linear-gradient(145deg,#f2d577,#d4af37 60%,#b8922c);color:#241c05;display:flex;align-items:center;justify-content:center;border:2px solid #000;pointer-events:none;}
-  .acc-photo-btn{display:inline-flex;align-items:center;gap:8px;margin:0 0 18px;padding:11px 18px;background:#1b1f27;border:1px solid rgba(255,255,255,.08);border-radius:999px;color:#eceef2;font:600 13px/1 Inter,system-ui,sans-serif;cursor:pointer;}
+  .acc-photo-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;background:#1b1f27;border:1px solid rgba(255,255,255,.08);border-radius:999px;color:#eceef2;font:600 13px/1 Inter,system-ui,sans-serif;cursor:pointer;}
   .acc-photo-btn:hover{border-color:rgba(212,175,55,.5);color:#f5d77a;}
   .acc-hero h1{margin:0 0 4px;font:800 30px/1.15 Cinzel,Georgia,serif;color:#fff;}
   .acc-hero p{margin:0;font-size:15px;color:rgba(236,238,242,.62);word-break:break-word;}
+  .acc-face--mini{width:56px;height:56px;margin:0;font-size:22px;flex:0 0 auto;}
+  .acc-photoRow{display:flex;align-items:center;gap:16px;margin:0 0 18px;}
+  .acc-item--static{cursor:default;}
+  .acc-item--static:hover{opacity:1;}
   .acc-badge{display:inline-block;margin-top:10px;padding:5px 16px;border:1px solid rgba(212,175,55,.55);border-radius:999px;color:#f5d77a;font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.22em;text-transform:uppercase;}
   .acc-field input[readonly]{opacity:.55;cursor:not-allowed;}
   .acc-lock{margin:-6px 0 14px;font-size:12px;color:rgba(236,238,242,.45);}
@@ -99,7 +103,7 @@
   <a class="ch-logo" href="../en/">
     <img src="../assets/media/logo.png" alt="CruiseInRide" height="41">
   </a>
-  <nav class="ch-nav"><a href="../en/">Home</a><a href="../en/book">Book</a><a href="../en/contact">Contact</a><a href="../en/store">Store</a><a class="ch-nav__cta" href="../en/auth">Sign up</a></nav>
+  <nav class="ch-nav"><a href="../en/">Home</a><a href="../en/book">Book</a><a href="../en/contact">Contact</a><a data-store-link href="../en/store">Store</a><a class="ch-nav__cta" href="../en/auth">Sign up</a></nav>
   <div class="ch-actions">
     <a class="ch-lang" href="../account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.3 9h17.4M3.3 15h17.4"/><path d="M12 3c2.6 2.4 4 5.4 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.4-4-9s1.4-6.6 4-9Z"/></svg>ES</a>
     <a class="ch-login" href="../en/auth">Log in</a>
@@ -148,7 +152,10 @@
       <!-- Datos personales -->
       <section class="acc-panel" data-acc-panel="pinfo">
         <h1 class="acc-h1">Personal info</h1>
-        <button type="button" class="acc-photo-btn" data-acc-photo-btn><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>Change profile photo</button>
+        <div class="acc-photoRow">
+          <div class="acc-face acc-face--mini" data-acc-face-mini>C</div>
+          <button type="button" class="acc-photo-btn" data-acc-photo-btn><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>Change profile photo</button>
+        </div>
         <div class="acc-field"><label for="accFn">First name</label><input id="accFn" type="text" data-acc-fn autocomplete="given-name" readonly></div>
         <div class="acc-field"><label for="accLn">Last name</label><input id="accLn" type="text" data-acc-ln autocomplete="family-name" readonly></div>
         <p class="acc-lock">Your name can't be changed — it's tied to your account verification.</p>
@@ -170,6 +177,7 @@
         </div>
         <h2 class="acc-h2">Login activity</h2>
         <p class="acc-note">You'll see here the devices you've logged in from within the last 30 days.</p>
+        <div class="acc-list" data-acc-logins></div>
       </section>
 
       <!-- Legal -->
@@ -266,6 +274,7 @@
   function show(name){
     tabs.forEach(function(b){b.classList.toggle('is-active',b.getAttribute('data-acc-tab')===name);});
     panels.forEach(function(p){p.classList.toggle('is-active',p.getAttribute('data-acc-panel')===name);});
+    if(name==='sec') loadLogins();
     window.scrollTo({top:0,behavior:'smooth'});
   }
   tabs.forEach(function(b){b.addEventListener('click',function(){show(b.getAttribute('data-acc-tab'));});});
@@ -273,6 +282,26 @@
     b.addEventListener('click',function(){show(b.getAttribute('data-acc-go'));});
   });
   if(location.hash==='#legal') show('legal');
+
+  /* telefono: se muestra como +1 (385) 461-2042, se envia E.164 (+1XXXXXXXXXX) */
+  function fmtPhone(v){
+    var d=String(v||'').replace(/\D/g,'');
+    if(d.length===11&&d.charAt(0)==='1') d=d.slice(1);
+    d=d.slice(0,10);
+    if(!d) return '';
+    var out='+1 ('+d.slice(0,3);
+    if(d.length>=3) out+=')';
+    if(d.length>3) out+=' '+d.slice(3,6);
+    if(d.length>6) out+='-'+d.slice(6,10);
+    return out;
+  }
+  function phoneE164(v){
+    var d=String(v||'').replace(/\D/g,'');
+    if(d.length===11&&d.charAt(0)==='1') d=d.slice(1);
+    return d?'+1'+d:'';
+  }
+  var phEl=$('[data-acc-ph]');
+  if(phEl) phEl.addEventListener('input',function(){phEl.value=fmtPhone(phEl.value);});
 
   /* datos */
   function localPhoto(){try{return localStorage.getItem('vr_photo_local')||'';}catch(_){return'';}}
@@ -282,6 +311,12 @@
     p=String(p||'');
     if(!(/^https:\/\//i.test(p)||/^data:image\//i.test(p))) return '';
     return p.replace(/["'<>&]/g,function(c){return{'"':'&quot;',"'":'&#39;','<':'&lt;','>':'&gt;','&':'&amp;'}[c];});
+  }
+  /* foto pendiente de subir (elegida en Datos personales, se confirma con Save) */
+  var pendingPhoto='';
+  function paintFace(el,photo,name){
+    if(!el) return;
+    if(photo) el.innerHTML='<img src="'+photo+'" alt="">'; else el.textContent=(name||'C').charAt(0).toUpperCase();
   }
   function paint(u){
     if(!u) return;
@@ -293,23 +328,26 @@
       var role=(u.role||'').toLowerCase();
       if(role==='driver'||role==='rider'){badge.textContent=role.toUpperCase();badge.hidden=false;}
     }
-    var f=$('[data-acc-face]');
     var photo=safePhoto(localPhoto()||u.photo_url||u.avatar_url||u.photo);
-    if(photo) f.innerHTML='<img src="'+photo+'" alt="">'; else f.textContent=(name||'C').charAt(0).toUpperCase();
+    paintFace($('[data-acc-face]'),photo,name);
+    /* si hay preview pendiente, no lo pisamos con la foto vieja del servidor */
+    paintFace($('[data-acc-face-mini]'),pendingPhoto||photo,name);
     $('[data-acc-fn]').value=u.first_name||'';
     $('[data-acc-ln]').value=u.last_name||'';
     $('[data-acc-em]').value=u.email||'';
-    $('[data-acc-ph]').value=u.phone||'';
+    if(phEl) phEl.value=fmtPhone(u.phone||'');
   }
   try{var cached=localStorage.getItem('vr_au');if(cached) paint(JSON.parse(cached));}catch(_){}
   api('/auth/web/me').then(function(d){paint(d);try{localStorage.setItem('vr_au',JSON.stringify(d));}catch(_){}})
     .catch(function(e){if(e.status===401||e.status===403){try{localStorage.removeItem('vr_at');}catch(_){}location.replace('../en/auth');}});
 
-  /* foto de perfil: clic en el avatar o en el boton de Datos personales */
+  /* foto de perfil: clic en el avatar (sube al instante) o en el boton de
+     Datos personales (solo preview; la subida va con Save changes) */
   var phIn=$('[data-acc-photo-input]');
-  function pickPhoto(){if(phIn)phIn.click();}
-  var fw=$('[data-acc-face-wrap]');if(fw)fw.addEventListener('click',pickPhoto);
-  var pb=$('[data-acc-photo-btn]');if(pb)pb.addEventListener('click',pickPhoto);
+  var pickCtx='hero';
+  function pickPhoto(ctx){pickCtx=ctx||'hero';if(phIn)phIn.click();}
+  var fw=$('[data-acc-face-wrap]');if(fw)fw.addEventListener('click',function(){pickPhoto('hero');});
+  var pb=$('[data-acc-photo-btn]');if(pb)pb.addEventListener('click',function(){pickPhoto('pinfo');});
   /* La foto va a /auth/web/photo, que sube a Firebase Storage y sincroniza con la
      app y dispatch. NO se puede usar /auth/photo (es el endpoint de la app móvil:
      exige firma x-signature) ni PATCH /auth/web/profile (descarta photo_url si no
@@ -337,16 +375,26 @@
        seguiría enseñando la foto anterior. */
     if(src.indexOf('https')===0) src+=(src.indexOf('?')<0?'?':'&')+'t='+Date.now();
     $('[data-acc-face]').innerHTML='<img src="'+src+'" alt="">';
+    var mini=$('[data-acc-face-mini]');if(mini) mini.innerHTML='<img src="'+src+'" alt="">';
+    pendingPhoto='';
     try{localStorage.setItem('vr_photo_local',src);}catch(_){}
     try{var u=JSON.parse(localStorage.getItem('vr_au')||'{}');u.photo_url=src;localStorage.setItem('vr_au',JSON.stringify(u));}catch(_){}
     /* avisa al menú del avatar (account.js) y, vía storage, a las otras pestañas */
     try{window.dispatchEvent(new CustomEvent('vr:photo-updated',{detail:{src:src}}));}catch(_){}
   }
+  var save=$('[data-acc-save]'),msg=$('[data-acc-msg]');
   if(phIn)phIn.addEventListener('change',function(){
     var file=phIn.files&&phIn.files[0];if(!file)return;
     phIn.value='';
     shrinkPhoto(file,function(durl){
       if(!durl){alert('We could not read that image. Try another photo.');return;}
+      if(pickCtx==='pinfo'){
+        /* cambio diferido: solo preview en la burbuja; sube con Save changes */
+        pendingPhoto=durl;
+        var mini=$('[data-acc-face-mini]');if(mini) mini.innerHTML='<img src="'+safePhoto(durl)+'" alt="">';
+        msg.textContent='';msg.classList.remove('is-ok');
+        return;
+      }
       api('/auth/web/photo',{method:'POST',body:{photo:durl}}).then(function(d){
         if(d&&d.photo_url){keepPhoto(d.photo_url);}
         else{alert('Could not save the photo on the server. Please try again.');}
@@ -356,23 +404,68 @@
     });
   });
 
-  var save=$('[data-acc-save]'),msg=$('[data-acc-msg]');
   save.addEventListener('click',function(){
     msg.textContent='';msg.classList.remove('is-ok');
     save.disabled=true;
-    api('/auth/web/profile',{method:'PATCH',body:{
-      email:$('[data-acc-em]').value.trim(),
-      phone:$('[data-acc-ph]').value.trim()
-    }}).then(function(d){
+    /* 1) sube la foto pendiente (si hay) · 2) PATCH email/phone */
+    var up=pendingPhoto
+      ? api('/auth/web/photo',{method:'POST',body:{photo:pendingPhoto}}).then(function(d){
+          if(!(d&&d.photo_url)) throw new Error('Could not save the photo on the server. Please try again.');
+          keepPhoto(d.photo_url);
+        })
+      : Promise.resolve();
+    up.then(function(){
+      return api('/auth/web/profile',{method:'PATCH',body:{
+        email:$('[data-acc-em]').value.trim(),
+        phone:phoneE164(phEl?phEl.value:'')
+      }});
+    }).then(function(d){
       paint(d);try{localStorage.setItem('vr_au',JSON.stringify(d));}catch(_){}
       msg.textContent='Details updated.';msg.classList.add('is-ok');save.disabled=false;
     }).catch(function(e){
       msg.textContent=e.message||'Could not save your changes.';save.disabled=false;
     });
   });
+
+  /* actividad de inicio de sesion: carga perezosa al abrir Security;
+     si el endpoint no existe o falla, se queda la nota como empty state */
+  var LOGINS_LABELS={};
+  var LOGINS_ICONS={
+    phone:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>',
+    tablet:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4.5" y="2.5" width="15" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>',
+    computer:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M9 21h6M12 17v4"/></svg>'
+  };
+  var loginsLoaded=false;
+  function loadLogins(){
+    if(loginsLoaded) return;
+    loginsLoaded=true;
+    var box=$('[data-acc-logins]');if(!box) return;
+    api('/auth/web/login-activity').then(function(d){
+      var items=(d&&d.items)||[];
+      if(!items.length) return;
+      box.innerHTML='';
+      items.forEach(function(it){
+        var row=document.createElement('div');
+        row.className='acc-item acc-item--static';
+        var dt=String(it.device_type||'').toLowerCase();
+        var icon=LOGINS_ICONS[(dt==='iphone'||dt==='android')?'phone':(dt==='tablet'?'tablet':'computer')];
+        var when='';
+        try{
+          var dte=new Date(it.logged_in_at);
+          if(!isNaN(dte)) when=dte.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' · '+dte.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+        }catch(_){}
+        row.innerHTML=icon+'<div class="acc-item__body"><span class="acc-item__t"></span><span class="acc-item__s"></span></div>';
+        var label=String(it.device_label||'Device');
+        row.querySelector('.acc-item__t').textContent=LOGINS_LABELS[label]||label;
+        row.querySelector('.acc-item__s').textContent=when;
+        box.appendChild(row);
+      });
+    }).catch(function(){/* endpoint aun no desplegado: la nota queda de empty state */});
+  }
 })();
 </script>
 
 <script src="../assets/account.js?v=20260821r" defer></script>
+<script src="../assets/nav-role.js?v=20260821a" defer></script>
 </body>
 </html>
