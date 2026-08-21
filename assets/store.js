@@ -231,7 +231,7 @@
 
     if (!token()) { show('gate'); return; }
 
-    api('/auth/me').then(function (u) {
+    api('/auth/web/me').then(function (u) {
       if ((u && u.role) !== 'driver') { show('blocked'); return; }
       return api('/store/products').then(function (d) {
         (d.products || []).forEach(function (p) {
