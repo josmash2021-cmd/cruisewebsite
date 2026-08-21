@@ -152,6 +152,7 @@
   /* ── catálogo ── */
   function bindCatalog() {
     document.querySelectorAll('[data-product]').forEach(function (card) {
+      if (card.classList.contains('st-card--soon')) return; // coming soon: sin compra
       var id = card.getAttribute('data-product');
       var qEl = card.querySelector('[data-qty]');
       card.querySelectorAll('[data-qty-btn]').forEach(function (btn) {
