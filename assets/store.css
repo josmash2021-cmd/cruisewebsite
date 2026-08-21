@@ -115,34 +115,24 @@ img.st-face { width: 100%; height: 100%; object-fit: cover; }
   font: 500 12px Inter, sans-serif; letter-spacing: .04em;
 }
 
-/* Dorso reconstruido en HTML para que el nombre/teléfono sean EN VIVO */
-.bc-back { position: absolute; inset: 0; display: flex; }
-.bc-back__left {
-  flex: 1.25; padding: 7.5% 0 6% 8%; display: flex; flex-direction: column;
-}
-.bc-back__name {
-  font-family: Cinzel, serif; font-weight: 700; color: var(--st-gold);
-  font-size: clamp(11px, 2.6cqw, 30px); letter-spacing: .08em;
-  margin-bottom: 6.5%; text-transform: uppercase;
-}
-.bc-back__row { display: flex; align-items: center; gap: 4.5%; margin-bottom: 4.6%; }
-.bc-back__ico { width: 7%; flex: none; }
-.bc-back__ico svg { display: block; width: 100%; height: auto; }
-.bc-back__lbl {
-  font-family: Cinzel, serif; font-weight: 600; color: var(--st-gold);
-  font-size: clamp(8px, 1.7cqw, 19px); letter-spacing: .28em;
-  text-decoration: underline; text-underline-offset: .22em;
-}
-.bc-back__val {
-  font-family: Cinzel, serif; font-weight: 600; color: #fff;
-  font-size: clamp(9px, 2.05cqw, 24px); letter-spacing: .05em;
+/* Dorso = diseño real (store-card-back-template.png) con nombre/teléfono
+   borrados; los spans se escriben EN VIVO desde los campos de personalización.
+   Posiciones calcadas del arte 1050×600: nombre x92 y112 · teléfono x128 y268. */
+.bc-back__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.bc-back__pv {
+  position: absolute; color: #fff; font-family: Cinzel, serif;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.bc-back__right { flex: 1; display: flex; align-items: center; justify-content: center; padding: 4% 5% 4% 0; }
-.bc-back__right img { width: 100%; max-width: 92%; height: auto; }
-.bc-back__social { display: flex; gap: 7%; padding-left: 3%; margin-top: auto; }
-.bc-back__social svg { width: clamp(10px, 3.2cqw, 34px); height: auto; }
-.bc-back__bars { position: absolute; right: 0; bottom: 0; width: 42%; height: 16%; pointer-events: none; }
+.bc-back__pv--name {
+  left: 8.8%; top: 15.5%; max-width: 45%;
+  font-weight: 700; font-size: clamp(11px, 4.55cqw, 48px);
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.bc-back__pv--phone {
+  left: 12.4%; top: 43%; max-width: 40%;
+  font-weight: 600; font-size: clamp(9px, 2.85cqw, 30px);
+  letter-spacing: .03em;
+}
 .st-cardface { container-type: inline-size; }
 
 /* ── Panel del pedido (derecha) ── */
