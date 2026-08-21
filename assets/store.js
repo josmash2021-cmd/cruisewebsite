@@ -98,14 +98,32 @@
   var pvName = document.getElementById('bc-pv-name');
   var pvPhone = document.getElementById('bc-pv-phone');
 
+  /* Máscara (000) 000-0000 mientras escribe; acepta 1 inicial -> +1 (...) */
+  function maskPhone(v) {
+    var d = (v || '').replace(/\D/g, '');
+    var p = '';
+    if (d.length > 10 && d.charAt(0) === '1') { p = '+1 '; d = d.slice(1); }
+    d = d.slice(0, 10);
+    if (!d.length) return p;
+    var out = '(' + d.slice(0, 3);
+    if (d.length >= 3) out += ')';
+    if (d.length > 3) out += ' ' + d.slice(3, 6);
+    if (d.length > 6) out += '-' + d.slice(6, 10);
+    return p + out;
+  }
+
   function renderPreview() {
     if (!pvName) return;
     var n = ((inName.value || '') + ' ' + (inLast.value || '')).trim();
     pvName.textContent = n || (EN ? 'YOUR NAME' : 'TU NOMBRE');
     pvPhone.textContent = (inPhone.value || '').trim() || '(000) 000-0000';
   }
-  [inName, inLast, inPhone].forEach(function (el) {
+  [inName, inLast].forEach(function (el) {
     if (el) el.addEventListener('input', renderPreview);
+  });
+  if (inPhone) inPhone.addEventListener('input', function () {
+    inPhone.value = maskPhone(inPhone.value);
+    renderPreview();
   });
 
   /* flip frente/dorso — tabs + tocar la tarjeta */

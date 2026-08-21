@@ -25,28 +25,32 @@
 .store-grid { display: grid; gap: 22px; }
 
 .st-card {
-  background: var(--st-panel); border: 1px solid var(--st-line);
-  border-radius: 20px; overflow: hidden;
+  border-radius: 20px;
   transition: border-color .2s, transform .2s;
 }
-.st-card:hover { border-color: var(--st-gold-soft); }
 .st-card__media {
-  background: #000; display: flex; align-items: center; justify-content: center;
-  padding: 12px; min-height: 200px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 0 18px; min-height: 200px;
 }
 .st-card__media img { max-width: 100%; max-height: 230px; object-fit: contain; }
 /* Las caras de la business card mandan sobre la regla anterior: si el img
    queda capado a 230px mientras la cara es más alta, la imagen se comprime
    y los textos vivos (posicionados en %) ya no caen donde el arte dice. */
 .st-card__media .st-face, .st-card__media .bc-back__bg { max-height: none; }
-.st-card__body { padding: 20px 22px 22px; }
+/* Solo el cuadro de abajo lleva panel; la tarjeta flota sobre el fondo */
+.st-card__body {
+  padding: 20px 22px 22px;
+  background: var(--st-panel); border: 1px solid var(--st-line);
+  border-radius: 20px;
+}
+.st-card__body:hover { border-color: var(--st-gold-soft); }
 .st-card__name { font-family: Cinzel, serif; font-size: 19px; font-weight: 700; color: var(--st-txt); }
 .st-card__desc { color: var(--st-muted); font-size: 13.5px; margin-top: 6px; line-height: 1.55; }
 .st-card__row {
   display: flex; align-items: center; justify-content: space-between;
   margin-top: 16px; gap: 12px; flex-wrap: wrap;
 }
-.st-card__price { font-family: Cinzel, serif; font-size: 22px; font-weight: 700; color: var(--st-gold); }
+.st-card__price { font-family: Arial, sans-serif; font-size: 22px; font-weight: 700; color: #fff; }
 
 .st-qty {
   display: inline-flex; align-items: center; gap: 0;
