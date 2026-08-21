@@ -142,7 +142,7 @@ img.st-face { width: 100%; height: 100%; object-fit: cover; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .bc-back__pv--name {
-  left: 8.8%; top: 18%; max-width: 52%;
+  left: 8.8%; top: 18%; max-width: 46%;
   font-weight: 400; font-size: clamp(11px, 4.55cqw, 48px);
   letter-spacing: .1em; text-transform: uppercase;
 }
