@@ -12,6 +12,17 @@
   var API = root.getAttribute('data-api-base');
   var APIKEY = root.getAttribute('data-api-key') || '';
 
+  /* Header idéntico al de home: transparente arriba, glass al hacer scroll
+     (home.js lo hace allá; aquí no se carga home.js). */
+  var header = document.querySelector('.cruise-header');
+  if (header) {
+    var onScroll = function () {
+      header.classList.toggle('ch-scrolled', window.scrollY > 50);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
   var T = EN ? {
     loginTitle: 'Cruise Store',
     loginMsg: 'Sign in with your driver account to see the store.',
