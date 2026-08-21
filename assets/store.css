@@ -191,6 +191,32 @@ img.st-face { width: 100%; height: 100%; object-fit: cover; }
 
 .st-note { margin-top: 12px; font-size: 12px; color: var(--st-muted); text-align: center; }
 
+/* ── Botón Comenzar/Confirmar (misma familia dorada que st-pay) ── */
+.st-start {
+  border: none; cursor: pointer;
+  background: linear-gradient(135deg, #e5c558, #c9a227);
+  color: #0b0b0d; border-radius: 12px; padding: 11px 26px;
+  font: 700 13.5px Inter, sans-serif; letter-spacing: .05em;
+  transition: transform .15s, box-shadow .2s;
+}
+.st-start:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(212, 175, 55, .25); }
+.st-start:disabled { opacity: .45; cursor: not-allowed; }
+#bc-confirm { margin-top: 12px; width: 100%; padding: 13px; }
+
+/* ── Sugerencias de dirección ── */
+.st-addr { position: relative; }
+.st-suggest {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 30;
+  background: #17181c; border: 1px solid var(--st-line); border-radius: 12px;
+  overflow: hidden; box-shadow: 0 16px 34px rgba(0, 0, 0, .5);
+}
+.st-suggest__item {
+  display: block; width: 100%; text-align: left; border: none; cursor: pointer;
+  background: none; color: var(--st-txt); padding: 11px 14px;
+  font: 500 13px Inter, sans-serif; line-height: 1.35;
+}
+.st-suggest__item:hover { background: rgba(212, 175, 55, .1); color: var(--st-gold); }
+
 .st-msg {
   display: none; margin-top: 12px; padding: 11px 14px; border-radius: 12px;
   font-size: 13.5px; line-height: 1.5;

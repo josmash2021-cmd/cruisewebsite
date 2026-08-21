@@ -29,8 +29,8 @@
     loginCta: 'Sign in',
     blockedTitle: 'Cruise Store',
     blockedMsg: 'This session belongs to a rider account. Sign in with your driver account to see the store.',
-    pay: 'Pay with Stripe',
-    paying: 'Redirecting to Stripe…',
+    pay: 'Checkout',
+    paying: 'Opening secure checkout…',
     errNet: 'Connection error — try again.',
     errCard: 'Enter your name and phone number to personalize the cards.',
     errShip: 'Complete the shipping address.',
@@ -46,8 +46,8 @@
     loginCta: 'Iniciar sesión',
     blockedTitle: 'Tienda Cruise',
     blockedMsg: 'Esta sesión es de una cuenta de pasajero. Entra con tu cuenta de driver para ver la tienda.',
-    pay: 'Pagar con Stripe',
-    paying: 'Redirigiendo a Stripe…',
+    pay: 'Checkout',
+    paying: 'Abriendo el pago seguro…',
     errNet: 'Error de conexión — inténtalo de nuevo.',
     errCard: 'Escribe tu nombre y teléfono para personalizar las tarjetas.',
     errShip: 'Completa la dirección de envío.',
@@ -160,6 +160,108 @@
     });
   }
 
+  /* ── flujo: Comenzar → personalizar → Confirmar → pedido ── */
+  var bcStart = document.getElementById('bc-start');
+  var bcConfirm = document.getElementById('bc-confirm');
+  var orderAside = document.querySelector('.st-order');
+  var bcConfirmed = false;
+
+  function bcFieldsReady() {
+    return !!((inName.value || '').trim() && (inLast.value || '').trim() &&
+              (inPhone.value || '').replace(/\D/g, '').length >= 10);
+  }
+  function refreshConfirmBtn() {
+    if (bcConfirm) bcConfirm.disabled = !bcFieldsReady();
+  }
+  if (bcStart) bcStart.addEventListener('click', function () {
+    var customBox = document.getElementById('bc-custom');
+    if (customBox) customBox.style.display = '';
+    setFace('back');
+    bcStart.style.display = 'none';
+    if (inName) inName.focus();
+    refreshConfirmBtn();
+  });
+  [inName, inLast, inPhone].forEach(function (el) {
+    if (el) el.addEventListener('input', refreshConfirmBtn);
+  });
+  if (bcConfirm) bcConfirm.addEventListener('click', function () {
+    if (!bcFieldsReady()) return;
+    bcConfirmed = true;
+    qty.business_card = 1;
+    var customBox = document.getElementById('bc-custom');
+    if (customBox) customBox.style.display = 'none';
+    if (orderAside) {
+      orderAside.hidden = false;
+      orderAside.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    renderSummary();
+    refreshPayState();
+  });
+
+  function shipReady() {
+    var s = readShip();
+    return !!(s.ship_name && s.ship_address1 && s.ship_city && s.ship_state && s.ship_zip);
+  }
+  function refreshPayState() {
+    if (payBtn && !orderBusy) payBtn.disabled = !(bcConfirmed && shipReady());
+  }
+
+  /* ── sugerencias de dirección (Mapbox geocode v6, mismo token que home) ── */
+  var MAPBOX_TOKEN = 'pk.eyJ1Ijoicm95YWxwdXJwbGVjb3JwIiwiYSI6ImNtbHk4cmpsNjExamwzZm9sOGFobXZoZTMifQ.YNkz-m3W7noKKDKbwn9y3w';
+  var shA1 = document.getElementById('sh-a1');
+  var sugBox = document.getElementById('sh-suggest');
+  var sugTimer = null;
+  function hideSuggest() { if (sugBox) sugBox.hidden = true; }
+  function fillAddress(f) {
+    var p = f.properties || {};
+    var cx = p.context || {};
+    var num = cx.address && cx.address.name;
+    var street = cx.street && cx.street.name;
+    shA1.value = (num && street) ? (num + ' ' + street)
+               : (p.name || p.full_address || shA1.value);
+    var city = cx.place && cx.place.name;
+    var region = cx.region && (cx.region.region_code || cx.region.name);
+    var zip = cx.postcode && cx.postcode.name;
+    if (city) document.getElementById('sh-city').value = city;
+    if (region) document.getElementById('sh-state').value = region;
+    if (zip) document.getElementById('sh-zip').value = zip;
+    hideSuggest();
+    refreshPayState();
+  }
+  function runSuggest(q) {
+    var url = 'https://api.mapbox.com/search/geocode/v6/forward?q=' + encodeURIComponent(q) +
+      '&country=us&types=address&limit=5&access_token=' + encodeURIComponent(MAPBOX_TOKEN);
+    fetch(url).then(function (r) { return r.json(); }).then(function (d) {
+      var feats = (d && d.features) || [];
+      if (!feats.length) return hideSuggest();
+      sugBox.innerHTML = '';
+      feats.forEach(function (f) {
+        var p = f.properties || {};
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'st-suggest__item';
+        b.textContent = p.full_address || p.place_formatted || p.name || '';
+        b.addEventListener('click', function () { fillAddress(f); });
+        sugBox.appendChild(b);
+      });
+      sugBox.hidden = false;
+    }).catch(hideSuggest);
+  }
+  if (shA1) {
+    shA1.addEventListener('input', function () {
+      refreshPayState();
+      clearTimeout(sugTimer);
+      var q = shA1.value.trim();
+      if (q.length < 4) return hideSuggest();
+      sugTimer = setTimeout(function () { runSuggest(q); }, 350);
+    });
+    shA1.addEventListener('blur', function () { setTimeout(hideSuggest, 200); });
+  }
+  ['sh-name', 'sh-a2', 'sh-city', 'sh-state', 'sh-zip'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', refreshPayState);
+  });
+
   /* ── catálogo ── */
   function bindCatalog() {
     document.querySelectorAll('[data-product]').forEach(function (card) {
@@ -192,9 +294,6 @@
     });
     box.innerHTML = html || '<div class="st-order__line"><span>—</span><b>$0.00</b></div>';
     totalEl.textContent = money(total);
-    var hasCard = qty.business_card > 0;
-    var customBox = document.getElementById('bc-custom');
-    if (customBox) customBox.style.display = hasCard ? '' : 'none';
   }
 
   function readShip() {
