@@ -6,12 +6,12 @@
 if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',location.pathname.replace(/index\.html$/,'')+location.search+location.hash);
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tienda Cruise — Solo Drivers</title>
+<title>Tienda Cruise</title>
 <meta name="description" content="Tienda oficial Cruise para drivers: tarjetas de presentación personalizadas, letrero para tu carro y stickers.">
 <meta name="robots" content="noindex">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="CruiseInRide">
-<meta property="og:title" content="Tienda Cruise — Solo Drivers">
+<meta property="og:title" content="Tienda Cruise">
 <meta property="og:url" content="https://cruiseinride.com/store">
 <meta property="og:image" content="https://cruiseinride.com/assets/media/og-cover.png">
 <meta name="theme-color" content="#000000">
@@ -46,15 +46,16 @@ if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',locatio
 
   <!-- Sin sesión -->
   <section class="store-gate" id="store-gate" hidden>
-    <h1>Solo para drivers</h1>
-    <p>La tienda Cruise es exclusiva para drivers registrados. Inicia sesión con tu cuenta de driver para continuar.</p>
+    <h1>Tienda Cruise</h1>
+    <p>Inicia sesión con tu cuenta de driver para ver la tienda.</p>
     <button class="st-pay" id="store-gate-btn" type="button">Iniciar sesión</button>
   </section>
 
   <!-- Cuenta que no es driver -->
   <section class="store-gate" id="store-blocked" hidden>
-    <h1>Esta cuenta no es de driver</h1>
-    <p>Iniciaste sesión con una cuenta de pasajero. La tienda de merchandising es solo para drivers registrados de Cruise.</p>
+    <h1>Tienda Cruise</h1>
+    <p>Esta sesión es de una cuenta de pasajero. Entra con tu cuenta de driver para ver la tienda.</p>
+    <button class="st-pay" id="store-switch-btn" type="button">Entrar como driver</button>
   </section>
 
   <!-- Pago exitoso -->

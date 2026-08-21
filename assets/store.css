@@ -192,3 +192,7 @@
 /* el EMAIL es el valor mas largo del dorso — un punto mas chico para que
    nunca se corte contra el QR */
 .bc-back__val--sm { font-size: clamp(8px, 1.6cqw, 18px); }
+
+/* el footer baja al fondo aunque la vista sea corta (gate/blocked/exito) */
+body:has(#cruise-store){display:flex;flex-direction:column;min-height:100vh}
+#cruise-store{flex:1}

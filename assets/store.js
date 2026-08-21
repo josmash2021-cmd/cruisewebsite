@@ -13,11 +13,11 @@
   var APIKEY = root.getAttribute('data-api-key') || '';
 
   var T = EN ? {
-    loginTitle: 'Drivers only',
-    loginMsg: 'The Cruise store is exclusive for registered drivers. Sign in with your driver account to continue.',
+    loginTitle: 'Cruise Store',
+    loginMsg: 'Sign in with your driver account to see the store.',
     loginCta: 'Sign in',
-    blockedTitle: 'This account is not a driver',
-    blockedMsg: 'You signed in with a rider account. The merch store is only for registered Cruise drivers.',
+    blockedTitle: 'Cruise Store',
+    blockedMsg: 'This session belongs to a rider account. Sign in with your driver account to see the store.',
     pay: 'Pay with Stripe',
     paying: 'Redirecting to Stripe…',
     errNet: 'Connection error — try again.',
@@ -30,11 +30,11 @@
     cancelMsg: 'Payment cancelled — your order was not charged. You can try again whenever you want.',
     shipTo: 'Shipping address'
   } : {
-    loginTitle: 'Solo para drivers',
-    loginMsg: 'La tienda Cruise es exclusiva para drivers registrados. Inicia sesión con tu cuenta de driver para continuar.',
+    loginTitle: 'Tienda Cruise',
+    loginMsg: 'Inicia sesión con tu cuenta de driver para ver la tienda.',
     loginCta: 'Iniciar sesión',
-    blockedTitle: 'Esta cuenta no es de driver',
-    blockedMsg: 'Iniciaste sesión con una cuenta de pasajero. La tienda de merchandising es solo para drivers registrados de Cruise.',
+    blockedTitle: 'Tienda Cruise',
+    blockedMsg: 'Esta sesión es de una cuenta de pasajero. Entra con tu cuenta de driver para ver la tienda.',
     pay: 'Pagar con Stripe',
     paying: 'Redirigiendo a Stripe…',
     errNet: 'Error de conexión — inténtalo de nuevo.',
@@ -248,16 +248,22 @@
       });
     }).catch(function (e) {
       if (e.status === 401) {
-        location.replace((EN ? 'auth' : 'auth') + '?return=' + (EN ? 'en/store' : 'store'));
+        location.replace((EN ? '../auth' : 'auth') + '?role=driver&return=' + (EN ? 'en/store' : 'store'));
         return;
       }
       show('gate');
     });
   }
 
+  var switchBtn = document.getElementById('store-switch-btn');
+  if (switchBtn) switchBtn.addEventListener('click', function () {
+    try { localStorage.removeItem('vr_at'); localStorage.removeItem('vr_au'); } catch (_) {}
+    location.href = (EN ? '../auth' : 'auth') + '?role=driver&return=' + (EN ? 'en/store' : 'store');
+  });
+
   var gateBtn = document.getElementById('store-gate-btn');
   if (gateBtn) gateBtn.addEventListener('click', function () {
-    location.href = 'auth?return=' + (EN ? 'en/store' : 'store');
+    location.href = (EN ? '../auth' : 'auth') + '?role=driver&return=' + (EN ? 'en/store' : 'store');
   });
 
   boot();

@@ -871,6 +871,9 @@
   var APPLE_ID=root.getAttribute('data-apple-id')||'';
 
   var $=function(s,c){return (c||root).querySelector(s);};
+  /* La tienda manda drivers con ?role=driver: login/check-exists/social
+     corren con ese rol. El REGISTRO web sigue siendo de pasajeros. */
+  var ROLE=(new URLSearchParams(location.search).get('role')==='driver')?'driver':'rider';
   var $$=function(s,c){return Array.from((c||root).querySelectorAll(s));};
 
   /* escapa texto antes de meterlo en innerHTML (datos del backend o del usuario) */
@@ -924,7 +927,7 @@
 
   /* Social auth */
   function _socialAuth(provider,id_token){
-    _fetch('/auth/web/social',{method:'POST',body:{provider:provider,id_token:id_token,role:'rider'}}).then(function(d){
+    _fetch('/auth/web/social',{method:'POST',body:{provider:provider,id_token:id_token,role:ROLE}}).then(function(d){
       if(d.access_token){_save(d.access_token,d.user);_toAccount();}
       else throw new Error('No token');
     }).catch(function(e){_toast(e.message||'Auth failed','err');});
@@ -1052,7 +1055,7 @@
       }
       function check(i){
         if(i>=candidates.length){_existsKnown=false;proceed();return;}
-        _fetch('/auth/web/check-exists',{method:'POST',body:{identifier:candidates[i],role:'rider'}})
+        _fetch('/auth/web/check-exists',{method:'POST',body:{identifier:candidates[i],role:ROLE}})
           .then(function(d){
             if(d&&d.exists){_existsKnown=true;_accountName=(d.first_name||'').trim();proceed();}
             else check(i+1);
@@ -1347,7 +1350,7 @@
       if(!pw){pwNext.disabled=true;return;}
       pwNext.disabled=true;
       if(pwErr){pwErr.textContent='';pwErr.classList.remove('is-visible');}
-      var chain=_fetch('/auth/web/login',{method:'POST',body:{identifier:_identifier,password:pw,role:'rider'}});
+      var chain=_fetch('/auth/web/login',{method:'POST',body:{identifier:_identifier,password:pw,role:ROLE}});
       chain=chain.then(function(d){
         if(d.login_token){return _fetch('/auth/web/complete-login',{method:'POST',body:{login_token:d.login_token,otp_token:_otpToken}});}
         else if(d.access_token){return d;}

@@ -6,12 +6,12 @@
 if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',location.pathname.replace(/index\.html$/,'')+location.search+location.hash);
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Cruise Store — Drivers Only</title>
+<title>Cruise Store</title>
 <meta name="description" content="Official Cruise store for drivers: personalized business cards, car sign and stickers.">
 <meta name="robots" content="noindex">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="CruiseInRide">
-<meta property="og:title" content="Cruise Store — Drivers Only">
+<meta property="og:title" content="Cruise Store">
 <meta property="og:url" content="https://cruiseinride.com/en/store">
 <meta property="og:image" content="https://cruiseinride.com/assets/media/og-cover.png">
 <meta name="theme-color" content="#000000">
@@ -46,15 +46,16 @@ if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',locatio
 
   <!-- Sin sesión -->
   <section class="store-gate" id="store-gate" hidden>
-    <h1>Drivers only</h1>
-    <p>The Cruise store is exclusive for registered drivers. Sign in with your driver account to continue.</p>
+    <h1>Cruise Store</h1>
+    <p>Sign in with your driver account to see the store.</p>
     <button class="st-pay" id="store-gate-btn" type="button">Sign in</button>
   </section>
 
   <!-- Cuenta que no es driver -->
   <section class="store-gate" id="store-blocked" hidden>
-    <h1>This account is not a driver</h1>
-    <p>You signed in with a rider account. The merch store is only for registered Cruise drivers.</p>
+    <h1>Cruise Store</h1>
+    <p>This session belongs to a rider account. Sign in with your driver account to see the store.</p>
+    <button class="st-pay" id="store-switch-btn" type="button">Sign in as driver</button>
   </section>
 
   <!-- Pago exitoso -->
