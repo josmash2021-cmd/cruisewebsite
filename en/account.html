@@ -44,6 +44,9 @@
   .acc-photo-btn:hover{border-color:rgba(212,175,55,.5);color:#f5d77a;}
   .acc-hero h1{margin:0 0 4px;font:800 30px/1.15 Cinzel,Georgia,serif;color:#fff;}
   .acc-hero p{margin:0;font-size:15px;color:rgba(236,238,242,.62);word-break:break-word;}
+  .acc-badge{display:inline-block;margin-top:10px;padding:5px 16px;border:1px solid rgba(212,175,55,.55);border-radius:999px;color:#f5d77a;font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.22em;text-transform:uppercase;}
+  .acc-field input[readonly]{opacity:.55;cursor:not-allowed;}
+  .acc-lock{margin:-6px 0 14px;font-size:12px;color:rgba(236,238,242,.45);}
   .acc-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:26px 0 8px;}
   .acc-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px 12px;background:#0e1116;border:1px solid rgba(255,255,255,.07);border-radius:12px;color:#eceef2;font:600 15px/1 Inter,system-ui,sans-serif;cursor:pointer;box-shadow:none;transition:border-color 180ms;}
   .acc-tile:hover{border-color:rgba(212,175,55,.5);}
@@ -127,6 +130,7 @@
           </div>
           <h1 data-acc-name>—</h1>
           <p data-acc-mail></p>
+          <span class="acc-badge" data-acc-role hidden></span>
         </div>
         <div class="acc-tiles">
           <button type="button" class="acc-tile" data-acc-go="pinfo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6"/></svg>Personal info</button>
@@ -145,8 +149,9 @@
       <section class="acc-panel" data-acc-panel="pinfo">
         <h1 class="acc-h1">Personal info</h1>
         <button type="button" class="acc-photo-btn" data-acc-photo-btn><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>Change profile photo</button>
-        <div class="acc-field"><label for="accFn">First name</label><input id="accFn" type="text" data-acc-fn autocomplete="given-name"></div>
-        <div class="acc-field"><label for="accLn">Last name</label><input id="accLn" type="text" data-acc-ln autocomplete="family-name"></div>
+        <div class="acc-field"><label for="accFn">First name</label><input id="accFn" type="text" data-acc-fn autocomplete="given-name" readonly></div>
+        <div class="acc-field"><label for="accLn">Last name</label><input id="accLn" type="text" data-acc-ln autocomplete="family-name" readonly></div>
+        <p class="acc-lock">Your name can't be changed — it's tied to your account verification.</p>
         <div class="acc-field"><label for="accEm">Email</label><input id="accEm" type="email" data-acc-em autocomplete="email"></div>
         <div class="acc-field"><label for="accPh">Phone</label><input id="accPh" type="tel" data-acc-ph autocomplete="tel"></div>
         <p class="acc-msg" data-acc-msg></p>
@@ -283,6 +288,11 @@
     var name=[u.first_name,u.last_name].filter(Boolean).join(' ').trim()||u.name||u.email||'—';
     $('[data-acc-name]').textContent=name;
     $('[data-acc-mail]').textContent=u.email||u.phone||'';
+    var badge=$('[data-acc-role]');
+    if(badge){
+      var role=(u.role||'').toLowerCase();
+      if(role==='driver'||role==='rider'){badge.textContent=role.toUpperCase();badge.hidden=false;}
+    }
     var f=$('[data-acc-face]');
     var photo=safePhoto(localPhoto()||u.photo_url||u.avatar_url||u.photo);
     if(photo) f.innerHTML='<img src="'+photo+'" alt="">'; else f.textContent=(name||'C').charAt(0).toUpperCase();
@@ -351,8 +361,6 @@
     msg.textContent='';msg.classList.remove('is-ok');
     save.disabled=true;
     api('/auth/web/profile',{method:'PATCH',body:{
-      first_name:$('[data-acc-fn]').value.trim(),
-      last_name:$('[data-acc-ln]').value.trim(),
       email:$('[data-acc-em]').value.trim(),
       phone:$('[data-acc-ph]').value.trim()
     }}).then(function(d){
