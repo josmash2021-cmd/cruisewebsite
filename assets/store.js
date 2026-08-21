@@ -123,11 +123,23 @@
     return p + out;
   }
 
+  function fitText(el, maxCqw, minCqw) {
+    /* Nombre largo: encoge la fuente hasta que quepa completo (sin ellipsis) */
+    if (!el) return;
+    var size = maxCqw;
+    el.style.fontSize = size + 'cqw';
+    while (size > minCqw && el.scrollWidth > el.clientWidth) {
+      size = Math.round((size - 0.2) * 10) / 10;
+      el.style.fontSize = size + 'cqw';
+    }
+  }
+
   function renderPreview() {
     if (!pvName) return;
     var n = ((inName.value || '') + ' ' + (inLast.value || '')).trim();
     pvName.textContent = n || (EN ? 'YOUR NAME' : 'TU NOMBRE');
     pvPhone.textContent = (inPhone.value || '').trim() || '(000) 000-0000';
+    fitText(pvName, 4.55, 2.2);
   }
   [inName, inLast].forEach(function (el) {
     if (el) el.addEventListener('input', renderPreview);
