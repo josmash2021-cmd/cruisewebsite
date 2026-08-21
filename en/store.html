@@ -20,7 +20,7 @@ if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',locatio
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/site.css?v=20260820a">
-<link rel="stylesheet" href="../assets/store.css?v=20260821a">
+<link rel="stylesheet" href="../assets/store.css?v=20260821b">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 </head>
 <body>
@@ -85,9 +85,10 @@ if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',locatio
         <!-- Tarjetas de presentación -->
         <article class="st-card" data-product="business_card">
           <div class="st-card__media">
-            <div class="st-cardface">
-              <img id="face-front" src="../assets/media/store-card-front.png" alt="Cruise card — front">
-              <div class="bc-back" id="face-back" hidden>
+            <div class="st-cardface" id="bc-flip" role="button" tabindex="0" aria-label="Flip the card" title="Tap the card to flip it">
+              <div class="st-cardface__inner">
+                <img id="face-front" class="st-face" src="../assets/media/store-card-front.png" alt="Cruise card — front">
+                <div class="bc-back st-face st-face--back" id="face-back">
                 <div class="bc-back__left">
                   <div class="bc-back__name" id="bc-pv-name">YOUR NAME</div>
                   <div class="bc-back__row">
@@ -112,8 +113,10 @@ if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',locatio
                   <img src="../assets/media/store-card-qr.png" alt="QR Cruise">
                 </div>
                 <svg class="bc-back__bars" viewBox="0 0 420 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="60,30 420,30 420,55 35,55" fill="#c9a227"/><polygon points="0,62 420,62 420,100 0,100" fill="#c9a227"/></svg>
+                </div>
               </div>
             </div>
+            <div class="st-cardface__hint">Tap the card to flip it ⟲</div>
           </div>
           <div class="st-card__body">
             <div class="st-card__name">Business cards</div>
@@ -229,6 +232,6 @@ if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',locatio
 </footer>
 
 <script src="../assets/account.js?v=20260820a"></script>
-<script src="../assets/store.js?v=20260821a"></script>
+<script src="../assets/store.js?v=20260821b"></script>
 </body>
 </html>

@@ -108,17 +108,28 @@
     if (el) el.addEventListener('input', renderPreview);
   });
 
-  /* tabs frente/dorso */
+  /* flip frente/dorso — tabs + tocar la tarjeta */
   var tabs = document.querySelectorAll('[data-face]');
-  var faces = { front: document.getElementById('face-front'), back: document.getElementById('face-back') };
+  var flip = document.getElementById('bc-flip');
+  function setFace(f) {
+    if (!flip) return;
+    flip.classList.toggle('flipped', f === 'back');
+    tabs.forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-face') === f); });
+  }
   tabs.forEach(function (b) {
-    b.addEventListener('click', function () {
-      tabs.forEach(function (x) { x.classList.toggle('on', x === b); });
-      var f = b.getAttribute('data-face');
-      faces.front.hidden = f !== 'front';
-      faces.back.hidden = f !== 'back';
-    });
+    b.addEventListener('click', function () { setFace(b.getAttribute('data-face')); });
   });
+  if (flip) {
+    flip.addEventListener('click', function () {
+      setFace(flip.classList.contains('flipped') ? 'front' : 'back');
+    });
+    flip.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setFace(flip.classList.contains('flipped') ? 'front' : 'back');
+      }
+    });
+  }
 
   /* ── catálogo ── */
   function bindCatalog() {
