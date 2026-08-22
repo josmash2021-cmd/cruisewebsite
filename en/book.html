@@ -7026,10 +7026,18 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     map.addLayer({id:'route-glow',type:'line',source:'route',layout:_L,paint:{'line-color':'#D4AF37','line-width':14,'line-opacity':.18,'line-blur':10,'line-trim-offset':_T}});
     map.addLayer({id:'route-casing',type:'line',source:'route',layout:_L,paint:{'line-color':'#1a0f00','line-width':6,'line-opacity':.82,'line-trim-offset':_T}});
     map.addLayer({id:'route-line',type:'line',source:'route',layout:_L,paint:{'line-width':3.5,'line-opacity':.98,'line-gradient':['interpolate',['linear'],['line-progress'],0,'#D4AF37',.5,'#FFD700',1,'#E8C547'],'line-trim-offset':_T}});
-    var dur=1200,st=0;
+    var dur=1200,st=0,dead=false;
+    /* la transición del panel (buscar → vehículos → pedir viaje) no puede
+       encontrar la ruta a medio dibujar: quien ajusta el mapa la completa al
+       instante con este handle (en window para llegar desde otros scripts) */
+    window.__vrRouteFinishDraw=function(){
+      dead=true;
+      try{_rtLayers.forEach(function(id){if(map.getLayer(id))map.setPaintProperty(id,'line-trim-offset',[1,1],{validate:false});});map.repaint=false;}catch(_){}
+    };
     var prefersReduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
     if(prefersReduced){_rtLayers.forEach(function(id){if(map.getLayer(id))map.setPaintProperty(id,'line-trim-offset',[1,1],{validate:false});});return;}
     function tick(now){
+      if(dead)return;
       var t=Math.min(1,(now-st)/dur),p=1-Math.pow(1-t,4),tr=[p,1];
       _rtLayers.forEach(function(id){if(map.getLayer(id))map.setPaintProperty(id,'line-trim-offset',tr,{validate:false});});
       if(t<1)requestAnimationFrame(tick);else map.repaint=false;
@@ -11232,6 +11240,12 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     var m = window.__vrMap;
     if (!mapEl || !inner || !m || _vrFrzLock) return false;
     _vrFrzLock = true;
+    /* otros scripts no deben redimensionar el lienzo mientras dure el freeze:
+       cada resize con cambio real borra el buffer un fotograma y parpadea
+       TODO, ruta incluida */
+    try { window.__vrMapFrozen = true; } catch (_) {}
+    /* y la ruta no puede quedarse a medio dibujar durante el ajuste */
+    try { if (window.__vrRouteFinishDraw) window.__vrRouteFinishDraw(); } catch (_) {}
     try {
       /* medir la caja final sin que se pinte el vaivén: todo esto corre en el
          mismo fotograma (los observers externos se ignoran con el lock) */
@@ -11246,16 +11260,22 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
       inner.style.top = '0';
       inner.style.right = '0';
       inner.style.left = 'auto';
-      inner.style.width = Math.round(fr.width) + 'px';
-      inner.style.height = Math.round(fr.height) + 'px';
+      /* SIN redondear: el 100% del inner al soltar coincide al píxel y el
+         resize final es no-op (sin clear del buffer = sin parpadeo) */
+      inner.style.width = fr.width + 'px';
+      inner.style.height = fr.height + 'px';
       m.resize();
       var done = false;
       function unfreeze() {
         if (done) return; done = true;
         inner.style.position = ''; inner.style.top = ''; inner.style.right = '';
         inner.style.left = ''; inner.style.width = ''; inner.style.height = '';
-        try { m.resize(); } catch (_) {}
+        try {
+          /* solo si el tamaño real cambió de verdad; si no, no hay clear */
+          if (Math.abs(inner.clientWidth - fr.width) > 2 || Math.abs(inner.clientHeight - fr.height) > 2) m.resize();
+        } catch (_) {}
         _vrFrzLock = false;
+        try { window.__vrMapFrozen = false; } catch (_) {}
       }
       mapEl.addEventListener('transitionend', function h(ev) {
         if (ev.propertyName !== 'left') return;
@@ -12275,12 +12295,19 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
   var ov=document.querySelector('[data-vipride-test-confirm]');
   if(!sec&&!ov)return;
   function grow(ms){
+    /* la ruta se completa antes de cualquier ajuste (nunca a medio dibujar) */
+    try{if(window.__vrRouteFinishDraw)window.__vrRouteFinishDraw();}catch(_){}
     /* la geometría en el teléfono cambia al INSTANTE (sin transición CSS en el
        contenedor): resize ya, y otro al final por si la hoja sigue asentándose.
        Sin bucles: cada resize borra el buffer y reevalúa tiles; dos bastan. */
     [0, ms].forEach(function(d){
       setTimeout(function(){
-        try{var m=window.__vrMap;if(m&&m.resize)m.resize();}catch(_){}
+        try{
+          /* durante un freeze de escritorio el lienzo ya está dimensionado:
+             otro resize borra el buffer un fotograma (parpadeo) sin ganar nada */
+          if(window.__vrMapFrozen)return;
+          var m=window.__vrMap;if(m&&m.resize)m.resize();
+        }catch(_){}
       },d);
     });
   }
