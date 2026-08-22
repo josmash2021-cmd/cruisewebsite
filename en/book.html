@@ -9434,23 +9434,26 @@ setTimeout(_vrPfKick,1200);
       requestAnimationFrame(function(){
         if(p2&&!_isRes)p2.classList.add('is-visible');
         if(map&&pickupPlace&&dropoffPlace){
-          var _b=new mapboxgl.LngLatBounds();_b.extend([pickupPlace.lng,pickupPlace.lat]);_b.extend([dropoffPlace.lng,dropoffPlace.lat]);
-          var _cam=map.cameraForBounds(_b,{padding:_vrSearchPad(),maxZoom:15.5,pitch:0,bearing:0});
-          if(_cam)map.flyTo({center:_cam.center,zoom:_cam.zoom,pitch:0,bearing:0,duration:1400,essential:true,curve:1.2,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2}});
-          /* segundo encuadre cuando la tarjeta ya está pintada: solo entonces se
-             puede medir su alto de verdad y garantizar que la ruta ENTERA queda
-             por encima de ella (antes se le daba un margen fijo de 220 px y el
-             final de la ruta se quedaba detrás de la tarjeta) */
+          /* UN solo encuadre, cuando el panel ya se expandió (la transición CSS
+             dura 0,8 s): antes un flyTo con zoom-out arrancaba a los 0 ms con el
+             tamaño viejo del lienzo y un segundo fitBounds a los 1,55 s lo
+             interrumpía a media animación — el mapa se veía vacío y corrido y
+             luego "se arreglaba" de golpe. Ahora la cámara espera quieta (la
+             ruta ya venía encuadrada del paso anterior) y hace un único
+             fitBounds suave y directo al encuadre final. */
           setTimeout(function(){
-            /* el tracker encuadra el TRAZO entero (una ruta con curva se sale
-               del rectángulo de sus dos pines); si no está, los dos puntos */
-            try{if(window.__vrFitRoute&&window.__vrFitRoute(700))return;}catch(_){}
             try{
-              var _b2=new mapboxgl.LngLatBounds();
-              _b2.extend([pickupPlace.lng,pickupPlace.lat]);_b2.extend([dropoffPlace.lng,dropoffPlace.lat]);
-              map.fitBounds(_b2,{padding:_vrSearchPad(),maxZoom:15.5,duration:700,essential:true});
+              if(!pickupPlace||!dropoffPlace)return;
+              /* el tracker encuadra el TRAZO entero (una ruta con curva se sale
+                 del rectángulo de sus dos pines); si no está, los dos puntos.
+                 La tarjeta ya está pintada a esta hora: su alto real es el
+                 margen inferior y la ruta ENTERA queda por encima de ella. */
+              if(window.__vrFitRoute&&window.__vrFitRoute(900))return;
+              var _b=new mapboxgl.LngLatBounds();
+              _b.extend([pickupPlace.lng,pickupPlace.lat]);_b.extend([dropoffPlace.lng,dropoffPlace.lat]);
+              map.fitBounds(_b,{padding:_vrSearchPad(),maxZoom:15.5,pitch:0,bearing:0,duration:900,essential:true});
             }catch(_){}
-          },1550);
+          },_isRes?120:850);
         }
         if(typeof showMarkerLabels==='function')setTimeout(showMarkerLabels,600);
         if(bar2)bar2.style.width='100%';
@@ -11977,6 +11980,19 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
         try { if (three && window.__vrFitStep3) window.__vrFitStep3(); } catch (_) {}
       }, 180);
       askResize();
+      /* Al volver al paso 1 (flecha atrás) la hoja regresa con fundido y las
+         primeras medidas caen a media animación: los guardas o el freno
+         anti-bucle podían congelar una medida transitoria y el mapa quedaba
+         encogido con una franja negra debajo. Se vuelve a medir cuando la
+         animación ya terminó, con el freno y el historial limpios para que la
+         medida asentada siempre se escriba. */
+      if (one) [400, 900, 1500].forEach(function (ms) {
+        setTimeout(function () {
+          _vLock['--vrm-map-top'] = 0; _vLock['--vrm-map-h'] = 0;
+          _vHist['--vrm-map-top'] = []; _vHist['--vrm-map-h'] = [];
+          mapCard();
+        }, ms);
+      });
     }
     /* con un overlay abierto la hoja se desplaza y se apaga: su medida no sirve */
     if (sheet.classList.contains('is-test-hidden')) return;
@@ -12070,6 +12086,12 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
   /* el booker reescribe el paso 1 al volver atrás y al restaurar estado:
      un repaso barato y periódico mantiene campos y píldoras en su sitio */
   setInterval(tick, 500);
+  /* la flecha de atrás cambia el paso sin más aviso: con solo el intervalo el
+     mapa se quedaba hasta 500 ms con la geometría del paso viejo (la franja
+     del paso 3 con la hoja ya transparente = hueco negro). El observador
+     dispara el repaso en el momento exacto del cambio. */
+  var _stepSheet = q('[data-vipride-sheet]');
+  if (_stepSheet) new MutationObserver(function () { tick(); }).observe(_stepSheet, { attributes: true, attributeFilter: ['data-vipride-step'] });
   try {
     mq.addEventListener('change', function () { if (mq.matches) tick(); else toDesktop(); });
   } catch (_) {
@@ -12086,16 +12108,24 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
    lienzo se queda con el alto viejo y el resto se ve NEGRO, con un corte recto
    justo donde estaba la hoja. El escritorio ya se redimensionaba en su propio
    script; esto hace lo mismo sin importar el ancho: mientras dura la
-   transición se le pide resize en cada fotograma, así crece con ella. */
+   transición se le pide resize cada ~100 ms, así crece con ella. Antes era en
+   CADA fotograma: cada resize reinicia la evaluación de tiles de GL JS y con
+   la cámara moviéndose ninguna tile terminaba de cargar — el mapa se veía
+   negro y trabado y todo llegaba de golpe al parar. */
 (function(){
   var sec=document.querySelector('.vipRide');
   var ov=document.querySelector('[data-vipride-test-confirm]');
   if(!sec&&!ov)return;
   function grow(ms){
-    var t0=Date.now();
+    var t0=Date.now(),last=0;
     (function loop(){
-      try{var m=window.__vrMap;if(m&&m.resize)m.resize();}catch(_){}
-      if(Date.now()-t0<ms)requestAnimationFrame(loop);
+      var t=Date.now();
+      if(t-last>=100){
+        last=t;
+        try{var m=window.__vrMap;if(m&&m.resize)m.resize();}catch(_){}
+      }
+      if(t-t0<ms)requestAnimationFrame(loop);
+      else{try{var m=window.__vrMap;if(m&&m.resize)m.resize();}catch(_){}}
     })();
   }
   if(ov){
