@@ -6587,7 +6587,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
   var _mapLocked=false,_savedCenter,_savedZoom;
   var _fitTiltHandler=function(){},_fitRotateHandler=function(){};
   var ALL_BOOKED=Array.isArray(window.__VIP_BOOKED_SLOTS__)?window.__VIP_BOOKED_SLOTS__:[];
-  var _pickupManuallySet=false,_lastGeoLat=null,_lastGeoLng=null;
+  var _pickupManuallySet=false,_lastGeoLat=null,_lastGeoLng=null,_lastGeoAcc=null;
   var _gpsActive=false;
   var _gpsPinMarker=null;
   var _mbErrAt=0;
@@ -8095,7 +8095,10 @@ setTimeout(_vrPfKick,1200);
       }
       if(pickupEl) pickupEl.addEventListener('input',function(){_pickupManuallySet=true;_gpsActive=false;});
       var _geoFramed=false;   /* true cuando la cámara YA voló a la ubicación del usuario */
-      var _lastGeoAcc=null;   /* accuracy (m) del último fix aceptado: deja pasar mejoras de precisión */
+      /* _lastGeoAcc se declara arriba junto a _lastGeoLat/_lastGeoLng: la resetea
+         también la flecha de volver del paso 3, que vive en OTRO scope — declararla
+         aquí con var la hacía inalcanzable y el reset moría con ReferenceError
+         (modo estricto) tragado por el try/catch del handler: la flecha "no hacía nada" */
       function updatePickupFromGeo(lat,lng,fly,acc){
         if(_pickupManuallySet) return;
         /* Un fix nuevo se acepta si (a) se movió más del umbral O (b) trae mejor
@@ -8379,7 +8382,7 @@ setTimeout(_vrPfKick,1200);
            y mientras tanto quedaba la dirección vieja); __vrRelocate se define
            junto a doGeo/updatePickupFromGeo en initMapbox */
         try{if(window.__vrRelocate)window.__vrRelocate();}catch(_){}
-      }catch(_){}
+      }catch(_){console.error('[mapBack]',_);}
     });
     if(compactNext){
       compactNext.addEventListener('click',function(){
