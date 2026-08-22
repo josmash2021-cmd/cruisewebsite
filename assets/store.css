@@ -13,6 +13,7 @@
 .store-hero { padding: 96px 24px 8px; text-align: center; }
 .store-hero .kicker { letter-spacing: .35em; }
 .store-hero p { color: var(--st-muted); max-width: 560px; margin: 14px auto 0; }
+.store-hero .sec-title em { font-style: normal; }
 
 .store-wrap {
   max-width: 1160px; margin: 0 auto; padding: 32px 20px 96px;
