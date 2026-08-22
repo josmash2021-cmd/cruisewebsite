@@ -5905,7 +5905,9 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__mapPicker__pinSvg{display:block;width:54px;height:52px}
 @keyframes vipPinDrop{0%{transform:translate(-50%,calc(-100% - 24px)) scale(1.2)}40%{transform:translate(-50%,-90%) scale(.86)}65%{transform:translate(-50%,-108%) scale(1.08)}82%{transform:translate(-50%,-97%) scale(.97)}100%{transform:translate(-50%,-100%) scale(1)}}
 .vipRide__mapPicker__pin.is-dropping{animation:vipPinDrop 560ms cubic-bezier(.25,.46,.45,.94) both;filter:drop-shadow(0 6px 16px rgba(232,197,71,.5))}
-.vipRide__gpsPin{width:22px;height:22px;position:relative;pointer-events:none}
+.vipRide__gpsPin{width:22px;height:22px;position:relative;pointer-events:none;transition:transform 650ms cubic-bezier(.22,1,.36,1)}
+/* durante un vuelo de cámara el pin se re-proyecta por frame: sin transición o se rezaga */
+.vipRide.is-flying .vipRide__gpsPin{transition:none!important}
 .vipRide__gpsPin__core{position:absolute;width:12px;height:12px;border-radius:50%;background:#E8C547;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);top:50%;left:50%;transform:translate(-50%,-50%);z-index:2}
 .vipRide__gpsPin__ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(232,197,71,.55);animation:gpsPulse 2.2s ease-out infinite;z-index:1}
 .vipRide__gpsPin__ring2{position:absolute;inset:-6px;border-radius:50%;border:1.5px solid rgba(232,197,71,.25);animation:gpsPulse 2.2s ease-out .7s infinite;z-index:1}
@@ -7346,7 +7348,9 @@ setTimeout(_vrPfKick,1200);
          se quedaba en el centro por defecto (Birmingham) y el pin de recogida
          caía fuera de la pantalla. Con destino ya se encarga computeRoute(). */
       if(map&&pickupPlace&&!(dropoffPlace&&currentMode!=='hourly')){
-        try{map.jumpTo({center:[pickupPlace.lng,pickupPlace.lat],zoom:15.5,pitch:0,bearing:0});}catch(_){}
+        /* vuelo suave también al restaurar: el jumpTo teletransportaba la cámara
+           de golpe al pin guardado en cada recarga */
+        try{map.flyTo({center:[pickupPlace.lng,pickupPlace.lat],zoom:15.5,pitch:0,bearing:0,duration:2000,curve:1.4,essential:true,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});}catch(_){}
       }
       if(pickupPlace&&dropoffPlace&&currentMode!=='hourly'){try{computeRoute();}catch(_){}}
       if(st.v){var _rc=root.querySelector('.vipRide__rideCard[data-title="'+String(st.v).replace(/[^\w -]/g,'')+'"]');if(_rc)selectCard(_rc);}
@@ -8074,7 +8078,11 @@ setTimeout(_vrPfKick,1200);
         _gpsActive=true;
         if(fly){
           /* vuelo suave al punto exacto: lo usa el primer fix preciso del arranque
-             (doGeo con enableHighAccuracy) y las re-localizaciones a demanda */
+             (doGeo con enableHighAccuracy) y las re-localizaciones a demanda.
+             is-flying apaga la transición CSS del pin durante el vuelo (sin ella
+             el pin se quedaría rezagado 650 ms detrás de la cámara) */
+          if(root&&root.classList)root.classList.add('is-flying');
+          map.once('moveend',function(){if(root&&root.classList)root.classList.remove('is-flying');});
           map.flyTo({center:[lng,lat],zoom:16.5,pitch:0,bearing:0,duration:2200,curve:1.4,essential:true,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
           _geoFramed=true;
         } else if(_geoFramed&&_salto){
