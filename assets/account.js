@@ -110,7 +110,7 @@
   /* ── estilos (minimalista: superficies planas, bordes finos, dorado solo
         como acento; sin relieves claymórficos) ── */
   var CSS = ''
-    + '.cam-avatar{position:relative;width:40px;height:40px;border-radius:50%;border:1px solid rgba(212,175,55,.4);background:#14171c;color:#f5d77a;font:600 15px/1 Inter,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:border-color 160ms}'
+    + '.cam-avatar{position:relative;width:40px;height:40px;padding:0;flex-shrink:0;border-radius:50%;border:1px solid rgba(212,175,55,.4);background:#14171c;color:#f5d77a;font:600 15px/1 Inter,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:border-color 160ms}'
     + '.cam-avatar:hover{border-color:rgba(212,175,55,.8)}'
     + '.cam-avatar img{width:100%;height:100%;object-fit:cover}'
     + '.cam-wrap{position:relative;display:flex;align-items:center}'
