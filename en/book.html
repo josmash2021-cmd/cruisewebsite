@@ -5550,8 +5550,12 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__step,.vipRide__step *{filter:none!important}
 .vipRide__bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:#0A1128}
 .vipRide__wrap{position:absolute;inset:0;display:flex;flex-direction:column;z-index:1}
-.vipRide__map{position:absolute;inset:0;z-index:0;pointer-events:auto}
+.vipRide__map{position:absolute;inset:0;z-index:0;pointer-events:auto;background:#0A1128}
 .vipRide__mapInner{height:100%;width:100%}
+/* el lienzo WebGL queda en negro puro un instante cada vez que resize() le
+   cambia el tamaño (el buffer se limpia y se repinta). Con el fondo navy del
+   estilo debajo, ese fotograma se lee como mapa vacío y no como pantalla rota */
+.vipRide__map .mapboxgl-canvas{background:#0A1128}
 .vipRide__mapBackBtn{position:absolute;top:calc(var(--vip-nav-h,0px) + 12px);left:14px;z-index:11;width:38px;height:38px;border-radius:50%;background:rgba(10,15,35,.75);border:1px solid rgba(255,255,255,.15);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background 140ms}
 .vipRide__mapBackBtn:active{background:rgba(255,255,255,.2)}
 .vipRide__mapBackBtn[hidden]{display:none!important}
@@ -7762,7 +7766,9 @@ setTimeout(_vrPfKick,1200);
       /* Resume is now defined globally at top of script — just kick it */
       try{if(window.__vrCoreResume)window.__vrCoreResume();}catch(_){}
       map.on('style.load',function(){var s=function(l,p,v){try{if(map.getLayer(l))map.setPaintProperty(l,p,v);}catch(e){}};s('background','background-color','#0A1128');s('land','background-color','#0A1128');s('landcover','fill-color','#0F1A36');s('landuse','fill-color','#0F1A36');s('water','fill-color','#070E22');s('building','fill-color','#111D3A');});
-      map.once('render',function(){try{var c=map.getCanvas();if(c)c.style.willChange='transform';}catch(_){}});
+      /* SIN will-change en el canvas: promover el canvas WebGL a su propia capa
+         de composición mientras el contenedor anima `left` dejaba el lienzo
+         negro en Chrome durante la transición (bug de composición). */
       map.on('load',function(){
         /* el esqueleto se retira cuando el mapa esta completamente cargado, no antes */
         var _hideSk=function(){var _mSk=root.querySelector('[data-vr-mapsk]');if(_mSk){_mSk.classList.add('is-hidden');setTimeout(function(){_mSk.remove&&_mSk.remove()},500);}};
@@ -9926,6 +9932,7 @@ html body #vipMpFooterSugs{
     bottom:var(--vrd-gap)!important;
     width:auto!important; height:auto!important; min-height:0!important;
     border-radius:24px!important; overflow:hidden!important;
+    background:#0A1128!important;   /* navy del estilo: si el lienzo se limpia un fotograma, nunca se ve negro */
     box-shadow:0 18px 44px rgba(0,0,0,.55), inset 0 0 0 1px rgba(212,175,55,.14)!important;
     transition:left .55s cubic-bezier(.22,1,.36,1)!important;
   }
@@ -11089,6 +11096,25 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     try { window.dispatchEvent(new Event('resize')); } catch (_) {}
   }
 
+  /* Redimensiona el lienzo mientras una transición CSS le cambia el ancho.
+     Antes se llamaba resize() en CADA fotograma: cada resize reinicia la
+     evaluación de tiles de GL JS, así que durante la animación no terminaba
+     de cargar ninguna — el mapa se veía negro y trabado, y todo llegaba de
+     golpe al parar. Con ~100 ms entre resizes el lienzo sigue la animación
+     sin ahogar al renderer, y el resize final deja el tamaño exacto. */
+  function vrResizeDuring(ms) {
+    var t0 = Date.now(), last = 0;
+    (function loop() {
+      var t = Date.now();
+      if (t - last >= 100) {
+        last = t;
+        try { if (vrMap) vrMap.resize(); } catch (_) {}
+      }
+      if (t - t0 < ms) requestAnimationFrame(loop);
+      else { try { if (vrMap) vrMap.resize(); } catch (_) {} }
+    })();
+  }
+
   function segBtn(mode) {
     return document.querySelector('[data-vipride-seg] [data-compact-mode="' + mode + '"]');
   }
@@ -11464,6 +11490,9 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
       var three = step === '3';
       if (sec.classList.contains('vrd-step3') === three) return;
       sec.classList.toggle('vrd-step3', three);
+      /* el lienzo acompaña la transición de 0,55 s (antes se quedaba estirado
+         y solo se corregía al final — se veía negro/trabado al entrar) */
+      vrResizeDuring(620);
       /* el panel del mapa cambia de ancho con transición: reencuadrar al terminar
          y repetir después por si otro movimiento de cámara pisó el encuadre */
       var mapEl = document.querySelector('.vipRide__mapContainer') || document.querySelector('.vipRide__map');
@@ -11496,19 +11525,11 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
 
   /* al buscar chofer el panel del mapa se abre hasta cubrir la columna central.
      Mapbox no se entera solo del cambio de ancho: sin avisarle, el lienzo se
-     queda con el tamaño viejo y aparece una franja negra. Se le redimensiona en
-     cada fotograma mientras dura la transición para que crezca con ella, y se
-     reencuadra la ruta cuando termina el vuelo inicial de la cámara. */
+     queda con el tamaño viejo y aparece una franja negra. Se le redimensiona
+     (throttled, ver vrResizeDuring) mientras dura la transición. */
   (function () {
     var sec = document.querySelector('.vipRide');
     if (!sec) return;
-    function growMap(ms) {
-      var t0 = Date.now();
-      (function loop() {
-        try { if (vrMap) vrMap.resize(); } catch (_) {}
-        if (Date.now() - t0 < ms) requestAnimationFrame(loop);
-      })();
-    }
     var was = sec.classList.contains('is-searching');
     new MutationObserver(function () {
       var now = sec.classList.contains('is-searching');
@@ -11516,10 +11537,13 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
       was = now;
       if (!mq.matches) return;
       nudgeMap();
-      growMap(900);
-      /* el propio flujo lanza un flyTo de 1,4 s al pedir el viaje: se reencuadra
-         después para no pelear con él */
-      setTimeout(fitRoute, now ? 1560 : 980);
+      vrResizeDuring(900);
+      /* Al ENTRAR no se reencuadra aquí: el flujo de pedir viaje ya hace su
+         propio encuadre a los ~1,55 s (tras su flyTo de 1,4 s), y disparar
+         otro fitBounds 10 ms después lo interrumpía a media animación — ese
+         era el "salto de golpe" de la cámara. Al SALIR (cancelar) sí hace
+         falta: nadie más reencuadra el mapa estrecho del paso 3. */
+      if (!now) setTimeout(fitRoute, 980);
     }).observe(sec, { attributes: true, attributeFilter: ['class'] });
   })();
 
