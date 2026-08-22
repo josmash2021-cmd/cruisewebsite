@@ -7863,9 +7863,9 @@ setTimeout(_vrPfKick,1200);
                 a.d-=a.seg;
                 a.i+=a.dir;
                 var nx=a.i+a.dir;
-                /* fin de la ruta: da la vuelta y sigue por la misma calle */
-                if(nx<0||nx>=a.path.length){a.dir=-a.dir;nx=a.i+a.dir;}
-                if(nx<0||nx>=a.path.length){a.dead=true;a.d=0;break;}
+                /* fin de la ruta: el coche NO da media vuelta ni se devuelve por
+                   la misma calle — se desvanece y reaparece en otro tramo */
+                if(nx<0||nx>=a.path.length){a.dead=true;a.d=0;fRespawn(a);break;}
                 a.seg=Math.max(0.5,fDist(a.path[a.i],a.path[nx]));
                 a.brg=fBrg(a.path[a.i],a.path[nx]);
                 try{a.m.setLngLat(a.path[a.i]);}catch(_){}
@@ -7873,6 +7873,39 @@ setTimeout(_vrPfKick,1200);
               if(ppm&&a.el)a.el.style.transform='translateY('+(-a.d*ppm).toFixed(2)+'px)';
             });
             requestAnimationFrame(fDrive);
+          }
+          /* Cuando un coche termina su calle no se devuelve: se desvanece,
+             salta (invisible) a otro punto del banco y reaparece yendo en el
+             sentido del tramo nuevo. Así nunca se ven medias vueltas ni coches
+             yendo y viniendo por la misma calle en bucle. */
+          function fRespawn(a){
+            var el;
+            try{el=a.m.getElement();el.style.opacity='0';}catch(_){return;}
+            setTimeout(function(){
+              /* si el ciclo de 10 s ya barrió los marcadores, no resucitar */
+              if(fMarkers.indexOf(a.m)<0)return;
+              var b=null;
+              try{b=map.getBounds();}catch(_){}
+              var avail=b?fPool.filter(function(x){return b.contains(x.p);}):fPool.slice();
+              if(!avail.length)avail=fPool;
+              var cand=null;
+              for(var t=0;t<40&&avail.length;t++){
+                var c=avail[Math.floor(Math.random()*avail.length)];
+                var dir=Math.random()<0.5?1:-1,nx2=c.i+dir;
+                if(nx2<0||nx2>=c.path.length){dir=-dir;nx2=c.i+dir;}
+                if(nx2<0||nx2>=c.path.length)continue;
+                cand={path:c.path,i:c.i,dir:dir,nx:nx2};break;
+              }
+              if(!cand)return; /* queda invisible hasta el próximo ciclo */
+              var brg0=fBrg(cand.path[cand.i],cand.path[cand.nx]);
+              a.path=cand.path;a.i=cand.i;a.dir=cand.dir;
+              a.seg=Math.max(0.5,fDist(cand.path[cand.i],cand.path[cand.nx]));
+              a.brg=brg0;a.rot=brg0;a.d=0;a.t=performance.now();a.dead=false;
+              try{a.m.setLngLat(cand.path[cand.i]);a.m.setRotation(brg0);}catch(_){}
+              el.style.opacity='1';
+              /* si todos habían muerto, el rAF se apagó: hay que rearmarlo */
+              if(!fRafOn){fRafOn=true;requestAnimationFrame(fDrive);}
+            },650);
           }
           function fCarEl(type){
             var img=document.createElement('img');
@@ -8083,7 +8116,7 @@ setTimeout(_vrPfKick,1200);
              el pin se quedaría rezagado 650 ms detrás de la cámara) */
           if(root&&root.classList)root.classList.add('is-flying');
           map.once('moveend',function(){if(root&&root.classList)root.classList.remove('is-flying');});
-          map.flyTo({center:[lng,lat],zoom:16.5,pitch:0,bearing:0,duration:2200,curve:1.4,essential:true,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+          map.flyTo({center:[lng,lat],zoom:15,pitch:0,bearing:0,duration:2200,curve:1.4,essential:true,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
           _geoFramed=true;
         } else if(_geoFramed&&_salto){
           /* la cámara ya voló y el pin saltó lejos: reencuadre corto, sin flyTo;
