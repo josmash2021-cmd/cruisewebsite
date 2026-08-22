@@ -95,6 +95,16 @@ if(/\/book\.html$/.test(location.pathname))history.replaceState(null,"",location
   }catch(_){}
 })();
 </script>
+<script>
+/* bfcache: al volver con el "<" del navegador (home → /book o /book → home) la
+   página congelada puede restaurarse a mitad de transición — clases
+   is-entering/is-exiting vivas, flags como __vrFlying pegados, canvas WebGL en
+   blanco — y se ve rota: campos y tarjetas transparentes flotando sobre el
+   mapa, sin el fondo del sheet. El estado vivo ya viaja en la URL (?pickup=…)
+   y en sessionStorage (vr_book_state), así que se recarga limpia en vez de
+   intentar reanimar el DOM congelado. */
+window.addEventListener('pageshow',function(e){if(e.persisted)location.reload();});
+</script>
 <style>
 html.vr-boot .vipRide__sheet[data-vipride-sheet],
 html.vr-boot .cruise-header,
@@ -6590,6 +6600,10 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
   var ALL_BOOKED=Array.isArray(window.__VIP_BOOKED_SLOTS__)?window.__VIP_BOOKED_SLOTS__:[];
   var _pickupManuallySet=false,_lastGeoLat=null,_lastGeoLng=null,_lastGeoAcc=null;
   var _gpsActive=false;
+  /* último fix aceptado {lat,lng,acc}: sobrevive al reset de "volver al inicio"
+     (la flecha del paso 3), que solo anula _lastGeoLat/Lng/Acc para forzar la
+     re-aceptación — sirve para re-sembrar pin y cámara al instante */
+  var _geoLastGood=null;
   var _gpsPinMarker=null;
   var _mbErrAt=0;
   var _vrGuest=false;
@@ -6722,7 +6736,16 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       }
       if(pickupPlace&&dropoffPlace&&map)setTimeout(function(){try{fitRouteBounds();setTimeout(showMarkerLabels,600)}catch(_){}},420);
       else if(pickupPlace&&map)map.easeTo({center:[pickupPlace.lng,pickupPlace.lat],zoom:16.5,pitch:0,bearing:0,duration:1000,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
-      else if(map)map.easeTo({center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:0,bearing:0,duration:900,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+      else if(map){
+        /* sin direcciones: si hay fix conocido se vuelve a la ubicación del
+           usuario, no a la vista general — la flecha de volver del paso 3
+           re-siembra el GPS vía __vrRelocate justo después, y mandar la cámara
+           a la ciudad por defecto la dejaba varada ahí cuando el fix nuevo
+           tardaba de más o no llegaba */
+        var _gc=_geoLastGood;
+        if(_gc)map.easeTo({center:[_gc.lng,_gc.lat],zoom:15,pitch:0,bearing:0,duration:900,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+        else map.easeTo({center:[defaultLng,defaultLat],zoom:defaultZoom,pitch:0,bearing:0,duration:900,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+      }
     }
     if(n===2&&dir==='back'){ hideMarkerLabels(); }
     _vrSaveState();
@@ -8096,6 +8119,23 @@ setTimeout(_vrPfKick,1200);
       }
       if(pickupEl) pickupEl.addEventListener('input',function(){_pickupManuallySet=true;_gpsActive=false;});
       var _geoFramed=false;   /* true cuando la cámara YA voló a la ubicación del usuario */
+      /* vuelo suave a un punto: CERCA (<4 km) easeTo — paneo+zoom directo, fluido
+         y sin tormenta de tiles; LEJOS flyTo (zoom out/in). El flyTo en distancias
+         cortas se alejaba y volvía cargando tiles intermedios: por eso se veía
+         lento y "pegado". is-flying pausa las animaciones de los pines en vuelo. */
+      function _flyCamTo(lat,lng){
+        if(root&&root.classList)root.classList.add('is-flying');
+        map.once('moveend',function(){if(root&&root.classList)root.classList.remove('is-flying');});
+        var _c=map.getCenter();
+        var _toR=Math.PI/180,_dx=(lng-_c.lng)*_toR*Math.cos(((_c.lat+lat)/2)*_toR),_dy=(lat-_c.lat)*_toR;
+        var _distKm=Math.sqrt(_dx*_dx+_dy*_dy)*6371;
+        if(_distKm<4){
+          map.easeTo({center:[lng,lat],zoom:15,pitch:0,bearing:0,duration:1600,essential:true,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+        }else{
+          map.flyTo({center:[lng,lat],zoom:15,pitch:0,bearing:0,duration:2200,curve:1.4,essential:true,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+        }
+        _geoFramed=true;
+      }
       /* _lastGeoAcc se declara arriba junto a _lastGeoLat/_lastGeoLng: la resetea
          también la flecha de volver del paso 3, que vive en OTRO scope — declararla
          aquí con var la hacía inalcanzable y el reset moría con ReferenceError
@@ -8115,33 +8155,25 @@ setTimeout(_vrPfKick,1200);
         var _salto=_lastGeoLat!==null&&(Math.abs(lat-_lastGeoLat)>=.002||Math.abs(lng-_lastGeoLng)>=.002);
         _lastGeoLat=lat;_lastGeoLng=lng;
         if(acc!=null)_lastGeoAcc=acc;
+        _geoLastGood={lat:lat,lng:lng,acc:_lastGeoAcc};
         _gpsActive=true;
-        if(fly){
-          /* vuelo suave al punto exacto: lo usa el primer fix preciso del arranque
-             (doGeo con enableHighAccuracy) y las re-localizaciones a demanda.
-             CERCA (<4 km): easeTo — paneo+zoom directo, fluido y sin tormenta de
-             tiles. LEJOS: flyTo (zoom out/in). El flyTo en distancias cortas se
-             alejaba y volvía cargando tiles intermedios: por eso se veía lento
-             y "pegado". is-flying pausa las animaciones de los pines en vuelo. */
-          if(root&&root.classList)root.classList.add('is-flying');
-          map.once('moveend',function(){if(root&&root.classList)root.classList.remove('is-flying');});
-          var _c=map.getCenter();
-          var _toR=Math.PI/180,_dx=(lng-_c.lng)*_toR*Math.cos(((_c.lat+lat)/2)*_toR),_dy=(lat-_c.lat)*_toR;
-          var _distKm=Math.sqrt(_dx*_dx+_dy*_dy)*6371;
-          if(_distKm<4){
-            map.easeTo({center:[lng,lat],zoom:15,pitch:0,bearing:0,duration:1600,essential:true,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
-          }else{
-            map.flyTo({center:[lng,lat],zoom:15,pitch:0,bearing:0,duration:2200,curve:1.4,essential:true,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
-          }
-          _geoFramed=true;
+        if(fly||!_geoFramed){
+          /* Vuelo al punto: con fly lo piden el fix preciso del arranque (doGeo)
+             y las re-localizaciones; SIN fly (fix grosero o del watch) solo se
+             encuadra si la cámara NUNCA ha volado — antes la esperaba solo el
+             fix preciso, y si ese colgaba (timeout/denegado) o su vuelo se
+             perdía al lanzarse antes del load del estilo (la recarga
+             intermitente), la página se quedaba en la vista general para
+             siempre con el pin fuera de pantalla. Por eso el vuelo además se
+             difiere al load cuando el estilo aún no terminó de cargar. */
+          if(map.loaded&&map.loaded())_flyCamTo(lat,lng);
+          else map.once('load',function(){_flyCamTo(lat,lng);});
         } else if(_geoFramed&&_salto){
           /* la cámara ya voló y el pin saltó lejos: reencuadre corto, sin flyTo;
              si el movimiento es chico (mejora de precisión), solo se mueve el pin */
           map.easeTo({center:[lng,lat],duration:900,essential:true,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
         }
-        /* sin fly y sin vuelo previo (fix grosero del arranque): solo se planta el
-           pin provisional, la cámara no se toca — el vuelo lo hace el fix preciso;
-           si ese nunca llega (timeout/denegado), se queda la vista general */
+        /* el pin y la dirección se actualizan siempre, vuele o no la cámara */
         setMarker('pickup', lat, lng);
         reverseGeocode(lat,lng,function(name){
           if(name&&!_pickupManuallySet){
@@ -8184,7 +8216,15 @@ setTimeout(_vrPfKick,1200);
            descarte el fix por "posición ya vista" al estar el teléfono quieto. */
         window.__vrRelocate=function(){
           _pickupManuallySet=false;_gpsActive=false;_lastGeoLat=null;_lastGeoLng=null;_lastGeoAcc=null;
-          doGeo();
+          /* Re-siembra INMEDIATA con el último fix bueno: el teléfono casi nunca
+             se movió en los segundos que duró la elección de vehículo. Antes esto
+             dependía solo de un getCurrentPosition nuevo, que en Chrome móvil
+             puede tardar mucho o colgarse con el watchPosition del arranque
+             activo (ni success ni error): la pantalla quedaba varada — cámara en
+             la vista general, sin pin y "Detecting location…" eterno. doGeo
+             refina después; si falla, al menos el placeholder se recupera. */
+          if(_geoLastGood)updatePickupFromGeo(_geoLastGood.lat,_geoLastGood.lng,true,_geoLastGood.acc);
+          doGeo(null,function(){if(pickupEl&&!pickupEl.value)pickupEl.placeholder=t('enterPickup');});
         };
       } else if(locateBtn){locateBtn.style.display='none';}
       attachAutocomplete(pickupEl,'pickup');
