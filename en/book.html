@@ -6968,6 +6968,20 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
                   var obj={label:name,lat:lat,lng:lng};
                   if(which==='pickup')pickupPlace=obj;else if(which==='dropoff')dropoffPlace=obj;
                   afterInputChange();setMarker(which,lat,lng);computeRoute();
+                  /* la cámara sigue a la recogida: sin destino no hay ruta que
+                     encuadrar (computeRoute no la mueve) y el pin nuevo quedaba
+                     fuera de pantalla — vuela suave hasta él (cerca easeTo,
+                     lejos flyTo). Con destino, fitRouteBounds (dentro de
+                     computeRoute) ya encuadra la ruta completa. */
+                  if(which==='pickup'&&!dropoffPlace&&map){
+                    try{
+                      var _pc=map.getCenter(),_pR=Math.PI/180,_pdx=(lng-_pc.lng)*_pR*Math.cos(((_pc.lat+lat)/2)*_pR),_pdy=(lat-_pc.lat)*_pR;
+                      var _pkm=Math.sqrt(_pdx*_pdx+_pdy*_pdy)*6371;
+                      var _pez=function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;};
+                      if(_pkm<4)map.easeTo({center:[lng,lat],zoom:15,pitch:0,bearing:0,duration:1500,essential:true,easing:_pez});
+                      else map.flyTo({center:[lng,lat],zoom:15,pitch:0,bearing:0,duration:2000,curve:1.4,essential:true,easing:_pez});
+                    }catch(_){}
+                  }
                   _acSessionToken=crypto.randomUUID?crypto.randomUUID():(Date.now()+''+Math.random()).replace('.','');
                 }else{_setCardsLoading(false);}
               }).catch(function(){_setCardsLoading(false);});
