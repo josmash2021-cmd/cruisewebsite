@@ -5563,6 +5563,10 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__mapBackBtn{position:absolute;top:calc(var(--vip-nav-h,0px) + 12px);left:14px;z-index:11;width:38px;height:38px;border-radius:50%;background:rgba(10,15,35,.75);border:1px solid rgba(255,255,255,.15);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background 140ms}
 .vipRide__mapBackBtn:active{background:rgba(255,255,255,.2)}
 .vipRide__mapBackBtn[hidden]{display:none!important}
+/* la flecha de volver es SOLO del paso 3: el atributo hidden se le escapaba a
+   algún camino (restores, cierres) y se quedaba pegada en el paso 1. Que mande
+   el paso real de la hoja, no el atributo. */
+.vipRide__wrap:has(.vipRide__sheet:not([data-vipride-step="3"])) .vipRide__mapBackBtn{display:none!important}
 #vipRideMap-ride_request_48wXbE{height:100%!important;width:100%!important}
 #vipRideMap-ride_request_48wXbE > .mapboxgl-canvas-container{height:100%!important;width:100%!important}
 #vipRideMap-ride_request_48wXbE .mapboxgl-ctrl-attrib{font-size:9px;opacity:.3}
@@ -10528,6 +10532,21 @@ html body #vipMpFooterSugs{
     justify-content:safe center!important;
     padding:26px 18px calc(22px + env(safe-area-inset-bottom,0px))!important;
     overflow:hidden auto!important;
+  }
+  /* ── el sheet de pago sale DONDE sale la hoja de elegir viaje ──
+     El overlay lo centraba verticalmente (margin:auto / justify-content:center)
+     y con poco contenido flotaba bajo, dejando un hueco negro entre la franja
+     del mapa y la tarjeta. Ahora va pegado abajo, a todo lo ancho, y su tope
+     llega justo donde termina la franja del mapa (el +16 px es el solape que
+     la franja ya deja para que no abra rendija). */
+  html body .vipRide__payOverlay:not([hidden]){
+    justify-content:flex-end!important; align-items:stretch!important; padding:0!important;
+  }
+  html body .vipRide__payOverlay:not([hidden]) > .vipRide__payOverlay__list{
+    margin:0!important; width:100%!important; max-width:none!important;
+    border-radius:22px 22px 0 0!important; border-bottom:none!important;
+    min-height:calc(100dvh - var(--vrm-map3-h,44svh) + 16px)!important;
+    padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))!important;
   }
 }
 
