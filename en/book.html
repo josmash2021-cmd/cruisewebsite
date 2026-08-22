@@ -6799,7 +6799,10 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       dropoffMarker.getElement().appendChild(dEl);
       dropoffLabelMk=dEl;
     }
-    /* si una etiqueta se saldria del mapa, se voltea hacia el lado de adentro */
+    /* si una etiqueta se saldría del mapa, se voltea hacia el lado de adentro.
+       Se re-evalúa en CADA moveend: al colapsar el panel (paso 3) el pin puede
+       quedar junto al borde nuevo y la etiqueta cortada quedaba pegada hasta
+       la próxima suerte — antes solo se revisaba UNA vez (once) al crearlas */
     function _lblFix(el,mk){
       if(!el||!mk||!map)return;
       try{
@@ -6812,7 +6815,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
     }
     function _lblFixAll(){_lblFix(pickupLabelMk,pickupMarker);_lblFix(dropoffLabelMk,dropoffMarker);}
     requestAnimationFrame(_lblFixAll);
-    try{map.once('moveend',_lblFixAll);}catch(_){}
+    try{map.on('moveend',_lblFixAll);}catch(_){}
     setTimeout(function(){if(pickupMarker){var l=pickupMarker.getElement().querySelector('.vipRide__mapLabel');if(l)l.classList.add('is-visible')}},50);
     setTimeout(function(){if(dropoffMarker){var l=dropoffMarker.getElement().querySelector('.vipRide__mapLabel');if(l)l.classList.add('is-visible')}},300);
   }
@@ -11602,7 +11605,7 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     });
   }
 
-  function fitRoute() {
+  function fitRoute(dur) {
     try {
       var src = vrMap && vrMap.getSource('route');
       var data = src && src._data;
@@ -11616,7 +11619,7 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
       var pw = Math.max(24, Math.min(70, Math.floor((w - 80) / 2)));
       var pb = Math.max(24, Math.min(80, Math.floor((h - 140) / 2)));
       var pt = Math.min(pb + 30, Math.floor(h / 3));
-      vrMap.fitBounds(b, { padding: { top: pt, bottom: pb, left: pw, right: pw }, duration: 900 });
+      vrMap.fitBounds(b, { padding: { top: pt, bottom: pb, left: pw, right: pw }, duration: dur || 900 });
     } catch (_) {}
   }
 
@@ -11626,7 +11629,10 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     var sec = document.querySelector('.vipRide');
     if (sec) sec.classList.add('vrd-searched');
     setRouteVisible(true);
-    setTimeout(fitRoute, 120);
+    /* si el watcher del paso 3 ya lanzó su encuadre temporizado al colapso,
+       este no pisa: dos encuadres peleando era la ruta perdida a media
+       animación */
+    setTimeout(function () { if (!window.__vrFlying) fitRoute(); }, 120);
   }
   function unreveal() {
     if (!searched) return;
@@ -11672,6 +11678,16 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
          directo como antes. */
       if (!vrFreezeLeft(function (s) { sec.classList.toggle('vrd-step3', s); }, three, 550))
         sec.classList.toggle('vrd-step3', three);
+      /* el encuadre arranca CON el colapso, sobre el lienzo ya pineado al
+         tamaño final, y aterriza con él (600 ms ≈ la transición de 0,55 s):
+         la ruta queda visible todo el colapso. __vrFlying frena los encuadres
+         tardíos de goToStep/reveal que antes lo interrumpían a medias */
+      if (three) {
+        try { window.__vrFlying = true; } catch (_) {}
+        try { fitRoute(600); } catch (_) {}
+        try { if (vrMap) vrMap.once('moveend', function () { window.__vrFlying = false; }); } catch (_) {}
+        setTimeout(function () { window.__vrFlying = false; }, 1400);
+      }
       /* el panel del mapa cambia de ancho con transición: reencuadrar al terminar
          y repetir después por si otro movimiento de cámara pisó el encuadre */
       var mapEl = document.querySelector('.vipRide__mapContainer') || document.querySelector('.vipRide__map');
