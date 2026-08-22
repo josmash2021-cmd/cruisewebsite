@@ -170,6 +170,7 @@ img.st-face { width: 100%; height: 100%; object-fit: cover; }
   border-bottom: 1px solid var(--st-line);
 }
 .st-order__line b { color: var(--st-txt); font-weight: 600; }
+.st-order__line--free b { color: #7dd87d; }
 .st-order__total {
   display: flex; justify-content: space-between; padding: 14px 0 4px;
   font-family: Cinzel, serif; font-size: 20px; font-weight: 700; color: var(--st-gold);

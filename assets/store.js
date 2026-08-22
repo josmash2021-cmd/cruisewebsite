@@ -35,6 +35,9 @@
     errCard: 'Enter your name and phone number to personalize the cards.',
     errShip: 'Complete the shipping address.',
     errItems: 'Pick at least one product.',
+    shipFree: 'Shipping',
+    free: 'Free',
+    taxes: 'Taxes',
     successTitle: 'Order confirmed!',
     successMsg: 'Your payment went through. We will produce your merch and ship it to the address you gave us. You will receive a confirmation email.',
     pendingMsg: 'The payment is not confirmed yet. If you already paid, it will clear in a few seconds — refresh this page.',
@@ -52,6 +55,9 @@
     errCard: 'Escribe tu nombre y teléfono para personalizar las tarjetas.',
     errShip: 'Completa la dirección de envío.',
     errItems: 'Elige al menos un producto.',
+    shipFree: 'Envío',
+    free: 'Gratis',
+    taxes: 'Impuestos',
     successTitle: '¡Pedido confirmado!',
     successMsg: 'Tu pago se procesó correctamente. Produciremos tu mercancía y la enviaremos a la dirección que indicaste. Recibirás un correo de confirmación.',
     pendingMsg: 'El pago aún no está confirmado. Si ya pagaste, se acredita en unos segundos — recarga esta página.',
@@ -295,17 +301,25 @@
     var box = document.getElementById('order-lines');
     var totalEl = document.getElementById('order-total');
     if (!box) return;
-    var html = '', total = 0;
+    var html = '', total = 0, tax = 0, has = false;
     Object.keys(qty).forEach(function (id) {
       var q = qty[id];
       if (!q || !catalog[id]) return;
+      has = true;
       var line = catalog[id].price_cents * q;
       total += line;
+      tax += (catalog[id].tax_cents || 0) * q;
       html += '<div class="st-order__line"><span>' + esc(catalog[id].name) + ' × ' + q +
               '</span><b>' + money(line) + '</b></div>';
     });
+    if (has) {
+      html += '<div class="st-order__line st-order__line--free"><span>' + esc(T.shipFree) +
+              '</span><b>' + esc(T.free) + '</b></div>';
+      if (tax) html += '<div class="st-order__line"><span>' + esc(T.taxes) +
+              '</span><b>' + money(tax) + '</b></div>';
+    }
     box.innerHTML = html || '<div class="st-order__line"><span>—</span><b>$0.00</b></div>';
-    totalEl.textContent = money(total);
+    totalEl.textContent = money(total + tax);
   }
 
   function readShip() {
@@ -387,7 +401,8 @@
       if ((u && u.role) !== 'driver') { show('blocked'); return; }
       return api('/store/products').then(function (d) {
         (d.products || []).forEach(function (p) {
-          catalog[p.id] = { price_cents: p.price_cents, customizable: p.customizable,
+          catalog[p.id] = { price_cents: p.price_cents, tax_cents: p.tax_cents || 0,
+                            customizable: p.customizable,
                             name: EN ? p.name_en : p.name_es };
           var priceEl = document.querySelector('[data-price="' + p.id + '"]');
           if (priceEl) priceEl.textContent = money(p.price_cents);
