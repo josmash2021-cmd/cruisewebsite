@@ -809,7 +809,7 @@ html.vr-booting-out .cruise-header{animation:vrBootIn .4s cubic-bezier(.22,1,.36
           </div>
 
           <div class="vrTrip__steps" aria-hidden="true">
-            <div class="vrTrip__stepLine"><span class="vrTrip__stepFill" data-vrtrip-step-fill></span></div>
+            <div class="vrTrip__stepLine"><span class="vrTrip__stepFill" data-vrtrip-step-fill></span><img class="vrTrip__stepLogo" data-vrtrip-step-logo src="../assets/media/logo-icon.png" alt=""></div>
             <div class="vrTrip__step is-on" data-vrtrip-step="enroute"><i></i><b>En route</b></div>
             <div class="vrTrip__step" data-vrtrip-step="arrived"><i></i><b>Arrived</b></div>
             <div class="vrTrip__step" data-vrtrip-step="intrip"><i></i><b>In trip</b></div>
@@ -3917,6 +3917,9 @@ window.__VR_AIRPORTS = [
     });
     var fill=q('[data-vrtrip-step-fill]');
     if(fill)fill.style.width=(i/(STEPS.length-1)*100)+'%';
+    /* el logo de Cruise viaja con la punta del relleno (misma curva y tiempo) */
+    var sLogo=q('[data-vrtrip-step-logo]');
+    if(sLogo)sLogo.style.left=(i/(STEPS.length-1)*100)+'%';
     var pill=q('[data-vrtrip-pill-txt]');
     if(pill)pill.textContent=T[s]||T.enroute;
     /* ya llegó o el viaje terminó: no hay minutos que contar, el texto basta */
@@ -6010,9 +6013,15 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 @keyframes vrTripBlink{0%,100%{opacity:1}50%{opacity:.28}}
 
 
-.vrTrip__steps{position:relative;display:flex;justify-content:space-between;padding:4px 2px 0}
-.vrTrip__stepLine{position:absolute;left:8px;right:8px;top:9px;height:2px;border-radius:2px;background:rgba(255,255,255,.11);overflow:hidden}
-.vrTrip__stepFill{display:block;height:100%;width:0;border-radius:2px;background:linear-gradient(90deg,#b8922c,#f2d577);transition:width .7s cubic-bezier(.22,1,.36,1)}
+.vrTrip__steps{position:relative;display:flex;justify-content:space-between;padding:12px 2px 0}
+/* la pista va del centro del PRIMER punto al centro del ÚLTIMO (los pasos son
+   flex:1: sus centros caen en 12,5%/37,5%/62,5%/87,5% de la fila), en forma de
+   píldora curva; el relleno y el logo recorren exactamente ese tramo */
+.vrTrip__stepLine{position:absolute;left:12.5%;right:12.5%;top:14.5px;height:6px;border-radius:999px;background:rgba(255,255,255,.11);overflow:visible}
+.vrTrip__stepFill{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#b8922c,#f2d577);transition:width .7s cubic-bezier(.22,1,.36,1)}
+/* el logo de Cruise hace el recorrido sobre la línea, en la punta del
+   relleno: arranca en En route y avanza hasta el estado actual */
+.vrTrip__stepLogo{position:absolute;z-index:2;top:50%;left:0;width:28px;height:28px;object-fit:contain;transform:translate(-50%,-50%);filter:drop-shadow(0 0 7px rgba(212,175,55,.75));transition:left .7s cubic-bezier(.22,1,.36,1)}
 .vrTrip__step{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;min-width:0}
 .vrTrip__step i{width:11px;height:11px;border-radius:50%;background:#101010;border:2px solid rgba(255,255,255,.2);transition:background .35s,border-color .35s,box-shadow .35s}
 .vrTrip__step b{font:700 8.5px/1.1 'Inter',sans-serif;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.34);text-align:center;transition:color .35s}
@@ -10413,6 +10422,11 @@ html body #vipMpFooterSugs{
   }
   html body .vipRide__testConfirm__phase2 .vipRide__testSheet:has([data-vrtrip-pane="chat"]:not([hidden])){
     justify-content:flex-start!important; padding:20px!important;
+  }
+  /* Seguridad y soporte: el menú se ancla ARRIBA de la columna — con el
+     centrado general de la tarjeta quedaba flotando a media altura */
+  html body .vipRide__testConfirm__phase2 .vipRide__testSheet:has([data-vrtrip-pane="support"]:not([hidden])){
+    justify-content:flex-start!important;
   }
 }
 
