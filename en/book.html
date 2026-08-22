@@ -7317,6 +7317,11 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
   };
 window.__vrPrefillFromUrl=function(){try{
 if(window.__vrPrefilled)return;window.__vrPrefilled=true;
+/* con un viaje ACTIVO la URL no toca el mapa jamás: la ruta y los pines son
+   del viaje (coords exactas guardadas en la reserva vía _restoreTripRoute).
+   Antes la recarga pintaba el prefill de la URL ENCIMA del viaje — otra
+   dropoff y otra ruta. */
+try{if(localStorage.getItem('vr_active_booking'))return;}catch(_){}
 var q=new URLSearchParams(window.location.search);
 var pName=q.get('pickup'),dName=q.get('dropoff');
 var pLat=parseFloat(q.get('pickupLat')),pLng=parseFloat(q.get('pickupLng'));
@@ -7384,6 +7389,10 @@ setTimeout(_vrPfKick,1200);
   function _vrClearState(){try{sessionStorage.removeItem(_VR_ST_KEY);}catch(_){}}
   window.__vrClearBookState=_vrClearState;
   function _vrRestoreState(){try{
+    /* con un viaje ACTIVO no se restauran campos ajenos: el mapa es del viaje
+       (su ruta la dibuja _restoreTripRoute con las coords de la reserva) —
+       antes este restore pintaba OTRA dropoff y OTRA ruta encima del viaje */
+    try{if(localStorage.getItem('vr_active_booking'))return;}catch(_){}
     var raw=sessionStorage.getItem(_VR_ST_KEY);if(!raw)return;
     var st=JSON.parse(raw)||{};
     if(!st.ts||(Date.now()-st.ts)>21600000){_vrClearState();return;}
