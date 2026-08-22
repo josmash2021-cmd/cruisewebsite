@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<!-- idioma: en la primera visita se va a la version del navegador (sin eleccion manual guardada) -->
+<script>
+(function(){
+  try{
+    if(localStorage.getItem('cir_lang'))return;              // el usuario ya eligio manualmente
+    var es=(navigator.language||'').toLowerCase().indexOf('es')===0;
+    var p=location.pathname;
+    var onEn=/^\/en(\/|$)/.test(p);                           // estoy en la version inglesa
+    if(es&&onEn){ location.replace(p.replace(/^\/en/,'')||'/'); }
+    else if(!es&&!onEn){ location.replace('/en'+p); }
+  }catch(_){}
+})();
+</script>
 <meta charset="UTF-8">
 <script>
 if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',location.pathname.replace(/index\.html$/,'')+location.search+location.hash);
@@ -215,5 +228,13 @@ if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',locatio
 <script src="assets/account.js?v=20260820a"></script>
 <script src="assets/store.js?v=20260821u"></script>
 <script src="assets/nav-role.js?v=20260821a" defer></script>
+<!-- idioma: guardar la eleccion manual al tocar el switcher ES/EN -->
+<script>
+document.addEventListener('click',function(e){
+  var a=e.target.closest?e.target.closest('a.ch-lang'):null;
+  if(!a)return;
+  try{localStorage.setItem('cir_lang',/^\/en(\/|$)/.test(new URL(a.href,location.href).pathname)?'en':'es');}catch(_){}
+},true);
+</script>
 </body>
 </html>
