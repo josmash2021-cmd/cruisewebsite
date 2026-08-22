@@ -11249,27 +11249,33 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     try {
       /* medir la caja final sin que se pinte el vaivén: todo esto corre en el
          mismo fotograma (los observers externos se ignoran con el lock) */
-      var prevTr = mapEl.style.transition;
-      mapEl.style.transition = 'none';
+      /* la transición del stylesheet es !important: apagarla con un inline
+         pelado NO hacía nada — la medición salía con el tamaño de ORIGEN y el
+         lienzo se pineaba al ancho viejo (la ruta salía de vista hasta el
+         re-encuadre final). Con prioridad 'important' sí se apaga y la caja
+         medida es la final de verdad. */
+      mapEl.style.setProperty('transition', 'none', 'important');
       setState(final); void mapEl.offsetWidth;
       var fr = mapEl.getBoundingClientRect();
       setState(!final); void mapEl.offsetWidth;
-      mapEl.style.transition = prevTr; void mapEl.offsetWidth;
+      mapEl.style.removeProperty('transition'); void mapEl.offsetWidth;
       setState(final);                          /* ahora sí: anima origen → final */
-      inner.style.position = 'absolute';
-      inner.style.top = '0';
-      inner.style.right = '0';
-      inner.style.left = 'auto';
+      /* setProperty con prioridad 'important': la regla #vipRideMap-…{width:
+         100%!important} le ganaba al inline pelado y el pineo nunca existía —
+         el lienzo seguía el ancho a media transición y la ruta salía de vista */
+      inner.style.setProperty('position','absolute','important');
+      inner.style.setProperty('top','0','important');
+      inner.style.setProperty('right','0','important');
+      inner.style.setProperty('left','auto','important');
       /* SIN redondear: el 100% del inner al soltar coincide al píxel y el
          resize final es no-op (sin clear del buffer = sin parpadeo) */
-      inner.style.width = fr.width + 'px';
-      inner.style.height = fr.height + 'px';
+      inner.style.setProperty('width',fr.width+'px','important');
+      inner.style.setProperty('height',fr.height+'px','important');
       m.resize();
       var done = false;
       function unfreeze() {
         if (done) return; done = true;
-        inner.style.position = ''; inner.style.top = ''; inner.style.right = '';
-        inner.style.left = ''; inner.style.width = ''; inner.style.height = '';
+        ['position','top','right','left','width','height'].forEach(function(k){inner.style.removeProperty(k);});
         try {
           /* solo si el tamaño real cambió de verdad; si no, no hay clear */
           if (Math.abs(inner.clientWidth - fr.width) > 2 || Math.abs(inner.clientHeight - fr.height) > 2) m.resize();
