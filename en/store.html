@@ -20,7 +20,7 @@ if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',locatio
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/site.css?v=20260820a">
-<link rel="stylesheet" href="../assets/store.css?v=20260821t">
+<link rel="stylesheet" href="../assets/store.css?v=20260821u">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 </head>
 <body>
@@ -43,6 +43,11 @@ if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',locatio
 <main id="cruise-store" data-lang="en"
   data-api-base="https://cruiseapp2-production.up.railway.app"
   data-api-key="5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad">
+
+  <!-- Cargando (visible al instante; se oculta al pintar cualquier vista) -->
+  <section class="store-gate" id="store-loading">
+    <div class="st-spinner" role="status" aria-label="Loading"></div>
+  </section>
 
   <!-- Sin sesión -->
   <section class="store-gate" id="store-gate" hidden>
@@ -88,7 +93,7 @@ if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',locatio
               <div class="st-cardface__inner">
                 <img id="face-front" class="st-face" src="../assets/media/store-card-front.png" alt="Cruise card — front">
                 <div class="bc-back st-face st-face--back" id="face-back">
-                  <img class="bc-back__bg" src="../assets/media/store-card-back-template.png?v=20260821t" alt="Cruise card — back">
+                  <img class="bc-back__bg" src="../assets/media/store-card-back-template.png?v=20260821u" alt="Cruise card — back">
                   <span class="bc-back__pv bc-back__pv--name" id="bc-pv-name">YOUR NAME</span>
                   <span class="bc-back__pv bc-back__pv--phone" id="bc-pv-phone">(000) 000-0000</span>
                 </div>
@@ -208,7 +213,7 @@ if(/\/index\.html$/.test(location.pathname))history.replaceState(null,'',locatio
 </footer>
 
 <script src="../assets/account.js?v=20260820a"></script>
-<script src="../assets/store.js?v=20260821t"></script>
+<script src="../assets/store.js?v=20260821u"></script>
 <script src="../assets/nav-role.js?v=20260821a" defer></script>
 </body>
 </html>

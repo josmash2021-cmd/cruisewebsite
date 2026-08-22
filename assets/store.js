@@ -92,6 +92,7 @@
 
   /* ── vistas ── */
   var views = {
+    loading: document.getElementById('store-loading'),
     gate: document.getElementById('store-gate'),
     blocked: document.getElementById('store-blocked'),
     shop: document.getElementById('store-shop'),
@@ -397,27 +398,27 @@
 
     if (!token()) { show('gate'); return; }
 
-    api('/auth/web/me').then(function (u) {
-      if ((u && u.role) !== 'driver') { show('blocked'); return; }
-      return api('/store/products').then(function (d) {
-        (d.products || []).forEach(function (p) {
-          catalog[p.id] = { price_cents: p.price_cents, tax_cents: p.tax_cents || 0,
-                            customizable: p.customizable,
-                            name: EN ? p.name_en : p.name_es };
-          var priceEl = document.querySelector('[data-price="' + p.id + '"]');
-          if (priceEl) priceEl.textContent = money(p.price_cents);
-          qty[p.id] = 0;
-        });
-        bindCatalog();
-        renderSummary();
-        renderPreview();
-        show('shop');
+    // Una sola llamada: /store/products ya responde 401 (sin sesión) y 403
+    // (no es driver), así que /auth/web/me era un roundtrip de más.
+    api('/store/products').then(function (d) {
+      (d.products || []).forEach(function (p) {
+        catalog[p.id] = { price_cents: p.price_cents, tax_cents: p.tax_cents || 0,
+                          customizable: p.customizable,
+                          name: EN ? p.name_en : p.name_es };
+        var priceEl = document.querySelector('[data-price="' + p.id + '"]');
+        if (priceEl) priceEl.textContent = money(p.price_cents);
+        qty[p.id] = 0;
       });
+      bindCatalog();
+      renderSummary();
+      renderPreview();
+      show('shop');
     }).catch(function (e) {
       if (e.status === 401) {
         location.replace((EN ? '../auth' : 'auth') + '?role=driver&return=' + (EN ? 'en/store' : 'store'));
         return;
       }
+      if (e.status === 403) { show('blocked'); return; }
       show('gate');
     });
   }
