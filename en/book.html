@@ -5561,12 +5561,6 @@ body:has(#vipRide-ride_request_48wXbE) footer,body:has(#vipRide-ride_request_48w
 .vipRide__mapBackBtn[hidden]{display:none!important}
 #vipRideMap-ride_request_48wXbE{height:100%!important;width:100%!important}
 #vipRideMap-ride_request_48wXbE > .mapboxgl-canvas-container{height:100%!important;width:100%!important}
-/* El lienzo SIEMPRE llena su contenedor por CSS: cuando el panel se expande o
-   se encoge, el navegador reescala por GPU lo que ya está dibujado (ruta,
-   pines, colores) sin borrar el buffer ni redibujar nada — cero parpadeo.
-   resize() solo se llama un par de veces al final de la transición para
-   dejarlo nítido y cargar las tiles del área nueva. */
-#vipRideMap-ride_request_48wXbE .mapboxgl-canvas{width:100%!important;height:100%!important}
 #vipRideMap-ride_request_48wXbE .mapboxgl-ctrl-attrib{font-size:9px;opacity:.3}
 #vipRideMap-ride_request_48wXbE .mapboxgl-ctrl-logo{opacity:.3}
 #vipRideMap-ride_request_48wXbE .mapboxgl-marker{overflow:visible!important}
@@ -11123,17 +11117,52 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
     try { window.dispatchEvent(new Event('resize')); } catch (_) {}
   }
 
-  /* Redimensiona el lienzo SOLO un par de veces por transición: entre ellas el
-     canvas (100% por CSS) se reescala por GPU con lo ya dibujado, sin borrar
-     el buffer. Un resize por frame — o cada 100 ms — reinicia la evaluación de
-     tiles de GL JS y con la cámara en movimiento ninguna tile terminaba de
-     cargar: mapa negro, trabado y todo llegaba de golpe al parar. */
-  function vrResizePoints(msList) {
-    msList.forEach(function (d) {
-      setTimeout(function () {
-        try { var m = window.__vrMap; if (m) m.resize(); } catch (_) {}
-      }, d);
-    });
+  /* El mapa NUNCA se estira ni parpadea al cambiar de tamaño el panel.
+     El panel solo anima su borde IZQUIERDO (el derecho es fijo) y tiene
+     overflow:hidden: al empezar la transición se pinta el lienzo una sola vez
+     al tamaño FINAL (un resize, aspecto correcto desde el primer fotograma),
+     anclado a la derecha, y la ventana visible lo revela u oculta por recorte
+     conforme se mueve. Al terminar, el inner vuelve a 100%. Ni reescalado por
+     GPU (estiraba la ruta y los pines) ni resize por frame (mapa negro). */
+  var _vrFrzLock = false;
+  function vrFreezeLeft(setState, final, ms) {
+    var mapEl = document.querySelector('.vipRide__map');
+    var inner = document.getElementById('vipRideMap-ride_request_48wXbE');
+    var m = window.__vrMap;
+    if (!mapEl || !inner || !m || _vrFrzLock) return false;
+    _vrFrzLock = true;
+    try {
+      /* medir la caja final sin que se pinte el vaivén: todo esto corre en el
+         mismo fotograma (los observers externos se ignoran con el lock) */
+      var prevTr = mapEl.style.transition;
+      mapEl.style.transition = 'none';
+      setState(final); void mapEl.offsetWidth;
+      var fr = mapEl.getBoundingClientRect();
+      setState(!final); void mapEl.offsetWidth;
+      mapEl.style.transition = prevTr; void mapEl.offsetWidth;
+      setState(final);                          /* ahora sí: anima origen → final */
+      inner.style.position = 'absolute';
+      inner.style.top = '0';
+      inner.style.right = '0';
+      inner.style.left = 'auto';
+      inner.style.width = Math.round(fr.width) + 'px';
+      inner.style.height = Math.round(fr.height) + 'px';
+      m.resize();
+      var done = false;
+      function unfreeze() {
+        if (done) return; done = true;
+        inner.style.position = ''; inner.style.top = ''; inner.style.right = '';
+        inner.style.left = ''; inner.style.width = ''; inner.style.height = '';
+        try { m.resize(); } catch (_) {}
+        _vrFrzLock = false;
+      }
+      mapEl.addEventListener('transitionend', function h(ev) {
+        if (ev.propertyName !== 'left') return;
+        mapEl.removeEventListener('transitionend', h); unfreeze();
+      });
+      setTimeout(unfreeze, ms + 150);
+    } catch (_) { _vrFrzLock = false; }
+    return true;
   }
 
   function segBtn(mode) {
@@ -11510,11 +11539,12 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
          hay que avisar a Mapbox y reencuadrar la ruta al terminar la transición */
       var three = step === '3';
       if (sec.classList.contains('vrd-step3') === three) return;
-      sec.classList.toggle('vrd-step3', three);
-      /* el lienzo acompaña la transición de 0,55 s reescalándose por GPU (sin
-         redibujar); dos resize bastan: a mitad para las tiles del área nueva
-         y al final para dejarlo nítido */
-      vrResizePoints([280, 620]);
+      /* el panel se estrecha/ensancha con transición de `left`: el lienzo se
+         congela al tamaño final y la ventana lo revela por recorte — ni
+         estirado ni negro. Si el freeze no puede correr (lock), el toggle va
+         directo como antes. */
+      if (!vrFreezeLeft(function (s) { sec.classList.toggle('vrd-step3', s); }, three, 550))
+        sec.classList.toggle('vrd-step3', three);
       /* el panel del mapa cambia de ancho con transición: reencuadrar al terminar
          y repetir después por si otro movimiento de cámara pisó el encuadre */
       var mapEl = document.querySelector('.vipRide__mapContainer') || document.querySelector('.vipRide__map');
@@ -11547,21 +11577,22 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
 
   /* al buscar chofer el panel del mapa se abre hasta cubrir la columna central.
      Mapbox no se entera solo del cambio de ancho: sin avisarle, el lienzo se
-     queda con el tamaño viejo y aparece una franja negra. Se le redimensiona
-     solo un par de veces (vrResizePoints); entre ellas el canvas se reescala
-     por GPU con lo ya dibujado, sin borrar el buffer. */
+     queda con el tamaño viejo y aparece una franja negra. Se congela al tamaño
+     final (vrFreezeLeft) y la ventana lo revela por recorte, sin estirarlo. */
   (function () {
     var sec = document.querySelector('.vipRide');
     if (!sec) return;
     var was = sec.classList.contains('is-searching');
     new MutationObserver(function () {
       var now = sec.classList.contains('is-searching');
+      /* el vaivén de clases DENTRO del freeze no es un cambio real */
+      if (_vrFrzLock) { was = now; return; }
       if (now === was) return;
       was = now;
       if (!mq.matches) return;
-      /* sin resize al instante ni por frame: el lienzo se reescala solo con lo
-         ya dibujado; dos resize bastan (área nueva a mitad, nítido al final) */
-      vrResizePoints([400, 800]);
+      /* lienzo pintado al tamaño final desde el primer fotograma: la expansión
+         del panel lo revela por recorte — ni estirado ni franja negra */
+      vrFreezeLeft(function (s) { sec.classList.toggle('is-searching', s); }, now, 800);
       /* Al ENTRAR no se reencuadra aquí: el flujo de pedir viaje ya hace su
          propio encuadre a los ~0,85 s (tras expandirse el panel), y disparar
          otro fitBounds encima lo interrumpía a media animación — ese era el
@@ -12143,9 +12174,10 @@ html body .vipRide .vipRide__rideCard .vipRide__rideDesc{
   var ov=document.querySelector('[data-vipride-test-confirm]');
   if(!sec&&!ov)return;
   function grow(ms){
-    /* dos redimensiones por transición: una a media para las tiles del área
-       nueva y otra al final para dejarlo nítido */
-    [Math.round(ms*0.45), ms].forEach(function(d){
+    /* la geometría en el teléfono cambia al INSTANTE (sin transición CSS en el
+       contenedor): resize ya, y otro al final por si la hoja sigue asentándose.
+       Sin bucles: cada resize borra el buffer y reevalúa tiles; dos bastan. */
+    [0, ms].forEach(function(d){
       setTimeout(function(){
         try{var m=window.__vrMap;if(m&&m.resize)m.resize();}catch(_){}
       },d);
