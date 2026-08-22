@@ -8055,27 +8055,37 @@ setTimeout(_vrPfKick,1200);
         }
       }
       if(pickupEl) pickupEl.addEventListener('input',function(){_pickupManuallySet=true;_gpsActive=false;});
-      var _geoFramed=false;   /* el encuadre inicial sobre el GPS se hace una sola vez */
-      function updatePickupFromGeo(lat,lng,fly){
+      var _geoFramed=false;   /* true cuando la cámara YA voló a la ubicación del usuario */
+      var _lastGeoAcc=null;   /* accuracy (m) del último fix aceptado: deja pasar mejoras de precisión */
+      function updatePickupFromGeo(lat,lng,fly,acc){
         if(_pickupManuallySet) return;
-        if(_lastGeoLat!==null&&Math.abs(lat-_lastGeoLat)<.0005&&Math.abs(lng-_lastGeoLng)<.0005) return;
+        /* Un fix nuevo se acepta si (a) se movió más del umbral O (b) trae mejor
+           precisión (accuracy ≥20% mejor) y difiere del pin más de ~15 m. Sin el
+           (b), en escritorio el primer fix llega por IP/WiFi con error de cientos
+           de metros y los fixes finos posteriores se descartaban por "cercanos",
+           dejando el pin corrido aunque el GPS ya sabía el punto exacto. */
+        var _moved=_lastGeoLat===null||Math.abs(lat-_lastGeoLat)>=.0005||Math.abs(lng-_lastGeoLng)>=.0005;
+        var _mejora=acc!=null&&_lastGeoAcc!=null&&acc<=_lastGeoAcc*0.8
+          &&_lastGeoLat!==null&&(Math.abs(lat-_lastGeoLat)>=.00015||Math.abs(lng-_lastGeoLng)>=.00015);
+        if(!_moved&&!_mejora) return;
+        /* salto grande (>~200 m) con la cámara ya volada: hay que reencuadrar */
+        var _salto=_lastGeoLat!==null&&(Math.abs(lat-_lastGeoLat)>=.002||Math.abs(lng-_lastGeoLng)>=.002);
         _lastGeoLat=lat;_lastGeoLng=lng;
+        if(acc!=null)_lastGeoAcc=acc;
         _gpsActive=true;
-        if(fly) map.easeTo({center:[lng,lat],zoom:16.5,pitch:0,bearing:0,duration:1000,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
-        else if(!_geoFramed){
-          /* Al cargar no se vuela a la ubicación (la cámara se queda en la vista
-             general), pero esa vista general es el centro de Birmingham: a quien
-             abre la página desde Pelham, Hoover o el aeropuerto le quedaba su
-             propio pin FUERA de la pantalla y el mapa no decía nada de su viaje.
-             Solo la primera vez, sin animación, y únicamente si el punto no se ve:
-             si ya está a la vista, la cámara no se toca. */
+        if(fly){
+          /* vuelo suave al punto exacto: lo usa el primer fix preciso del arranque
+             (doGeo con enableHighAccuracy) y las re-localizaciones a demanda */
+          map.flyTo({center:[lng,lat],zoom:16.5,pitch:0,bearing:0,duration:2200,curve:1.4,essential:true,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
           _geoFramed=true;
-          try{
-            var _p=map.project([lng,lat]),_cv=map.getCanvas();
-            var _fuera=_p.x<60||_p.y<60||_p.x>_cv.clientWidth-60||_p.y>_cv.clientHeight-60;
-            if(_fuera)map.jumpTo({center:[lng,lat],zoom:15,pitch:0,bearing:0});
-          }catch(_){}
+        } else if(_geoFramed&&_salto){
+          /* la cámara ya voló y el pin saltó lejos: reencuadre corto, sin flyTo;
+             si el movimiento es chico (mejora de precisión), solo se mueve el pin */
+          map.easeTo({center:[lng,lat],duration:900,essential:true,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
         }
+        /* sin fly y sin vuelo previo (fix grosero del arranque): solo se planta el
+           pin provisional, la cámara no se toca — el vuelo lo hace el fix preciso;
+           si ese nunca llega (timeout/denegado), se queda la vista general */
         setMarker('pickup', lat, lng);
         reverseGeocode(lat,lng,function(name){
           if(name&&!_pickupManuallySet){
@@ -8085,22 +8095,23 @@ setTimeout(_vrPfKick,1200);
           }
         });
       }
-      function doGeo(ok,err,fly){navigator.geolocation.getCurrentPosition(function(p){updatePickupFromGeo(p.coords.latitude,p.coords.longitude,fly!==false);if(ok)ok();},function(){if(err)err();},{timeout:12000,enableHighAccuracy:true});}
+      function doGeo(ok,err,fly){navigator.geolocation.getCurrentPosition(function(p){updatePickupFromGeo(p.coords.latitude,p.coords.longitude,fly!==false,p.coords.accuracy);if(ok)ok();},function(){if(err)err();},{timeout:12000,enableHighAccuracy:true});}
       if(navigator.geolocation){
         if(pickupEl&&!pickupEl.value) pickupEl.placeholder=t('detectingLocation');
         if(locateBtn) locateBtn.classList.add('is-locating');
         navigator.geolocation.getCurrentPosition(function(p){
-          /* al cargar, la camara se queda en la vista general: solo se coloca el pin */
-          updatePickupFromGeo(p.coords.latitude,p.coords.longitude,false);
+          /* fix grosero del arranque: solo planta el pin provisional con accuracy,
+             sin tocar la cámara; el vuelo suave lo hace el fix preciso de doGeo */
+          updatePickupFromGeo(p.coords.latitude,p.coords.longitude,false,p.coords.accuracy);
           if(locateBtn)locateBtn.classList.remove('is-locating');
         },function(){},{ timeout:3000, maximumAge:60000, enableHighAccuracy:false });
         doGeo(
           function(){if(locateBtn)locateBtn.classList.remove('is-locating');},
           function(){if(locateBtn)locateBtn.classList.remove('is-locating');if(pickupEl)pickupEl.placeholder=currentLang==='es'?'Ingresa dirección':'Enter address';},
-          false
+          true /* primer fix preciso: la cámara vuela suave hasta el punto exacto */
         );
         navigator.geolocation.watchPosition(
-          function(p){updatePickupFromGeo(p.coords.latitude,p.coords.longitude,false);},
+          function(p){updatePickupFromGeo(p.coords.latitude,p.coords.longitude,false,p.coords.accuracy);},
           function(){},{enableHighAccuracy:true,maximumAge:8000,timeout:20000}
         );
         if(locateBtn) locateBtn.addEventListener('click',function(){
@@ -8116,7 +8127,7 @@ setTimeout(_vrPfKick,1200);
            Se resetea _lastGeoLat/_lastGeoLng para que updatePickupFromGeo no
            descarte el fix por "posición ya vista" al estar el teléfono quieto. */
         window.__vrRelocate=function(){
-          _pickupManuallySet=false;_gpsActive=false;_lastGeoLat=null;_lastGeoLng=null;
+          _pickupManuallySet=false;_gpsActive=false;_lastGeoLat=null;_lastGeoLng=null;_lastGeoAcc=null;
           doGeo();
         };
       } else if(locateBtn){locateBtn.style.display='none';}
@@ -8298,7 +8309,7 @@ setTimeout(_vrPfKick,1200);
         if(pickupMarker){pickupMarker.remove();pickupMarker=null}
         if(pickupLabelMk){pickupLabelMk.remove();pickupLabelMk=0}
         pickupPlace=null;if(pickupEl)pickupEl.value='';
-        _pickupManuallySet=false;_gpsActive=false;_lastGeoLat=null;_lastGeoLng=null;
+        _pickupManuallySet=false;_gpsActive=false;_lastGeoLat=null;_lastGeoLng=null;_lastGeoAcc=null;
         selectedRide=null;
         try{cards.forEach(function(c){c.classList.remove('is-active','is-hidden');});_cardsCollapsed=false;}catch(_){}
         if(dateEl)dateEl.value='';
