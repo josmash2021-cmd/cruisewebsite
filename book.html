@@ -34,6 +34,15 @@ if(/\/book\.html$/.test(location.pathname))history.replaceState(null,"",location
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#000000">
 <link rel="icon" type="image/png" href="assets/media/logo-icon.png">
+<link rel="preconnect" href="https://api.mapbox.com" crossorigin>
+<link rel="preconnect" href="https://events.mapbox.com" crossorigin>
+<link rel="dns-prefetch" href="https://api.mapbox.com">
+<!-- mapa al instante: el bundle de GL JS y su CSS se descargan desde el head,
+     en paralelo con todo lo demás (la etiqueta script de más abajo los ejecuta
+     ya desde caché). La home carga la MISMA versión, así que quien viene de
+     ahí ya lo tiene caliente. -->
+<link rel="preload" href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js" as="script">
+<link rel="preload" href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" as="style">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
@@ -8183,9 +8192,28 @@ setTimeout(_vrPfKick,1200);
          y sin tormenta de tiles; LEJOS flyTo (zoom out/in). El flyTo en distancias
          cortas se alejaba y volvía cargando tiles intermedios: por eso se veía
          lento y "pegado". is-flying pausa las animaciones de los pines en vuelo. */
+      /* El pin de recogida SIEMPRE centrado: en escritorio el primer fix llega
+         grosero (IP/WiFi) y los fixes finos solo movían el pin — la cámara se
+         quedaba donde estaba y el pin quedaba corrido para siempre. Mientras
+         el usuario no arrastre el mapa ni haya ruta dibujada, el pin vuelve
+         suave al centro cada vez que queda desplazado. */
+      var _vrDraggedMap=false;
+      map.on('dragstart',function(){_vrDraggedMap=true;});
+      function _vrCenterPickup(){
+        try{
+          if(_vrDraggedMap||!map||currentStep!==1||!pickupPlace||dropoffPlace)return;
+          if(root&&root.classList&&root.classList.contains('is-flying'))return;
+          var _el=map.getContainer(),_cw=_el.clientWidth,_ch=_el.clientHeight;
+          if(!_cw||!_ch)return;
+          var _pp=map.project([pickupPlace.lng,pickupPlace.lat]);
+          if(Math.abs(_pp.x-_cw/2)<_cw*0.05&&Math.abs(_pp.y-_ch/2)<_ch*0.05)return;
+          map.easeTo({center:[pickupPlace.lng,pickupPlace.lat],duration:600,easing:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}});
+        }catch(_){}
+      }
+      map.on('load',function(){[1600,3600,6500].forEach(function(ms){setTimeout(_vrCenterPickup,ms);});});
       function _flyCamTo(lat,lng){
         if(root&&root.classList)root.classList.add('is-flying');
-        map.once('moveend',function(){if(root&&root.classList)root.classList.remove('is-flying');});
+        map.once('moveend',function(){if(root&&root.classList)root.classList.remove('is-flying');setTimeout(_vrCenterPickup,120);});
         var _c=map.getCenter();
         var _toR=Math.PI/180,_dx=(lng-_c.lng)*_toR*Math.cos(((_c.lat+lat)/2)*_toR),_dy=(lat-_c.lat)*_toR;
         var _distKm=Math.sqrt(_dx*_dx+_dy*_dy)*6371;
@@ -8235,6 +8263,9 @@ setTimeout(_vrPfKick,1200);
         }
         /* el pin y la dirección se actualizan siempre, vuele o no la cámara */
         setMarker('pickup', lat, lng);
+        /* si el pin se refinó sin vuelo de cámara (fix fino tras el grosero),
+           que quede centrado: la guarda no hace nada si ya está en el centro */
+        setTimeout(_vrCenterPickup,450);
         reverseGeocode(lat,lng,function(name){
           if(name&&!_pickupManuallySet){
             pickupEl.value=name;
