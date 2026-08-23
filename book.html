@@ -8913,21 +8913,11 @@ setTimeout(_vrPfKick,1200);
     }
     _vrSyncTestBtn();
     setInterval(_vrSyncTestBtn,2000);   /* por si inicia/cierra sesión sin recargar */
-    /* Apple Pay / Google Pay: cada fila solo aparece donde el sistema puede
-       pagar de verdad — iOS con ApplePaySession, o Android/Chrome con
-       PaymentRequest; al elegirla se cobra con el sheet nativo (_payWithNativeSheet) */
-    (function(){
-      try{
-        var _ua=navigator.userAgent||'';
-        var _isIOS=/iPad|iPhone|iPod/.test(_ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-        var _appleOk=_isIOS&&!!(window.ApplePaySession&&ApplePaySession.canMakePayments&&ApplePaySession.canMakePayments());
-        var _googleOk=!_isIOS&&/Android/.test(_ua)&&!!window.PaymentRequest;
-        var _pa=document.querySelector('[data-vipride-pay-option="apple_pay"]');
-        var _pg=document.querySelector('[data-vipride-pay-option="google_pay"]');
-        if(_pa&&_appleOk)_pa.removeAttribute('hidden');
-        if(_pg&&_googleOk)_pg.removeAttribute('hidden');
-      }catch(_){}
-    })();
+    /* Apple Pay / Google Pay: cada fila se revela SOLO cuando Stripe confirma
+       vía paymentRequest.canMakePayment() que ESTE navegador+dominio puede
+       pagar de verdad (ver más abajo, tras crear _payReq). El UA-sniff viejo
+       escondía Apple Pay en macOS Safari y la mostraba en dominios no
+       registrados con Stripe, donde el cobro moría después. */
     var _payOptions = document.querySelectorAll('[data-vipride-pay-option]');
     var _payList=_payOverlay?_payOverlay.querySelector('.vipRide__payOverlay__list'):null;
     var _cardForm=document.querySelector('[data-vipride-cardform]');
@@ -9127,7 +9117,16 @@ setTimeout(_vrPfKick,1200);
     if(_stripe){
       try{
         _payReq=_stripe.paymentRequest({country:'US',currency:'usd',total:{label:'Cruise Ride',amount:100},requestPayerName:true,requestPayerEmail:true});
-        _payReq.canMakePayment().then(function(result){_payReqAvailable=!!result}).catch(function(e){console.warn('[Cruise Pay] canMakePayment error:',e)});
+        _payReq.canMakePayment().then(function(result){
+          _payReqAvailable=!!result;
+          /* la fila solo aparece si Stripe confirma que ESTE navegador y ESTE
+             dominio pueden pagar (Apple Pay exige el dominio registrado en el
+             dashboard de Stripe; si no, result.applePay llega en false) */
+          var _pa=document.querySelector('[data-vipride-pay-option="apple_pay"]');
+          var _pg=document.querySelector('[data-vipride-pay-option="google_pay"]');
+          if(_pa&&result&&result.applePay)_pa.removeAttribute('hidden');
+          if(_pg&&result&&result.googlePay)_pg.removeAttribute('hidden');
+        }).catch(function(e){console.warn('[Cruise Pay] canMakePayment error:',e)});
         _payReq.on('paymentmethod',function(ev){
           function _waitAndConfirm(attempts){
             if(_payClientSecret){
@@ -9196,13 +9195,20 @@ setTimeout(_vrPfKick,1200);
         total:{label:_lbl,amount:d.cents},
         displayItems:_dispItems
       });
+      /* show() DEBE llamarse dentro del gesto del click — Safari cancela la
+         hoja si va tras un await de red. El handler 'paymentmethod' ya espera
+         el client_secret con polling (_waitAndConfirm), así que el fetch del
+         intent corre en paralelo y la hoja abre al instante. */
+      var _shown=null;
+      try{_shown=_payReq.show();}catch(e){_payBusy=false;_payClientSecret=null;_payFailed({message:t('paymentError')});return;}
+      if(_shown&&typeof _shown.catch==='function'){_shown.catch(function(){/* el usuario cerró la hoja o el navegador la rechazó; el evento 'cancel' limpia el estado */});}
       fetch(_apiBase+'/payments/web/create-intent',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+_webKey},
         body:JSON.stringify({amount:d.cents,currency:'usd',description:'Cruise '+d.vehicle+' Ride',metadata:d.metadata,quote_token:d.quote_token,user_token:(typeof __vipAuthToken==='function'?__vipAuthToken():null)||_vrLS.get('vr_at')||null})
       })
       .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-      .then(function(data){if(!data.client_secret)throw new Error(data.detail||'Intent error');_payClientSecret=data.client_secret;try{_payReq.show();}catch(e){_payBusy=false;_payClientSecret=null;_payFailed({message:t('paymentError')});}})
+      .then(function(data){if(!data.client_secret)throw new Error(data.detail||'Intent error');_payClientSecret=data.client_secret;})
       .catch(function(e){_payBusy=false;_payFailed(e||{message:t('paymentError')});_requestBtn.disabled=false;_requestBtn.textContent=t('requestRide');});
     }
     var _VR_SB_URL='https://elvszwazwvpgqvnzxwnq.supabase.co';
