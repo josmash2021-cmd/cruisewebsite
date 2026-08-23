@@ -7716,7 +7716,11 @@ setTimeout(_vrPfKick,1200);
     if(bookingVariant&&selectedRide.variantId)bookingVariant.value=selectedRide.variantId;
     syncProps(selectedRide);validateCTA(selectedRide);
     if(_dE){if(_dD)_dD.textContent=card.getAttribute('data-desc')||'';if(_dEt)_dEt.textContent=routeDurationSec?formatMinutes(routeDurationSec):'--';if(_dDi)_dDi.textContent=window.__vrRouteDistM?((window.__vrRouteDistM/1609.344).toFixed(1)+' mi'):'-- mi';if(_dS)_dS.textContent=card.getAttribute('data-seats')||'';if(_dP)_dP.textContent=selectedRide.price||'--';_dE.removeAttribute('hidden');}
-    if(_actionBtns)_actionBtns.removeAttribute('hidden');
+    /* el restore con ?pickup= (L7401) corre ANTES de que _actionBtns se asigne
+       abajo: sin este fallback la barra de pago + Request Ride quedaba oculta
+       con la tarjeta ya seleccionada hasta volver a tocarla */
+    var _ab2=_actionBtns||root.querySelector('[data-vipride-action-btns]');
+    if(_ab2)_ab2.removeAttribute('hidden');
     _vrSaveState();
   }
   function _expandAllCards(){cards.forEach(function(c){c.classList.remove('is-active')});selectedRide=null;if(_dE)_dE.setAttribute('hidden','');if(_actionBtns)_actionBtns.setAttribute('hidden','')}
