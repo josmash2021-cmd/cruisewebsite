@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#060503">
+  <meta name="google" content="notranslate">
+  <title>CRUISE – Premium Ride Service</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="logo-carrito.png">
+  <link rel="apple-touch-icon" href="logo-carrito.png">
+
+  <!-- Open Graph (preview when sharing link) -->
+  <meta property="og:title" content="CRUISE – Premium Ride Service">
+  <meta property="og:description" content="Book your premium ride experience in Miami.">
+  <meta property="og:image" content="logo-carrito.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:image" content="logo-carrito.png">
+  <!-- Google Translate auto-detect -->
+  <script>
+    (function(){
+      var lang = (navigator.language || navigator.userLanguage || 'en').toLowerCase().split('-')[0];
+      if (lang !== 'en') {
+        var s = document.createElement('script');
+        s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateInit';
+        document.head.appendChild(s);
+        window.googleTranslateInit = function(){
+          new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            includedLanguages: '',
+            autoDisplay: true,
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+          }, 'google_translate_element');
+          /* Auto-click the detected language after widget loads */
+          setTimeout(function(){
+            var sel = document.querySelector('.goog-te-combo');
+            if (sel) { sel.value = lang; sel.dispatchEvent(new Event('change')); }
+          }, 1200);
+        };
+      }
+    })();
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #D4AF37;
+      --gold-light: #f5e070;
+      --gold-dim: rgba(212,175,55,0.18);
+      --bg: #060503;
+      --surface: rgba(255,255,255,0.035);
+      --surface-hover: rgba(212,175,55,0.07);
+      --border: rgba(212,175,55,0.18);
+      --border-hover: rgba(212,175,55,0.5);
+      --text: #f5f0e8;
+      --sub: rgba(245,240,232,0.42);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cinzel', Georgia, serif;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 56px 20px 120px;
+      padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+      position: relative;
+      overflow-x: hidden;
+    }
+
+
+    /* ── Video background ── */
+    #bg-wrap {
+      position: fixed; inset: 0;
+      z-index: 1; pointer-events: none;
+      overflow: hidden;
+      background: #060503;
+    }
+    #bg-video {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(1.06);
+      width: 100%; height: 100%;
+      min-width: 100%; min-height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 2.4s cubic-bezier(0.4,0,0.2,1),
+                  transform 2.4s cubic-bezier(0.4,0,0.2,1);
+      will-change: opacity, transform;
+    }
+    #bg-video::-webkit-media-controls,
+    #bg-video::-webkit-media-controls-panel,
+    #bg-video::-webkit-media-controls-play-button,
+    #bg-video::-webkit-media-controls-start-playback-button,
+    #bg-video::-webkit-media-controls-overlay-play-button {
+      display: none !important;
+      -webkit-appearance: none;
+      opacity: 0 !important;
+    }
+    /* Transparent blocker sits over the video only, eats touch events before reaching video */
+    #bg-touch-block {
+      position: fixed; inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: transparent;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #bg-video.visible {
+      opacity: 0.42;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    #bg-video.loop-fade {
+      opacity: 0 !important;
+      transform: translate(-50%, -50%) scale(1.04);
+      transition: opacity 1.2s ease-in,
+                  transform 1.2s ease-in;
+    }
+    #bg-overlay {
+      position: fixed; inset: 0; z-index: 3;
+      pointer-events: none;
+      background: rgba(4,3,2,0.55);
+    }
+
+    /* ── Layered ambient gradients ── */
+    .bg-glow {
+      position: fixed; inset: 0; pointer-events: none; z-index: 4;
+      background:
+        radial-gradient(ellipse 90% 50% at 50% -8%, rgba(212,175,55,0.12) 0%, transparent 65%),
+        radial-gradient(ellipse 70% 45% at 50% 110%, rgba(212,175,55,0.07) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 30% at 10% 50%, rgba(212,175,55,0.03) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 90% 50%, rgba(212,175,55,0.03) 0%, transparent 60%);
+    }
+
+    /* ── Page wrapper ── */
+    .page {
+      position: relative; z-index: 10;
+      width: 100%; max-width: 420px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1);
+    }
+    .page.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Hero / Logo ── */
+    .hero {
+      display: flex; flex-direction: column; align-items: center;
+      margin-bottom: 36px;
+      position: relative;
+    }
+
+    /* Outer ring glow behind logo */
+    .hero__ring {
+      position: absolute;
+      width: 320px; height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.6);
+      opacity: 0;
+      transition: opacity 1.2s ease, transform 1.4s cubic-bezier(0.22,1,0.36,1);
+    }
+    .hero__ring.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+    /* Thin ornamental line under logo */
+    .hero__line {
+      width: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin-top: 18px;
+      transition: width 1s cubic-bezier(0.22,1,0.36,1) 0.5s;
+    }
+    .hero__line.visible { width: 200px; }
+
+    .hero__tagline {
+      font-size: 9px; letter-spacing: 5px; text-transform: uppercase;
+      color: var(--sub); margin-top: 12px;
+      opacity: 0; transform: translateY(6px);
+      transition: opacity 0.8s ease 0.7s, transform 0.8s ease 0.7s;
+    }
+    .hero__tagline.visible { opacity: 1; transform: translateY(0); }
+
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0px) rotate(-0.3deg); }
+      50%       { transform: translateY(-7px) rotate(0.3deg); }
+    }
+    @keyframes logoGlow {
+      0%, 100% { filter: drop-shadow(0 0 14px rgba(212,175,55,0.28)) drop-shadow(0 0 28px rgba(212,175,55,0.12)); }
+      50%       { filter: drop-shadow(0 0 26px rgba(212,175,55,0.65)) drop-shadow(0 0 52px rgba(212,175,55,0.30)); }
+    }
+    .logo__img {
+      display: block;
+      animation: logoFloat 4s ease-in-out infinite, logoGlow 4s ease-in-out infinite;
+      will-change: transform, filter;
+      position: relative; z-index: 1;
+    }
+
+    /* ── Section label ── */
+    .divider {
+      display: flex; align-items: center; gap: 14px;
+      margin: 10px 0;
+      color: var(--sub);
+      font-size: 8.5px; letter-spacing: 3.5px; text-transform: uppercase;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(212,175,55,0.22), transparent);
+    }
+
+    /* ── Options list ── */
+    .options { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+
+    /* Grid row: 2 columns */
+    .grid-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    /* ── Button ── */
+    .btn {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px;
+      padding: 20px 10px 18px;
+      aspect-ratio: 1 / 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      text-decoration: none; color: var(--text);
+      position: relative; overflow: hidden;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      -webkit-tap-highlight-color: transparent;
+      cursor: pointer;
+      text-align: center;
+
+      opacity: 0;
+      transform: translateY(18px) scale(0.95);
+      transition:
+        opacity 0.55s cubic-bezier(0.22,1,0.36,1),
+        transform 0.55s cubic-bezier(0.22,1,0.36,1),
+        background 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+    }
+    .btn.visible { opacity: 1; transform: translateY(0) scale(1); }
+
+    /* Top shimmer line */
+    .btn::before {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(105deg,
+        transparent 40%,
+        rgba(212,175,55,0.07) 50%,
+        rgba(245,224,112,0.10) 52%,
+        transparent 60%);
+      transition: left 0.6s cubic-bezier(0.22,1,0.36,1);
+      pointer-events: none;
+    }
+
+    /* Top border glow */
+    .btn::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(212,175,55,0.45), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .btn:hover::before { left: 100%; }
+    .btn:hover::after  { opacity: 1; }
+    .btn:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-hover);
+      box-shadow:
+        0 8px 32px rgba(212,175,55,0.13),
+        0 2px 8px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(212,175,55,0.08);
+      transform: translateY(-4px) scale(1.03) !important;
+    }
+    .btn:active {
+      transform: translateY(-1px) scale(0.98) !important;
+      transition-duration: 0.08s;
+    }
+
+    /* ── Icon ── */
+    .btn__icon {
+      width: 56px; height: 56px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; overflow: hidden;
+      position: relative;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+    }
+    .btn:hover .btn__icon {
+      transform: scale(1.10) rotate(-2deg);
+    }
+
+    .btn__icon--gold   { background: linear-gradient(145deg, #9a7520, var(--gold), var(--gold-light)); box-shadow: 0 3px 14px rgba(212,175,55,0.35); }
+    .btn__icon--green  { background: linear-gradient(145deg, #1a5c28, #25a040); box-shadow: 0 3px 14px rgba(37,160,64,0.25); }
+    .btn__icon--blue   { background: linear-gradient(145deg, #0a4f8a, #1a7fd4); box-shadow: 0 3px 14px rgba(26,127,212,0.25); }
+    .btn__icon--purple { background: linear-gradient(145deg, #4a1890, #8b3edb); box-shadow: 0 3px 14px rgba(139,62,219,0.25); }
+    .btn__icon--wa     { background: linear-gradient(145deg, #128c3e, #25D366); box-shadow: 0 3px 14px rgba(37,211,102,0.25); }
+    .btn__icon--fb     { background: linear-gradient(145deg, #1058a8, #1877F2); box-shadow: 0 3px 14px rgba(24,119,242,0.28); }
+    .btn__icon--ig     { background: linear-gradient(145deg, #6a1090, #c13584, #fd1d1d, #fcb045); box-shadow: 0 3px 14px rgba(253,29,29,0.25); }
+    .btn__icon--tt     { background: linear-gradient(145deg, #010101, #1a1a2e); box-shadow: 0 3px 14px rgba(105,201,208,0.22); }
+
+    /* ── Text ── */
+    .btn__text { width: 100%; min-width: 0; }
+    .btn__label {
+      font-size: 10.5px; font-weight: 600; letter-spacing: 1.4px;
+      text-transform: uppercase;
+      transition: color 0.25s ease;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .btn:hover .btn__label { color: var(--gold-light); }
+    .btn__sub {
+      font-size: 8.5px; color: var(--sub);
+      margin-top: 3px; letter-spacing: 0.6px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      transition: color 0.25s ease;
+    }
+    .btn:hover .btn__sub { color: rgba(245,224,112,0.55); }
+
+    /* ── Arrow hidden in card mode ── */
+    .btn__arrow { display: none; }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 44px; text-align: center;
+      color: var(--sub); font-size: 8.5px; letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.8s ease 1.4s;
+    }
+    footer.visible { opacity: 1; }
+    footer span { color: var(--gold); }
+
+    /* ── Ornamental diamonds ── */
+    .orn {
+      display: inline-block;
+      width: 4px; height: 4px;
+      background: var(--gold);
+      transform: rotate(45deg);
+      margin: 0 8px;
+      opacity: 0.5;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.2); border-radius: 2px; }
+
+    /* ── Splash screen — intro video (app splash, one pass) ── */
+    .cruise-splash{
+      position:fixed; inset:0;
+      display:none; align-items:center; justify-content:center;
+      background:#000000;
+      z-index:2147483647;
+      opacity:1;
+      transition:opacity .8s ease-in;
+    }
+    .cruise-splash.show{ display:flex; }
+    .cruise-splash.fade-out{ opacity:0; pointer-events:none; }
+    .cruise-logo-container{
+      width:100%; height:100%;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .cruise-splash-video{
+      width:100%; height:100%;
+      object-fit:contain;
+      pointer-events:none;
+    }
+    .cruise-splash::before{
+      content:''; position:absolute; inset:0;
+      background:
+        radial-gradient(ellipse at 30% 70%,rgba(232,197,71,0.08) 0%,transparent 40%),
+        radial-gradient(ellipse at 70% 30%,rgba(232,197,71,0.06) 0%,transparent 40%);
+      pointer-events:none;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 380px) {
+      .btn { padding: 13px 13px; gap: 12px; }
+      .btn__icon { width: 44px; height: 44px; }
+      .btn__label { font-size: 11.5px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Google Translate widget (hidden, used programmatically) -->
+  <div id="google_translate_element" style="display:none;"></div>
+
+  <!-- Splash screen -->
+  <div class="cruise-splash" id="cruiseSplash">
+    <div class="cruise-logo-container">
+      <video class="cruise-splash-video" id="splashVideo" autoplay muted playsinline webkit-playsinline preload="auto" disablePictureInPicture controlsList="nodownload nofullscreen noremoteplayback" poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+        <source src="splash_intro.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+
+  <!-- Background video injected by JS to prevent native play button flash -->
+  <div id="bg-wrap"></div>
+  <!-- Touch blocker: prevents tap from triggering native video controls -->
+  <div id="bg-touch-block" aria-hidden="true"></div>
+  <div id="bg-overlay"></div>
+
+  <!-- Ambient glow -->
+  <div class="bg-glow"></div>
+
+  <div class="page" id="page">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero__ring" id="heroRing"></div>
+      <img src="cruise-logo.png" alt="CRUISE" class="logo__img" style="width:320px; max-width:88vw; height:auto;">
+      <div class="hero__line" id="heroLine"></div>
+      <div class="hero__tagline" id="heroTagline">Premium Ride Service</div>
+    </div>
+
+    <div class="options" id="options">
+
+      <!-- Row 1: Website + Request Ride -->
+      <div class="grid-row">
+        <a href="https://cruiseinride.com/" class="btn">
+          <div class="btn__icon btn__icon--gold">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0a0804" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="btn__text">
+            <div class="btn__label">Website</div>
+            <div class="btn__sub">Book a ride</div>
+          </div>
+        </a>
+        <a href="https://cruiseinride.com/en/book" class="btn">
+          <div class="btn__icon" style="border-radius:16px; overflow:hidden; width:56px; height:56px;">
+            <img src="logo-carrito.png" width="56" height="56" style="display:block; object-fit:cover;" alt="Ride">
+          </div>
+          <div class="btn__text">
+            <div class="btn__label">Ride</div>
+            <div class="btn__sub">VIP service</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="divider"><span class="orn"></span>Apps<span class="orn"></span></div>
+
+      <!-- Row 2: Google Play + App Store -->
+      <div class="grid-row">
+        <a href="https://play.google.com/store/apps/details?id=com.cruiseinride.app" target="_blank" rel="noopener" class="btn">
+          <div class="btn__icon" style="border-radius:16px; overflow:hidden; width:56px; height:56px;">
+            <img src="google-play.png" width="56" height="56" style="display:block; object-fit:cover;" alt="Google Play">
+          </div>
+          <div class="btn__text">
+            <div class="btn__label">Google Play</div>
+            <div class="btn__sub">Android</div>
+          </div>
+        </a>
+        <a href="https://apps.apple.com/us/app/cruise-in-ride/id6760517086" target="_blank" rel="noopener" class="btn">
+          <div class="btn__icon" style="border-radius:16px; background:#000; width:56px; height:56px; display:flex; align-items:center; justify-content:center;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83z"/>
+              <path d="M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+            </svg>
+          </div>
+          <div class="btn__text">
+            <div class="btn__label">App Store</div>
+            <div class="btn__sub">iPhone</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="divider"><span class="orn"></span>Contact &amp; Social Media<span class="orn"></span></div>
+
+      <!-- Row 1: WhatsApp + Facebook -->
+      <div class="grid-row">
+        <a href="https://api.whatsapp.com/send?phone=16593052974" class="btn">
+          <div class="btn__icon btn__icon--wa" style="padding:10px; width:56px; height:56px;">
+            <svg width="34" height="34" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </div>
+          <div class="btn__text">
+            <div class="btn__label">WhatsApp</div>
+            <div class="btn__sub">+1 (659) 305-2974</div>
+          </div>
+        </a>
+        <a href="https://www.facebook.com/cruiseinride/" target="_blank" rel="noopener" class="btn">
+          <div class="btn__icon btn__icon--fb">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.883v2.27h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+          </div>
+          <div class="btn__text">
+            <div class="btn__label">Facebook</div>
+            <div class="btn__sub">@cruiseinride</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Row 2: Instagram + TikTok -->
+      <div class="grid-row">
+        <a href="https://www.instagram.com/cruiseinride" target="_blank" rel="noopener" class="btn">
+          <div class="btn__icon btn__icon--ig">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </div>
+          <div class="btn__text">
+            <div class="btn__label">Instagram</div>
+            <div class="btn__sub">@cruiseinride</div>
+          </div>
+        </a>
+        <a href="https://www.tiktok.com/@cruiseinride?_r=1&_t=ZP-94UNsdYgvPy" target="_blank" rel="noopener" class="btn">
+          <div class="btn__icon btn__icon--tt">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/></svg>
+          </div>
+          <div class="btn__text">
+            <div class="btn__label">TikTok</div>
+            <div class="btn__sub">@cruiseinride</div>
+          </div>
+        </a>
+      </div>
+
+    </div>
+
+    <footer id="footer">
+      <span class="orn"></span>
+      &copy; 2026 <span>CRUISE</span> &nbsp;&middot;&nbsp; Premium Ride Service
+      <span class="orn"></span>
+    </footer>
+
+  </div>
+
+  <script>
+    /* ── Background video — injected by JS, never in HTML ── */
+    (function () {
+      var wrap = document.getElementById('bg-wrap');
+      if (!wrap) return;
+
+      /* Create video element entirely in JS — browser never sees it during HTML parse,
+         so the native play-button overlay never appears */
+      var v = document.createElement('video');
+      v.id            = 'bg-video';
+      v.muted         = true;
+      v.volume        = 0;
+      v.playsInline   = true;
+      v.setAttribute('webkit-playsinline', '');
+      v.setAttribute('disablePictureInPicture', '');
+      v.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
+      v.setAttribute('poster', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+      v.preload       = 'auto';
+      if ('disableRemotePlayback' in v) v.disableRemotePlayback = true;
+      /* No loop attr — handled manually for crossfade */
+
+      /* Append before setting src so no premature load */
+      wrap.appendChild(v);
+      v.src = 'miami.mp4';
+
+      /* Fade in once playing */
+      function showVideo() { v.classList.add('visible'); }
+      v.addEventListener('canplaythrough', showVideo, { once: true });
+      v.addEventListener('playing',        showVideo, { once: true });
+
+      /* Crossfade on loop */
+      v.addEventListener('timeupdate', function () {
+        if (v.duration && v.currentTime >= v.duration - 1.4 && !v._fading) {
+          v._fading = true;
+          v.classList.add('loop-fade');
+          setTimeout(function () {
+            v.currentTime = 0;
+            v.classList.remove('loop-fade');
+            void v.offsetWidth;
+            v.classList.add('visible');
+            v._fading = false;
+          }, 1250);
+        }
+      });
+
+      /* Force play — also on first user interaction as fallback */
+      var tryPlay = function () { v.play().catch(function(){}); };
+      tryPlay();
+      document.addEventListener('click',      tryPlay, { once: true });
+      document.addEventListener('touchstart', tryPlay, { once: true, passive: true });
+      document.addEventListener('keydown',    tryPlay, { once: true });
+    })();
+
+    /* ──────────────────────────────────────────
+       PAGE REVEAL — runs once the splash lets go
+    ────────────────────────────────────────── */
+    var revealPage = (function () {
+      var done = false;
+      return function () {
+        if (done) return; done = true;
+
+        var splash = document.getElementById('cruiseSplash');
+        splash.classList.add('fade-out');
+        setTimeout(function () {
+          splash.classList.remove('show');
+          document.body.classList.remove('cruise-splash-active');
+        }, 850);
+
+        const page     = document.getElementById('page');
+        const heroRing = document.getElementById('heroRing');
+        const heroLine = document.getElementById('heroLine');
+        const heroTag  = document.getElementById('heroTagline');
+        const footer   = document.getElementById('footer');
+        const btns     = document.querySelectorAll('#options .btn');
+
+        setTimeout(() => { page.classList.add('visible'); heroRing.classList.add('visible'); }, 400);
+        setTimeout(() => { heroLine.classList.add('visible'); heroTag.classList.add('visible'); }, 550);
+        btns.forEach((btn, i) => setTimeout(() => btn.classList.add('visible'), 700 + i * 80));
+        setTimeout(() => footer.classList.add('visible'), 700 + btns.length * 80 + 200);
+      };
+    })();
+
+    /* ──────────────────────────────────────────
+       SPLASH SCREEN — intro video, one pass
+    ────────────────────────────────────────── */
+    (function(){
+      var splash = document.getElementById('cruiseSplash');
+      var v = document.getElementById('splashVideo');
+      splash.classList.add('show');
+      document.body.classList.add('cruise-splash-active');
+
+      /* Fade out 1 s before the clip ends so the cut never shows;
+         'ended'/error are backstops, 7.5 s is the hard cap */
+      var fallback = setTimeout(revealPage, 7500);
+      v.addEventListener('timeupdate', function(){
+        if (v.duration && v.currentTime >= v.duration - 1.0) { clearTimeout(fallback); revealPage(); }
+      });
+      v.addEventListener('ended', function(){ clearTimeout(fallback); revealPage(); });
+      v.addEventListener('error', function(){ clearTimeout(fallback); revealPage(); });
+
+      var tryPlay = function(){ v.play().catch(function(){}); };
+      tryPlay();
+      document.addEventListener('touchstart', tryPlay, { once: true, passive: true });
+      document.addEventListener('click',      tryPlay, { once: true });
+    })();
+
+    /* ──────────────────────────────────────────
+       RIPPLE effect on tap/click
+    ────────────────────────────────────────── */
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('pointerdown', function (e) {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const ripple = document.createElement('span');
+        const size = Math.max(rect.width, rect.height) * 1.8;
+        ripple.style.cssText = `
+          position:absolute;
+          width:${size}px; height:${size}px;
+          left:${x - size/2}px; top:${y - size/2}px;
+          border-radius:50%;
+          background:rgba(212,175,55,0.12);
+          transform:scale(0);
+          animation:rippleAnim 0.55s cubic-bezier(0.22,1,0.36,1) forwards;
+          pointer-events:none;
+        `;
+        btn.appendChild(ripple);
+        ripple.addEventListener('animationend', () => ripple.remove());
+      });
+    });
+  </script>
+
+  <style>
+    @keyframes rippleAnim {
+      to { transform: scale(1); opacity: 0; }
+    }
+  </style>
+
+</body>
+</html>
