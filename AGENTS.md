@@ -24,6 +24,7 @@
 - `auth.html` (2,058 l) — login/registro contra Railway directo: `/auth/web/social|check-exists|send-otp|verify-otp|login|complete-login|register|photo|me|trips|profile`. Guarda `vr_at` (token) y `vr_au` (user) en localStorage.
 - `account.html` + `assets/account.js` — cuenta; **escudo anti-copia/zoom/DevTools (pedido del dueño 2026-08-14 — no quitar)**.
 - `profile.html`, `wallet.html` (Cruise Cash), `contact.html` (FAQ + WhatsApp), `store.html` + `assets/store.*` (solo drivers, gate `assets/nav-role.js` → `/auth/web/me`), `delete-account.html`, `privacy.html`, `terms.html`, `404.html`.
+- `connect/` (index.html + assets propios, 2026-09-22) — página de enlaces (logo + botones Website/Ride/tiendas/social/WhatsApp) destino de los QR de tarjetas de negocio: `cruiseinride.vercel.app` → 307 → `/connect/` (redirect en vercel.json del proyecto Vercel "cruiseinride", fuente en `Desktop/cruise-landing`). Espejo de esa landing: si cambia, copiar aquí. EXENTA de la regla ES/EN: página única con Google Translate auto. **NO borrar ni renombrar: los QR impresos dependen de esta ruta.**
 - **Basura histórica (no tocar ni referenciar):** `classic.html.bak`, `fragments/`, `theme_export__…/`.
 
 ## 🗺️ Mapa de `book.html` por rangos (revisión 2026-08-23)
