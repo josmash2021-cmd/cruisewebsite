@@ -311,6 +311,16 @@
   .cruise-auth__agree.is-checked .cruise-auth__agree-box{border-color:#d4af37;background:#d4af37;}
   .cruise-auth__agree.is-checked .cruise-auth__agree-box svg{opacity:1;color:#241c05;}
 
+  /* casilla de términos compacta (crear contraseña) — misma mecánica del
+     botón __agree pero en fila discreta, texto legal pequeño */
+  .cruise-auth__check{display:flex;align-items:flex-start;gap:10px;width:100%;margin:10px 0 16px;cursor:pointer;}
+  .cruise-auth__check-box{flex:0 0 auto;width:20px;height:20px;margin-top:1px;border-radius:6px;border:1.6px solid rgba(255,255,255,.4);background:transparent;display:flex;align-items:center;justify-content:center;color:#241c05;cursor:pointer;padding:0;transition:border-color 180ms,background 180ms;}
+  .cruise-auth__check-box svg{opacity:0;transition:opacity 160ms;}
+  .cruise-auth__check-box.is-checked{border-color:#d4af37;background:#d4af37;}
+  .cruise-auth__check-box.is-checked svg{opacity:1;}
+  .cruise-auth__check-text{font-size:12.5px;font-weight:500;line-height:1.5;color:var(--ca-muted);}
+  .cruise-auth__check-text a{color:#f5d77a;text-decoration:underline;}
+
   /* tarjetas de elección (método de autenticación) */
   .cruise-auth__choice{display:block;width:100%;text-align:left;margin-top:14px;padding:18px 20px;background:#262b35;border:none;border-radius:18px;font-family:inherit;color:#eceef2;cursor:pointer;box-shadow:inset 1px 1px 3px rgba(255,255,255,.09),inset -4px -4px 8px rgba(0,0,0,.35);transition:box-shadow 200ms;}
   .cruise-auth__choice.is-selected{box-shadow:inset 0 0 0 2px #d4af37,inset -4px -4px 8px rgba(0,0,0,.35);}
@@ -632,8 +642,20 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
+        <div class="cruise-auth__input cruise-auth__input--password">
+          <input type="password" data-ca-sp-confirm placeholder="Confirma tu contraseña" autocomplete="new-password">
+          <button type="button" class="cruise-auth__eye" data-ca-sp-eye2 aria-label="Mostrar contraseña">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
         <div class="cruise-auth__err" data-ca-sp-err></div>
         <p class="cruise-auth__heading-tip">Mínimo 8 caracteres, con un número, una mayúscula y un símbolo.</p>
+        <div class="cruise-auth__check">
+          <button type="button" class="cruise-auth__check-box" data-ca-sp-terms aria-pressed="false" aria-label="Aceptar términos">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </button>
+          <span class="cruise-auth__check-text">Acepto los <a href="/terms" target="_blank" rel="noopener">Términos de servicio</a> y la <a href="/privacy" target="_blank" rel="noopener">Política de privacidad</a> de CruiseInRide.</span>
+        </div>
         <div class="cruise-auth__nav-btns">
           <button type="button" class="cruise-auth__nav-btn cruise-auth__nav-btn--back" data-ca-sp-back2 aria-label="Volver">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -1437,15 +1459,28 @@
 
   /* Crear contraseña (cuentas creadas en la app: nunca tuvieron una) */
   var spInput=$('[data-ca-sp-input]');
+  var spConfirm=$('[data-ca-sp-confirm]');
   var spEye=$('[data-ca-sp-eye]');
+  var spEye2=$('[data-ca-sp-eye2]');
   var spErr=$('[data-ca-sp-err]');
   var spBack=$('[data-ca-sp-back]');
   var spBack2=$('[data-ca-sp-back2]');
   var spNext=$('[data-ca-sp-next]');
+  var spTerms=$('[data-ca-sp-terms]');
+  var _spTermsOk=false;
 
+  function _spCheckNext(){
+    if(spNext) spNext.disabled=!(spInput&&spInput.value&&spConfirm&&spConfirm.value&&_spTermsOk);
+  }
+  function _spSetTerms(v){
+    _spTermsOk=v;
+    if(spTerms){spTerms.classList.toggle('is-checked',v);spTerms.setAttribute('aria-pressed',v?'true':'false');}
+    _spCheckNext();
+  }
   function _goSetPassword(){
     if(spInput) spInput.value='';
-    if(spNext) spNext.disabled=true;
+    if(spConfirm) spConfirm.value='';
+    _spSetTerms(false);
     if(spErr){spErr.textContent='';spErr.classList.remove('is-visible');}
     _go('setpassword');
   }
@@ -1458,12 +1493,24 @@
   }
 
   if(spInput && spNext){
-    spInput.addEventListener('input',function(){spNext.disabled=!spInput.value;});
+    spInput.addEventListener('input',_spCheckNext);
+    if(spConfirm) spConfirm.addEventListener('input',_spCheckNext);
+    if(spTerms){
+      var spRow=spTerms.closest('.cruise-auth__check');
+      if(spRow) spRow.addEventListener('click',function(e){
+        if(e.target.closest('a')) return; /* los enlaces abren términos/privacidad */
+        _spSetTerms(!_spTermsOk);
+      });
+    }
     spNext.addEventListener('click',function(){
       var pw=spInput.value||'';
       var ok=pw.length>=8&&/[0-9]/.test(pw)&&/[A-Z]/.test(pw)&&/[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\/~`]/.test(pw);
       if(!ok){
         if(spErr){spErr.textContent='Mínimo 8 caracteres, con un número, una mayúscula y un símbolo.';spErr.classList.add('is-visible');}
+        return;
+      }
+      if(spConfirm&&pw!==spConfirm.value){
+        if(spErr){spErr.textContent='Las contraseñas no coinciden.';spErr.classList.add('is-visible');}
         return;
       }
       spNext.disabled=true;
@@ -1484,6 +1531,13 @@
       var isPw=spInput.type==='password';
       spInput.type=isPw?'text':'password';
       spEye.setAttribute('aria-label',isPw?'Ocultar contraseña':'Mostrar contraseña');
+    });
+  }
+  if(spEye2 && spConfirm){
+    spEye2.addEventListener('click',function(){
+      var isPw=spConfirm.type==='password';
+      spConfirm.type=isPw?'text':'password';
+      spEye2.setAttribute('aria-label',isPw?'Ocultar contraseña':'Mostrar contraseña');
     });
   }
   if(spBack) spBack.addEventListener('click',function(){_go('identifier');});
