@@ -120,6 +120,18 @@
   .cruise-auth__input-ico{color:var(--ca-muted);flex-shrink:0;}
   .cruise-auth__input input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-family:inherit;font-size:16px;font-weight:500;min-width:0;padding:0;-webkit-text-size-adjust:100%;}
   .cruise-auth__input input::placeholder{color:rgba(255,255,255,.4);}
+  /* autofill de iOS/Chrome pinta el input de blanco sobre la caja oscura —
+     se repinta del color de la caja y el texto/cursor quedan blancos */
+  .cruise-auth__input input:-webkit-autofill,
+  .cruise-auth__input input:-webkit-autofill:hover,
+  .cruise-auth__input input:-webkit-autofill:focus{
+    -webkit-text-fill-color:#fff;
+    caret-color:#fff;
+    -webkit-box-shadow:0 0 0 1000px #17191f inset;
+    box-shadow:0 0 0 1000px #17191f inset;
+    border-radius:14px;
+    transition:background-color 999999s linear;
+  }
   @supports (-webkit-touch-callout:none){.cruise-auth__input input{font-size:16px!important;}}
   .cruise-auth__err{min-height:18px;margin:4px 4px 8px;font-size:12px;font-weight:600;color:#ff6b6b;opacity:0;transition:opacity 220ms;}
   .cruise-auth__err.is-visible{opacity:1;}
