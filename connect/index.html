@@ -388,61 +388,11 @@
       pointer-events:none;
     }
 
-    /* ── App showcase — carrusel de screenshots ── */
-    .showcase {
-      width: 100%;
-      margin-top: 4px;
-      opacity: 0;
-      transform: translateY(18px);
-      transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.22,1,0.36,1);
-    }
-    .showcase.visible { opacity: 1; transform: translateY(0); }
-    .showcase__track {
-      display: flex; gap: 12px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      padding: 4px 2px 12px;
-      scrollbar-width: none;
-    }
-    .showcase__track::-webkit-scrollbar { display: none; }
-    .shot {
-      flex: 0 0 auto;
-      width: 152px;
-      scroll-snap-align: center;
-      border-radius: 24px;
-      overflow: hidden;
-      border: 1px solid rgba(212,175,55,0.35);
-      box-shadow:
-        0 14px 34px rgba(0,0,0,0.55),
-        0 0 0 4px rgba(212,175,55,0.05),
-        0 0 22px rgba(212,175,55,0.08);
-      background: #0a0a0e;
-    }
-    .shot img { display: block; width: 100%; height: auto; }
-    .showcase__dots {
-      display: flex; justify-content: center; gap: 8px;
-      margin-top: 2px;
-    }
-    .showcase__dot {
-      width: 5px; height: 5px; border-radius: 50%;
-      background: rgba(212,175,55,0.22);
-      border: none; padding: 0; cursor: pointer;
-      transition: width 0.3s ease, background 0.3s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .showcase__dot.active {
-      width: 16px; border-radius: 3px;
-      background: var(--gold);
-      box-shadow: 0 0 8px rgba(212,175,55,0.5);
-    }
-
     /* ── Responsive ── */
     @media (max-width: 380px) {
       .btn { padding: 13px 13px; gap: 12px; }
       .btn__icon { width: 44px; height: 44px; }
       .btn__label { font-size: 11.5px; }
-      .shot { width: 138px; }
     }
   </style>
 </head>
@@ -527,19 +477,6 @@
             <div class="btn__sub">iPhone</div>
           </div>
         </a>
-      </div>
-
-      <div class="divider"><span class="orn"></span>Inside the App<span class="orn"></span></div>
-
-      <!-- App showcase: screenshots reales de la app (swipe / auto-scroll) -->
-      <div class="showcase" id="showcase">
-        <div class="showcase__track" id="showcaseTrack">
-          <div class="shot"><img src="app-home.png" alt="Cruise app – home" loading="lazy"></div>
-          <div class="shot"><img src="app-request.png" alt="Cruise app – choose your ride" loading="lazy"></div>
-          <div class="shot"><img src="app-tracking.png" alt="Cruise app – live driver tracking" loading="lazy"></div>
-          <div class="shot"><img src="app-driver.png" alt="Cruise app – driver mode" loading="lazy"></div>
-        </div>
-        <div class="showcase__dots" id="showcaseDots"></div>
       </div>
 
       <div class="divider"><span class="orn"></span>Contact &amp; Social Media<span class="orn"></span></div>
@@ -671,13 +608,11 @@
         const heroLine = document.getElementById('heroLine');
         const heroTag  = document.getElementById('heroTagline');
         const footer   = document.getElementById('footer');
-        const showcase = document.getElementById('showcase');
         const btns     = document.querySelectorAll('#options .btn');
 
         setTimeout(() => { page.classList.add('visible'); heroRing.classList.add('visible'); }, 400);
         setTimeout(() => { heroLine.classList.add('visible'); heroTag.classList.add('visible'); }, 550);
         btns.forEach((btn, i) => setTimeout(() => btn.classList.add('visible'), 700 + i * 80));
-        setTimeout(() => showcase.classList.add('visible'), 700 + btns.length * 80 + 60);
         setTimeout(() => footer.classList.add('visible'), 700 + btns.length * 80 + 200);
       };
     })();
@@ -704,63 +639,6 @@
       tryPlay();
       document.addEventListener('touchstart', tryPlay, { once: true, passive: true });
       document.addEventListener('click',      tryPlay, { once: true });
-    })();
-
-    /* ──────────────────────────────────────────
-       APP SHOWCASE — dots + auto-scroll con pausa al tocar
-    ────────────────────────────────────────── */
-    (function(){
-      var track = document.getElementById('showcaseTrack');
-      var dotsWrap = document.getElementById('showcaseDots');
-      if (!track || !dotsWrap) return;
-      var shots = track.querySelectorAll('.shot');
-      var idx = 0, pauseUntil = 0;
-
-      /* Construir dots */
-      for (var i = 0; i < shots.length; i++) {
-        var d = document.createElement('button');
-        d.className = 'showcase__dot' + (i === 0 ? ' active' : '');
-        d.setAttribute('aria-label', 'Screenshot ' + (i + 1));
-        (function(n){
-          d.addEventListener('click', function(){
-            pauseUntil = Date.now() + 8000;
-            goTo(n);
-          });
-        })(i);
-        dotsWrap.appendChild(d);
-      }
-      var dots = dotsWrap.querySelectorAll('.showcase__dot');
-
-      function step(){ return shots[0].offsetWidth + 12; } /* ancho card + gap */
-
-      function goTo(n){
-        idx = (n + shots.length) % shots.length;
-        track.scrollTo({ left: idx * step(), behavior: 'smooth' });
-        syncDots();
-      }
-
-      function syncDots(){
-        for (var j = 0; j < dots.length; j++)
-          dots[j].classList.toggle('active', j === idx);
-      }
-
-      /* Al hacer swipe manual, el dot sigue al scroll real */
-      track.addEventListener('scroll', function(){
-        var n = Math.round(track.scrollLeft / step());
-        if (n !== idx && n >= 0 && n < shots.length) { idx = n; syncDots(); }
-      }, { passive: true });
-
-      /* Pausar el auto-avance cuando el usuario interactúa */
-      ['pointerdown','touchstart'].forEach(function(ev){
-        track.addEventListener(ev, function(){ pauseUntil = Date.now() + 8000; }, { passive: true });
-      });
-
-      /* Auto-avance cada 4 s */
-      setInterval(function(){
-        if (Date.now() < pauseUntil) return;
-        if (!document.getElementById('showcase').classList.contains('visible')) return;
-        goTo(idx + 1);
-      }, 4000);
     })();
 
     /* ──────────────────────────────────────────
