@@ -332,6 +332,12 @@
   .cruise-auth__choice.is-selected .cruise-auth__radio{border-color:#d4af37;}
   .cruise-auth__choice.is-selected .cruise-auth__radio::after{opacity:1;}
 
+  .ca-role-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px;}
+  .ca-role-card{padding:22px 12px;background:#262b35;border:none;border-radius:18px;color:#eceef2;font-family:inherit;cursor:pointer;box-shadow:inset 1px 1px 3px rgba(255,255,255,.09),inset -4px -4px 8px rgba(0,0,0,.35);transition:box-shadow 200ms,transform 200ms;}
+  .ca-role-card:hover,.ca-role-card:focus-visible{box-shadow:inset 0 0 0 2px #d4af37,inset -4px -4px 8px rgba(0,0,0,.35);transform:translateY(-2px);outline:none;}
+  .ca-role-card svg{display:block;width:44px;height:44px;margin:0 auto 12px;color:#f5d77a;}
+  .ca-role-card strong{display:block;color:#fff;font-size:16px;}
+
   /* fila país + número */
   .cruise-auth__phone-row{display:flex;gap:10px;align-items:stretch;}
   .cruise-auth__phone-row .cruise-auth__input{flex:1;margin-bottom:0;}
@@ -600,6 +606,27 @@
       </div>
     </section>
 
+    <!-- ═══════════════════════════════════ ROLE (post-OTP) ═══════════════════════════════════ -->
+    <section class="cruise-auth__screen cruise-auth__form-screen" data-ca-screen="role">
+      <div class="cruise-auth__form-card">
+        <button type="button" class="cruise-auth__back" data-ca-role-back aria-label="Volver">
+          <svg width="16" height="12" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7H1M7 1L1 7l6 6"/></svg>
+        </button>
+        <h1 class="cruise-auth__heading" data-ca-role-title>Regístrate ahora</h1>
+        <p class="cruise-auth__heading-sub" data-ca-role-sub>Elige cómo quieres usar CruiseInRide.</p>
+        <div class="ca-role-grid">
+          <button type="button" class="ca-role-card" data-ca-role="rider">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+            <strong>Rider</strong>
+          </button>
+          <button type="button" class="ca-role-card" data-ca-role="driver">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.2"/><path d="M12 3v6.8M4.5 16.5l5.3-3.1M19.5 16.5l-5.3-3.1M9.8 13.8 7 21M14.2 13.8 17 21"/></svg>
+            <strong>Driver</strong>
+          </button>
+        </div>
+      </div>
+    </section>
+
     <!-- ═══════════════════════════════════ PASSWORD ═══════════════════════════════════ -->
     <section class="cruise-auth__screen cruise-auth__form-screen" data-ca-screen="password">
       <div class="cruise-auth__form-card">
@@ -680,6 +707,13 @@
         <label class="cruise-auth__label" for="caRegLn">Apellidos</label>
         <div class="cruise-auth__input">
           <input id="caRegLn" type="text" data-ca-reg-ln placeholder="Ingresa tus apellidos" autocomplete="family-name">
+        </div>
+        <div data-ca-reg-dob-wrap hidden>
+          <label class="cruise-auth__label" for="caRegDob">Fecha de nacimiento</label>
+          <div class="cruise-auth__input">
+            <input id="caRegDob" type="date" data-ca-reg-dob>
+          </div>
+          <p class="cruise-auth__hint">Debes tener al menos 25 años para registrarte como Driver.</p>
         </div>
         <label class="cruise-auth__label" for="caRegPw">Contraseña</label>
         <div class="cruise-auth__input cruise-auth__input--password">
@@ -943,9 +977,14 @@
   var APPLE_ID=root.getAttribute('data-apple-id')||'';
 
   var $=function(s,c){return (c||root).querySelector(s);};
-  /* La tienda manda drivers con ?role=driver: login/check-exists/social
-     corren con ese rol. El REGISTRO web sigue siendo de pasajeros. */
-  var ROLE=(new URLSearchParams(location.search).get('role')==='driver')?'driver':'rider';
+  var _params=new URLSearchParams(location.search);
+  var ROLE=(_params.get('role')==='driver')?'driver':'rider';
+  var FORCED_ROLE='';
+  if(['rider','driver'].indexOf(_params.get('register'))>=0) FORCED_ROLE=_params.get('register');
+  else if(['rider','driver'].indexOf(_params.get('role'))>=0) FORCED_ROLE=_params.get('role');
+  var _accounts=[];
+  var _switchIdentifier='';
+  try{_switchIdentifier=sessionStorage.getItem('ca_switch_identifier')||'';sessionStorage.removeItem('ca_switch_identifier');}catch(_){}
   var $$=function(s,c){return Array.from((c||root).querySelectorAll(s));};
 
   /* escapa texto antes de meterlo en innerHTML (datos del backend o del usuario) */
@@ -968,6 +1007,8 @@
      que además deja el header con "Iniciar sesión"): manda a la cuenta real. */
   function _toAccount(){try{_caClear();}catch(_){}
     var r='';try{r=_safeReturn(new URLSearchParams(location.search).get('return')||'');}catch(_){}
+    var u=_user()||{};
+    if(u.role==='driver'&&/(?:^|\/)book(?:\.html)?$/.test(r)) r='';
     location.replace(r||'account');}
 
   var toastEl=$('[data-ca-toast]'),toastT=null;
@@ -1085,6 +1126,10 @@
   var _otpToken='';
   var _otpMasked='';
   var _isExisting=false;
+  if(idInput&&_switchIdentifier){
+    idInput.value=_switchIdentifier;
+    try{idInput.dispatchEvent(new Event('input',{bubbles:true}));}catch(_){}
+  }
 
   function _isValidIdentifier(v){
     v=(v||'').trim();
@@ -1319,6 +1364,69 @@
     },1000);
   }
 
+  var _roleBusy=false;
+  function _roleAccount(role){
+    for(var i=0;i<_accounts.length;i++) if(_accounts[i].role===role) return _accounts[i];
+    return null;
+  }
+  function _syncRegisterRole(){
+    var wrap=$('[data-ca-reg-dob-wrap]');
+    if(wrap) wrap.hidden=ROLE!=='driver';
+  }
+  function _openRegister(role){
+    ROLE=role;
+    _syncRegisterRole();
+    _go('register');
+  }
+  function _loginWithOtp(role){
+    if(_roleBusy) return;
+    _roleBusy=true;
+    ROLE=role;
+    _fetch('/auth/web/otp-login',{method:'POST',body:{identifier:_identifier,otp_token:_otpToken,role:role}})
+      .then(function(d){
+        if(d&&d.access_token){_save(d.access_token,d.user);_toAccount();}
+        else throw new Error('No se recibió token');
+      })
+      .catch(function(e){
+        if(e&&(e.status===404||e.status===409)){_openRegister(role);return;}
+        _toast(e.message||'No se pudo iniciar sesión','err');
+      })
+      .then(function(){_roleBusy=false;});
+  }
+  function _showRoleChoice(registerOnly){
+    var title=$('[data-ca-role-title]');
+    var sub=$('[data-ca-role-sub]');
+    if(title) title.textContent=registerOnly?'Regístrate ahora':'Elige tu cuenta';
+    if(sub) sub.textContent=registerOnly?'Elige cómo quieres usar CruiseInRide.':'Este contacto tiene una cuenta Rider y una Driver. Elige con cuál quieres entrar.';
+    _go('role');
+  }
+  function _routeAfterOtp(){
+    if(FORCED_ROLE){
+      var forced=_roleAccount(FORCED_ROLE);
+      if(forced&&!forced.is_new_user) _loginWithOtp(FORCED_ROLE);
+      else _openRegister(FORCED_ROLE);
+      return;
+    }
+    if(!_accounts.length){_showRoleChoice(true);return;}
+    if(_accounts.length===1){
+      var account=_accounts[0];
+      if(account.is_new_user) _openRegister(account.role);
+      else _loginWithOtp(account.role);
+      return;
+    }
+    _showRoleChoice(false);
+  }
+  $$('[data-ca-role]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var role=btn.getAttribute('data-ca-role');
+      var account=_roleAccount(role);
+      if(account&&!account.is_new_user) _loginWithOtp(role);
+      else _openRegister(role);
+    });
+  });
+  var roleBack=$('[data-ca-role-back]');
+  if(roleBack) roleBack.addEventListener('click',function(){_go('otp');});
+
   function _handleOtpNext(){
     var v=_otpValue();
     if(!v.length){
@@ -1337,18 +1445,8 @@
       .then(function(d){
         if(d&&d.ok&&d.otp_token){
           _otpToken=d.otp_token;
-          _isExisting=_isExistingIdentifier(_identifier);
-          /* cuenta creada en la app (nunca tuvo contraseña): directo a crearla */
-          if(_isExisting&&d.password_set===false){_goSetPassword();return;}
-          if(_isExisting){
-            _updatePasswordTexts();
-            if(pwInput) pwInput.value='';
-            if(pwNext) pwNext.disabled=true;
-            if(pwErr){pwErr.textContent='';pwErr.classList.remove('is-visible');}
-            _go('password');
-          } else {
-            _go('register');
-          }
+          _accounts=Array.isArray(d.accounts)?d.accounts:[];
+          _routeAfterOtp();
         } else {
           if(otpErr){otpErr.textContent='Código incorrecto o expirado. Inténtalo de nuevo.';otpErr.classList.add('is-visible');}
         }
@@ -1547,6 +1645,7 @@
   var regFn=$('[data-ca-reg-fn]');
   var regLn=$('[data-ca-reg-ln]');
   var regPw=$('[data-ca-reg-pw]');
+  var regDob=$('[data-ca-reg-dob]');
   var regSubmit=$('[data-ca-reg-submit]');
   var regErr=$('[data-ca-reg-err]');
   var regBack=$('[data-ca-reg-back]');
@@ -1562,10 +1661,20 @@
   if(regFn) regFn.addEventListener('input',_checkReg);
   if(regLn) regLn.addEventListener('input',_checkReg);
   if(regPw) regPw.addEventListener('input',_checkReg);
+  if(regDob) regDob.addEventListener('input',_checkReg);
 
   function _regError(msg,el){
     if(regErr){regErr.textContent=msg;regErr.classList.add('is-visible');}
     if(el) el.focus();
+  }
+  function _driverDobValid(value){
+    if(!value) return false;
+    var dob=new Date(value+'T00:00:00');
+    if(isNaN(dob.getTime())) return false;
+    var now=new Date();
+    var age=now.getFullYear()-dob.getFullYear();
+    if(now.getMonth()<dob.getMonth()||(now.getMonth()===dob.getMonth()&&now.getDate()<dob.getDate())) age--;
+    return age>=25;
   }
 
   /* "Siguiente" del nombre: valida y pasa a Términos (la cuenta se crea al final) */
@@ -1573,6 +1682,7 @@
     regSubmit.addEventListener('click',function(){
       if(!regFn.value.trim()) return _regError('Este campo es obligatorio',regFn);
       if(!regLn.value.trim()) return _regError('Este campo es obligatorio',regLn);
+      if(ROLE==='driver'&&!_driverDobValid(regDob?regDob.value:'')) return _regError('Debes tener al menos 25 años para registrarte como Driver.',regDob);
       if(regPw.value.length<6) return _regError('La contraseña debe tener al menos 6 caracteres',regPw);
       if(regErr){regErr.textContent='';regErr.classList.remove('is-visible');}
       _updateTermsTexts();
@@ -1687,7 +1797,8 @@
 
   /* Crea la cuenta con todo lo recogido en el asistente */
   function _doRegister(extraPhone){
-    var body={first_name:regFn.value.trim(),last_name:regLn.value.trim(),password:regPw.value,role:'rider'};
+    var body={first_name:regFn.value.trim(),last_name:regLn.value.trim(),password:regPw.value,role:ROLE,otp_token:_otpToken};
+    if(ROLE==='driver'&&regDob) body.date_of_birth=regDob.value;
     if(_idType==='email'){body.email=_identifier;if(extraPhone) body.phone=extraPhone;}
     else body.phone=_identifier;
     var errBox=extraPhone?phErr:(_currentScreen==='security'?secErr:regErr);
@@ -1990,7 +2101,7 @@
   function _caSave(){try{
     sessionStorage.setItem(_CA_ST,JSON.stringify({s:_currentScreen,id:_identifier,it:_idType,
       iv:idInput?idInput.value:'',fn:regFn?regFn.value:'',ln:regLn?regLn.value:'',
-      sm:_secMethod,ex:_existsKnown,nm:_accountName,ts:Date.now()}));
+      sm:_secMethod,ex:_existsKnown,nm:_accountName,rl:ROLE,ts:Date.now()}));
   }catch(_){}}
   function _caClear(){try{sessionStorage.removeItem(_CA_ST);}catch(_){}}
   var _goBase=_go;
@@ -2006,6 +2117,7 @@
     if(st.id){_identifier=st.id;_idType=st.it||_getIdType(st.id);}
     if(typeof st.ex==='boolean')_existsKnown=st.ex;
     if(st.nm)_accountName=st.nm;
+    if(st.rl){ROLE=st.rl;_syncRegisterRole();}
     if(st.sm){_secMethod=st.sm;secOpts.forEach(function(x){x.classList.toggle('is-selected',x.getAttribute('data-ca-sec-opt')===_secMethod);});}
     var safe={register:1,terms:1,security:1,phone:1};
     if(safe[st.s]&&st.id)_go(st.s);

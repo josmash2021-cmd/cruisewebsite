@@ -154,11 +154,23 @@
           <button type="button" class="acc-tile" data-acc-go="sec"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 2.6l7.2 2.9v6.1c0 4.3-3 8.1-7.2 9.8-4.2-1.7-7.2-5.5-7.2-9.8V5.5L12 2.6z"/><path d="M8.8 12.1l2.2 2.2 4.2-4.4"/></svg>Seguridad</button>
           <button type="button" class="acc-tile" data-acc-go="legal"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r="1.1" fill="currentColor" stroke="none"/></svg>Legal</button>
         </div>
-        <h2 class="acc-h2">Sugerencias</h2>
-        <div class="acc-card">
+        <h2 class="acc-h2" data-acc-rider-suggestions>Sugerencias</h2>
+        <div class="acc-card" data-acc-rider-suggestions>
           <h3>Completa la revisión de tu cuenta</h3>
           <p>Revisa tus datos para que CruiseInRide funcione mejor y tu cuenta esté protegida.</p>
           <button type="button" class="acc-pill" data-acc-go="pinfo">Comenzar revisión</button>
+        </div>
+        <div data-acc-driver-options hidden>
+          <h2 class="acc-h2">Opciones Driver</h2>
+          <div class="acc-tiles">
+            <a class="acc-tile" href="store"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l1 13H5L6 8z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg>Tienda Driver</a>
+            <a class="acc-tile" href="connect/app/"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4"/></svg>Abrir o descargar la app Driver</a>
+          </div>
+          <div class="acc-card">
+            <h3>¿Quieres pedir un viaje?</h3>
+            <p>Necesitas una cuenta de pasajero. Al continuar, esta sesión Driver se cerrará y podrás registrarte o entrar como Rider.</p>
+            <button type="button" class="acc-pill" data-acc-switch-rider>Registrar como pasajero</button>
+          </div>
         </div>
       </section>
 
@@ -331,16 +343,21 @@
     if(!el) return;
     if(photo) el.innerHTML='<img src="'+photo+'" alt="">'; else el.textContent=(name||'C').charAt(0).toUpperCase();
   }
+  var _accIdentifier='';
   function paint(u){
     if(!u) return;
     var name=[u.first_name,u.last_name].filter(Boolean).join(' ').trim()||u.name||u.email||'—';
+    var role=(u.role||'').toLowerCase();
+    _accIdentifier=u.email||u.phone||'';
     $('[data-acc-name]').textContent=name;
     $('[data-acc-mail]').textContent=u.email||u.phone||'';
     var badge=$('[data-acc-role]');
     if(badge){
-      var role=(u.role||'').toLowerCase();
       if(role==='driver'||role==='rider'){badge.textContent=role.toUpperCase();badge.hidden=false;}
     }
+    var driverOptions=$('[data-acc-driver-options]');
+    if(driverOptions) driverOptions.hidden=role!=='driver';
+    document.querySelectorAll('[data-acc-rider-suggestions]').forEach(function(el){el.hidden=role==='driver';});
     var photo=safePhoto(localPhoto()||u.photo_url||u.avatar_url||u.photo);
     paintFace($('[data-acc-face]'),photo,name);
     /* si hay preview pendiente, no lo pisamos con la foto vieja del servidor */
@@ -353,6 +370,17 @@
   try{var cached=localStorage.getItem('vr_au');if(cached) paint(JSON.parse(cached));}catch(_){}
   api('/auth/web/me').then(function(d){paint(d);try{localStorage.setItem('vr_au',JSON.stringify(d));}catch(_){}})
     .catch(function(e){if(e.status===401||e.status===403){try{localStorage.removeItem('vr_at');}catch(_){}location.replace('auth');}});
+  var switchRider=$('[data-acc-switch-rider]');
+  if(switchRider) switchRider.addEventListener('click',function(){
+    function done(){
+      try{
+        sessionStorage.setItem('ca_switch_identifier',_accIdentifier);
+        localStorage.removeItem('vr_at');localStorage.removeItem('vr_au');localStorage.removeItem('vr_photo_local');
+      }catch(_){}
+      location.replace('auth?role=rider&register=rider');
+    }
+    api('/auth/web/logout',{method:'POST'}).catch(function(){}).then(done);
+  });
 
   /* foto de perfil: clic en el avatar (sube al instante) o en el boton de
      Datos personales (solo preview; la subida va con Guardar cambios) */

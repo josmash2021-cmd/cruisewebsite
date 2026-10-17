@@ -7497,8 +7497,39 @@ setTimeout(_vrPfKick,1200);
      real (la que firma el servidor), y el invitado no puede pagar porque el
      botón de solicitar exige sesión. Al iniciar sesión solo se repintan los
      textos y el cupón — el layout no se toca. */
+  function _vrUser(){
+    try{var u=JSON.parse(localStorage.getItem('vr_au')||'null');return u&&typeof u==='object'?u:{};}catch(_){return {};}
+  }
+  function _vrIsDriver(){return (_vrUser().role||'').toLowerCase()==='driver';}
   function _vrIsMember(){
-    try{return !!((typeof __vipAuthToken==='function'&&__vipAuthToken())||localStorage.getItem('vr_at'));}catch(_){return false;}
+    try{return !!((typeof __vipAuthToken==='function'&&__vipAuthToken())||localStorage.getItem('vr_at'))&&!_vrIsDriver();}catch(_){return false;}
+  }
+  function _vrDriverRideBlock(){
+    if(!_vrIsDriver()) return false;
+    var u=_vrUser();
+    showSearchAuthModal(
+      currentLang==='es'?'Regístrate como pasajero para poder hacer un viaje':'Register as a rider to request a ride',
+      currentLang==='es'?'Tu cuenta es Driver. Para reservar como pasajero, cambia o crea tu cuenta Rider.':'This is a Driver account. Switch to or create your Rider account to book as a passenger.'
+    );
+    var btn=_searchAuthModal.querySelector('[data-vipride-search-auth-continue]');
+    if(btn){
+      btn.textContent=currentLang==='es'?'Registrar como pasajero':'Register as a rider';
+      btn.onclick=function(){
+        var token=_vrLS.get('vr_at')||'';
+        function done(){
+          try{
+            sessionStorage.setItem('ca_switch_identifier',u.email||u.phone||'');
+            localStorage.removeItem('vr_at');localStorage.removeItem('vr_au');localStorage.removeItem('vr_photo_local');
+          }catch(_){}
+          var url=currentLang==='es'?'auth':'../en/auth';
+          location.href=url+'?role=rider&register=rider&return='+encodeURIComponent(location.pathname+location.search);
+        }
+        fetch('https://cruiseapp2-production.up.railway.app/auth/web/logout',{
+          method:'POST',headers:{Authorization:'Bearer '+token},keepalive:true
+        }).catch(function(){}).then(done);
+      };
+    }
+    return true;
   }
   function _vrShowCents(cents){
     cents=Number(cents)||0;
@@ -8926,6 +8957,7 @@ setTimeout(_vrPfKick,1200);
     var _payList=_payOverlay?_payOverlay.querySelector('.vipRide__payOverlay__list'):null;
     var _cardForm=document.querySelector('[data-vipride-cardform]');
     function _openPayOverlay(){
+      if(_vrDriverRideBlock()) return;
       if(!_payOverlay) return;
       _vrSheetHide('pay');
       if(_cardForm)_cardForm.setAttribute('hidden','');
@@ -9297,6 +9329,7 @@ setTimeout(_vrPfKick,1200);
     }
     try{window.__vrSendSchedDriverAssigned=_vrSendSchedDriverAssigned;window.__vrSendSchedEnRoute=_vrSendSchedEnRoute;}catch(_){}
     function _postBookingToCruise(paymentIntentId, onSuccess, onError){
+      if(_vrDriverRideBlock()) return;
       var d=_getRideData();
       if(!paymentIntentId&&_pendingPaymentIntentId){paymentIntentId=_pendingPaymentIntentId;_pendingPaymentIntentId=null;}
       var _piForError=paymentIntentId||null;
@@ -9689,6 +9722,7 @@ setTimeout(_vrPfKick,1200);
       _requestBtn.addEventListener('click', function(){
         if(_payBusy || _requestBtn.disabled) return;
         if(!selectedRide) return;
+        if(_vrDriverRideBlock()) return;
         var isAuthed=!!(typeof __vipAuthToken==='function'?__vipAuthToken():_vrLS.get('vr_at'));
         if(!isAuthed){
           _vrTrack('auth_required');
