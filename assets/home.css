@@ -616,6 +616,17 @@
   filter: drop-shadow(0 6px 24px rgba(0, 0, 0, .65));
 }
 
+.h-title__logo {
+  display: block;
+  width: clamp(260px, 43vw, 650px);
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 640px) {
+  .h-title__logo { margin-inline: auto; }
+}
+
 .h-divider {
   display: flex;
   align-items: center;
