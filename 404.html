@@ -20,6 +20,7 @@ esta página jamás corre. Va ANTES del redirect de idioma para ganar siempre. -
     document.addEventListener('DOMContentLoaded',function(){
       var card=document.querySelector('.nf-card');
       if(!card) return;
+      document.body.style.background='#141414';  // spec del dueño: fondo #141414
       document.title='Invitación de conductor — Cruise in Ride';
       card.innerHTML=
         '<div style="margin:0 auto 22px;display:flex;justify-content:center"><img src="/assets/media/hero-logo.png" alt="Cruise in Ride" style="width:min(280px,80%)"></div>'+
