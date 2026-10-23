@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<!-- /drive/{code} — link de invitación de drivers (2026-10-23): quien NO tiene
+la app cae aquí (GitHub Pages no tiene rutas dinámicas); va al backend, que
+decide: Play Store con el código en el install-referrer (Android) o página con
+el código copiable (iPhone). Con la app instalada el OS intercepta el link y
+esta página jamás corre. Va ANTES del redirect de idioma para ganar siempre. -->
+<script>
+(function(){
+  try{
+    var p=location.pathname;
+    if(/^\/drive\//.test(p)){
+      location.replace("https://cruiseapp2-production.up.railway.app"+p+location.search+location.hash);
+    }
+  }catch(_){}
+})();
+</script>
 <!-- idioma: en la primera visita se va a la version del navegador (sin eleccion manual guardada) -->
 <script>
 (function(){
