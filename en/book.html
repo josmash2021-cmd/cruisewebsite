@@ -5003,8 +5003,13 @@ window.__VR_AIRPORTS = [
           /* Sync 30% OFF chip visibility */
           var rDisc=rc.querySelector('[data-vipride-disc]');
           var cDisc=clone.querySelector('[data-vipride-disc]');
-          if(rDisc&&cDisc&&rDisc.hasAttribute('hidden')!==cDisc.hasAttribute('hidden')){
-            if(rDisc.hasAttribute('hidden'))cDisc.setAttribute('hidden','');else cDisc.removeAttribute('hidden');
+          if(rDisc&&cDisc){
+            if(rDisc.hasAttribute('hidden')!==cDisc.hasAttribute('hidden')){
+              if(rDisc.hasAttribute('hidden'))cDisc.setAttribute('hidden','');else cDisc.removeAttribute('hidden');
+            }
+            /* y su texto: la cotización gratis lo cambia a FREE RIDE/VIAJE GRATIS */
+            var rDt=rDisc.querySelector('span:last-child'),cDt=cDisc.querySelector('span:last-child');
+            if(rDt&&cDt&&cDt.textContent!==rDt.textContent)cDt.textContent=rDt.textContent;
           }
           /* Sync eta text */
           var rEta=rc.querySelector('[data-vipride-eta]');
@@ -7588,7 +7593,12 @@ setTimeout(_vrPfKick,1200);
      token firmado por nivel; al pagar se manda ese token y el servidor rechaza
      cualquier importe que no cuadre. Aquí se pide la cotización y, cuando
      llega, manda ella: el cliente ve exactamente lo que se le va a cobrar. */
-  var _VR_Q={key:'',tiers:null,pending:false};
+  var _VR_Q={key:'',tiers:null,pending:false,quote_id:null};
+  var _VR_Q_TIMER=null;   /* un solo reloj de refresco; siempre se limpia al rearmar */
+  function _vrQuoteInvalidate(){
+    _VR_Q.key='';_VR_Q.tiers=null;_VR_Q.quote_id=null;
+    if(_VR_Q_TIMER){clearTimeout(_VR_Q_TIMER);_VR_Q_TIMER=null;}
+  }
   var _VR_Q_API='https://cruise-api-proxy.cruise-api.workers.dev';
   var _VR_Q_KEY='5dd56c3389b34d950d6c8391754b7541a854b88263343495fae21c7f93e335ad';
   function _vrQuoteKey(){
@@ -7597,13 +7607,21 @@ setTimeout(_vrPfKick,1200);
     var p=pickupPlace,d=dropoffPlace;
     if(!p||!d)return '';
     return 'r|'+[p.lat,p.lng,d.lat,d.lng].map(function(n){return Number(n).toFixed(5);}).join(',')
-      +'|'+(window.__vrRouteDistM||0)+'|'+(routeDurationSec||0)+'|'+(window.__vrAptCode||'');
+      +'|'+(window.__vrRouteDistM||0)+'|'+(routeDurationSec||0)+'|'+(window.__vrAptCode||'')
+      +'|'+(_vrIsMember()?'m':'g');   /* la cotización firmada depende de la sesión (promo gratis/30%) */
   }
   function _vrQuoteFor(title){
     var k=_vrQuoteKey();
     if(!k||k!==_VR_Q.key||!_VR_Q.tiers)return null;
     return _VR_Q.tiers[String(title||'').trim().toUpperCase()]||null;
   }
+  /* el id de la cotización firmada puede venir en cada tier
+     (pricing_quote_id) o en la raíz de la respuesta (quote_id, guardado en
+     _VR_Q al recibirla) — se aceptan ambos */
+  function _vrQuoteId(q){return (q&&(q.quote_id||q.pricing_quote_id))||_VR_Q.quote_id||null;}
+  /* gratis SOLO si el servidor lo firma (is_free===true Y quote id del server):
+     un $0 calculado en local jamás se trata como viaje gratis */
+  function _vrQuoteIsFree(q){return !!(q&&q.is_free===true&&_vrQuoteId(q));}
   function _vrFetchQuote(){
     var key=_vrQuoteKey();
     if(!key||_VR_Q.pending)return;
@@ -7612,7 +7630,9 @@ setTimeout(_vrPfKick,1200);
       mode:currentMode==='hourly'?'hourly':'ride',
       hours:currentHours||0,
       is_airport:!!window.__vrAptActive,
-      airport_code:window.__vrAptCode||null
+      airport_code:window.__vrAptCode||null,
+      /* con sesión, el server aplica la promoción del rider (2 viajes gratis ≤5 mi / 30%) */
+      user_token:(typeof __vipAuthToken==='function'?__vipAuthToken():null)||_vrLS.get('vr_at')||null
     };
     if(body.mode==='ride'){
       body.pickup={lat:pickupPlace.lat,lng:pickupPlace.lng};
@@ -7630,7 +7650,21 @@ setTimeout(_vrPfKick,1200);
         if(!d||!d.tiers)return;
         /* la ruta pudo cambiar mientras respondía: solo vale si sigue siendo la misma */
         if(_vrQuoteKey()!==key)return;
-        _VR_Q.key=key;_VR_Q.tiers=d.tiers;
+        _VR_Q.key=key;_VR_Q.tiers=d.tiers;_VR_Q.quote_id=d.quote_id||null;
+        /* la quote firmada expira a los 10 min: se refresca a los 8 con UN solo
+           timer; al disparar se revalida que ni la ruta ni la sesión hayan
+           cambiado (llave distinta = alguien ya re-cotizó y re-armó). Invitados
+           y hourly no gastan refresco. */
+        if(_VR_Q_TIMER){clearTimeout(_VR_Q_TIMER);_VR_Q_TIMER=null;}
+        if(_vrIsMember()&&currentMode!=='hourly'){
+          _VR_Q_TIMER=setTimeout(function(){
+            _VR_Q_TIMER=null;
+            if(!_vrIsMember()||currentMode==='hourly')return;
+            if(!_VR_Q.key||_vrQuoteKey()!==_VR_Q.key)return;
+            _VR_Q.key='';_VR_Q.tiers=null;_VR_Q.quote_id=null;
+            _vrFetchQuote();
+          },480000);
+        }
         updateCardPrices(routeDurationSec);
       })
       .catch(function(e){
@@ -7641,13 +7675,17 @@ setTimeout(_vrPfKick,1200);
   try{window.__vrFetchQuote=_vrFetchQuote;}catch(_){}
 
   /* ── si el usuario inicia (o cierra) sesión, los precios cambian solos:
-        se repinta únicamente el texto del precio y el cupón 30% OFF, en esta
-        pestaña (login embebido) o al volver de auth (recarga/otra pestaña) ── */
+        se re-cotiza en el server (la promoción gratis/30% depende de la
+        sesión; la llave ya incluye m/g y la caché vieja queda invalidada) y
+        se repintan el precio y el cupón, en esta pestaña (login embebido) o
+        al volver de auth (recarga/otra pestaña) ── */
   var _vrMemberLast=_vrIsMember();
   function _vrMemberTick(){
     var m=_vrIsMember();
     if(m===_vrMemberLast)return;
+    if(_VR_Q.pending){setTimeout(_vrMemberTick,2000);return;}  /* drena la cotización en vuelo y reintenta */
     _vrMemberLast=m;
+    try{_vrFetchQuote();}catch(_){}
     try{updateCardPrices(routeDurationSec);}catch(_){}
   }
   setInterval(_vrMemberTick,1500);
@@ -7698,18 +7736,25 @@ setTimeout(_vrPfKick,1200);
         cents=_vrRideCents(title,sec||routeDurationSec||0,window.__vrRouteDistM||0);
         if(etaEl)etaEl.textContent=routeDurationSec?formatMinutes(routeDurationSec):'--';
       }
-      /* si el servidor ya cotizó esta ruta, su cifra manda (incluye recargo) */
-      var q=_vrQuoteFor(title);
+      /* si el servidor ya cotizó esta ruta, su cifra manda (incluye recargo);
+         gratis SOLO con cotización firmada (is_free + quote id del server) */
+      var q=_vrQuoteFor(title),qFree=_vrQuoteIsFree(q);
       if(q&&q.cents>0){cents=q.cents-surcharge;}
       /* el recargo se suma UNA vez sobre un precio recién calculado
          (antes se releía data-base-cents ya recargado y se acumulaba) */
-      var displayCents=cents>0?cents+surcharge:0,text=moneyUSD(_vrShowCents(displayCents)/100);
+      var displayCents=qFree?0:(cents>0?cents+surcharge:0),text=qFree?(currentLang==='es'?'GRATIS':'FREE'):moneyUSD(_vrShowCents(displayCents)/100);
       card.setAttribute('data-base-cents',String(displayCents));
       card.setAttribute('data-price',text);card.setAttribute('data-price-cents',String(displayCents));
-      var pe=card.querySelector('[data-vipride-card-price]');if(pe)pe.textContent=displayCents>0?text:'--';
-      /* cupón 30% OFF: solo miembros con precio ya calculado */
+      var pe=card.querySelector('[data-vipride-card-price]');if(pe)pe.textContent=(displayCents>0||qFree)?text:'--';
+      /* cupón: viaje gratis firmado = FREE RIDE/VIAJE GRATIS; el fallback de
+         >5 millas conserva el 30% OFF de miembros con precio ya calculado */
       var dc=card.querySelector('[data-vipride-disc]');
-      if(dc){var chipOn=displayCents>0&&_vrIsMember();if(dc.hasAttribute('hidden')===chipOn){if(chipOn)dc.removeAttribute('hidden');else dc.setAttribute('hidden','');}}
+      if(dc){
+        var chipOn=(qFree||displayCents>0)&&_vrIsMember();
+        var dcS=dc.querySelector('span:last-child');
+        if(dcS){var _dcTxt=qFree?(currentLang==='es'?'VIAJE GRATIS':'FREE RIDE'):'30% OFF';if(dcS.textContent!==_dcTxt)dcS.textContent=_dcTxt;}
+        if(dc.hasAttribute('hidden')===chipOn){if(chipOn)dc.removeAttribute('hidden');else dc.setAttribute('hidden','');}
+      }
       var pu=card.querySelector('[data-vipride-pickup-eta]'),pl=card.querySelector('.vipRide__ridePickupEtaLabel'),ar=card.querySelector('[data-vipride-arrival-time]'),ci=card.querySelector('.vipRide__clockIcon');
       var _puM=routeDurationSec?Math.max(1,Math.round(routeDurationSec/60)):0;
       if(pu)pu.textContent=_puM?(_puM<60?_puM:formatMinutes(routeDurationSec)):'--';
@@ -9219,10 +9264,11 @@ setTimeout(_vrPfKick,1200);
          mismo momento; lo que muestre el DOM es solo presentación */
       /* la cotización firmada del servidor manda sobre el cálculo local */
       var q=(typeof _vrQuoteFor==='function')?_vrQuoteFor(selectedRide.title):null;
-      var cents=(q&&q.cents>0)?q.cents:_vrFinalCents(selectedRide.title);
-      if(cents<=0)cents=Number(selectedRide.priceCents)||0;
-      if(cents<=0)cents=Math.round(Number(String(selectedRide.price||'').replace(/[^0-9.]/g,''))*100)||0;
-      return {cents:cents,vehicle:selectedRide.title||'Ride',quote_token:(q&&q.quote_token)||null,metadata:{trip_type:(selectedRide.title||'ride').toLowerCase(),pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',payment_method:_selectedPayment,date:dateEl?dateEl.value:'',time:timeEl?timeEl.value:''}};
+      var isFree=_vrQuoteIsFree(q);   /* el $0 solo vale con is_free + quote id del server */
+      var cents=isFree?0:((q&&q.cents>0)?q.cents:_vrFinalCents(selectedRide.title));
+      if(!isFree&&cents<=0)cents=Number(selectedRide.priceCents)||0;
+      if(!isFree&&cents<=0)cents=Math.round(Number(String(selectedRide.price||'').replace(/[^0-9.]/g,''))*100)||0;
+      return {cents:cents,is_free:isFree,quote_id:(q&&_vrQuoteId(q))||null,original_cents:(q&&q.original_cents)||null,vehicle:selectedRide.title||'Ride',quote_token:(q&&q.quote_token)||null,metadata:{trip_type:(selectedRide.title||'ride').toLowerCase(),pickup:pickupEl?pickupEl.value.trim():'',dropoff:dropoffEl?dropoffEl.value.trim():'',payment_method:_selectedPayment,date:dateEl?dateEl.value:'',time:timeEl?timeEl.value:''}};
     }
     var _payBusy=false;
     function _payWithNativeSheet(){
@@ -9356,7 +9402,7 @@ setTimeout(_vrPfKick,1200);
         body:JSON.stringify({
           pickup:{address:d.metadata.pickup,lat:pickupPlace?pickupPlace.lat:null,lng:pickupPlace?pickupPlace.lng:null},
           dropoff:{address:d.metadata.dropoff,lat:dropoffPlace?dropoffPlace.lat:null,lng:dropoffPlace?dropoffPlace.lng:null},
-          vehicle_type:d.vehicle,amount_cents:d.cents,currency:'usd',payment_method:_selectedPayment,quote_token:d.quote_token,hours:currentHours||0,
+          vehicle_type:d.vehicle,amount_cents:d.cents,currency:'usd',payment_method:_selectedPayment,quote_token:d.quote_token,quote_id:d.quote_id||null,hours:currentHours||0,
           scheduled_date:d.metadata.date||null,scheduled_time:d.metadata.time||null,
           scheduled_at:(window.__vrScheduleActive&&d.metadata.date&&d.metadata.time)?new Date(d.metadata.date+'T'+d.metadata.time).toISOString():null,
           is_airport:!!window.__vrAptActive,airport_code:window.__vrAptCode||null,terminal:window.__vrAptTerminal||null,
@@ -9377,6 +9423,10 @@ setTimeout(_vrPfKick,1200);
         if(ok && data && data.booking_id){
           _vrTrack('booking_created',{booking_id:data.booking_id});
           _vrCart.clear();
+          /* la quote usada queda consumida: se invalida y se pide una fresca
+             si la ruta sigue en pantalla (p. ej. el 2.º viaje gratis no puede
+             reutilizar el mismo quote_id) */
+          try{_vrQuoteInvalidate();if(_vrQuoteKey())_vrFetchQuote();}catch(_){}
           if(onSuccess) onSuccess(data);
         } else {
           var detail=(data&&(data.detail||data.error||data.message))||('HTTP '+resp.status);
@@ -9662,8 +9712,8 @@ setTimeout(_vrPfKick,1200);
           if(window.__vrScheduleActive){_showReserveOk(overlay);return;}
           try{_closeTestConfirm(overlay);}catch(_){}
           /* Only show "payment received but booking failed" overlay when there WAS a payment.
-             Test mode and cash flows have no PaymentIntent — show a simple toast instead. */
-          var _hadPayment=(e&&e.payment_intent_id)||(_selectedPayment!=='test_mode'&&_selectedPayment!=='cash');
+             Test mode, cash and free-quote flows have no PaymentIntent — show a simple toast instead. */
+          var _hadPayment=(e&&e.payment_intent_id)||(_selectedPayment!=='test_mode'&&_selectedPayment!=='cash'&&_selectedPayment!=='free');
           if(_hadPayment){
             try{_showBookingAfterPaymentError(e);}catch(_){_vrToast((e&&e.message)||'Booking error','err');}
           } else {
@@ -9744,10 +9794,20 @@ setTimeout(_vrPfKick,1200);
           _vrTrack('auth_required');
           showSearchAuthModal(
             currentLang==='es'?'Regístrate y obtén 2 viajes gratis':'Sign up and get 2 free rides',
-            currentLang==='es'?'Inicia sesión o regístrate en un momento: obtén 2 viajes gratis y confirmamos tu viaje':'Log in or sign up in a moment — get 2 free rides and we confirm your ride'
+            currentLang==='es'?'Inicia sesión o regístrate en un momento: obtén 2 viajes gratis de hasta 5 millas; los más largos tienen 30% menos.':'Log in or sign up in a moment — get 2 free rides up to 5 miles each; longer rides get 30% off.'
           );
           return;
         }
+        /* viaje gratis con cotización firmada: se omite por completo la
+           selección de pago/Stripe y entra al flujo de confirmación/creación;
+           sin quote válida, un $0 es error de precio y no se crea nada */
+        var _dSel=_getRideData();
+        if(_dSel.is_free&&_dSel.quote_id&&_dSel.cents===0){
+          _selectedPayment='free';
+          _vrTrack('request_ride_free',{vehicle:selectedRide.title});
+          _showTestConfirm();return;
+        }
+        if(_dSel.cents<=0){_vrToast(t('priceError'),'err');return;}
         if(!_selectedPayment){_openPayOverlay();return;}
         _vrTrack('request_ride_clicked',{vehicle:selectedRide.title,payment:_selectedPayment,amount_cents:selectedRide.priceCents});
         if(_selectedPayment==='cash'){doCheckout(_requestBtn);return;}
