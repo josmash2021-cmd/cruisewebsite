@@ -491,9 +491,9 @@
 })();
 
 /* ════════════════════════════════════════════════════════════════════
-   Popup de descuento primer viaje (30% OFF)
+   Popup de bienvenida: 2 viajes gratis de hasta 5 millas cada uno
    Solo en la página de inicio, una vez por sesión.
-   Al dar "Obtener 30% OFF" guarda el código promocional y redirige a registro.
+   Al aceptar guarda el correo y redirige a registro.
    ════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -509,19 +509,19 @@
   var EN = (document.documentElement.lang || 'es').toLowerCase().indexOf('en') === 0;
   var T = EN ? {
     pretitle: 'Get',
-    title: '30% OFF',
-    subtitle: 'your first ride',
-    text: 'Sign up and the discount will be applied automatically to your first booking.',
+    title: '2 FREE RIDES',
+    subtitle: 'up to 5 miles each',
+    text: 'Sign up and the offer will be applied automatically to your first two bookings.',
     email: 'Your email address',
-    cta: 'Get 30% OFF',
+    cta: 'Get 2 free rides',
     no: 'No, thanks'
   } : {
     pretitle: 'Obtén',
-    title: '30% OFF',
-    subtitle: 'en tu primer viaje',
-    text: 'Regístrate y aplica el descuento automáticamente en tu primera reserva.',
+    title: '2 VIAJES GRATIS',
+    subtitle: 'hasta 5 millas cada uno',
+    text: 'Regístrate y la promoción se aplicará automáticamente a tus dos primeras reservas.',
     email: 'Tu correo electrónico',
-    cta: 'Obtener 30% OFF',
+    cta: 'Obtener 2 viajes gratis',
     no: 'No, gracias'
   };
 
@@ -536,7 +536,7 @@
     + '.cir-promo__close:hover{color:#fff;}'
     + '.cir-promo__logo{height:88px;width:auto;margin:0 auto 24px;display:block;}'
     + '.cir-promo__pretitle{margin:0 0 2px;font:600 13px/1 Inter,system-ui,sans-serif;color:#999;text-transform:uppercase;letter-spacing:1.5px;}'
-    + '.cir-promo__title{margin:0;font:800 50px/1 Cinzel,Georgia,serif;color:#fff;letter-spacing:-1px;}'
+    + '.cir-promo__title{margin:0;font:800 42px/1 Cinzel,Georgia,serif;color:#fff;letter-spacing:-1px;}'
     + '.cir-promo__subtitle{margin:8px 0 0;font:700 16px/1 Inter,system-ui,sans-serif;color:#f5d77a;text-transform:uppercase;letter-spacing:.5px;}'
     + '.cir-promo__text{margin:18px 0 24px;font-size:14px;line-height:1.5;color:rgba(236,238,242,.75);}'
     + '.cir-promo__input{width:100%;padding:14px 16px;margin-bottom:16px;background:rgba(23,25,31,.85);border:none;border-radius:14px;color:#fff;font:500 14px/1 Inter,system-ui,sans-serif;outline:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);}'
@@ -545,7 +545,7 @@
     + '.cir-promo__cta:hover{filter:brightness(1.08);}'
     + '.cir-promo__no{display:block;width:100%;margin-top:16px;padding:8px;border:none;background:none;color:rgba(236,238,242,.55);font:500 13px/1 Inter,system-ui,sans-serif;cursor:pointer;transition:color .15s;}'
     + '.cir-promo__no:hover{color:#fff;}'
-    + '@media(max-width:480px){.cir-promo{max-width:320px;padding:34px 20px;border-radius:18px;}.cir-promo__title{font-size:32px;}.cir-promo__subtitle{font-size:13px;}.cir-promo__text{font-size:13px;margin:14px 0 18px;}.cir-promo__logo{height:56px;margin-bottom:16px;}.cir-promo__input{padding:12px 14px;margin-bottom:12px;font-size:13px;}.cir-promo__cta{padding:13px 16px;font-size:14px;}.cir-promo__pretitle{font-size:11px;}}';
+    + '@media(max-width:480px){.cir-promo{max-width:320px;padding:34px 20px;border-radius:18px;}.cir-promo__title{font-size:30px;}.cir-promo__subtitle{font-size:13px;}.cir-promo__text{font-size:13px;margin:14px 0 18px;}.cir-promo__logo{height:56px;margin-bottom:16px;}.cir-promo__input{padding:12px 14px;margin-bottom:12px;font-size:13px;}.cir-promo__cta{padding:13px 16px;font-size:14px;}.cir-promo__pretitle{font-size:11px;}}';
 
   var st = document.createElement('style');
   st.textContent = CSS;
