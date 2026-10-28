@@ -7772,23 +7772,24 @@ setTimeout(_vrPfKick,1200);
       var displayCents=qFree?0:(cents>0?cents+surcharge:0),text=qFree?(currentLang==='es'?'GRATIS':'FREE'):moneyUSD(_vrShowCents(displayCents)/100);
       card.setAttribute('data-base-cents',String(displayCents));
       card.setAttribute('data-price',text);card.setAttribute('data-price-cents',String(displayCents));
-      var pe=card.querySelector('[data-vipride-card-price]');if(pe)pe.textContent=(displayCents>0||qFree)?text:'--';
+      var pe=card.querySelector('[data-vipride-card-price]');if(pe)pe.textContent=qFree?'':(displayCents>0?text:'--');
       var before=card.querySelector('[data-vipride-card-before]');
       if(before){
         var originalCents=q&&Number(q.original_cents)>0?Number(q.original_cents):Math.round(displayCents/0.7);
+        if(!qFree&&originalCents<=displayCents)originalCents=Math.round(displayCents/0.7);
         var showBefore=!qFree&&_vrIsMember()&&displayCents>0&&originalCents>displayCents;
         var beforeText=moneyUSD(originalCents/100);
         before.textContent=showBefore?beforeText:'';
         before.setAttribute('aria-label',(currentLang==='es'?'Precio antes de registrarte: ':'Price before sign-up: ')+beforeText);
         if(before.hasAttribute('hidden')===showBefore){if(showBefore)before.removeAttribute('hidden');else before.setAttribute('hidden','');}
       }
-      /* cupón: viaje gratis firmado = FREE RIDE/VIAJE GRATIS; el fallback de
+      /* cupón: viaje gratis firmado = Free Ride Promotion; el fallback de
          >5 millas conserva el 30% OFF de miembros con precio ya calculado */
       var dc=card.querySelector('[data-vipride-disc]');
       if(dc){
         var chipOn=(qFree||displayCents>0)&&_vrIsMember();
         var dcS=dc.querySelector('span:last-child');
-        if(dcS){var _dcTxt=qFree?(currentLang==='es'?'VIAJE GRATIS':'FREE RIDE'):'30% OFF';if(dcS.textContent!==_dcTxt)dcS.textContent=_dcTxt;}
+        if(dcS){var _dcTxt=qFree?'Free Ride Promotion':'30% OFF';if(dcS.textContent!==_dcTxt)dcS.textContent=_dcTxt;}
         if(dc.hasAttribute('hidden')===chipOn){if(chipOn)dc.removeAttribute('hidden');else dc.setAttribute('hidden','');}
       }
       var pu=card.querySelector('[data-vipride-pickup-eta]'),pl=card.querySelector('.vipRide__ridePickupEtaLabel'),ar=card.querySelector('[data-vipride-arrival-time]'),ci=card.querySelector('.vipRide__clockIcon');
