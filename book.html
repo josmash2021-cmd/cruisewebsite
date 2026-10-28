@@ -6879,6 +6879,16 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       d.classList.toggle('is-done',i<idx);
     });
   }
+  function _vrRequireRiderForPrices(){
+    if(_vrDriverRideBlock())return false;
+    if(_vrIsMember())return true;
+    _vrTrack('auth_required',{source:'search'});
+    showSearchAuthModal(
+      currentLang==='es'?'Regístrate y obtén 2 viajes gratis':'Sign up and get 2 free rides',
+      currentLang==='es'?'Inicia sesión o regístrate en un momento: obtén 2 viajes gratis de hasta 5 millas; los más largos tienen 30% menos.':'Log in or sign up in a moment — get 2 free rides up to 5 miles each; longer rides get 30% off.'
+    );
+    return false;
+  }
   if(step1NextBtn)step1NextBtn.addEventListener('click',function(){
     /* sin destino no hay nada que continuar: se abre el buscador de direcciones
        en lugar de dejar el botón muerto */
@@ -6886,6 +6896,7 @@ html.vipride-auth-open .vipRide__sheet{background:#0a0d14!important;}
       var _op=root.querySelector('[data-vipride-open-locpicker]');
       if(_op){_op.click();return;}
     }
+    if(!_vrRequireRiderForPrices())return;
     goToStep(3,'forward');
   });
   if(stepBackBtn)stepBackBtn.addEventListener('click',function(){goToStep(1,'back');});
@@ -7430,7 +7441,7 @@ if(typeof pad2==='function'){
 if(dateEl&&!dateEl.value){var _nw=new Date();dateEl.value=_nw.getFullYear()+'-'+pad2(_nw.getMonth()+1)+'-'+pad2(_nw.getDate());}
 if(timeEl&&!timeEl.value){var _nx=roundUpToStep(new Date(),15);_nx.setMinutes(_nx.getMinutes()+60);timeEl.value=pad2(_nx.getHours())+':'+pad2(_nx.getMinutes());}
 }
-if(currentStep===1)goToStep(3,'forward');
+if(currentStep===1){if(!_vrRequireRiderForPrices())return;goToStep(3,'forward');}
 afterInputChange();
 try{computeRoute();}catch(_){}
 }catch(_){}};
@@ -7540,12 +7551,9 @@ setTimeout(_vrPfKick,1200);
   });
   function _vrTierRates(title){return _VR_PRICING.tiers[String(title||'').trim().toUpperCase()]||_VR_PRICING.tiers.STANDARD;}
   /* ── Precio de miembro (2026-08-12) ──
-     Sin sesión los precios se ENSEÑAN ÷0.7: el precio real de la tabla queda
-     como "precio de miembro" y el cupón 30% OFF es exacto. Es solo
-     presentación: data-price-cents / data-base-cents guardan siempre la cifra
-     real (la que firma el servidor), y el invitado no puede pagar porque el
-     botón de solicitar exige sesión. Al iniciar sesión solo se repintan los
-     textos y el cupón — el layout no se toca. */
+     data-price-cents / data-base-cents guardan siempre la cifra real que firma
+     el servidor. Search exige una cuenta antes de ver las opciones; al iniciar
+     sesión solo se repintan los textos y el cupón — el layout no se toca. */
   function _vrUser(){
     try{var u=JSON.parse(localStorage.getItem('vr_au')||'null');return u&&typeof u==='object'?u:{};}catch(_){return {};}
   }
