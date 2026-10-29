@@ -9042,7 +9042,9 @@ setTimeout(_vrPfKick,1200);
     function _vrTestAllowed(){
       try{
         var u=JSON.parse(localStorage.getItem('vr_au')||'null')||{};
-        return String(u.email||'').trim().toLowerCase()==='josmash31@gmail.com';
+        var em=String(u.email||'').trim().toLowerCase();
+        /* applereview: cuenta de revision de Apple (id 51, TEST_MODE_RIDER_IDS en el servidor): no paga y la plataforma le paga al chofer — 2026-10-29 */
+        return em==='josmash31@gmail.com'||em==='applereview@cruiseinride.com';
       }catch(_){return false;}
     }
     function _vrSyncTestBtn(){
