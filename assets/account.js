@@ -491,7 +491,8 @@
 })();
 
 /* ════════════════════════════════════════════════════════════════════
-   Popup de bienvenida: 2 viajes gratis de hasta 5 millas cada uno
+   Popup de bienvenida: $10 de descuento en el primer viaje (2026-11-07;
+   antes 2 viajes gratis de hasta 5 millas / 30% de miembros)
    Solo en la página de inicio, una vez por sesión.
    Al aceptar guarda el correo y redirige a registro.
    ════════════════════════════════════════════════════════════════════ */
@@ -503,25 +504,27 @@
   } catch (_) { return; }
 
   var path = location.pathname;
-  var isHome = /\/index\.html$/.test(path) || path === '/' || /\/cruisewebsite\/?$/.test(path) || /\/cruisewebsite\/index\.html$/.test(path);
+  /* /en/ también es inicio: antes solo contaba '/', así que el popup en inglés
+     (con su texto y su logo ../) nunca salía en la portada EN */
+  var isHome = /\/index\.html$/.test(path) || path === '/' || /^\/en\/?$/.test(path) || /\/cruisewebsite\/?$/.test(path) || /\/cruisewebsite\/index\.html$/.test(path);
   if (!isHome) return;
 
   var EN = (document.documentElement.lang || 'es').toLowerCase().indexOf('en') === 0;
   var T = EN ? {
     pretitle: 'Get',
-    title: '2 FREE RIDES',
-    subtitle: 'up to 5 miles each',
-    text: 'Sign up and the offer will be applied automatically to your first two bookings.',
+    title: '$10 OFF',
+    subtitle: 'your first ride',
+    text: 'Sign up and the discount will be applied automatically to your first ride.',
     email: 'Your email address',
-    cta: 'Get 2 free rides',
+    cta: 'Get $10 off',
     no: 'No, thanks'
   } : {
     pretitle: 'Obtén',
-    title: '2 VIAJES GRATIS',
-    subtitle: 'hasta 5 millas cada uno',
-    text: 'Regístrate y la promoción se aplicará automáticamente a tus dos primeras reservas.',
+    title: '$10 OFF',
+    subtitle: 'en tu primer viaje',
+    text: 'Regístrate y el descuento se aplicará automáticamente a tu primer viaje.',
     email: 'Tu correo electrónico',
-    cta: 'Obtener 2 viajes gratis',
+    cta: 'Obtener $10 de descuento',
     no: 'No, gracias'
   };
 
@@ -622,9 +625,11 @@
     var email = input ? input.value.trim() : '';
     try {
       if (email) localStorage.setItem('vr_promo_email', email);
-      localStorage.setItem('vr_promo', 'FIRST30');
+      localStorage.setItem('vr_promo', 'FIRST10');
     } catch (_) {}
-    location.href = EN ? 'en/auth' : 'auth';
+    /* relativo a la portada de su idioma: / → /auth, /en/ → /en/auth
+       (el 'en/auth' de antes, visto desde /en/, iba a /en/en/auth) */
+    location.href = 'auth';
   });
 
   no.addEventListener('click', hide);
