@@ -171,7 +171,7 @@
     var waFab = document.querySelector('.wa-fab');
     if (!waFab) return;
     var waEs = document.documentElement.lang !== 'en';
-    waFab.href = 'https://wa.me/16593052974?text=' + encodeURIComponent(waEs
+    waFab.href = 'https://wa.me/18019091813?text=' + encodeURIComponent(waEs
       ? 'Hola, quiero información sobre un traslado con CruiseInRide.'
       : 'Hi, I would like information about a ride with CruiseInRide.');
   };
@@ -1138,7 +1138,7 @@
            'Email: ' + d.get('email'),
            'Subject: ' + d.get('subject'), '',
            d.get('message')];
-      window.open('https://wa.me/16593052974?text=' +
+      window.open('https://wa.me/18019091813?text=' +
         encodeURIComponent(lines.join('\n')), '_blank', 'noopener');
     });
   }

@@ -56,7 +56,7 @@
 
   var EN = (document.documentElement.lang || 'es').toLowerCase().indexOf('en') === 0;
   var BASE = EN ? '../en/' : '';
-  var WA = 'https://wa.me/16593052974';
+  var WA = 'https://wa.me/18019091813';
 
   var T = EN ? {
     help: 'Help', wallet: 'Wallet', activity: 'Activity',

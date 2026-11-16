@@ -65,7 +65,7 @@
 | EmailJS `service_mhj1mcp` | templates `template_vip_menu`, `template_yo0y14n` (legacy) | emails |
 | Supabase `elvszwazwvpgqvnzxwnq` + anon key | ~L9214 | VIP menu reservations |
 | Vercel `rides-vip-menu.vercel.app` | ~L9210 | VIP menu link |
-| WhatsApp `wa.me/16593052974` | FAB + legacy | contacto |
+| WhatsApp `wa.me/18019091813` | FAB + legacy | contacto |
 
 **Estado:** localStorage `vr_at`/`vr_au`/`vr_active_booking`/`vr_guest_info`/`vr_sid`/`cir_lang`; sessionStorage `vr_book_state` (TTL 6 h, ligado a `location.search`). Globales entre scripts vía `window.__vr*` con patrón "registrar si no existe".
 
